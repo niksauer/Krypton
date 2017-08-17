@@ -13,6 +13,13 @@
 		2400D0831F40715900833958 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2400D0811F40715900833958 /* Main.storyboard */; };
 		2400D0851F40715900833958 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2400D0841F40715900833958 /* Assets.xcassets */; };
 		2400D0881F40715900833958 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2400D0861F40715900833958 /* LaunchScreen.storyboard */; };
+		2400D0901F40720500833958 /* KrakenAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D08F1F40720500833958 /* KrakenAPI.swift */; };
+		2400D0921F40D6E700833958 /* TickerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0911F40D6E700833958 /* TickerStore.swift */; };
+		2400D0941F40D90900833958 /* TickerPrice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0931F40D90900833958 /* TickerPrice.swift */; };
+		2400D0961F424B5600833958 /* EtherscanAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0951F424B5600833958 /* EtherscanAPI.swift */; };
+		2400D0981F42508100833958 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0971F42508100833958 /* Transaction.swift */; };
+		2400D09A1F42511800833958 /* WalletStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0991F42511800833958 /* WalletStore.swift */; };
+		246874F61F464B4E009BB60A /* Krypton.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 246874F41F464B4E009BB60A /* Krypton.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +31,13 @@
 		2400D0841F40715900833958 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2400D0871F40715900833958 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2400D0891F40715900833958 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2400D08F1F40720500833958 /* KrakenAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KrakenAPI.swift; sourceTree = "<group>"; };
+		2400D0911F40D6E700833958 /* TickerStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TickerStore.swift; sourceTree = "<group>"; };
+		2400D0931F40D90900833958 /* TickerPrice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TickerPrice.swift; sourceTree = "<group>"; };
+		2400D0951F424B5600833958 /* EtherscanAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EtherscanAPI.swift; sourceTree = "<group>"; };
+		2400D0971F42508100833958 /* Transaction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
+		2400D0991F42511800833958 /* WalletStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletStore.swift; sourceTree = "<group>"; };
+		246874F51F464B4E009BB60A /* Krypton.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Krypton.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,12 +73,35 @@
 				2400D07B1F40715900833958 /* AppDelegate.swift */,
 				2400D07D1F40715900833958 /* FirstViewController.swift */,
 				2400D07F1F40715900833958 /* SecondViewController.swift */,
-				2400D0811F40715900833958 /* Main.storyboard */,
+				2400D09B1F42513600833958 /* Kraken */,
+				2400D09C1F42514000833958 /* Etherscan */,
 				2400D0841F40715900833958 /* Assets.xcassets */,
+				246874F41F464B4E009BB60A /* Krypton.xcdatamodeld */,
+				2400D0811F40715900833958 /* Main.storyboard */,
 				2400D0861F40715900833958 /* LaunchScreen.storyboard */,
 				2400D0891F40715900833958 /* Info.plist */,
 			);
 			path = Krypton;
+			sourceTree = "<group>";
+		};
+		2400D09B1F42513600833958 /* Kraken */ = {
+			isa = PBXGroup;
+			children = (
+				2400D08F1F40720500833958 /* KrakenAPI.swift */,
+				2400D0911F40D6E700833958 /* TickerStore.swift */,
+				2400D0931F40D90900833958 /* TickerPrice.swift */,
+			);
+			name = Kraken;
+			sourceTree = "<group>";
+		};
+		2400D09C1F42514000833958 /* Etherscan */ = {
+			isa = PBXGroup;
+			children = (
+				2400D0951F424B5600833958 /* EtherscanAPI.swift */,
+				2400D0991F42511800833958 /* WalletStore.swift */,
+				2400D0971F42508100833958 /* Transaction.swift */,
+			);
+			name = Etherscan;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -140,9 +177,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2400D0961F424B5600833958 /* EtherscanAPI.swift in Sources */,
+				2400D0901F40720500833958 /* KrakenAPI.swift in Sources */,
+				2400D0981F42508100833958 /* Transaction.swift in Sources */,
+				2400D09A1F42511800833958 /* WalletStore.swift in Sources */,
+				2400D0921F40D6E700833958 /* TickerStore.swift in Sources */,
+				246874F61F464B4E009BB60A /* Krypton.xcdatamodeld in Sources */,
 				2400D0801F40715900833958 /* SecondViewController.swift in Sources */,
 				2400D07C1F40715900833958 /* AppDelegate.swift in Sources */,
 				2400D07E1F40715900833958 /* FirstViewController.swift in Sources */,
+				2400D0941F40D90900833958 /* TickerPrice.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -308,8 +352,22 @@
 				2400D08E1F40715900833958 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		246874F41F464B4E009BB60A /* Krypton.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				246874F51F464B4E009BB60A /* Krypton.xcdatamodel */,
+			);
+			currentVersion = 246874F51F464B4E009BB60A /* Krypton.xcdatamodel */;
+			path = Krypton.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 2400D0701F40715900833958 /* Project object */;
 }
