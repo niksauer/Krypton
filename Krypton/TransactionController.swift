@@ -1,5 +1,5 @@
 //
-//  SecondViewController.swift
+//  TransactionController.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 13.08.17.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class SecondViewController: UIViewController {
+class TransactionController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -19,7 +19,6 @@ class SecondViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
 
 }
 

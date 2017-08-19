@@ -96,7 +96,7 @@ struct KrakenAPI {
         do {
             let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
             
-            guard let jsonDictionary = jsonObject as? [AnyHashable: Any], let result = jsonDictionary["result"] as? [String: Any], let tickerData = result["XETHZEUR"] as? [String: Any], let lastClosedArray = tickerData["c"] as? [String], let lastClosedValue = Double(lastClosedArray[0])  else {
+            guard let jsonDictionary = jsonObject as? [AnyHashable: Any], let result = jsonDictionary["result"] as? [String: Any], let resultName = resultForCurrencyPair[currencyPair.rawValue], let tickerData = result[resultName] as? [String: Any], let lastClosedArray = tickerData["c"] as? [String], let lastClosedValue = Double(lastClosedArray[0])  else {
                 return .failure(KrakenError.invalidJSONData)
             }
             

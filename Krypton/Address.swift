@@ -9,6 +9,11 @@
 import Foundation
 import CoreData
 
+enum CryptoUnit: String {
+    case ETH
+    case BTC
+}
+
 class Address: NSManagedObject {
 
 }

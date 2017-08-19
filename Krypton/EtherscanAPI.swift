@@ -71,7 +71,7 @@ struct EtherscanAPI {
         return components.url!
     }
     
-    private static func transaction(for address: String, type: TransactionHistoryType, fromJSON json: [String: Any]) -> Transaction? {
+    private static func transaction(type: TransactionHistoryType, fromJSON json: [String: Any]) -> Transaction? {
         guard let timeString = json["timeStamp"] as? String, let time = Double(timeString), let weiString = json["value"] as? String, let fromString = json["from"] as? String, let toString = json["to"] as? String, let isErrorString = json["isError"] as? String else {
             return nil
         }
@@ -88,10 +88,6 @@ struct EtherscanAPI {
         transaction.from = fromString
         transaction.to = toString
         transaction.type = type.rawValue
-        
-        let owningAddress = Address(context: transaction.managedObjectContext!)
-        owningAddress.address = address
-        transaction.address = owningAddress
         
         return transaction
     }
@@ -110,7 +106,7 @@ struct EtherscanAPI {
     }
     
     // MARK: - Public Methods
-    static func transactionHistory(for address: String, type: TransactionHistoryType, fromJSON data: Data) -> TransactionHistoryResult {
+    static func transactionHistory(type: TransactionHistoryType, fromJSON data: Data) -> TransactionHistoryResult {
         do {
             let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
             
@@ -121,7 +117,7 @@ struct EtherscanAPI {
             var transactionHistory = [Transaction]()
             
             for transactionJSON in transactionsArray {
-                if let transaction = transaction(for: address, type: type, fromJSON: transactionJSON) {
+                if let transaction = transaction(type: type, fromJSON: transactionJSON) {
                     transactionHistory.append(transaction)
                 }
             }

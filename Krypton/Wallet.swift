@@ -10,29 +10,67 @@ import Foundation
 import CoreData
 
 class Wallet {
-    var addresses = [NSManagedObject]()
+    var addresses = [Address]()
     
-    let address = "0xAA2F9BFAA9Ec168847216357b0856d776F34881f"
+//    "0xAA2F9BFAA9Ec168847216357b0856d776F34881f"
     
     init() {
-        TickerConnector.fetchCurrentPrice(as: .ETHEUR, completion: { (currentPriceResult) in
-            print(currentPriceResult)
-        })
+//        TickerConnector.fetchCurrentPrice(as: .ETHUSD, completion: { (currentPriceResult) in
+//            print(currentPriceResult)
+//        })
 //
-//        TickerConnector.fetchPriceHistory(for: .ETHEUR, completion: { (priceHistoryResult) in
+//        TickerConnector.fetchPriceHistory(as: .ETHUSD, completion: { (priceHistoryResult) in
 //            print(priceHistoryResult)
 //        })
-//
-//        EtherConnector.fetchTransactionHistory(for: address, type: .normal, completion: { (transactionHistoryResult) in
-//            print(transactionHistoryResult)
-//        })
-//        
-//        EtherConnector.fetchTransactionHistory(for: address, type: .contract, completion: { (transactionHistoryResult) in
-//            print(transactionHistoryResult)
-//        })
+    }
+    
+    func addAddress(_ address: Address) {
+//        addresses.append(address)
+//        saveWallet()
+    
+        EtherConnector.fetchBalance(for: address, completion: { (result) in
+            switch result {
+            case let .success(balance):
+                address.balance = balance
+//                self.saveWallet()
+            case let .failure(error):
+                print(error)
+            }
+        })
         
-//        EtherConnector.fetchBalance(for: address, completion: { (balanceResult) in
-//            print(balanceResult)
-//        })
+        EtherConnector.fetchTransactionHistory(for: address, type: .normal, completion: { (result) in
+            switch result {
+            case let .success(transactions):
+                address.addToTransactions(NSSet(array: transactions))
+//                self.saveWallet()
+            case let .failure(error):
+                print(error)
+            }
+        })
+
+        EtherConnector.fetchTransactionHistory(for: address, type: .contract, completion: { (result) in
+            switch result {
+            case let .success(transactions):
+                address.addToTransactions(NSSet(array: transactions))
+//                self.saveWallet()
+            case let .failure(error):
+                print(error)
+            }
+        })
+    }
+    
+    func deleteAddress(_ address: Address) {
+        let context = AppDelegate.viewContext
+        context.delete(address)
+    }
+    
+    func saveWallet() {
+        do {
+            let context = AppDelegate.viewContext
+            try context.save()
+            print("Saved changes to CoreData.")
+        } catch {
+            print(error)
+        }
     }
 }

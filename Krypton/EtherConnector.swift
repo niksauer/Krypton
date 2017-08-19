@@ -16,12 +16,12 @@ struct EtherConnector {
     }()
     
     // MARK: - Private Methods
-    private static func processTransactionHistoryRequest(for address: String, type: TransactionHistoryType, data: Data?, error: Error?) -> TransactionHistoryResult {
+    private static func processTransactionHistoryRequest(type: TransactionHistoryType, data: Data?, error: Error?) -> TransactionHistoryResult {
         guard let jsonData = data else {
             return .failure(error!)
         }
         
-        return EtherscanAPI.transactionHistory(for: address, type: type, fromJSON: jsonData)
+        return EtherscanAPI.transactionHistory(type: type, fromJSON: jsonData)
     }
     
     private static func processBalanceRequest(data: Data?, error: Error?) -> BalanceResult {
@@ -33,12 +33,12 @@ struct EtherConnector {
     }
     
     // MARK: - Public Methods
-    static func fetchTransactionHistory(for address: String, type: TransactionHistoryType, completion: @escaping (TransactionHistoryResult) -> Void) {
-        let url = EtherscanAPI.transactionHistoryURL(for: address, type: type)
+    static func fetchTransactionHistory(for address: Address, type: TransactionHistoryType, completion: @escaping (TransactionHistoryResult) -> Void) {
+        let url = EtherscanAPI.transactionHistoryURL(for: address.address!, type: type)
         let request = URLRequest(url: url)
         
         let task = session.dataTask(with: request) { (data, response, error) -> Void in
-            let result = self.processTransactionHistoryRequest(for: address, type: type, data: data, error: error)
+            let result = self.processTransactionHistoryRequest(type: type, data: data, error: error)
             
             OperationQueue.main.addOperation {
                 completion(result)
@@ -48,8 +48,8 @@ struct EtherConnector {
         task.resume()
     }
     
-    static func fetchBalance(for address: String, completion: @escaping (BalanceResult) -> Void) {
-        let url = EtherscanAPI.balanceURL(for: address)
+    static func fetchBalance(for address: Address, completion: @escaping (BalanceResult) -> Void) {
+        let url = EtherscanAPI.balanceURL(for: address.address!)
         let request = URLRequest(url: url)
         
         let task = session.dataTask(with: request) { (data, response, error) -> Void in
