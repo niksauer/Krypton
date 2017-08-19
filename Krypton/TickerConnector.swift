@@ -1,5 +1,5 @@
 //
-//  PriceStore.swift
+//  TickerConnector.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 13.08.17.
@@ -7,16 +7,17 @@
 //
 
 import Foundation
+import CoreData
 
-class TickerStore {
+struct TickerConnector {
     // MARK: - Private Properties
-    private let session: URLSession = {
+    private static let session: URLSession = {
         let config = URLSessionConfiguration.default
         return URLSession(configuration: config)
     }()
     
     // MARK: - Private Methods
-    private func processPriceHistoryRequest(data: Data?, error: Error?) -> PriceHistoryResult {
+    private static func processPriceHistoryRequest(data: Data?, error: Error?) -> PriceHistoryResult {
         guard let jsonData = data else {
             return .failure(error!)
         }
@@ -24,7 +25,7 @@ class TickerStore {
         return KrakenAPI.priceHistory(fromJSON: jsonData)
     }
     
-    private func processCurrentPriceRequest(data: Data?, error: Error?) -> CurrentPriceResult {
+    private static func processCurrentPriceRequest(data: Data?, error: Error?) -> CurrentPriceResult {
         guard let jsonData = data else {
             return .failure(error!)
         }
@@ -33,7 +34,7 @@ class TickerStore {
     }
     
     // MARK: - Public Methods
-    func fetchPriceHistory(completion: @escaping (PriceHistoryResult) -> Void) {
+    static func fetchPriceHistory(completion: @escaping (PriceHistoryResult) -> Void) {
         let url = KrakenAPI.priceHistoryURL
         let request = URLRequest(url: url)
         
@@ -48,7 +49,7 @@ class TickerStore {
         task.resume()
     }
     
-    func fetchCurrentPrice(completion: @escaping (CurrentPriceResult) -> Void) {
+    static func fetchCurrentPrice(completion: @escaping (CurrentPriceResult) -> Void) {
         let url = KrakenAPI.currentPriceURL
         let request = URLRequest(url: url)
         

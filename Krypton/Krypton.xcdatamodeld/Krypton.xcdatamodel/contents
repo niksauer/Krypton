@@ -1,4 +1,35 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="12141" systemVersion="16G29" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
-    <elements/>
+    <entity name="Address" representedClassName=".Address" syncable="YES" codeGenerationType="category">
+        <attribute name="address" attributeType="String" syncable="YES"/>
+        <attribute name="balance" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <relationship name="tickerPair" maxCount="1" deletionRule="Nullify" destinationEntity="TickerPair" inverseName="addresses" inverseEntity="TickerPair" syncable="YES"/>
+        <relationship name="transactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Transaction" inverseName="address" inverseEntity="Transaction" syncable="YES"/>
+    </entity>
+    <entity name="TickerPair" representedClassName=".TickerPair" syncable="YES" codeGenerationType="category">
+        <attribute name="currencyPair" attributeType="String" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="addresses" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Address" inverseName="tickerPair" inverseEntity="Address" syncable="YES"/>
+        <relationship name="prices" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TickerPrice" inverseName="pair" inverseEntity="TickerPrice" syncable="YES"/>
+    </entity>
+    <entity name="TickerPrice" representedClassName=".TickerPrice" syncable="YES" codeGenerationType="category">
+        <attribute name="date" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="value" attributeType="Double" usesScalarValueType="YES" syncable="YES"/>
+        <relationship name="pair" maxCount="1" deletionRule="Nullify" destinationEntity="TickerPair" inverseName="prices" inverseEntity="TickerPair" syncable="YES"/>
+    </entity>
+    <entity name="Transaction" representedClassName=".Transaction" syncable="YES" codeGenerationType="category">
+        <attribute name="date" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="exchangeValue" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="from" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="normal" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="to" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="value" attributeType="Double" usesScalarValueType="YES" syncable="YES"/>
+        <relationship name="address" maxCount="1" deletionRule="Nullify" destinationEntity="Address" inverseName="transactions" inverseEntity="Address" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="TickerPrice" positionX="72" positionY="-16" width="128" height="88"/>
+        <element name="Transaction" positionX="70" positionY="-277" width="128" height="148"/>
+        <element name="Address" positionX="-146" positionY="-234" width="128" height="103"/>
+        <element name="TickerPair" positionX="-144" positionY="-18" width="128" height="103"/>
+    </elements>
 </model>

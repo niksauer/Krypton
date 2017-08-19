@@ -14,11 +14,14 @@
 		2400D0851F40715900833958 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2400D0841F40715900833958 /* Assets.xcassets */; };
 		2400D0881F40715900833958 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2400D0861F40715900833958 /* LaunchScreen.storyboard */; };
 		2400D0901F40720500833958 /* KrakenAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D08F1F40720500833958 /* KrakenAPI.swift */; };
-		2400D0921F40D6E700833958 /* TickerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0911F40D6E700833958 /* TickerStore.swift */; };
+		2400D0921F40D6E700833958 /* TickerConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0911F40D6E700833958 /* TickerConnector.swift */; };
 		2400D0941F40D90900833958 /* TickerPrice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0931F40D90900833958 /* TickerPrice.swift */; };
 		2400D0961F424B5600833958 /* EtherscanAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0951F424B5600833958 /* EtherscanAPI.swift */; };
 		2400D0981F42508100833958 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0971F42508100833958 /* Transaction.swift */; };
-		2400D09A1F42511800833958 /* WalletStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0991F42511800833958 /* WalletStore.swift */; };
+		2400D09A1F42511800833958 /* EtherConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0991F42511800833958 /* EtherConnector.swift */; };
+		240C63B11F47A88300728B8B /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240C63B01F47A88300728B8B /* Wallet.swift */; };
+		240C63B31F47A88E00728B8B /* Address.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240C63B21F47A88E00728B8B /* Address.swift */; };
+		240C63B51F47A89B00728B8B /* TickerPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240C63B41F47A89B00728B8B /* TickerPair.swift */; };
 		246874F61F464B4E009BB60A /* Krypton.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 246874F41F464B4E009BB60A /* Krypton.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
@@ -32,11 +35,14 @@
 		2400D0871F40715900833958 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2400D0891F40715900833958 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2400D08F1F40720500833958 /* KrakenAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KrakenAPI.swift; sourceTree = "<group>"; };
-		2400D0911F40D6E700833958 /* TickerStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TickerStore.swift; sourceTree = "<group>"; };
+		2400D0911F40D6E700833958 /* TickerConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TickerConnector.swift; sourceTree = "<group>"; };
 		2400D0931F40D90900833958 /* TickerPrice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TickerPrice.swift; sourceTree = "<group>"; };
 		2400D0951F424B5600833958 /* EtherscanAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EtherscanAPI.swift; sourceTree = "<group>"; };
 		2400D0971F42508100833958 /* Transaction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
-		2400D0991F42511800833958 /* WalletStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletStore.swift; sourceTree = "<group>"; };
+		2400D0991F42511800833958 /* EtherConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EtherConnector.swift; sourceTree = "<group>"; };
+		240C63B01F47A88300728B8B /* Wallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Wallet.swift; sourceTree = "<group>"; };
+		240C63B21F47A88E00728B8B /* Address.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Address.swift; sourceTree = "<group>"; };
+		240C63B41F47A89B00728B8B /* TickerPair.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TickerPair.swift; sourceTree = "<group>"; };
 		246874F51F464B4E009BB60A /* Krypton.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Krypton.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -75,6 +81,8 @@
 				2400D07F1F40715900833958 /* SecondViewController.swift */,
 				2400D09B1F42513600833958 /* Kraken */,
 				2400D09C1F42514000833958 /* Etherscan */,
+				240C63B01F47A88300728B8B /* Wallet.swift */,
+				240C63B61F47A8A800728B8B /* EntitiesMO */,
 				2400D0841F40715900833958 /* Assets.xcassets */,
 				246874F41F464B4E009BB60A /* Krypton.xcdatamodeld */,
 				2400D0811F40715900833958 /* Main.storyboard */,
@@ -88,8 +96,7 @@
 			isa = PBXGroup;
 			children = (
 				2400D08F1F40720500833958 /* KrakenAPI.swift */,
-				2400D0911F40D6E700833958 /* TickerStore.swift */,
-				2400D0931F40D90900833958 /* TickerPrice.swift */,
+				2400D0911F40D6E700833958 /* TickerConnector.swift */,
 			);
 			name = Kraken;
 			sourceTree = "<group>";
@@ -98,10 +105,20 @@
 			isa = PBXGroup;
 			children = (
 				2400D0951F424B5600833958 /* EtherscanAPI.swift */,
-				2400D0991F42511800833958 /* WalletStore.swift */,
-				2400D0971F42508100833958 /* Transaction.swift */,
+				2400D0991F42511800833958 /* EtherConnector.swift */,
 			);
 			name = Etherscan;
+			sourceTree = "<group>";
+		};
+		240C63B61F47A8A800728B8B /* EntitiesMO */ = {
+			isa = PBXGroup;
+			children = (
+				240C63B21F47A88E00728B8B /* Address.swift */,
+				2400D0971F42508100833958 /* Transaction.swift */,
+				240C63B41F47A89B00728B8B /* TickerPair.swift */,
+				2400D0931F40D90900833958 /* TickerPrice.swift */,
+			);
+			name = EntitiesMO;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -180,8 +197,11 @@
 				2400D0961F424B5600833958 /* EtherscanAPI.swift in Sources */,
 				2400D0901F40720500833958 /* KrakenAPI.swift in Sources */,
 				2400D0981F42508100833958 /* Transaction.swift in Sources */,
-				2400D09A1F42511800833958 /* WalletStore.swift in Sources */,
-				2400D0921F40D6E700833958 /* TickerStore.swift in Sources */,
+				240C63B11F47A88300728B8B /* Wallet.swift in Sources */,
+				240C63B51F47A89B00728B8B /* TickerPair.swift in Sources */,
+				2400D09A1F42511800833958 /* EtherConnector.swift in Sources */,
+				2400D0921F40D6E700833958 /* TickerConnector.swift in Sources */,
+				240C63B31F47A88E00728B8B /* Address.swift in Sources */,
 				246874F61F464B4E009BB60A /* Krypton.xcdatamodeld in Sources */,
 				2400D0801F40715900833958 /* SecondViewController.swift in Sources */,
 				2400D07C1F40715900833958 /* AppDelegate.swift in Sources */,

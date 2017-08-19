@@ -71,7 +71,7 @@ struct EtherscanAPI {
         return components.url!
     }
     
-    private static func transaction(fromJSON json: [String: Any]) -> Transaction? {
+    private static func transaction(for address: String, fromJSON json: [String: Any]) -> Transaction? {
         guard let timeString = json["timeStamp"] as? String, let time = Double(timeString), let weiString = json["value"] as? String, let fromString = json["from"] as? String, let toString = json["to"] as? String, let isErrorString = json["isError"] as? String else {
             return nil
         }
@@ -80,7 +80,19 @@ struct EtherscanAPI {
             return nil
         }
         
-        return Transaction(date: Date(timeIntervalSince1970: time), value: value, from: fromString, to: toString)
+        let context = AppDelegate.viewContext
+        
+        let transaction = Transaction(context: context)
+        transaction.date = NSDate(timeIntervalSince1970: time)
+        transaction.value = value
+        transaction.from = fromString
+        transaction.to = toString
+        
+        let owningAddress = Address(context: transaction.managedObjectContext!)
+        owningAddress.address = address
+        transaction.address = owningAddress
+        
+        return transaction
     }
     
     private static func ether(from weiString: String) -> Double? {
@@ -97,7 +109,7 @@ struct EtherscanAPI {
     }
     
     // MARK: - Public Methods
-    static func transactionHistory(fromJSON data: Data) -> TransactionHistoryResult {
+    static func transactionHistory(for address: String, fromJSON data: Data) -> TransactionHistoryResult {
         do {
             let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
             
@@ -108,7 +120,7 @@ struct EtherscanAPI {
             var transactionHistory = [Transaction]()
             
             for transactionJSON in transactionsArray {
-                if let transaction = transaction(fromJSON: transactionJSON) {
+                if let transaction = transaction(for: address, fromJSON: transactionJSON) {
                     transactionHistory.append(transaction)
                 }
             }

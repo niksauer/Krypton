@@ -59,7 +59,13 @@ struct KrakenAPI {
             
             for priceJSON in pricesArray {
                 if let time = priceJSON[0] as? Double, let valueString = priceJSON[4] as? String, let value = Double(valueString) {
-                    let price = TickerPrice(date: Date(timeIntervalSince1970: time), value: value)
+//                    let price = TickerPrice(date: Date(timeIntervalSince1970: time), value: value)
+                    
+                    let context = AppDelegate.viewContext
+                    let price = TickerPrice(context: context)
+                    price.date = NSDate(timeIntervalSince1970: time)
+                    price.value = value
+                    
                     priceHistory.append(price)
                 }
             }
@@ -82,7 +88,11 @@ struct KrakenAPI {
                 return .failure(KrakenError.invalidJSONData)
             }
             
-            let currentPrice = TickerPrice(date: Date(), value: lastClosedValue)
+//            let currentPrice = TickerPrice(date: Date(), value: lastClosedValue)
+            let context = AppDelegate.viewContext
+            let currentPrice = TickerPrice(context: context)
+            currentPrice.date = NSDate()
+            currentPrice.value = lastClosedValue
             
             return .success(currentPrice)
         } catch let error {

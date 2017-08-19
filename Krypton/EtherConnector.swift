@@ -1,5 +1,5 @@
 //
-//  PriceStore.swift
+//  EtherConnector.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 13.08.17.
@@ -8,23 +8,23 @@
 
 import Foundation
 
-class WalletStore {
+struct EtherConnector {
     // MARK: - Private Properties
-    private let session: URLSession = {
+    private static let session: URLSession = {
         let config = URLSessionConfiguration.default
         return URLSession(configuration: config)
     }()
     
     // MARK: - Private Methods
-    private func processTransactionHistoryRequest(data: Data?, error: Error?) -> TransactionHistoryResult {
+    private static func processTransactionHistoryRequest(for address: String, data: Data?, error: Error?) -> TransactionHistoryResult {
         guard let jsonData = data else {
             return .failure(error!)
         }
         
-        return EtherscanAPI.transactionHistory(fromJSON: jsonData)
+        return EtherscanAPI.transactionHistory(for: address, fromJSON: jsonData)
     }
     
-    private func processBalanceRequest(data: Data?, error: Error?) -> BalanceResult {
+    private static func processBalanceRequest(data: Data?, error: Error?) -> BalanceResult {
         guard let jsonData = data else {
             return .failure(error!)
         }
@@ -33,7 +33,7 @@ class WalletStore {
     }
     
     // MARK: - Public Methods
-    func fetchTransactionHistory(for address: String, type: TransactionHistoryType, completion: @escaping (TransactionHistoryResult) -> Void) {
+    static func fetchTransactionHistory(for address: String, type: TransactionHistoryType, completion: @escaping (TransactionHistoryResult) -> Void) {
         let url: URL
         
         switch type {
@@ -46,7 +46,7 @@ class WalletStore {
         let request = URLRequest(url: url)
         
         let task = session.dataTask(with: request) { (data, response, error) -> Void in
-            let result = self.processTransactionHistoryRequest(data: data, error: error)
+            let result = self.processTransactionHistoryRequest(for: address, data: data, error: error)
             
             OperationQueue.main.addOperation {
                 completion(result)
@@ -56,7 +56,7 @@ class WalletStore {
         task.resume()
     }
     
-    func fetchBalance(for address: String, completion: @escaping (BalanceResult) -> Void) {
+    static func fetchBalance(for address: String, completion: @escaping (BalanceResult) -> Void) {
         let url = EtherscanAPI.balanceURL(for: address)
         let request = URLRequest(url: url)
         
