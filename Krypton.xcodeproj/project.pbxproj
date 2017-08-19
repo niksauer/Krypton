@@ -76,18 +76,11 @@
 		2400D07A1F40715900833958 /* Krypton */ = {
 			isa = PBXGroup;
 			children = (
-				2400D07B1F40715900833958 /* AppDelegate.swift */,
-				2400D07D1F40715900833958 /* FirstViewController.swift */,
-				2400D07F1F40715900833958 /* SecondViewController.swift */,
-				2400D09B1F42513600833958 /* Kraken */,
-				2400D09C1F42514000833958 /* Etherscan */,
-				240C63B01F47A88300728B8B /* Wallet.swift */,
-				240C63B61F47A8A800728B8B /* EntitiesMO */,
-				2400D0841F40715900833958 /* Assets.xcassets */,
-				246874F41F464B4E009BB60A /* Krypton.xcdatamodeld */,
-				2400D0811F40715900833958 /* Main.storyboard */,
-				2400D0861F40715900833958 /* LaunchScreen.storyboard */,
-				2400D0891F40715900833958 /* Info.plist */,
+				24B859AC1F47C90800969049 /* Controller */,
+				24B859AB1F47C8E400969049 /* Model */,
+				24B859AA1F47C8D500969049 /* Backend */,
+				24B859AD1F47C91C00969049 /* View */,
+				24B859A91F47C89A00969049 /* Supporting Files */,
 			);
 			path = Krypton;
 			sourceTree = "<group>";
@@ -119,6 +112,53 @@
 				2400D0931F40D90900833958 /* TickerPrice.swift */,
 			);
 			name = EntitiesMO;
+			sourceTree = "<group>";
+		};
+		24B859A91F47C89A00969049 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				2400D07B1F40715900833958 /* AppDelegate.swift */,
+				246874F41F464B4E009BB60A /* Krypton.xcdatamodeld */,
+				2400D0891F40715900833958 /* Info.plist */,
+				2400D0841F40715900833958 /* Assets.xcassets */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		24B859AA1F47C8D500969049 /* Backend */ = {
+			isa = PBXGroup;
+			children = (
+				2400D09B1F42513600833958 /* Kraken */,
+				2400D09C1F42514000833958 /* Etherscan */,
+			);
+			name = Backend;
+			sourceTree = "<group>";
+		};
+		24B859AB1F47C8E400969049 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				240C63B01F47A88300728B8B /* Wallet.swift */,
+				240C63B61F47A8A800728B8B /* EntitiesMO */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+		24B859AC1F47C90800969049 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				2400D07D1F40715900833958 /* FirstViewController.swift */,
+				2400D07F1F40715900833958 /* SecondViewController.swift */,
+			);
+			name = Controller;
+			sourceTree = "<group>";
+		};
+		24B859AD1F47C91C00969049 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				2400D0811F40715900833958 /* Main.storyboard */,
+				2400D0861F40715900833958 /* LaunchScreen.storyboard */,
+			);
+			name = View;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

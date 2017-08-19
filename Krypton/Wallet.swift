@@ -15,24 +15,24 @@ class Wallet {
     let address = "0xAA2F9BFAA9Ec168847216357b0856d776F34881f"
     
     init() {
-        TickerConnector.fetchCurrentPrice(completion: { (currentPriceResult) in
+        TickerConnector.fetchCurrentPrice(as: .ETHEUR, completion: { (currentPriceResult) in
             print(currentPriceResult)
         })
+//
+//        TickerConnector.fetchPriceHistory(for: .ETHEUR, completion: { (priceHistoryResult) in
+//            print(priceHistoryResult)
+//        })
+//
+//        EtherConnector.fetchTransactionHistory(for: address, type: .normal, completion: { (transactionHistoryResult) in
+//            print(transactionHistoryResult)
+//        })
+//        
+//        EtherConnector.fetchTransactionHistory(for: address, type: .contract, completion: { (transactionHistoryResult) in
+//            print(transactionHistoryResult)
+//        })
         
-        EtherConnector.fetchTransactionHistory(for: address, type: .contract, completion: { (transactionHistoryResult) in
-            print(transactionHistoryResult)
-        })
-        
-        TickerConnector.fetchPriceHistory(completion: { (priceHistoryResult) in
-            print(priceHistoryResult)
-        })
-
-        EtherConnector.fetchTransactionHistory(for: address, type: .normal, completion: { (transactionHistoryResult) in
-            print(transactionHistoryResult)
-        })
-
-        EtherConnector.fetchBalance(for: address, completion: { (balanceResult) in
-            print(balanceResult)
-        })
+//        EtherConnector.fetchBalance(for: address, completion: { (balanceResult) in
+//            print(balanceResult)
+//        })
     }
 }

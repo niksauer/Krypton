@@ -16,12 +16,12 @@ struct EtherConnector {
     }()
     
     // MARK: - Private Methods
-    private static func processTransactionHistoryRequest(for address: String, data: Data?, error: Error?) -> TransactionHistoryResult {
+    private static func processTransactionHistoryRequest(for address: String, type: TransactionHistoryType, data: Data?, error: Error?) -> TransactionHistoryResult {
         guard let jsonData = data else {
             return .failure(error!)
         }
         
-        return EtherscanAPI.transactionHistory(for: address, fromJSON: jsonData)
+        return EtherscanAPI.transactionHistory(for: address, type: type, fromJSON: jsonData)
     }
     
     private static func processBalanceRequest(data: Data?, error: Error?) -> BalanceResult {
@@ -34,19 +34,11 @@ struct EtherConnector {
     
     // MARK: - Public Methods
     static func fetchTransactionHistory(for address: String, type: TransactionHistoryType, completion: @escaping (TransactionHistoryResult) -> Void) {
-        let url: URL
-        
-        switch type {
-        case .normal:
-            url = EtherscanAPI.transactionHistoryURL(for: address)
-        case .contract:
-            url = EtherscanAPI.internalTransactionHistoryURL(for: address)
-        }
-    
+        let url = EtherscanAPI.transactionHistoryURL(for: address, type: type)
         let request = URLRequest(url: url)
         
         let task = session.dataTask(with: request) { (data, response, error) -> Void in
-            let result = self.processTransactionHistoryRequest(for: address, data: data, error: error)
+            let result = self.processTransactionHistoryRequest(for: address, type: type, data: data, error: error)
             
             OperationQueue.main.addOperation {
                 completion(result)
