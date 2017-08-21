@@ -18,7 +18,7 @@ enum TransactionHistoryType: String {
 }
 
 enum TransactionHistoryResult {
-    case success([Transaction])
+    case success([EtherscanAPI.Transaction])
     case failure(Error)
 }
 
@@ -28,6 +28,17 @@ enum BalanceResult {
 }
 
 struct EtherscanAPI {
+    
+    // MARK: - Public Properties
+    struct Transaction {
+        let hash: String
+        let date: NSDate
+        let value: Double
+        let from: String
+        let to: String
+        let type: TransactionHistoryType
+    }
+    
     // MARK: - Private Properties
     private static let baseURL = "https://api.etherscan.io/api"
     private static let apiKey = "N6I8XYMDAAKSTK9IW4G2BMSM837PHG6XFW"
@@ -72,24 +83,11 @@ struct EtherscanAPI {
     }
     
     private static func transaction(type: TransactionHistoryType, fromJSON json: [String: Any]) -> Transaction? {
-        guard let timeString = json["timeStamp"] as? String, let time = Double(timeString), let weiString = json["value"] as? String, let fromString = json["from"] as? String, let toString = json["to"] as? String, let isErrorString = json["isError"] as? String else {
+        guard let hashString = json["hash"] as? String, let timeString = json["timeStamp"] as? String, let time = Double(timeString), let weiString = json["value"] as? String, let value = ether(from: weiString), let fromString = json["from"] as? String, let toString = json["to"] as? String, let isErrorString = json["isError"] as? String, isErrorString != "1" else {
             return nil
         }
         
-        guard isErrorString != "1", let value = ether(from: weiString) else {
-            return nil
-        }
-        
-        let context = AppDelegate.viewContext
-        
-        let transaction = Transaction(context: context)
-        transaction.date = NSDate(timeIntervalSince1970: time)
-        transaction.value = value
-        transaction.from = fromString
-        transaction.to = toString
-        transaction.type = type.rawValue
-        
-        return transaction
+        return Transaction(hash: hashString, date: NSDate(timeIntervalSince1970: time), value: value, from: fromString, to: toString, type: type)
     }
     
     private static func ether(from weiString: String) -> Double? {

@@ -12,7 +12,8 @@ import CoreData
 class AddAddressController: UIViewController {
     
     // MARK: - Properties
-    var address: Address?
+    var address: String?
+    var unit: CryptoUnit?
     
     // MARK: - Outlets
     @IBOutlet weak var addressField: UITextField!
@@ -39,10 +40,8 @@ class AddAddressController: UIViewController {
             return
         }
         
-        let context = AppDelegate.viewContext
-        address = Address(context: context)
-        address!.address = addressString
-        address!.unit = CryptoUnit.ETH.rawValue
+        address = addressString
+        unit = CryptoUnit.ETH
     }
 
 }

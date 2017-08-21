@@ -20,8 +20,12 @@ class DashboardController: UIViewController {
     
     // MARK: - Navigation
     @IBAction func unwindToDashboard(segue: UIStoryboardSegue) {
-        if let sourceVC = segue.source as? AddAddressController, let address = sourceVC.address {
-            wallet.addAddress(address)
+        if let sourceVC = segue.source as? AddAddressController, let addressString = sourceVC.address, let unit = sourceVC.unit {
+            do {
+                try wallet.addAddress(addressString, unit: unit)
+            } catch {
+                print(error)
+            }
         }
     }
     
