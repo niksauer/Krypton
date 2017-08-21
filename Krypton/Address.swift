@@ -70,12 +70,14 @@ class Address: NSManagedObject {
                 for txInfo in txs {
                     if let transaction = try? Transaction.createTransaction(from: txInfo, in: context) {
                         self.addToTransactions(transaction)
+                    } else {
+                        print("Failed to create transaction from: \(txInfo.hash, txInfo.type)")
                     }
                 }
                 
                 do {
                     try context.save()
-                    print("saved 1")
+                    print("Saved normal transaction history.")
                 } catch {
                     print("Failed to save fetched normal transaction history: \(error)")
                 }
@@ -90,16 +92,16 @@ class Address: NSManagedObject {
                 for txInfo in txs {
                     if let transaction = try? Transaction.createTransaction(from: txInfo, in: context) {
                         self.addToTransactions(transaction)
+                    } else {
+                        print("Failed to create transaction from: \(txInfo.hash, txInfo.type)")
                     }
                 }
                 
-                context.performAndWait {
-                    do {
-                        try context.save()
-                        print("saved 2")
-                    } catch {
-                        print("Failed to save fetched normal transaction history: \(error)")
-                    }
+                do {
+                    try context.save()
+                    print("Saved contract transaction history.")
+                } catch {
+                    print("Failed to save fetched contract transaction history: \(error)")
                 }
             case let .failure(error):
                 print("Failed to fetch contract transaction history: \(error)")

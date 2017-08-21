@@ -4,7 +4,7 @@
         <attribute name="address" attributeType="String" syncable="YES"/>
         <attribute name="balance" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="unit" attributeType="String" syncable="YES"/>
-        <relationship name="transactions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Transaction" inverseName="address" inverseEntity="Transaction" syncable="YES"/>
+        <relationship name="transactions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Transaction" inverseName="owner" inverseEntity="Transaction" syncable="YES"/>
     </entity>
     <entity name="TickerPair" representedClassName=".TickerPair" syncable="YES" codeGenerationType="category">
         <attribute name="currencyPair" attributeType="String" syncable="YES"/>
@@ -24,12 +24,12 @@
         <attribute name="to" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="type" attributeType="String" syncable="YES"/>
         <attribute name="value" attributeType="Double" usesScalarValueType="YES" syncable="YES"/>
-        <relationship name="address" maxCount="1" deletionRule="Deny" destinationEntity="Address" inverseName="transactions" inverseEntity="Address" syncable="YES"/>
+        <relationship name="owner" maxCount="1" deletionRule="Deny" destinationEntity="Address" inverseName="transactions" inverseEntity="Address" syncable="YES"/>
     </entity>
     <elements>
         <element name="Address" positionX="-146" positionY="-234" width="128" height="103"/>
         <element name="TickerPair" positionX="-144" positionY="-18" width="128" height="88"/>
         <element name="TickerPrice" positionX="72" positionY="-16" width="128" height="88"/>
-        <element name="Transaction" positionX="70" positionY="-277" width="128" height="163"/>
+        <element name="Transaction" positionX="70" positionY="-277" width="128" height="165"/>
     </elements>
 </model>

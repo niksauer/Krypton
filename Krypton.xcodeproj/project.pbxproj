@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		2400D07C1F40715900833958 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D07B1F40715900833958 /* AppDelegate.swift */; };
 		2400D07E1F40715900833958 /* DashboardController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D07D1F40715900833958 /* DashboardController.swift */; };
-		2400D0801F40715900833958 /* TransactionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D07F1F40715900833958 /* TransactionController.swift */; };
 		2400D0831F40715900833958 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2400D0811F40715900833958 /* Main.storyboard */; };
 		2400D0851F40715900833958 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2400D0841F40715900833958 /* Assets.xcassets */; };
 		2400D0881F40715900833958 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2400D0861F40715900833958 /* LaunchScreen.storyboard */; };
@@ -22,6 +21,7 @@
 		240C63B11F47A88300728B8B /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240C63B01F47A88300728B8B /* Wallet.swift */; };
 		240C63B31F47A88E00728B8B /* Address.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240C63B21F47A88E00728B8B /* Address.swift */; };
 		240C63B51F47A89B00728B8B /* TickerPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240C63B41F47A89B00728B8B /* TickerPair.swift */; };
+		246737651F4B9255003277B8 /* TransactionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246737641F4B9255003277B8 /* TransactionController.swift */; };
 		246874F61F464B4E009BB60A /* Krypton.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 246874F41F464B4E009BB60A /* Krypton.xcdatamodeld */; };
 		24B859AF1F4857B100969049 /* AddAddressController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24B859AE1F4857B100969049 /* AddAddressController.swift */; };
 /* End PBXBuildFile section */
@@ -30,7 +30,6 @@
 		2400D0781F40715900833958 /* Krypton.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Krypton.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2400D07B1F40715900833958 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2400D07D1F40715900833958 /* DashboardController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardController.swift; sourceTree = "<group>"; };
-		2400D07F1F40715900833958 /* TransactionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionController.swift; sourceTree = "<group>"; };
 		2400D0821F40715900833958 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		2400D0841F40715900833958 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2400D0871F40715900833958 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -44,6 +43,7 @@
 		240C63B01F47A88300728B8B /* Wallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Wallet.swift; sourceTree = "<group>"; };
 		240C63B21F47A88E00728B8B /* Address.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Address.swift; sourceTree = "<group>"; };
 		240C63B41F47A89B00728B8B /* TickerPair.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TickerPair.swift; sourceTree = "<group>"; };
+		246737641F4B9255003277B8 /* TransactionController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionController.swift; sourceTree = "<group>"; };
 		246874F51F464B4E009BB60A /* Krypton.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Krypton.xcdatamodel; sourceTree = "<group>"; };
 		24B859AE1F4857B100969049 /* AddAddressController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddAddressController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -150,7 +150,7 @@
 			children = (
 				2400D07D1F40715900833958 /* DashboardController.swift */,
 				24B859AE1F4857B100969049 /* AddAddressController.swift */,
-				2400D07F1F40715900833958 /* TransactionController.swift */,
+				246737641F4B9255003277B8 /* TransactionController.swift */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -243,11 +243,11 @@
 				240C63B11F47A88300728B8B /* Wallet.swift in Sources */,
 				240C63B51F47A89B00728B8B /* TickerPair.swift in Sources */,
 				2400D09A1F42511800833958 /* EtherConnector.swift in Sources */,
+				246737651F4B9255003277B8 /* TransactionController.swift in Sources */,
 				24B859AF1F4857B100969049 /* AddAddressController.swift in Sources */,
 				2400D0921F40D6E700833958 /* TickerConnector.swift in Sources */,
 				240C63B31F47A88E00728B8B /* Address.swift in Sources */,
 				246874F61F464B4E009BB60A /* Krypton.xcdatamodeld in Sources */,
-				2400D0801F40715900833958 /* TransactionController.swift in Sources */,
 				2400D07C1F40715900833958 /* AppDelegate.swift in Sources */,
 				2400D07E1F40715900833958 /* DashboardController.swift in Sources */,
 				2400D0941F40D90900833958 /* TickerPrice.swift in Sources */,

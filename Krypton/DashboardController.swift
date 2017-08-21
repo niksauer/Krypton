@@ -8,7 +8,7 @@
 
 import UIKit
 
-class DashboardController: UIViewController {
+class DashboardController: UIViewController, UITabBarControllerDelegate {
     
     // MARK: - Properties
     var wallet = Wallet()
@@ -16,6 +16,7 @@ class DashboardController: UIViewController {
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.tabBarController?.delegate = self
     }
     
     // MARK: - Navigation
@@ -26,6 +27,13 @@ class DashboardController: UIViewController {
             } catch {
                 print(error)
             }
+        }
+    }
+    
+    // MARK: - TabBarControllerDelegate
+    func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+        if let destVC = viewController as? UINavigationController, let transactionVC = destVC.topViewController as? TransactionController {
+            transactionVC.address = wallet.addresses[0]
         }
     }
     

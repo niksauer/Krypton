@@ -20,6 +20,7 @@ class Wallet {
     // MARK: - Initialization
     init() {
 //        deleteAddresses()
+//        deleteTransactions()
         
         do {
             addresses = try loadAddresses()
@@ -27,17 +28,7 @@ class Wallet {
             
             for address in addresses {
                 print("\(address.address!): \(address.balance) ETH, \(address.transactions?.count ?? 0) transaction(s).")
-                
-                if let txs = address.transactions as Array<Transaction> {
-                    for tx in txs {
-                        print(tx.type)
-                    }
-                }
-                
             }
-            
-            
-//            updateAddresses()
         } catch {
             print("Failed to load addresses: \(error)")
         }
@@ -61,15 +52,6 @@ class Wallet {
             throw error
         }
     }
-    
-    func updateAddresses() {
-        database.performBackgroundTask { context in
-            for address in self.addresses {
-                address.updateBalance(in: context)
-                address.updateTransactionHistory(in: context)
-            }
-        }
-    }
 
     // MARK: - Private Methods
     private func loadAddresses() throws -> [Address] {
@@ -86,6 +68,7 @@ class Wallet {
     private func loadTransactions() -> [Transaction]? {
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: true)]
         return try? context.fetch(request)
     }
     
@@ -122,6 +105,8 @@ class Wallet {
             print(error)
         }
     }
+    
+    
 }
 
 
@@ -153,22 +138,3 @@ class Wallet {
 //                print(error)
 //            }
 //        })
-
-//        database.performBackgroundTask { context in
-//            do {
-//                let address = try Address.createAddress(addressString, unit: unit, in: context)
-//
-//                do {
-//                    try context.save()
-//                    self.addresses.append(address)
-//                } catch {
-//                    print("Failed to save new address: \(error)")
-//                }
-//
-//                address.updateBalance(in: context)
-//            } catch AddressError.duplicate {
-//                print("Address is duplicate.")
-//            } catch {
-//                print(error)
-//            }
-//        }
