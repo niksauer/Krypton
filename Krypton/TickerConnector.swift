@@ -17,29 +17,29 @@ struct TickerConnector {
     }()
     
     // MARK: - Private Methods
-    private static func processPriceHistoryRequest(as currencyPair: CurrencyPair, data: Data?, error: Error?) -> PriceHistoryResult {
+    private static func processPriceHistoryRequest(for tradingPair: Currency.TradingPair, data: Data?, error: Error?) -> PriceHistoryResult {
         guard let jsonData = data else {
             return .failure(error!)
         }
         
-        return KrakenAPI.priceHistory(as: currencyPair, fromJSON: jsonData)
+        return KrakenAPI.priceHistory(for: tradingPair, fromJSON: jsonData)
     }
     
-    private static func processCurrentPriceRequest(as currencyPair: CurrencyPair, data: Data?, error: Error?) -> CurrentPriceResult {
+    private static func processCurrentPriceRequest(for tradingPair: Currency.TradingPair, data: Data?, error: Error?) -> CurrentPriceResult {
         guard let jsonData = data else {
             return .failure(error!)
         }
         
-        return KrakenAPI.currentPrice(as: currencyPair, fromJSON: jsonData)
+        return KrakenAPI.currentPrice(for: tradingPair, fromJSON: jsonData)
     }
     
     // MARK: - Public Methods
-    static func fetchPriceHistory(as currencyPair: CurrencyPair, completion: @escaping (PriceHistoryResult) -> Void) {
-        let url = KrakenAPI.priceHistoryURL(for: currencyPair)
+    static func fetchPriceHistory(for tradingPair: Currency.TradingPair, completion: @escaping (PriceHistoryResult) -> Void) {
+        let url = KrakenAPI.priceHistoryURL(for: tradingPair)
         let request = URLRequest(url: url)
         
         let task = session.dataTask(with: request) { (data, response, error) -> Void in
-            let result = self.processPriceHistoryRequest(as: currencyPair, data: data, error: error)
+            let result = self.processPriceHistoryRequest(for: tradingPair, data: data, error: error)
             
             OperationQueue.main.addOperation {
                 completion(result)
@@ -49,12 +49,12 @@ struct TickerConnector {
         task.resume()
     }
     
-    static func fetchCurrentPrice(as currencyPair: CurrencyPair, completion: @escaping (CurrentPriceResult) -> Void) {
-        let url = KrakenAPI.currentPriceURL(for: currencyPair)
+    static func fetchCurrentPrice(for tradingPair: Currency.TradingPair, completion: @escaping (CurrentPriceResult) -> Void) {
+        let url = KrakenAPI.currentPriceURL(for: tradingPair)
         let request = URLRequest(url: url)
         
         let task = session.dataTask(with: request) { (data, response, error) -> Void in
-            let result = self.processCurrentPriceRequest(as: currencyPair, data: data, error: error)
+            let result = self.processCurrentPriceRequest(for: tradingPair, data: data, error: error)
             
             OperationQueue.main.addOperation {
                 completion(result)

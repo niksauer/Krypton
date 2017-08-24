@@ -19,7 +19,7 @@ class Transaction: NSManagedObject {
     /// returns new transaction if non-existent in database, throws otherwise
     class func createTransaction(from txInfo: EtherscanAPI.Transaction, in context: NSManagedObjectContext) throws -> Transaction {
         let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
-        request.predicate = NSPredicate(format: "identifier = %@ AND type = %@", txInfo.hash, txInfo.type.rawValue)
+        request.predicate = NSPredicate(format: "identifier = %@ AND type = %@", txInfo.identifier, txInfo.type.rawValue)
         
         do {
             let matches = try context.fetch(request)
@@ -37,7 +37,8 @@ class Transaction: NSManagedObject {
         transaction.type = txInfo.type.rawValue
         transaction.to = txInfo.to
         transaction.from = txInfo.from
-        transaction.identifier = txInfo.hash
+        transaction.identifier = txInfo.identifier
+        transaction.block = txInfo.block
 
         return transaction
     }

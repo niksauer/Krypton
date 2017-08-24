@@ -13,7 +13,7 @@ class AddAddressController: UIViewController {
     
     // MARK: - Properties
     var address: String?
-    var unit: CryptoUnit?
+    var unit: Currency.Crypto?
     
     // MARK: - Outlets
     @IBOutlet weak var addressField: UITextField!
@@ -41,7 +41,7 @@ class AddAddressController: UIViewController {
         }
         
         address = addressString
-        unit = CryptoUnit.ETH
+        unit = Currency.Crypto.ETH
     }
 
 }

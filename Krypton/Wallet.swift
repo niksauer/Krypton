@@ -11,12 +11,14 @@ import CoreData
 
 class Wallet {
     
-//    "0xAA2F9BFAA9Ec168847216357b0856d776F34881f"
+//    0xAA2F9BFAA9Ec168847216357b0856d776F34881f
+//    0xB15E9Ca894b6134Ac7C22B70b20Fd30De87451B2
     
     // MARK: - Properties
     var addresses = [Address]()
     let database = AppDelegate.persistentContainer
-
+    let baseCurrency = Currency.Fiat.EUR
+    
     // MARK: - Initialization
     init() {
 //        deleteAddresses()
@@ -27,15 +29,18 @@ class Wallet {
             print("Loaded \(addresses.count) addresses.")
             
             for address in addresses {
+//                address.updateTransactionHistory(in: AppDelegate.viewContext)
                 print("\(address.address!): \(address.balance) ETH, \(address.transactions?.count ?? 0) transaction(s).")
             }
+            
+            updatePriceHistory()
         } catch {
             print("Failed to load addresses: \(error)")
         }
     }
     
     // MARK: - Public Methods
-    func addAddress(_ addressString: String, unit: CryptoUnit) throws {
+    func addAddress(_ addressString: String, unit: Currency.Crypto) throws {
         do {
             let context = AppDelegate.viewContext
             let address = try Address.createAddress(addressString, unit: unit, in: context)
@@ -45,11 +50,50 @@ class Wallet {
                 self.addresses.append(address)
                 address.updateBalance(in: context)
                 address.updateTransactionHistory(in: context)
+                updatePriceHistory()
             } catch {
                 throw error
             }
         } catch {
             throw error
+        }
+    }
+    
+    func updatePriceHistory() {
+        var tradingPairs = Set<Currency.TradingPair>()
+        
+        for address in addresses {
+            if let cryptoCurrency = Currency.Crypto(rawValue: address.cryptoCurrency!), let tradingPair = Currency.getTradingPair(cryptoCurrency: cryptoCurrency, fiatCurrency: baseCurrency) {
+                tradingPairs.insert(tradingPair)
+            }
+        }
+        
+        for tradingPair in tradingPairs {
+            TickerConnector.fetchPriceHistory(for: tradingPair, completion: { result in
+                switch result {
+                case let .success(priceHistory):
+                    let context = AppDelegate.viewContext
+                    
+                    for price in priceHistory {
+                        do {
+                            _ = try TickerPrice.createTickerPrice(from: price, in: context)
+                        } catch {
+//                            print("Failed to create tickerPrice from: \(price, error)")
+                        }
+                    }
+                    
+                    do {
+                        if context.hasChanges {
+                            try context.save()
+                            print("Saved price history for \(tradingPair.rawValue) with \(priceHistory.count) prices.")
+                        }
+                    } catch {
+                        print("Failed to save fetched contract transaction history: \(error)")
+                    }
+                case let .failure(error):
+                    print("Failed to fetch price history for \(tradingPair.rawValue): \(error)")
+                }
+            })
         }
     }
 
@@ -106,35 +150,4 @@ class Wallet {
         }
     }
     
-    
 }
-
-
-
-//        TickerConnector.fetchCurrentPrice(as: .ETHUSD, completion: { (currentPriceResult) in
-//            print(currentPriceResult)
-//        })
-//
-//        TickerConnector.fetchPriceHistory(as: .ETHUSD, completion: { (priceHistoryResult) in
-//            print(priceHistoryResult)
-//        })
-
-//        EtherConnector.fetchTransactionHistory(for: address, type: .normal, completion: { (result) in
-//            switch result {
-//            case let .success(transactions):
-//                address.addToTransactions(NSSet(array: transactions))
-////                self.saveWallet()
-//            case let .failure(error):
-//                print(error)
-//            }
-//        })
-//
-//        EtherConnector.fetchTransactionHistory(for: address, type: .contract, completion: { (result) in
-//            switch result {
-//            case let .success(transactions):
-//                address.addToTransactions(NSSet(array: transactions))
-////                self.saveWallet()
-//            case let .failure(error):
-//                print(error)
-//            }
-//        })

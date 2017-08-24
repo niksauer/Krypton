@@ -12,11 +12,6 @@ enum EtherscanError: Error {
     case invalidJSONData
 }
 
-enum TransactionHistoryType: String {
-    case normal
-    case contract
-}
-
 enum TransactionHistoryResult {
     case success([EtherscanAPI.Transaction])
     case failure(Error)
@@ -31,12 +26,13 @@ struct EtherscanAPI {
     
     // MARK: - Public Properties
     struct Transaction {
-        let hash: String
+        let identifier: String
         let date: NSDate
         let value: Double
         let from: String
         let to: String
         let type: TransactionHistoryType
+        let block: Int32
     }
     
     // MARK: - Private Properties
@@ -83,11 +79,11 @@ struct EtherscanAPI {
     }
     
     private static func transaction(type: TransactionHistoryType, fromJSON json: [String: Any]) -> Transaction? {
-        guard let hashString = json["hash"] as? String, let timeString = json["timeStamp"] as? String, let time = Double(timeString), let weiString = json["value"] as? String, let value = ether(from: weiString), let fromString = json["from"] as? String, let toString = json["to"] as? String, let isErrorString = json["isError"] as? String, isErrorString != "1" else {
+        guard let isErrorString = json["isError"] as? String, isErrorString != "1", let hashString = json["hash"] as? String, let timeString = json["timeStamp"] as? String, let time = Double(timeString), let weiString = json["value"] as? String, let value = ether(from: weiString), let fromString = json["from"] as? String, let toString = json["to"] as? String, let blockString = json["blockNumber"] as? String, let block = Int32(blockString) else {
             return nil
         }
         
-        return Transaction(hash: hashString, date: NSDate(timeIntervalSince1970: time), value: value, from: fromString, to: toString, type: type)
+        return Transaction(identifier: hashString, date: NSDate(timeIntervalSince1970: time), value: value, from: fromString, to: toString, type: type, block: block)
     }
     
     private static func ether(from weiString: String) -> Double? {
@@ -152,7 +148,7 @@ struct EtherscanAPI {
     // <"blockNumber">, <"timeStamp">, <"hash">, <"nonce">, <"blockHash">, <"transactionIndex">, <"from">, <"to">, <"value">, <"gas">, <"gasPrice">, <"isError">, <"input">, <"contractAddress">, <"cumulativeGasUsed">, <"gasUsed">, <"confirmations">
     
     // <"blockNumber">, <"value">, <"isError">, <"ierrCode">, <"timeStamp">, <"contractAddress">, <"input">, <"hash">, <"type">, <"from">, <"to">, <"traceId">, <"to">, <"gasUsed">, <"gas">,
-    static func transactionHistoryURL(for address: String, type: TransactionHistoryType) -> URL {
+    static func transactionHistoryURL(for address: String, type: TransactionHistoryType, timeframe: TransactionHistoryTimeframe) -> URL {
         let method: Method
         
         switch type {
@@ -162,9 +158,18 @@ struct EtherscanAPI {
             method = .txlistinternal
         }
         
+        let startBlock: Int
+        
+        switch timeframe {
+        case .allTime:
+            startBlock = 0
+        case .sinceBlock(let blockNumber):
+            startBlock = blockNumber
+        }
+        
         return etherscanURL(method: method, parameters: [
             "address": address,
-            "startblock": "0",
+            "startblock": String(startBlock),
             "endblock": "99999999",
             "sort": "asc",
         ])

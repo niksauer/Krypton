@@ -9,11 +9,6 @@
 import Foundation
 import CoreData
 
-enum CryptoUnit: String {
-    case ETH
-    case BTC
-}
-
 enum AddressError: Error {
     case duplicate
 }
@@ -22,7 +17,7 @@ class Address: NSManagedObject {
     
     // MARK: - Class Methods
     /// returns new address if non-existent in database, throws otherwise
-    class func createAddress(_ addressString: String, unit: CryptoUnit, in context: NSManagedObjectContext) throws -> Address {
+    class func createAddress(_ addressString: String, unit: Currency.Crypto, in context: NSManagedObjectContext) throws -> Address {
         let request: NSFetchRequest<Address> = Address.fetchRequest()
         request.predicate = NSPredicate(format: "address = %@", addressString)
         
@@ -38,7 +33,7 @@ class Address: NSManagedObject {
         
         let address = Address(context: context)
         address.address = addressString
-        address.unit = unit.rawValue
+        address.cryptoCurrency = unit.rawValue
         
         return address
     }
@@ -52,7 +47,10 @@ class Address: NSManagedObject {
                 self.balance = balance
                 
                 do {
-                    try context.save()
+                    if context.hasChanges {
+                        try context.save()
+                        print("Saved updated balance.")
+                    }
                 } catch {
                     print("Failed to save fetched balance: \(error)")
                 }
@@ -64,20 +62,35 @@ class Address: NSManagedObject {
     
     /// fetches and saves transaction history retrieved via EtherscanAPI
     func updateTransactionHistory(in context: NSManagedObjectContext) {
-        EtherConnector.fetchTransactionHistory(for: self, type: .normal, completion: { result in
+        let timeframe: TransactionHistoryTimeframe
+        
+        if lastBlock == 0 {
+            timeframe = TransactionHistoryTimeframe.allTime
+        } else {
+            timeframe = TransactionHistoryTimeframe.sinceBlock(Int(lastBlock))
+        }
+        
+        EtherConnector.fetchTransactionHistory(for: self, type: .normal, timeframe: timeframe, completion: { result in
             switch result {
             case let .success(txs):
                 for txInfo in txs {
-                    if let transaction = try? Transaction.createTransaction(from: txInfo, in: context) {
+                    do {
+                        let transaction = try Transaction.createTransaction(from: txInfo, in: context)
                         self.addToTransactions(transaction)
-                    } else {
-                        print("Failed to create transaction from: \(txInfo.hash, txInfo.type)")
+                        
+                        if transaction.block > self.lastBlock {
+                            self.lastBlock = transaction.block
+                        }
+                    } catch {
+                        print("Failed to create transaction from: \(txInfo.identifier, error)")
                     }
                 }
                 
                 do {
-                    try context.save()
-                    print("Saved normal transaction history.")
+                    if context.hasChanges {
+                        try context.save()
+                        print("Saved updated normal transaction history.")
+                    }
                 } catch {
                     print("Failed to save fetched normal transaction history: \(error)")
                 }
@@ -86,20 +99,27 @@ class Address: NSManagedObject {
             }
         })
         
-        EtherConnector.fetchTransactionHistory(for: self, type: .contract, completion: { result in
+        EtherConnector.fetchTransactionHistory(for: self, type: .contract, timeframe: timeframe, completion: { result in
             switch result {
             case let .success(txs):
                 for txInfo in txs {
-                    if let transaction = try? Transaction.createTransaction(from: txInfo, in: context) {
+                    do {
+                        let transaction = try Transaction.createTransaction(from: txInfo, in: context)
                         self.addToTransactions(transaction)
-                    } else {
-                        print("Failed to create transaction from: \(txInfo.hash, txInfo.type)")
+                        
+                        if transaction.block > self.lastBlock {
+                            self.lastBlock = transaction.block
+                        }
+                    } catch {
+                        print("Failed to create transaction from: \(txInfo.identifier, error)")
                     }
                 }
                 
                 do {
-                    try context.save()
-                    print("Saved contract transaction history.")
+                    if context.hasChanges {
+                        try context.save()
+                        print("Saved updated contract transaction history.")
+                    }
                 } catch {
                     print("Failed to save fetched contract transaction history: \(error)")
                 }

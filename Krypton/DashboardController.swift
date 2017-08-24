@@ -32,8 +32,8 @@ class DashboardController: UIViewController, UITabBarControllerDelegate {
     
     // MARK: - TabBarControllerDelegate
     func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
-        if let destVC = viewController as? UINavigationController, let transactionVC = destVC.topViewController as? TransactionController {
-            transactionVC.address = wallet.addresses[0]
+        if let destVC = viewController as? UINavigationController, let transactionVC = destVC.topViewController as? TransactionTableController {
+            transactionVC.addresses = wallet.addresses
         }
     }
     

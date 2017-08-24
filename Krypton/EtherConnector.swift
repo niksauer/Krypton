@@ -8,6 +8,16 @@
 
 import Foundation
 
+enum TransactionHistoryType: String {
+    case normal
+    case contract
+}
+
+enum TransactionHistoryTimeframe {
+    case allTime
+    case sinceBlock(Int)
+}
+
 struct EtherConnector {
     // MARK: - Private Properties
     private static let session: URLSession = {
@@ -33,10 +43,10 @@ struct EtherConnector {
     }
     
     // MARK: - Public Methods
-    static func fetchTransactionHistory(for address: Address, type: TransactionHistoryType, completion: @escaping (TransactionHistoryResult) -> Void) {
-        let url = EtherscanAPI.transactionHistoryURL(for: address.address!, type: type)
+    static func fetchTransactionHistory(for address: Address, type: TransactionHistoryType, timeframe: TransactionHistoryTimeframe, completion: @escaping (TransactionHistoryResult) -> Void) {
+        let url = EtherscanAPI.transactionHistoryURL(for: address.address!, type: type, timeframe: timeframe)
         let request = URLRequest(url: url)
-        
+
         let task = session.dataTask(with: request) { (data, response, error) -> Void in
             let result = self.processTransactionHistoryRequest(type: type, data: data, error: error)
             
