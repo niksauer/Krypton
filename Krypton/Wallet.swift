@@ -14,22 +14,23 @@ class Wallet {
 //    0xAA2F9BFAA9Ec168847216357b0856d776F34881f
 //    0xB15E9Ca894b6134Ac7C22B70b20Fd30De87451B2
     
-    // MARK: - Properties
+    // MARK: - Public Properties
     var addresses = [Address]()
     let database = AppDelegate.persistentContainer
-    let baseCurrency = Currency.Fiat.EUR
+    static var baseCurrency = Currency.Fiat.EUR
     
     // MARK: - Initialization
     init() {
 //        deleteAddresses()
 //        deleteTransactions()
+//        deletePriceHistory()
         
         do {
             addresses = try loadAddresses()
             print("Loaded \(addresses.count) addresses.")
             
             for address in addresses {
-//                address.updateTransactionHistory(in: AppDelegate.viewContext)
+                address.updateTransactionHistory(in: AppDelegate.viewContext)
                 print("\(address.address!): \(address.balance) ETH, \(address.transactions?.count ?? 0) transaction(s).")
             }
             
@@ -60,16 +61,20 @@ class Wallet {
     }
     
     func updatePriceHistory() {
-        var tradingPairs = Set<Currency.TradingPair>()
+        var tradingPairs: [Currency.TradingPair] = []
+        var sinceDates: [Date] = []
         
         for address in addresses {
-            if let cryptoCurrency = Currency.Crypto(rawValue: address.cryptoCurrency!), let tradingPair = Currency.getTradingPair(cryptoCurrency: cryptoCurrency, fiatCurrency: baseCurrency) {
-                tradingPairs.insert(tradingPair)
+            if let cryptoCurrency = Currency.Crypto(rawValue: address.cryptoCurrency!), let tradingPair = Currency.getTradingPair(cryptoCurrency: cryptoCurrency, fiatCurrency: Wallet.baseCurrency), let firstTransactionDate = address.firstTransaction()?.date {
+                if !tradingPairs.contains(tradingPair) {
+                    tradingPairs.append(tradingPair)
+                    sinceDates.append(firstTransactionDate as Date)
+                }
             }
         }
         
-        for tradingPair in tradingPairs {
-            TickerConnector.fetchPriceHistory(for: tradingPair, completion: { result in
+        for (index, tradingPair) in tradingPairs.enumerated() {
+            TickerConnector.fetchPriceHistory(for: tradingPair, since: sinceDates[index], completion: { result in
                 switch result {
                 case let .success(priceHistory):
                     let context = AppDelegate.viewContext
@@ -78,7 +83,7 @@ class Wallet {
                         do {
                             _ = try TickerPrice.createTickerPrice(from: price, in: context)
                         } catch {
-//                            print("Failed to create tickerPrice from: \(price, error)")
+                            print("Failed to create tickerPrice from: \(price, error)")
                         }
                     }
                     
@@ -116,6 +121,13 @@ class Wallet {
         return try? context.fetch(request)
     }
     
+    private func loadPriceHistory() -> [TickerPrice]? {
+        let context = AppDelegate.viewContext
+        let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: true)]
+        return try? context.fetch(request)
+    }
+    
     private func deleteAddresses() {
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<Address> = Address.fetchRequest()
@@ -148,6 +160,15 @@ class Wallet {
         } catch {
             print(error)
         }
+    }
+    
+    private func deletePriceHistory() {
+        let context = AppDelegate.viewContext
+        let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: request as! NSFetchRequest<NSFetchRequestResult>)
+        
+        _ = try? context.execute(deleteRequest)
+        try? context.save()
     }
     
 }

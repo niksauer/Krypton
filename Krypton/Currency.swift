@@ -9,6 +9,13 @@
 import Foundation
 
 struct Currency {
+    
+    // MARK: - Private Properties
+    private static let symbolForCrypto: [Crypto : String ] = [
+        .ETH : "Ξ",
+        .BTC : "Ƀ"
+    ]
+    
     // MARK: - Public Properties
     enum Crypto: String {
         case ETH
@@ -25,24 +32,11 @@ struct Currency {
         case ETHUSD
     }
     
-    // MARK: - Private Properties
-    private static let symbolForCrypto: [Crypto : String ] = [
-        .ETH : "Ξ",
-        .BTC : "Ƀ"
-    ]
     
-    private static let symbolForFiat: [Fiat : String ] = [
-        .EUR : "€",
-        .USD : "$"
-    ]
     
     // MARK: - Public Methods
     static func getSymbol(for cryptoCurrency: Crypto) -> String? {
         return symbolForCrypto[cryptoCurrency]
-    }
-    
-    static func getSymbol(for fiatCurrency: Fiat) -> String? {
-        return symbolForFiat[fiatCurrency]
     }
     
     static func getTradingPair(cryptoCurrency: Crypto, fiatCurrency: Fiat) -> TradingPair? {
@@ -50,7 +44,4 @@ struct Currency {
         return TradingPair(rawValue: tradingPair)
     }
     
-    static func getBaseCurrency() -> Currency.Fiat {
-        return .EUR
-    }
 }

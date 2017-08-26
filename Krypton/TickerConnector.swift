@@ -34,8 +34,8 @@ struct TickerConnector {
     }
     
     // MARK: - Public Methods
-    static func fetchPriceHistory(for tradingPair: Currency.TradingPair, completion: @escaping (PriceHistoryResult) -> Void) {
-        let url = KrakenAPI.priceHistoryURL(for: tradingPair)
+    static func fetchPriceHistory(for tradingPair: Currency.TradingPair, since: Date, completion: @escaping (PriceHistoryResult) -> Void) {
+        let url = KrakenAPI.priceHistoryURL(for: tradingPair, since: since)
         let request = URLRequest(url: url)
         
         let task = session.dataTask(with: request) { (data, response, error) -> Void in

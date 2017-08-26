@@ -15,21 +15,6 @@ class TransactionController: UIViewController {
     var addresses: [Address]?
     var transaction: Transaction?
     
-    let numberFormatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = 4
-        return formatter
-    }()
-    
-    let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        return formatter
-    }()
-    
     // MARK: - Outlets
     @IBOutlet weak var valueLabel: UILabel!
     @IBOutlet weak var senderField: UITextField!
@@ -42,51 +27,42 @@ class TransactionController: UIViewController {
     
     // MARK: - Initialization
     override func viewDidLoad() {
+        navigationItem.rightBarButtonItem = editButtonItem
+        
         if let tx = transaction {
             let cryptoCurrency = Currency.Crypto(rawValue: tx.owner!.cryptoCurrency!)!
             let unitSymbol = Currency.getSymbol(for: cryptoCurrency)!
-            valueLabel.text = numberFormatter.string(from: NSNumber(value: tx.value))! + " " + unitSymbol
-            senderField.text = tx.from
-            receiverField.text = tx.to
-            dateField.text = dateFormatter.string(from: tx.date! as Date)
+            valueLabel.text = unitSymbol + " " + Format.cryptoFormatter.string(from: NSNumber(value: tx.value))!
+            
+            let senderName = addresses?.first(where: { $0.address == tx.from!})?.alias
+            senderField.text = senderName ?? tx.from
+            
+            let receiverName = addresses?.first(where: { $0.address == tx.to!})?.alias
+            receiverField.text = receiverName ?? tx.to
+            
+            dateField.text = Format.dateFormatter.string(from: tx.date! as Date)
             typeField.text = tx.type
             blockField.text = String(tx.block)
             hashField.text = tx.identifier
             
-            let exchangeValue: Double?
-            if tx.userExchangeValue != 0 {
-                exchangeValue = tx.userExchangeValue
+            if let transactionValue = TickerPrice.getTransactionValue(for: tx) {
+                exchangeValueField.text = Format.fiatFormatter.string(from: NSNumber(value: transactionValue))!
             } else {
-                let baseCurrency = Currency.getBaseCurrency()
-                let tradingPair = Currency.getTradingPair(cryptoCurrency: cryptoCurrency, fiatCurrency: baseCurrency)!
-                exchangeValue = getExchangeValue(for: tradingPair, on: tx.date!)
+                exchangeValueField.text = "???"
             }
-            
-            exchangeValueField.text = numberFormatter.string(from: NSNumber(value: exchangeValue ?? 0))
-            
         }
 
     }
-
-    @IBAction func edit(_ sender: UIBarButtonItem) {
-        exchangeValueField.isEnabled = true
-    }
     
-    private func getExchangeValue(for tradingPair: Currency.TradingPair, on date: NSDate) -> Double? {
-        let context = AppDelegate.viewContext
-        let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()
-        request.predicate = NSPredicate(format: "tradingPair = %@ AND date = %@", tradingPair.rawValue, date)
+    override func setEditing(_ editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: animated)
+        navigationItem.hidesBackButton = !navigationItem.hidesBackButton
+        exchangeValueField.isEnabled = !exchangeValueField.isEnabled
         
-        do {
-            let matches = try context.fetch(request)
-            if matches.count > 0 {
-                assert(matches.count >= 1, "Address.addAddress -- Database Inconsistency")
-                return matches[0].value
-            } else {
-                return nil
+        if !editing {
+            if let newValue = Double(exchangeValueField.text!) {
+                transaction?.updateUserExchangeValue(newValue, in: AppDelegate.viewContext)
             }
-        } catch {
-            return nil
         }
     }
 }

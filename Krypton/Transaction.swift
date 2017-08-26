@@ -43,5 +43,17 @@ class Transaction: NSManagedObject {
         return transaction
     }
     
+    func updateUserExchangeValue(_ newValue: Double, in context: NSManagedObjectContext) {
+        if newValue != userExchangeValue {
+            userExchangeValue = newValue
+        }
+        
+        do {
+            try context.save()
+            print("Saved updated user exchange value.")
+        } catch {
+            print("Failed to save updated user exchange value.")
+        }
+    }
 }
 

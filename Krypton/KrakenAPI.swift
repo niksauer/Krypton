@@ -105,13 +105,12 @@ struct KrakenAPI {
     // https://www.kraken.com/help/api
     
     // <time>, <"open">, <"high">, <"low">, <"close">, <"vwap">, <"volume">, <count>
-    static func priceHistoryURL(for tradingPair: Currency.TradingPair) -> URL {
-        let since = Calendar.current.date(byAdding: .day, value: -60, to: Date())!
-        
+    static func priceHistoryURL(for tradingPair: Currency.TradingPair, since: Date) -> URL {
+        let sinceDate = Calendar.current.date(byAdding: .day, value: -1, to: since)
         return krakenURL(method: .priceHistory, parameters: [
             "pair": tradingPair.rawValue,
             "interval": "1440",
-            "since": String(Int(round(since.timeIntervalSince1970)))
+            "since": String(Int(round(sinceDate!.timeIntervalSince1970)))
         ])
     }
     

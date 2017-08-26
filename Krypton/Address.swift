@@ -79,7 +79,7 @@ class Address: NSManagedObject {
                         self.addToTransactions(transaction)
                         
                         if transaction.block > self.lastBlock {
-                            self.lastBlock = transaction.block
+                            self.lastBlock = transaction.block + 1 
                         }
                     } catch {
                         print("Failed to create transaction from: \(txInfo.identifier, error)")
@@ -108,7 +108,7 @@ class Address: NSManagedObject {
                         self.addToTransactions(transaction)
                         
                         if transaction.block > self.lastBlock {
-                            self.lastBlock = transaction.block
+                            self.lastBlock = transaction.block + 1
                         }
                     } catch {
                         print("Failed to create transaction from: \(txInfo.identifier, error)")
@@ -127,6 +127,24 @@ class Address: NSManagedObject {
                 print("Failed to fetch contract transaction history: \(error)")
             }
         })
+    }
+    
+    func firstTransaction() -> Transaction? {
+        let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
+        request.predicate = NSPredicate(format: "owner = %@", self)
+        request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: true)]
+        request.fetchLimit = 1
+        
+        do {
+            let matches = try AppDelegate.viewContext.fetch(request)
+            if matches.count > 0 {
+                return matches[0]
+            } else {
+                return nil
+            }
+        } catch {
+            return nil
+        }
     }
 
 }

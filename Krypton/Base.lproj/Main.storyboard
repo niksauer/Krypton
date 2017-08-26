@@ -103,11 +103,11 @@
             </objects>
             <point key="canvasLocation" x="-202" y="90"/>
         </scene>
-        <!--First-->
+        <!--Dashboard-->
         <scene sceneID="gJ1-ty-zuh">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="2Q1-lD-n7k" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="First" image="first" id="acW-dT-cKf"/>
+                    <tabBarItem key="tabBarItem" title="Dashboard" image="first" id="acW-dT-cKf"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="m98-bE-Obh">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
@@ -140,11 +140,11 @@
             </objects>
             <point key="canvasLocation" x="2281" y="-322"/>
         </scene>
-        <!--Second-->
+        <!--Transactions-->
         <scene sceneID="rGX-Rz-9Pb">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="viJ-sz-cHs" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Second" image="second" id="cPa-gy-q4n"/>
+                    <tabBarItem key="tabBarItem" title="Transactions" image="second" id="cPa-gy-q4n"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="K3x-DF-ARu">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
@@ -312,7 +312,7 @@
                                                 <rect key="frame" x="74" y="0.0" width="269" height="30"/>
                                                 <nil key="textColor"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                <textInputTraits key="textInputTraits"/>
+                                                <textInputTraits key="textInputTraits" keyboardType="decimalPad"/>
                                             </textField>
                                         </subviews>
                                     </stackView>
@@ -371,13 +371,7 @@
                             <constraint firstItem="TDH-v2-1ty" firstAttribute="leading" secondItem="Jwz-vd-BMO" secondAttribute="leadingMargin" id="zIh-Za-14h"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Transaction" id="GtB-va-IFJ">
-                        <barButtonItem key="rightBarButtonItem" title="Edit" id="YWy-7B-VoX">
-                            <connections>
-                                <action selector="edit:" destination="eS5-l6-vgl" id="Hty-2f-RNA"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="Transaction" id="GtB-va-IFJ"/>
                     <connections>
                         <outlet property="blockField" destination="3L7-wZ-I7S" id="dk9-g5-U2Y"/>
                         <outlet property="dateField" destination="CLG-Y2-IY5" id="b7O-LS-If1"/>
