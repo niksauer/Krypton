@@ -11,7 +11,13 @@ import UIKit
 class DashboardController: UIViewController, UITabBarControllerDelegate {
     
     // MARK: - Properties
-    var wallet = Wallet()
+    let wallet = Wallet()
+    
+    // Mark: - Outlets
+    @IBOutlet weak var portfolioValueLabel: UILabel!
+    @IBOutlet weak var portfolioGainLabel: UILabel!
+    @IBOutlet weak var performanceTodayLabel: UILabel!
+    @IBOutlet weak var currentPriceLabel: UILabel!
     
     // MARK: - Initialization
     override func viewDidLoad() {

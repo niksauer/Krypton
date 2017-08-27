@@ -15,9 +15,8 @@ class Wallet {
 //    0xB15E9Ca894b6134Ac7C22B70b20Fd30De87451B2
     
     // MARK: - Public Properties
-    var addresses = [Address]()
-    let database = AppDelegate.persistentContainer
     static var baseCurrency = Currency.Fiat.EUR
+    var addresses = [Address]()
     
     // MARK: - Initialization
     init() {
@@ -30,17 +29,16 @@ class Wallet {
             print("Loaded \(addresses.count) addresses.")
             
             for address in addresses {
-                address.updateTransactionHistory(in: AppDelegate.viewContext)
+                address.updateTransactionHistory(in: AppDelegate.viewContext, completion: address.updatePriceHistory)
                 print("\(address.address!): \(address.balance) ETH, \(address.transactions?.count ?? 0) transaction(s).")
             }
-            
-            updatePriceHistory()
         } catch {
             print("Failed to load addresses: \(error)")
         }
     }
     
     // MARK: - Public Methods
+    /// creates and saves new address if non-existent in database, throws otherwise + updates balance, transaction history, price history
     func addAddress(_ addressString: String, unit: Currency.Crypto) throws {
         do {
             let context = AppDelegate.viewContext
@@ -48,10 +46,14 @@ class Wallet {
             
             do {
                 try context.save()
-                self.addresses.append(address)
+                
+                addresses.append(address)
                 address.updateBalance(in: context)
-                address.updateTransactionHistory(in: context)
-                updatePriceHistory()
+                address.updateTransactionHistory(in: context, completion: address.updatePriceHistory)
+                
+                let cryptoCurrency = Currency.Crypto(rawValue: address.cryptoCurrency!)!
+                let tradingPair = Currency.getTradingPair(cryptoCurrency: cryptoCurrency, fiatCurrency: Wallet.baseCurrency)!
+                CurrentPriceWatchlist.addTradingPair(tradingPair)
             } catch {
                 throw error
             }
@@ -59,50 +61,9 @@ class Wallet {
             throw error
         }
     }
-    
-    func updatePriceHistory() {
-        var tradingPairs: [Currency.TradingPair] = []
-        var sinceDates: [Date] = []
-        
-        for address in addresses {
-            if let cryptoCurrency = Currency.Crypto(rawValue: address.cryptoCurrency!), let tradingPair = Currency.getTradingPair(cryptoCurrency: cryptoCurrency, fiatCurrency: Wallet.baseCurrency), let firstTransactionDate = address.firstTransaction()?.date {
-                if !tradingPairs.contains(tradingPair) {
-                    tradingPairs.append(tradingPair)
-                    sinceDates.append(firstTransactionDate as Date)
-                }
-            }
-        }
-        
-        for (index, tradingPair) in tradingPairs.enumerated() {
-            TickerConnector.fetchPriceHistory(for: tradingPair, since: sinceDates[index], completion: { result in
-                switch result {
-                case let .success(priceHistory):
-                    let context = AppDelegate.viewContext
-                    
-                    for price in priceHistory {
-                        do {
-                            _ = try TickerPrice.createTickerPrice(from: price, in: context)
-                        } catch {
-                            print("Failed to create tickerPrice from: \(price, error)")
-                        }
-                    }
-                    
-                    do {
-                        if context.hasChanges {
-                            try context.save()
-                            print("Saved price history for \(tradingPair.rawValue) with \(priceHistory.count) prices.")
-                        }
-                    } catch {
-                        print("Failed to save fetched contract transaction history: \(error)")
-                    }
-                case let .failure(error):
-                    print("Failed to fetch price history for \(tradingPair.rawValue): \(error)")
-                }
-            })
-        }
-    }
 
     // MARK: - Private Methods
+    /// loads and returns all available addresses stored in Core Data
     private func loadAddresses() throws -> [Address] {
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<Address> = Address.fetchRequest()
@@ -172,3 +133,5 @@ class Wallet {
     }
     
 }
+
+

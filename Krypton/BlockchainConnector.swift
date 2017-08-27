@@ -1,5 +1,5 @@
 //
-//  EtherConnector.swift
+//  BlockchainConnector.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 13.08.17.
@@ -18,7 +18,7 @@ enum TransactionHistoryTimeframe {
     case sinceBlock(Int)
 }
 
-struct EtherConnector {
+struct BlockchainConnector {
     // MARK: - Private Properties
     private static let session: URLSession = {
         let config = URLSessionConfiguration.default

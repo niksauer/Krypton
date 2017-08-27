@@ -23,6 +23,7 @@ enum CurrentPriceResult {
 }
 
 struct KrakenAPI {
+    
     // MARK: - Private Properties
     private static let baseURL = "https://api.kraken.com/0/public"
     
@@ -103,7 +104,6 @@ struct KrakenAPI {
     }
     
     // https://www.kraken.com/help/api
-    
     // <time>, <"open">, <"high">, <"low">, <"close">, <"vwap">, <"volume">, <count>
     static func priceHistoryURL(for tradingPair: Currency.TradingPair, since: Date) -> URL {
         let sinceDate = Calendar.current.date(byAdding: .day, value: -1, to: since)
@@ -120,4 +120,5 @@ struct KrakenAPI {
             "pair": tradingPair.rawValue
         ])
     }
+    
 }

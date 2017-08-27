@@ -1,5 +1,5 @@
 //
-//  Crypto.swift
+//  Currency.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 24.08.17.
@@ -31,14 +31,14 @@ struct Currency {
         case ETHEUR
         case ETHUSD
     }
-    
-    
-    
+
     // MARK: - Public Methods
+    /// returns symbol for crypto currency
     static func getSymbol(for cryptoCurrency: Crypto) -> String? {
         return symbolForCrypto[cryptoCurrency]
     }
     
+    /// returns trading pair from specified crypto and fiat currency
     static func getTradingPair(cryptoCurrency: Crypto, fiatCurrency: Fiat) -> TradingPair? {
         let tradingPair = cryptoCurrency.rawValue + fiatCurrency.rawValue
         return TradingPair(rawValue: tradingPair)

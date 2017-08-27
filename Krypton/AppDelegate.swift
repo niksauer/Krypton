@@ -19,8 +19,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     static var viewContext: NSManagedObjectContext {
-        return persistentContainer.viewContext
+        let viewContext = persistentContainer.viewContext
+        viewContext.automaticallyMergesChangesFromParent = true
+        return viewContext
     }
+    
+//    static var backgroundContext: NSManagedObjectContext {
+//        let backgroundContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+//        backgroundContext.parent = viewContext
+//        return backgroundContext
+//    }
+    
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.

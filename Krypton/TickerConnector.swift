@@ -10,6 +10,7 @@ import Foundation
 import CoreData
 
 struct TickerConnector {
+    
     // MARK: - Private Properties
     private static let session: URLSession = {
         let config = URLSessionConfiguration.default
@@ -63,4 +64,5 @@ struct TickerConnector {
         
         task.resume()
     }
+    
 }

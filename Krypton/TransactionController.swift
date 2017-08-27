@@ -14,6 +14,8 @@ class TransactionController: UIViewController {
     // MARK: - Properties
     var addresses: [Address]?
     var transaction: Transaction?
+    var currentExchangeValue: Double?
+    var showsCurrentExchangeValue = false
     
     // MARK: - Outlets
     @IBOutlet weak var valueLabel: UILabel!
@@ -24,6 +26,7 @@ class TransactionController: UIViewController {
     @IBOutlet weak var exchangeValueField: UITextField!
     @IBOutlet weak var blockField: UITextField!
     @IBOutlet weak var hashField: UITextField!
+    @IBOutlet weak var exchangeValueTypeToggle: UIButton!
     
     // MARK: - Initialization
     override func viewDidLoad() {
@@ -34,35 +37,68 @@ class TransactionController: UIViewController {
             let unitSymbol = Currency.getSymbol(for: cryptoCurrency)!
             valueLabel.text = unitSymbol + " " + Format.cryptoFormatter.string(from: NSNumber(value: tx.value))!
             
-            let senderName = addresses?.first(where: { $0.address == tx.from!})?.alias
-            senderField.text = senderName ?? tx.from
-            
-            let receiverName = addresses?.first(where: { $0.address == tx.to!})?.alias
-            receiverField.text = receiverName ?? tx.to
+            senderField.text = alias(for: tx.from!) ?? tx.from
+            receiverField.text = alias(for: tx.from!) ?? tx.to
             
             dateField.text = Format.dateFormatter.string(from: tx.date! as Date)
             typeField.text = tx.type
             blockField.text = String(tx.block)
             hashField.text = tx.identifier
             
-            if let transactionValue = TickerPrice.getTransactionValue(for: tx) {
-                exchangeValueField.text = Format.fiatFormatter.string(from: NSNumber(value: transactionValue))!
+            if tx.exchangeValue != nil {
+                exchangeValueField.text = Format.fiatFormatter.string(from: NSNumber(value: tx.exchangeValue!))
             } else {
                 exchangeValueField.text = "???"
             }
         }
-
     }
     
+    // MARK: - Navigation
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
         navigationItem.hidesBackButton = !navigationItem.hidesBackButton
         exchangeValueField.isEnabled = !exchangeValueField.isEnabled
         
         if !editing {
+            exchangeValueTypeToggle.isEnabled = true
+            
             if let newValue = Double(exchangeValueField.text!) {
-                transaction?.updateUserExchangeValue(newValue, in: AppDelegate.viewContext)
+                transaction?.setUserExchangeValue(newValue, in: AppDelegate.viewContext)
+            }
+        } else {
+            exchangeValueTypeToggle.isEnabled = false
+        }
+    }
+    
+    @IBAction func toggleExchangeValueType(_ sender: UIButton) {
+        guard let tx = transaction else {
+            return
+        }
+        
+        showsCurrentExchangeValue = !showsCurrentExchangeValue
+        
+        if showsCurrentExchangeValue {
+            let cryptoCurrency = Currency.Crypto(rawValue: tx.owner!.cryptoCurrency!)!
+            let tradingPair = Currency.getTradingPair(cryptoCurrency: cryptoCurrency, fiatCurrency: Wallet.baseCurrency)!
+
+            if let currentUnitPrice = CurrentPriceWatchlist.currentPrice(for: tradingPair) {
+                currentExchangeValue = currentUnitPrice * tx.value
+                exchangeValueField.text = Format.fiatFormatter.string(from: NSNumber(value: self.currentExchangeValue!))
+            } else {
+                exchangeValueField.text = "???"
+            }
+        } else {
+            if let exchangeValue = tx.exchangeValue {
+                exchangeValueField.text = Format.fiatFormatter.string(from: NSNumber(value: exchangeValue))
+            } else {
+                exchangeValueField.text = "???"
             }
         }
     }
+    
+    // MARK: - Private Methods
+    private func alias(for address: String) -> String? {
+        return addresses?.first(where: { $0.address == address })?.alias
+    }
+    
 }

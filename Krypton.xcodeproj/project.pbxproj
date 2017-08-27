@@ -17,12 +17,13 @@
 		2400D0941F40D90900833958 /* TickerPrice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0931F40D90900833958 /* TickerPrice.swift */; };
 		2400D0961F424B5600833958 /* EtherscanAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0951F424B5600833958 /* EtherscanAPI.swift */; };
 		2400D0981F42508100833958 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0971F42508100833958 /* Transaction.swift */; };
-		2400D09A1F42511800833958 /* EtherConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0991F42511800833958 /* EtherConnector.swift */; };
+		2400D09A1F42511800833958 /* BlockchainConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0991F42511800833958 /* BlockchainConnector.swift */; };
 		240C63B11F47A88300728B8B /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240C63B01F47A88300728B8B /* Wallet.swift */; };
 		240C63B31F47A88E00728B8B /* Address.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240C63B21F47A88E00728B8B /* Address.swift */; };
 		246737651F4B9255003277B8 /* TransactionTableController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246737641F4B9255003277B8 /* TransactionTableController.swift */; };
 		246874F61F464B4E009BB60A /* Krypton.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 246874F41F464B4E009BB60A /* Krypton.xcdatamodeld */; };
 		249260061F4CD01900BFED15 /* TransactionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 249260051F4CD01900BFED15 /* TransactionController.swift */; };
+		24A007C41F538AD800EC0DCF /* CurrentPriceWatchlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A007C31F538AD800EC0DCF /* CurrentPriceWatchlist.swift */; };
 		24A226BE1F50ED9300907999 /* Format.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A226BD1F50ED9300907999 /* Format.swift */; };
 		24B859AF1F4857B100969049 /* AddAddressController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24B859AE1F4857B100969049 /* AddAddressController.swift */; };
 		24BB0DFE1F4E41B40042562C /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BB0DFD1F4E41B40042562C /* Currency.swift */; };
@@ -41,12 +42,13 @@
 		2400D0931F40D90900833958 /* TickerPrice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TickerPrice.swift; sourceTree = "<group>"; };
 		2400D0951F424B5600833958 /* EtherscanAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EtherscanAPI.swift; sourceTree = "<group>"; };
 		2400D0971F42508100833958 /* Transaction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
-		2400D0991F42511800833958 /* EtherConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EtherConnector.swift; sourceTree = "<group>"; };
+		2400D0991F42511800833958 /* BlockchainConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockchainConnector.swift; sourceTree = "<group>"; };
 		240C63B01F47A88300728B8B /* Wallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Wallet.swift; sourceTree = "<group>"; };
 		240C63B21F47A88E00728B8B /* Address.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Address.swift; sourceTree = "<group>"; };
 		246737641F4B9255003277B8 /* TransactionTableController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionTableController.swift; sourceTree = "<group>"; };
 		246874F51F464B4E009BB60A /* Krypton.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Krypton.xcdatamodel; sourceTree = "<group>"; };
 		249260051F4CD01900BFED15 /* TransactionController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionController.swift; sourceTree = "<group>"; };
+		24A007C31F538AD800EC0DCF /* CurrentPriceWatchlist.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentPriceWatchlist.swift; sourceTree = "<group>"; };
 		24A226BD1F50ED9300907999 /* Format.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Format.swift; sourceTree = "<group>"; };
 		24B859AE1F4857B100969049 /* AddAddressController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddAddressController.swift; sourceTree = "<group>"; };
 		24BB0DFD1F4E41B40042562C /* Currency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
@@ -104,7 +106,7 @@
 			isa = PBXGroup;
 			children = (
 				2400D0951F424B5600833958 /* EtherscanAPI.swift */,
-				2400D0991F42511800833958 /* EtherConnector.swift */,
+				2400D0991F42511800833958 /* BlockchainConnector.swift */,
 			);
 			name = Etherscan;
 			sourceTree = "<group>";
@@ -144,6 +146,7 @@
 			children = (
 				240C63B01F47A88300728B8B /* Wallet.swift */,
 				24BB0DFD1F4E41B40042562C /* Currency.swift */,
+				24A007C31F538AD800EC0DCF /* CurrentPriceWatchlist.swift */,
 				24A226BD1F50ED9300907999 /* Format.swift */,
 				240C63B61F47A8A800728B8B /* EntitiesMO */,
 			);
@@ -244,11 +247,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				2400D0961F424B5600833958 /* EtherscanAPI.swift in Sources */,
+				24A007C41F538AD800EC0DCF /* CurrentPriceWatchlist.swift in Sources */,
 				2400D0901F40720500833958 /* KrakenAPI.swift in Sources */,
 				249260061F4CD01900BFED15 /* TransactionController.swift in Sources */,
 				2400D0981F42508100833958 /* Transaction.swift in Sources */,
 				240C63B11F47A88300728B8B /* Wallet.swift in Sources */,
-				2400D09A1F42511800833958 /* EtherConnector.swift in Sources */,
+				2400D09A1F42511800833958 /* BlockchainConnector.swift in Sources */,
 				246737651F4B9255003277B8 /* TransactionTableController.swift in Sources */,
 				24A226BE1F50ED9300907999 /* Format.swift in Sources */,
 				24BB0DFE1F4E41B40042562C /* Currency.swift in Sources */,
