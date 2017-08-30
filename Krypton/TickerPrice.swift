@@ -16,7 +16,7 @@ enum TickerPriceError: Error {
 class TickerPrice: NSManagedObject {
     
     // MARK: - Private Class Methods
-    private class func getLatestTickerPrice(for tradingPair: Currency.TradingPair) -> TickerPrice? {
+    private class func newestTickerPrice(for tradingPair: Currency.TradingPair) -> TickerPrice? {
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()
         request.predicate = NSPredicate(format: "tradingPair = %@", tradingPair.rawValue)
@@ -37,7 +37,7 @@ class TickerPrice: NSManagedObject {
     
     /// fetches and saves price history for given trading pair starting from newestExchangeValue
     private class func updatePriceHistory(for tradingPair: Currency.TradingPair) {
-        guard let newestExchangeValue = getLatestTickerPrice(for: tradingPair) else {
+        guard let newestExchangeValue = newestTickerPrice(for: tradingPair) else {
             print("No price history found for \(tradingPair) - Please fetch price history startinng from specified date.")
             return
         }
@@ -70,7 +70,7 @@ class TickerPrice: NSManagedObject {
     }
     
     /// returns exchange value for given trading pair on specified date
-    class func getTickerPrice(for tradingPair: Currency.TradingPair, on date: Date) -> TickerPrice? {
+    class func tickerPrice(for tradingPair: Currency.TradingPair, on date: Date) -> TickerPrice? {
         var calendar = Calendar.current
         calendar.timeZone = TimeZone(abbreviation: "UTC")!
         
@@ -97,7 +97,7 @@ class TickerPrice: NSManagedObject {
 
     /// fetches and saves price history for given trading pair starting from specified date
     class func updatePriceHistory(for tradingPair: Currency.TradingPair, since date: Date) {
-        guard TickerPrice.getTickerPrice(for: tradingPair, on: date) == nil else {
+        guard TickerPrice.tickerPrice(for: tradingPair, on: date) == nil else {
             updatePriceHistory(for: tradingPair)
             return
         }
@@ -128,7 +128,5 @@ class TickerPrice: NSManagedObject {
             }
         })
     }
-    
-    
     
 }

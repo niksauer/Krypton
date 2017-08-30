@@ -34,7 +34,7 @@ class TransactionController: UIViewController {
         
         if let tx = transaction {
             let cryptoCurrency = Currency.Crypto(rawValue: tx.owner!.cryptoCurrency!)!
-            let unitSymbol = Currency.getSymbol(for: cryptoCurrency)!
+            let unitSymbol = Currency.symbol(for: cryptoCurrency)!
             valueLabel.text = unitSymbol + " " + Format.cryptoFormatter.string(from: NSNumber(value: tx.value))!
             
             senderField.text = alias(for: tx.from!) ?? tx.from
@@ -45,8 +45,8 @@ class TransactionController: UIViewController {
             blockField.text = String(tx.block)
             hashField.text = tx.identifier
             
-            if tx.exchangeValue != nil {
-                exchangeValueField.text = Format.fiatFormatter.string(from: NSNumber(value: tx.exchangeValue!))
+            if let exchangeValue = tx.exchangeValue {
+                exchangeValueField.text = Format.fiatFormatter.string(from: NSNumber(value: exchangeValue))
             } else {
                 exchangeValueField.text = "???"
             }
@@ -59,15 +59,15 @@ class TransactionController: UIViewController {
         navigationItem.hidesBackButton = !navigationItem.hidesBackButton
         exchangeValueField.isEnabled = !exchangeValueField.isEnabled
         
-        if !editing {
-            exchangeValueTypeToggle.isEnabled = true
-            
-            if let newValue = Double(exchangeValueField.text!) {
-                transaction?.setUserExchangeValue(newValue, in: AppDelegate.viewContext)
-            }
-        } else {
-            exchangeValueTypeToggle.isEnabled = false
-        }
+//        if !editing {
+//            exchangeValueTypeToggle.isEnabled = true
+//            
+//            if let newValue = Double(exchangeValueField.text!) {
+//                transaction?.setUserExchangeValue(newValue, in: AppDelegate.viewContext)
+//            }
+//        } else {
+//            exchangeValueTypeToggle.isEnabled = false
+//        }
     }
     
     @IBAction func toggleExchangeValueType(_ sender: UIButton) {
@@ -78,12 +78,8 @@ class TransactionController: UIViewController {
         showsCurrentExchangeValue = !showsCurrentExchangeValue
         
         if showsCurrentExchangeValue {
-            let cryptoCurrency = Currency.Crypto(rawValue: tx.owner!.cryptoCurrency!)!
-            let tradingPair = Currency.getTradingPair(cryptoCurrency: cryptoCurrency, fiatCurrency: Wallet.baseCurrency)!
-
-            if let currentUnitPrice = CurrentPriceWatchlist.currentPrice(for: tradingPair) {
-                currentExchangeValue = currentUnitPrice * tx.value
-                exchangeValueField.text = Format.fiatFormatter.string(from: NSNumber(value: self.currentExchangeValue!))
+            if let currentExchangeValue = tx.currentExchangeValue {
+                exchangeValueField.text = Format.fiatFormatter.string(from: NSNumber(value: currentExchangeValue))
             } else {
                 exchangeValueField.text = "???"
             }

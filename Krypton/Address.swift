@@ -39,6 +39,13 @@ class Address: NSManagedObject {
     }
 
     // MARK: - Public Properties
+    var delegate: AddressDelegate?
+    
+    /// returns addresses trading pair as constructed from its own crypto currency and wallets base currency
+    var tradingPair: Currency.TradingPair {
+        return Currency.tradingPair(cryptoCurrency: Currency.Crypto(rawValue: cryptoCurrency!)!, fiatCurrency: Wallet.baseCurrency)!
+    }
+    
     /// returns the oldest transaction associated with an address
     var oldestTransaction: Transaction? {
         let context = AppDelegate.viewContext
@@ -59,7 +66,24 @@ class Address: NSManagedObject {
         }
     }
 
+    /// returns the addresses current value according to specified trading pair
+    var currentExchangeValue: Double? {
+        if let unitExchangeValue = TickerWatchlist.currentPrice(for: tradingPair) {
+            return balance * unitExchangeValue
+        } else {
+            return nil
+        }
+    }
+    
     // MARK: - Public Methods
+    func exchangeValue(on date: Date) -> Double? {
+        if let unitExchangeValue = TickerPrice.tickerPrice(for: tradingPair, on: date)?.value {
+            return balance * unitExchangeValue
+        } else {
+            return nil
+        }
+    }
+    
     /// fetches and saves balance
     func updateBalance(in context: NSManagedObjectContext) {
         BlockchainConnector.fetchBalance(for: self, completion: { result in
@@ -71,6 +95,7 @@ class Address: NSManagedObject {
                     if context.hasChanges {
                         try context.save()
                         print("Saved updated balance.")
+                        self.delegate?.didUpdateBalance(for: self)
                     }
                 } catch {
                     print("Failed to save fetched balance: \(error)")
@@ -156,9 +181,13 @@ class Address: NSManagedObject {
     
     /// updates price history for trading pair associated with address starting from earliest transaction date encountered
     func updatePriceHistory() {
-        if let cryptoCurrency = Currency.Crypto(rawValue: cryptoCurrency!), let tradingPair = Currency.getTradingPair(cryptoCurrency: cryptoCurrency, fiatCurrency: Wallet.baseCurrency), let firstTransactionDate = oldestTransaction?.date {
+        if let firstTransactionDate = oldestTransaction?.date {
             TickerPrice.updatePriceHistory(for: tradingPair, since: firstTransactionDate as Date)
         }
     }
 
+}
+
+protocol AddressDelegate {
+    func didUpdateBalance(for address: Address)
 }

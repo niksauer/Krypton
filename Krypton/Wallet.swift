@@ -9,14 +9,28 @@
 import Foundation
 import CoreData
 
-class Wallet {
+class Wallet: AddressDelegate {
     
 //    0xAA2F9BFAA9Ec168847216357b0856d776F34881f
 //    0xB15E9Ca894b6134Ac7C22B70b20Fd30De87451B2
     
     // MARK: - Public Properties
     static var baseCurrency = Currency.Fiat.EUR
+    
+    var delegate: WalletDelegate?
     var addresses = [Address]()
+    
+    var currentExchangeValue: Double? {
+        var exchangeValue = 0.0
+        for address in addresses {
+            if let addressExchangeValue = address.currentExchangeValue {
+                exchangeValue = exchangeValue + addressExchangeValue
+            } else {
+                return nil
+            }
+        }
+        return exchangeValue
+    }
     
     // MARK: - Initialization
     init() {
@@ -25,11 +39,13 @@ class Wallet {
 //        deletePriceHistory()
         
         do {
+            let context = AppDelegate.viewContext
             addresses = try loadAddresses()
             print("Loaded \(addresses.count) addresses.")
             
             for address in addresses {
-                address.updateTransactionHistory(in: AppDelegate.viewContext, completion: address.updatePriceHistory)
+                address.updateBalance(in: context)
+                address.updateTransactionHistory(in: context, completion: address.updatePriceHistory)
                 print("\(address.address!): \(address.balance) ETH, \(address.transactions?.count ?? 0) transaction(s).")
             }
         } catch {
@@ -46,20 +62,32 @@ class Wallet {
             
             do {
                 try context.save()
-                
+                address.delegate = self
                 addresses.append(address)
                 address.updateBalance(in: context)
                 address.updateTransactionHistory(in: context, completion: address.updatePriceHistory)
                 
                 let cryptoCurrency = Currency.Crypto(rawValue: address.cryptoCurrency!)!
-                let tradingPair = Currency.getTradingPair(cryptoCurrency: cryptoCurrency, fiatCurrency: Wallet.baseCurrency)!
-                CurrentPriceWatchlist.addTradingPair(tradingPair)
+                let tradingPair = Currency.tradingPair(cryptoCurrency: cryptoCurrency, fiatCurrency: Wallet.baseCurrency)!
+                TickerWatchlist.addTradingPair(tradingPair)
             } catch {
                 throw error
             }
         } catch {
             throw error
         }
+    }
+    
+    func exchangeValue(on date: Date) -> Double? {
+        var exchangeValue = 0.0
+        for address in addresses {
+            if let addressExchangeValue = address.exchangeValue(on: date) {
+                exchangeValue = exchangeValue + addressExchangeValue
+            } else {
+                return nil
+            }
+        }
+        return exchangeValue
     }
 
     // MARK: - Private Methods
@@ -74,6 +102,13 @@ class Wallet {
             throw error
         }
     }
+    
+    // MARK: - Address Delegate
+    func didUpdateBalance(for address: Address) {
+        delegate?.didUpdateWallet(self)
+    }
+    
+    
     
     private func loadTransactions() -> [Transaction]? {
         let context = AppDelegate.viewContext
@@ -134,4 +169,7 @@ class Wallet {
     
 }
 
+protocol WalletDelegate {
+    func didUpdateWallet(_ wallet: Wallet)
+}
 

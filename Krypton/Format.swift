@@ -36,5 +36,14 @@ struct Format {
         return formatter
     }()
     
+    /// formats number with 2 decimal digits 
+    static let numberFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        return formatter
+    }()
+    
 }
 

@@ -46,10 +46,17 @@ class Transaction: NSManagedObject {
     // MARK: - Public Properties
     /// returns exchange value as encountered on execution date
     var exchangeValue: Double? {
-        let tradingPair = Currency.getTradingPair(cryptoCurrency: Currency.Crypto(rawValue: (owner?.cryptoCurrency)!)!, fiatCurrency: Wallet.baseCurrency)!
-        
-        if let unitExchangeValue = TickerPrice.getTickerPrice(for: tradingPair, on: date! as Date) {
-            return unitExchangeValue.value * value
+        if let unitExchangeValue = TickerPrice.tickerPrice(for: owner!.tradingPair, on: date! as Date)?.value {
+            return unitExchangeValue * value
+        } else {
+            return nil
+        }
+    }
+    
+    /// returns exchange value according to today's current price
+    var currentExchangeValue: Double? {
+        if let unitExchangeValue = TickerWatchlist.currentPrice(for: owner!.tradingPair) {
+            return unitExchangeValue * value
         } else {
             return nil
         }
@@ -60,13 +67,13 @@ class Transaction: NSManagedObject {
     func setUserExchangeValue(_ newValue: Double, in context: NSManagedObjectContext) {
         if newValue != userExchangeValue {
             userExchangeValue = newValue
-        }
-        
-        do {
-            try context.save()
-            print("Saved updated user exchange value.")
-        } catch {
-            print("Failed to save updated user exchange value.")
+            
+            do {
+                try context.save()
+                print("Saved updated user exchange value.")
+            } catch {
+                print("Failed to save updated user exchange value.")
+            }
         }
     }
     

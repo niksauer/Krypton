@@ -34,12 +34,12 @@ struct Currency {
 
     // MARK: - Public Methods
     /// returns symbol for crypto currency
-    static func getSymbol(for cryptoCurrency: Crypto) -> String? {
+    static func symbol(for cryptoCurrency: Crypto) -> String? {
         return symbolForCrypto[cryptoCurrency]
     }
     
     /// returns trading pair from specified crypto and fiat currency
-    static func getTradingPair(cryptoCurrency: Crypto, fiatCurrency: Fiat) -> TradingPair? {
+    static func tradingPair(cryptoCurrency: Crypto, fiatCurrency: Fiat) -> TradingPair? {
         let tradingPair = cryptoCurrency.rawValue + fiatCurrency.rawValue
         return TradingPair(rawValue: tradingPair)
     }
