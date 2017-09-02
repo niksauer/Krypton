@@ -22,28 +22,41 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Portfolio Value" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iFG-nm-Oga">
-                                <rect key="frame" x="86" y="132" width="203" height="39"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="32"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="absolute" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oVE-Wg-SFw">
+                                <rect key="frame" x="149" y="223" width="77" height="24"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Performance" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="R0s-e6-ckW">
-                                <rect key="frame" x="130" y="188" width="115" height="24"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="relative" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="R0s-e6-ckW">
+                                <rect key="frame" x="155" y="174" width="65" height="24"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Portfolio Value" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iFG-nm-Oga">
+                                <rect key="frame" x="86" y="106" width="203" height="39"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="32"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="iFG-nm-Oga" firstAttribute="centerX" secondItem="tsR-hK-woN" secondAttribute="centerX" id="BdS-tr-oGv"/>
-                            <constraint firstItem="R0s-e6-ckW" firstAttribute="centerX" secondItem="tsR-hK-woN" secondAttribute="centerX" id="Yn2-1H-3Rd"/>
-                            <constraint firstItem="R0s-e6-ckW" firstAttribute="top" secondItem="iFG-nm-Oga" secondAttribute="bottom" constant="17" id="dto-Is-9R9"/>
-                            <constraint firstItem="iFG-nm-Oga" firstAttribute="top" secondItem="Ia1-K6-d13" secondAttribute="bottom" constant="68" id="ga4-Ey-okH"/>
+                            <constraint firstItem="iFG-nm-Oga" firstAttribute="top" secondItem="Ia1-K6-d13" secondAttribute="bottom" constant="42" id="1AV-EE-AaL"/>
+                            <constraint firstItem="iFG-nm-Oga" firstAttribute="centerX" secondItem="tsR-hK-woN" secondAttribute="centerX" id="5GI-nb-ZwD"/>
+                            <constraint firstItem="R0s-e6-ckW" firstAttribute="top" secondItem="iFG-nm-Oga" secondAttribute="bottom" constant="29" id="FZq-SP-aiI"/>
+                            <constraint firstItem="oVE-Wg-SFw" firstAttribute="centerX" secondItem="tsR-hK-woN" secondAttribute="centerX" id="R6o-Na-7o5"/>
+                            <constraint firstItem="oVE-Wg-SFw" firstAttribute="top" secondItem="R0s-e6-ckW" secondAttribute="bottom" constant="25" id="aQN-Sq-IhV"/>
+                            <constraint firstItem="R0s-e6-ckW" firstAttribute="centerX" secondItem="tsR-hK-woN" secondAttribute="centerX" id="uft-YJ-2bw"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Dashboard" id="1TJ-af-ZPf">
+                        <barButtonItem key="leftBarButtonItem" systemItem="trash" id="IOn-So-nBd">
+                            <connections>
+                                <action selector="deleteData:" destination="9pv-A4-QxB" id="eGI-Oh-31K"/>
+                            </connections>
+                        </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="raZ-Dd-9kU">
                             <connections>
                                 <segue destination="ixO-ZF-rRU" kind="presentation" identifier="addAddress" id="EyJ-Bj-yp1"/>
@@ -51,8 +64,9 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <outlet property="performanceLabel" destination="R0s-e6-ckW" id="rbP-9F-lqE"/>
+                        <outlet property="absoluteReturnLabel" destination="oVE-Wg-SFw" id="vrI-Os-2dI"/>
                         <outlet property="portfolioValueLabel" destination="iFG-nm-Oga" id="d2D-c4-Fxq"/>
+                        <outlet property="relativeReturnLabel" destination="R0s-e6-ckW" id="Eza-KS-Q1M"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="W5J-7L-Pyd" sceneMemberID="firstResponder"/>

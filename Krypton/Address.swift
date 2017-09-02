@@ -76,7 +76,34 @@ class Address: NSManagedObject {
     }
     
     // MARK: - Public Methods
+    func absolutReturnHistory(since date: Date) -> [(date: Date, date: Double)]? {
+        guard !date.isToday() else {
+            return nil
+        }
+        
+        var returnHistory: [(Date, Double)] = []
+        let txs = Array(transactions!) as! [Transaction]
+        
+        for (index, tx) in txs.enumerated() {
+            if let absoluteReturnHistory = tx.absoluteReturnHistory(since: date) {
+                if index == 0 {
+                    for (date, absoluteReturn) in absoluteReturnHistory {
+                        returnHistory.append((date, absoluteReturn))
+                    }
+                } else {
+                    returnHistory = zip(returnHistory, absoluteReturnHistory).map() { ($0.0, $0.1 + $1.1) }
+                }
+            }
+        }
+        
+        return returnHistory
+    }
+    
     func exchangeValue(on date: Date) -> Double? {
+        guard !date.isToday(), !date.isFuture() else {
+            return nil
+        }
+        
         if let unitExchangeValue = TickerPrice.tickerPrice(for: tradingPair, on: date)?.value {
             return balance * unitExchangeValue
         } else {
@@ -94,7 +121,7 @@ class Address: NSManagedObject {
                 do {
                     if context.hasChanges {
                         try context.save()
-                        print("Saved updated balance.")
+                        print("Saved updated balance for \(self.address!).")
                         self.delegate?.didUpdateBalance(for: self)
                     }
                 } catch {

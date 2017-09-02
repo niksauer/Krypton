@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 class TickerWatchlist {
     
@@ -17,13 +18,18 @@ class TickerWatchlist {
     private static var currentPrice: [Currency.TradingPair : Double] = [:]
     private static var updateTimer: Timer?
     private static var updateIntervall: TimeInterval = 30
+    private static var tradingPairs = Set<Currency.TradingPair>()
     
     // MARK: - Public Class Methods
     /// adds trading pair to watchlist, fetches current price if trading pair has not already been added
     class func addTradingPair(_ tradingPair: Currency.TradingPair) {
-        if currentPrice[tradingPair] == nil {
+        if !tradingPairs.contains(tradingPair) {
+            tradingPairs.insert(tradingPair)
             updatePrice(for: tradingPair)
-            startUpdateTimer()
+            
+            if tradingPairs.count == 1 {
+                startUpdateTimer()
+            }
         }
     }
     
@@ -34,16 +40,31 @@ class TickerWatchlist {
     
     /// updates current price every 30 seconds for all tradingPairs stored in watchlist
     /// gets started with first added tradingPair
-    class func startUpdateTimer() {
+    @objc class func startUpdateTimer() {
         guard updateTimer == nil else {
+            // timer already running
             return
         }
         
         updateTimer = Timer.scheduledTimer(withTimeInterval: updateIntervall, repeats: true, block: { _ in
-            for (tradingPair, _) in currentPrice {
+            for tradingPair in tradingPairs {
                 updatePrice(for: tradingPair)
             }
         })
+        
+        let notificationCenter = NotificationCenter.default
+        notificationCenter.setObserver(self, selector: #selector(stopUpdateTimer), name: Notification.Name.UIApplicationDidEnterBackground, object: nil)
+        notificationCenter.setObserver(self, selector: #selector(startUpdateTimer), name: Notification.Name.UIApplicationDidBecomeActive, object: nil)
+    }
+    
+    @objc class func stopUpdateTimer() {
+        guard updateTimer != nil else {
+            // no timer set
+            return
+        }
+        
+        updateTimer?.invalidate()
+        updateTimer = nil
     }
     
     // MARK: - Private Class Methods

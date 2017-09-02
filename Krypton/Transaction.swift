@@ -46,7 +46,7 @@ class Transaction: NSManagedObject {
     // MARK: - Public Properties
     /// returns exchange value as encountered on execution date
     var exchangeValue: Double? {
-        if let unitExchangeValue = TickerPrice.tickerPrice(for: owner!.tradingPair, on: date! as Date)?.value {
+        if let unitExchangeValue = TickerPrice.tickerPrice(for: self.owner!.tradingPair, on: date! as Date)?.value {
             return unitExchangeValue * value
         } else {
             return nil
@@ -55,7 +55,7 @@ class Transaction: NSManagedObject {
     
     /// returns exchange value according to today's current price
     var currentExchangeValue: Double? {
-        if let unitExchangeValue = TickerWatchlist.currentPrice(for: owner!.tradingPair) {
+        if let unitExchangeValue = TickerWatchlist.currentPrice(for: self.owner!.tradingPair) {
             return unitExchangeValue * value
         } else {
             return nil
@@ -63,6 +63,54 @@ class Transaction: NSManagedObject {
     }
     
     // MARK: - Public Methods
+    func absoluteReturnHistory(since date: Date) -> [(date: Date, value: Double)]? {
+        guard !date.isToday(), !date.isFuture() else {
+            return nil
+        }
+
+        var returnHistory: [(Date, Double)] = []
+
+        // fill response with 0s if requested date preceeds transaction
+        // calculate start date of absolute return history -> either specified date or transaction start
+        let startDate: Date
+        
+        if date < self.date! as Date {
+            let daysUntilStart = Calendar.current.dateComponents([.day], from: date, to: self.date! as Date).day!
+            
+            for daysPassed in 0..<daysUntilStart {
+                let date = Calendar.current.date(byAdding: .day, value: daysPassed, to: date)!
+                let absolutePerformance = 0.0
+                returnHistory.append((date, absolutePerformance))
+            }
+            
+            startDate = Calendar.current.date(byAdding: .day, value: daysUntilStart, to: date)!
+        } else {
+            startDate = date
+        }
+        
+        guard let unitExchangeValue = TickerPrice.tickerPrice(for: owner!.tradingPair, on: startDate)?.value, let currentExchangeValue = currentExchangeValue else {
+            return nil
+        }
+        
+        // get transaction value at start date
+        let baseExchangeValue = unitExchangeValue * value
+        
+        // calculate number of days for which return history must be aggregated
+        let daysMissing = Calendar.current.dateComponents([.day], from: startDate, to: Date()).day!
+        
+        for daysPassed in 0..<daysMissing {
+            let date = Calendar.current.date(byAdding: .day, value: daysPassed, to: startDate)!
+            let unitExchangeValue = TickerPrice.tickerPrice(for: owner!.tradingPair, on: date)!.value
+            let absolutePerformance = (unitExchangeValue * value) - baseExchangeValue
+            returnHistory.append((date, absolutePerformance))
+        }
+        
+        // todays absolute return
+        returnHistory.append((Date(), currentExchangeValue - baseExchangeValue))
+        
+        return returnHistory
+    }
+    
     /// replaces exchange value as encountered on execution date by user defined value
     func setUserExchangeValue(_ newValue: Double, in context: NSManagedObjectContext) {
         if newValue != userExchangeValue {

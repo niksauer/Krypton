@@ -34,7 +34,7 @@ class TransactionController: UIViewController {
         
         if let tx = transaction {
             let cryptoCurrency = Currency.Crypto(rawValue: tx.owner!.cryptoCurrency!)!
-            let unitSymbol = Currency.symbol(for: cryptoCurrency)!
+            let unitSymbol = cryptoCurrency.symbol
             valueLabel.text = unitSymbol + " " + Format.cryptoFormatter.string(from: NSNumber(value: tx.value))!
             
             senderField.text = alias(for: tx.from!) ?? tx.from

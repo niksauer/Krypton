@@ -16,7 +16,8 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, WalletD
     
     // Mark: - Outlets
     @IBOutlet weak var portfolioValueLabel: UILabel!
-    @IBOutlet weak var performanceLabel: UILabel!
+    @IBOutlet weak var relativeReturnLabel: UILabel!
+    @IBOutlet weak var absoluteReturnLabel: UILabel!
     
     // MARK: - Initialization
     override func viewDidLoad() {
@@ -37,19 +38,25 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, WalletD
         }
     }
     
+    @IBAction func deleteData(_ sender: UIBarButtonItem) {
+        wallet.deleteCoreData()
+    }
+    
     // MARK: - Private Methods
     private func updateUI() {
-        guard let currentExchangeValue = wallet.currentExchangeValue, let comparisonExchangeValue = wallet.exchangeValue(on: comparisonDate) else {
+        guard let currentExchangeValue = wallet.currentExchangeValue, let comparisonExchangeValue = wallet.exchangeValue(on: comparisonDate), let absoluteReturnHistory = wallet.absoluteReturnHistory(since: comparisonDate), let absoluteReturn = absoluteReturnHistory.last?.value else {
             portfolioValueLabel.text = "???"
-            performanceLabel.text = "???"
+            relativeReturnLabel.text = "???"
+            absoluteReturnLabel.text = "???"
             return
         }
         
         let difference = currentExchangeValue - comparisonExchangeValue
-        let performance = difference / comparisonExchangeValue * 100
+        let relativeReturn = difference / comparisonExchangeValue * 100
         
         portfolioValueLabel.text = Format.fiatFormatter.string(from: NSNumber(value: currentExchangeValue))
-        performanceLabel.text = Format.numberFormatter.string(from: NSNumber(value: performance))
+        relativeReturnLabel.text = Format.numberFormatter.string(from: NSNumber(value: relativeReturn))! + "%"
+        absoluteReturnLabel.text = Format.numberFormatter.string(from: NSNumber(value: absoluteReturn))
     }
     
     // MARK: - TabBarControllerDelegate

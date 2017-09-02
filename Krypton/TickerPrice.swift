@@ -71,12 +71,13 @@ class TickerPrice: NSManagedObject {
     
     /// returns exchange value for given trading pair on specified date
     class func tickerPrice(for tradingPair: Currency.TradingPair, on date: Date) -> TickerPrice? {
-        var calendar = Calendar.current
-        calendar.timeZone = TimeZone(abbreviation: "UTC")!
+        guard !date.isToday(), !date.isFuture() else {
+            return nil
+        }
         
-        let dateComponents = Calendar.current.dateComponents([.day, .month, .year], from: date)
-        let startDate = calendar.date(from: dateComponents)!
-        let endDate = calendar.date(byAdding: .day, value: +1, to: startDate)!
+        let timezone = TimeZone(abbreviation: "UTC")!
+        let startDate = Date.start(of: date, in: timezone)
+        let endDate = Date.end(of: date, in: timezone)
         
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()

@@ -47,6 +47,7 @@ class Wallet: AddressDelegate {
                 address.updateBalance(in: context)
                 address.updateTransactionHistory(in: context, completion: address.updatePriceHistory)
                 print("\(address.address!): \(address.balance) ETH, \(address.transactions?.count ?? 0) transaction(s).")
+                TickerWatchlist.addTradingPair(address.tradingPair)
             }
         } catch {
             print("Failed to load addresses: \(error)")
@@ -63,19 +64,38 @@ class Wallet: AddressDelegate {
             do {
                 try context.save()
                 address.delegate = self
-                addresses.append(address)
                 address.updateBalance(in: context)
                 address.updateTransactionHistory(in: context, completion: address.updatePriceHistory)
-                
-                let cryptoCurrency = Currency.Crypto(rawValue: address.cryptoCurrency!)!
-                let tradingPair = Currency.tradingPair(cryptoCurrency: cryptoCurrency, fiatCurrency: Wallet.baseCurrency)!
-                TickerWatchlist.addTradingPair(tradingPair)
+                TickerWatchlist.addTradingPair(address.tradingPair)
+                addresses.append(address)
             } catch {
                 throw error
             }
         } catch {
             throw error
         }
+    }
+    
+    func absoluteReturnHistory(since date: Date) -> [(date: Date, value: Double)]? {
+        guard !date.isToday(), !date.isFuture() else {
+            return nil
+        }
+        
+        var returnHistory: [(Date, Double)] = []
+        
+        for (index, address) in addresses.enumerated() {
+            if let absoluteReturnHistory = address.absolutReturnHistory(since: date) {
+                if index == 0 {
+                    for (date, absoluteReturn) in absoluteReturnHistory {
+                        returnHistory.append((date, absoluteReturn))
+                    }
+                } else {
+                    returnHistory = zip(returnHistory, absoluteReturnHistory).map() { ($0.0, $0.1 + $1.1) }
+                }
+            }
+        }
+        
+        return returnHistory
     }
     
     func exchangeValue(on date: Date) -> Double? {
@@ -108,7 +128,12 @@ class Wallet: AddressDelegate {
         delegate?.didUpdateWallet(self)
     }
     
-    
+    func deleteCoreData() {
+        deleteAddresses()
+        deleteTransactions()
+        deletePriceHistory()
+        delegate?.didUpdateWallet(self)
+    }
     
     private func loadTransactions() -> [Transaction]? {
         let context = AppDelegate.viewContext

@@ -20,6 +20,11 @@ struct Currency {
     enum Crypto: String {
         case ETH
         case BTC
+        
+        /// returns symbol for crypto currency
+        var symbol: String {
+            return symbolForCrypto[self]!
+        }
     }
     
     enum Fiat: String {
@@ -33,11 +38,6 @@ struct Currency {
     }
 
     // MARK: - Public Methods
-    /// returns symbol for crypto currency
-    static func symbol(for cryptoCurrency: Crypto) -> String? {
-        return symbolForCrypto[cryptoCurrency]
-    }
-    
     /// returns trading pair from specified crypto and fiat currency
     static func tradingPair(cryptoCurrency: Crypto, fiatCurrency: Fiat) -> TradingPair? {
         let tradingPair = cryptoCurrency.rawValue + fiatCurrency.rawValue

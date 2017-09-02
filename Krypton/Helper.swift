@@ -1,5 +1,5 @@
 //
-//  Format.swift
+//  Helper.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 26.08.17.
@@ -47,3 +47,35 @@ struct Format {
     
 }
 
+extension Date {
+    static func start(of date: Date, in timezone: TimeZone) -> Date {
+        var calendar = Calendar.current
+        calendar.timeZone = timezone
+    
+        let dateComponents = Calendar.current.dateComponents([.day, .month, .year], from: date)
+        return calendar.date(from: dateComponents)!
+    }
+    
+    static func end(of date: Date, in timezone: TimeZone) -> Date {
+        var calendar = Calendar.current
+        calendar.timeZone = timezone
+        
+        let startDate = Date.start(of: date, in: timezone)
+        return calendar.date(byAdding: .day, value: +1, to: startDate)!
+    }
+    
+    func isToday() -> Bool {
+        return Calendar.current.compare(self, to: Date(), toGranularity: .day) == .orderedSame
+    }
+    
+    func isFuture() -> Bool {
+        return Calendar.current.compare(self, to: Date(), toGranularity: .day) == .orderedDescending
+    }
+}
+
+extension NotificationCenter {
+    func setObserver(_ observer: AnyObject, selector: Selector, name: NSNotification.Name, object: AnyObject?) {
+        NotificationCenter.default.removeObserver(observer, name: name, object: object)
+        NotificationCenter.default.addObserver(observer, selector: selector, name: name, object: object)
+    }
+}
