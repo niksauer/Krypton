@@ -15,8 +15,8 @@ enum AddressError: Error {
 
 class Address: NSManagedObject {
     
-    // MARK: - Class Methods
-    /// creates and returns an address if non-existent in database, throws otherwise
+    // MARK: - Public Class Methods
+    /// creates and returns address if non-existent in database, throws otherwise
     class func createAddress(_ addressString: String, unit: Currency.Crypto, in context: NSManagedObjectContext) throws -> Address {
         let request: NSFetchRequest<Address> = Address.fetchRequest()
         request.predicate = NSPredicate(format: "address = %@", addressString)
@@ -39,14 +39,15 @@ class Address: NSManagedObject {
     }
 
     // MARK: - Public Properties
+    /// delegate who gets notified of balance changes
     var delegate: AddressDelegate?
     
-    /// returns addresses trading pair as constructed from its own crypto currency and wallets base currency
+    /// returns trading pair constructed from Wallet.baseCurrency + cryptoCurrency
     var tradingPair: Currency.TradingPair {
         return Currency.tradingPair(cryptoCurrency: Currency.Crypto(rawValue: cryptoCurrency!)!, fiatCurrency: Wallet.baseCurrency)!
     }
     
-    /// returns the oldest transaction associated with an address
+    /// returns the oldest transaction
     var oldestTransaction: Transaction? {
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
@@ -66,7 +67,7 @@ class Address: NSManagedObject {
         }
     }
 
-    /// returns the addresses current value according to specified trading pair
+    /// returns the current exchange value according to set trading pair
     var currentExchangeValue: Double? {
         if let unitExchangeValue = TickerWatchlist.currentPrice(for: tradingPair) {
             return balance * unitExchangeValue
@@ -76,8 +77,9 @@ class Address: NSManagedObject {
     }
     
     // MARK: - Public Methods
+    /// returns absolute return history since specified date, nil if date is today or in the future
     func absolutReturnHistory(since date: Date) -> [(date: Date, date: Double)]? {
-        guard !date.isToday() else {
+        guard !date.isToday(), !date.isFuture() else {
             return nil
         }
         
@@ -93,12 +95,15 @@ class Address: NSManagedObject {
                 } else {
                     returnHistory = zip(returnHistory, absoluteReturnHistory).map() { ($0.0, $0.1 + $1.1) }
                 }
+            } else {
+                return nil
             }
         }
         
         return returnHistory
     }
     
+    /// returns exchange value on speicfied date, nil if date is today or in the future
     func exchangeValue(on date: Date) -> Double? {
         guard !date.isToday(), !date.isFuture() else {
             return nil
@@ -111,21 +116,20 @@ class Address: NSManagedObject {
         }
     }
     
-    /// fetches and saves balance
+    /// fetches and saves balance if it has changed, notifies delegate
     func updateBalance(in context: NSManagedObjectContext) {
         BlockchainConnector.fetchBalance(for: self, completion: { result in
             switch result {
             case let .success(balance):
-                self.balance = balance
-                
-                do {
-                    if context.hasChanges {
+                if balance != self.balance {
+                    do {
+                        self.balance = balance
                         try context.save()
                         print("Saved updated balance for \(self.address!).")
                         self.delegate?.didUpdateBalance(for: self)
+                    } catch {
+                        print("Failed to save fetched balance: \(error)")
                     }
-                } catch {
-                    print("Failed to save fetched balance: \(error)")
                 }
             case let .failure(error):
                 print("Failed to fetch balance: \(error)")
@@ -133,7 +137,7 @@ class Address: NSManagedObject {
         })
     }
     
-    /// fetches and saves transaction history since last retrieved block, executes completion block if no error is thrown
+    /// fetches and saves transaction history since last retrieved block, executes completion block if no error is thrown during retrieval and saving
     func updateTransactionHistory(in context: NSManagedObjectContext, completion: (() -> Void)?) {
         let timeframe: TransactionHistoryTimeframe
         
@@ -143,7 +147,7 @@ class Address: NSManagedObject {
             timeframe = .sinceBlock(Int(lastBlock))
         }
         
-        BlockchainConnector.fetchTransactionHistory(for: self, type: .normal, timeframe: timeframe, completion: { result in
+        BlockchainConnector.fetchTransactionHistory(for: self, type: .normal, timeframe: timeframe) { result in
             switch result {
             case let .success(txs):
                 for txInfo in txs {
@@ -163,53 +167,57 @@ class Address: NSManagedObject {
                     if context.hasChanges {
                         try context.save()
                         print("Saved updated normal transaction history.")
-                        
-                        BlockchainConnector.fetchTransactionHistory(for: self, type: .contract, timeframe: timeframe, completion: { result in
-                            switch result {
-                            case let .success(txs):
-                                for txInfo in txs {
-                                    do {
-                                        let transaction = try Transaction.createTransaction(from: txInfo, in: context)
-                                        self.addToTransactions(transaction)
-                                        
-                                        if transaction.block > self.lastBlock {
-                                            self.lastBlock = transaction.block + 1
-                                        }
-                                    } catch {
-                                        print("Failed to create transaction from: \(txInfo.identifier, error)")
-                                    }
-                                }
-                                
+                    } else {
+                        print("Normal transaction history is already up-to-date.")
+                    }
+                    
+                    BlockchainConnector.fetchTransactionHistory(for: self, type: .contract, timeframe: timeframe, completion: { result in
+                        switch result {
+                        case let .success(txs):
+                            for txInfo in txs {
                                 do {
-                                    if context.hasChanges {
-                                        try context.save()
-                                        print("Saved updated contract transaction history.")
-                                        
-                                        if let completion = completion {
-                                            completion()
-                                        }
+                                    let transaction = try Transaction.createTransaction(from: txInfo, in: context)
+                                    self.addToTransactions(transaction)
+                                    
+                                    if transaction.block > self.lastBlock {
+                                        self.lastBlock = transaction.block + 1
                                     }
                                 } catch {
-                                    print("Failed to save fetched contract transaction history: \(error)")
+                                    print("Failed to create transaction from: \(txInfo.identifier, error)")
                                 }
-                            case let .failure(error):
-                                print("Failed to fetch contract transaction history: \(error)")
                             }
-                        })
-                    }
+                            
+                            do {
+                                if context.hasChanges {
+                                    try context.save()
+                                    print("Saved updated contract transaction history.")
+                                } else {
+                                    print("Contract transaction history is already up-to-date.")
+                                }
+                                
+                                if let completion = completion {
+                                    completion()
+                                }
+                            } catch {
+                                print("Failed to save fetched contract transaction history: \(error)")
+                            }
+                        case let .failure(error):
+                            print("Failed to fetch contract transaction history: \(error)")
+                        }
+                    })
                 } catch {
                     print("Failed to save fetched normal transaction history: \(error)")
                 }
             case let .failure(error):
                 print("Failed to fetch normal transaction history: \(error)")
             }
-        })
+        }
     }
     
-    /// updates price history for trading pair associated with address starting from earliest transaction date encountered
-    func updatePriceHistory() {
+    /// asks tickerPrice to update price history for set trading pair starting from oldest transaction date encountered, passes completion block
+    func updatePriceHistory(completion: (() -> Void)?) {
         if let firstTransactionDate = oldestTransaction?.date {
-            TickerPrice.updatePriceHistory(for: tradingPair, since: firstTransactionDate as Date)
+            TickerPrice.updatePriceHistory(for: tradingPair, since: firstTransactionDate as Date, completion: completion)
         }
     }
 

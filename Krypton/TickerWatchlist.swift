@@ -7,21 +7,28 @@
 //
 
 import Foundation
-import UIKit
 
 class TickerWatchlist {
     
     // MARK: - Public Properties
+    /// delegate who is notified of price updates
     static var delegate: TickerWatchlistDelegate?
     
     // MARK: - Private Properties
+    /// dictionary mapping trading pairs to their most current price
     private static var currentPrice: [Currency.TradingPair : Double] = [:]
+    
+    /// timer used to continioulsy fetch price updates
     private static var updateTimer: Timer?
+    
+    /// price update interval specified in seconds
     private static var updateIntervall: TimeInterval = 30
+    
+    /// trading pairs for which continious price updates are retrieved
     private static var tradingPairs = Set<Currency.TradingPair>()
     
     // MARK: - Public Class Methods
-    /// adds trading pair to watchlist, fetches current price if trading pair has not already been added
+    /// adds trading pair and fetches current price if it has not already been added to watchlist, starts update timer
     class func addTradingPair(_ tradingPair: Currency.TradingPair) {
         if !tradingPairs.contains(tradingPair) {
             tradingPairs.insert(tradingPair)
@@ -33,13 +40,13 @@ class TickerWatchlist {
         }
     }
     
-    /// returns current price for tradingPair
+    /// returns current price for specified trading pair
     class func currentPrice(for tradingPair: Currency.TradingPair) -> Double? {
         return currentPrice[tradingPair]
     }
     
-    /// updates current price every 30 seconds for all tradingPairs stored in watchlist
-    /// gets started with first added tradingPair
+    /// starts unique timer to update current price in specified interval for all stored trading pairs
+    /// timer stop if app enters background, starts/continues when becoming active again
     @objc class func startUpdateTimer() {
         guard updateTimer == nil else {
             // timer already running
@@ -68,7 +75,7 @@ class TickerWatchlist {
     }
     
     // MARK: - Private Class Methods
-    /// updates current price for trading pair
+    /// updates current price for specified trading pair, notifies delegate of change
     private class func updatePrice(for tradingPair: Currency.TradingPair) {
         TickerConnector.fetchCurrentPrice(for: tradingPair, completion: { result in
             switch result {

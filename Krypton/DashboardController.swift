@@ -44,15 +44,12 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, WalletD
     
     // MARK: - Private Methods
     private func updateUI() {
-        guard let currentExchangeValue = wallet.currentExchangeValue, let comparisonExchangeValue = wallet.exchangeValue(on: comparisonDate), let absoluteReturnHistory = wallet.absoluteReturnHistory(since: comparisonDate), let absoluteReturn = absoluteReturnHistory.last?.value else {
+        guard let absoluteReturnHistory = wallet.absoluteReturnHistory(since: comparisonDate), let currentExchangeValue = wallet.currentExchangeValue, let absoluteReturn = absoluteReturnHistory.last?.value, let relativeReturn = wallet.relativeReturn(since: comparisonDate) else {
             portfolioValueLabel.text = "???"
             relativeReturnLabel.text = "???"
             absoluteReturnLabel.text = "???"
             return
         }
-        
-        let difference = currentExchangeValue - comparisonExchangeValue
-        let relativeReturn = difference / comparisonExchangeValue * 100
         
         portfolioValueLabel.text = Format.fiatFormatter.string(from: NSNumber(value: currentExchangeValue))
         relativeReturnLabel.text = Format.numberFormatter.string(from: NSNumber(value: relativeReturn))! + "%"

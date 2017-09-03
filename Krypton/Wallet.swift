@@ -15,11 +15,16 @@ class Wallet: AddressDelegate {
 //    0xB15E9Ca894b6134Ac7C22B70b20Fd30De87451B2
     
     // MARK: - Public Properties
+    /// base fiat currency used to construct trading pairs
     static var baseCurrency = Currency.Fiat.EUR
     
+    /// delegate who gets notified of wallet changes
     var delegate: WalletDelegate?
+    
+    /// stored addresses associated with wallet
     var addresses = [Address]()
     
+    /// returns the current summed exchange value of all addresses
     var currentExchangeValue: Double? {
         var exchangeValue = 0.0
         for address in addresses {
@@ -33,20 +38,18 @@ class Wallet: AddressDelegate {
     }
     
     // MARK: - Initialization
+    /// loads and updates all stored addresses, request continious ticker price updates
     init() {
 //        deleteAddresses()
 //        deleteTransactions()
 //        deletePriceHistory()
         
         do {
-            let context = AppDelegate.viewContext
             addresses = try loadAddresses()
             print("Loaded \(addresses.count) addresses.")
+            updateWallet()
             
             for address in addresses {
-                address.updateBalance(in: context)
-                address.updateTransactionHistory(in: context, completion: address.updatePriceHistory)
-                print("\(address.address!): \(address.balance) ETH, \(address.transactions?.count ?? 0) transaction(s).")
                 TickerWatchlist.addTradingPair(address.tradingPair)
             }
         } catch {
@@ -55,7 +58,8 @@ class Wallet: AddressDelegate {
     }
     
     // MARK: - Public Methods
-    /// creates and saves new address if non-existent in database, throws otherwise + updates balance, transaction history, price history
+    /// creates and saves address, sets wallet as its delegate
+    /// updates its balance, transaction history, price history and requests continious ticker updates for its trading pair
     func addAddress(_ addressString: String, unit: Currency.Crypto) throws {
         do {
             let context = AppDelegate.viewContext
@@ -63,11 +67,16 @@ class Wallet: AddressDelegate {
             
             do {
                 try context.save()
+                
                 address.delegate = self
-                address.updateBalance(in: context)
-                address.updateTransactionHistory(in: context, completion: address.updatePriceHistory)
-                TickerWatchlist.addTradingPair(address.tradingPair)
                 addresses.append(address)
+                
+                address.updateTransactionHistory(in: context) {
+                    address.updatePriceHistory() {
+                        TickerWatchlist.addTradingPair(address.tradingPair)
+                        address.updateBalance(in: context)
+                    }
+                }
             } catch {
                 throw error
             }
@@ -76,6 +85,17 @@ class Wallet: AddressDelegate {
         }
     }
     
+    /// returns relative, i.e. percentage, return compared to specified date 
+    func relativeReturn(since date: Date) -> Double? {
+        guard let currentExchangeValue = currentExchangeValue, let comparisonExchangeValue = exchangeValue(on: date) else {
+            return nil
+        }
+        
+        let difference = currentExchangeValue - comparisonExchangeValue
+        return difference / comparisonExchangeValue * 100
+    }
+    
+    /// returns summed absolute return history of all addresses since specified date, nil if date is today or in the future
     func absoluteReturnHistory(since date: Date) -> [(date: Date, value: Double)]? {
         guard !date.isToday(), !date.isFuture() else {
             return nil
@@ -92,12 +112,15 @@ class Wallet: AddressDelegate {
                 } else {
                     returnHistory = zip(returnHistory, absoluteReturnHistory).map() { ($0.0, $0.1 + $1.1) }
                 }
+            } else {
+                return nil
             }
         }
         
         return returnHistory
     }
     
+    /// returns summed exchange value of all addresses on speicfied date, nil if date is today or in the future
     func exchangeValue(on date: Date) -> Double? {
         var exchangeValue = 0.0
         for address in addresses {
@@ -108,6 +131,21 @@ class Wallet: AddressDelegate {
             }
         }
         return exchangeValue
+    }
+    
+    /// updates all addresses stored in wallet by updating transaction history, price history and balance
+    func updateWallet() {
+        let context = AppDelegate.viewContext
+        
+        for address in addresses {
+            print("\(address.address!): \(address.balance) ETH, \(address.transactions?.count ?? 0) transaction(s).")
+            
+            address.updateTransactionHistory(in: context) {
+                address.updatePriceHistory() {
+                    address.updateBalance(in: context)
+                }
+            }
+        }
     }
 
     // MARK: - Private Methods
@@ -124,10 +162,14 @@ class Wallet: AddressDelegate {
     }
     
     // MARK: - Address Delegate
+    /// notifies delegate that balance has changed for specified address
     func didUpdateBalance(for address: Address) {
         delegate?.didUpdateWallet(self)
     }
+
     
+    
+    // MARK: - Experimental
     func deleteCoreData() {
         deleteAddresses()
         deleteTransactions()

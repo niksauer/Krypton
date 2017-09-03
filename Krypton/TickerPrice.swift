@@ -16,6 +16,7 @@ enum TickerPriceError: Error {
 class TickerPrice: NSManagedObject {
     
     // MARK: - Private Class Methods
+    /// returns newest ticker price for specified trading pair
     private class func newestTickerPrice(for tradingPair: Currency.TradingPair) -> TickerPrice? {
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()
@@ -35,18 +36,8 @@ class TickerPrice: NSManagedObject {
         }
     }
     
-    /// fetches and saves price history for given trading pair starting from newestExchangeValue
-    private class func updatePriceHistory(for tradingPair: Currency.TradingPair) {
-        guard let newestExchangeValue = newestTickerPrice(for: tradingPair) else {
-            print("No price history found for \(tradingPair) - Please fetch price history startinng from specified date.")
-            return
-        }
-        
-        updatePriceHistory(for: tradingPair, since: newestExchangeValue.date! as Date)
-    }
-    
     // MARK: - Public Class Methods
-    /// creates and returns a tickerPrice if non-existent in database, throws otherwise
+    /// creates and returns ticker price if non-existent in database, throws otherwise
     class func createTickerPrice(from priceInfo: KrakenAPI.Price, in context: NSManagedObjectContext) throws -> TickerPrice {
         let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()
         request.predicate = NSPredicate(format: "date = %@", priceInfo.date)
@@ -69,7 +60,7 @@ class TickerPrice: NSManagedObject {
         return price
     }
     
-    /// returns exchange value for given trading pair on specified date
+    /// returns exchange value for specified trading pair on specified date, nil if date is today or in the future
     class func tickerPrice(for tradingPair: Currency.TradingPair, on date: Date) -> TickerPrice? {
         guard !date.isToday(), !date.isFuture() else {
             return nil
@@ -96,14 +87,29 @@ class TickerPrice: NSManagedObject {
         }
     }
 
-    /// fetches and saves price history for given trading pair starting from specified date
-    class func updatePriceHistory(for tradingPair: Currency.TradingPair, since date: Date) {
-        guard TickerPrice.tickerPrice(for: tradingPair, on: date) == nil else {
-            updatePriceHistory(for: tradingPair)
+    /// fetches and saves price history for specified trading pair starting from specified date, executes completion block if no error is thrown during retrieval and saving
+    class func updatePriceHistory(for tradingPair: Currency.TradingPair, since date: Date, completion: (() -> Void)?) {
+        var startDate: Date? = nil
+        let timezone = TimeZone(abbreviation: "UTC")!
+        
+        if TickerPrice.tickerPrice(for: tradingPair, on: date) == nil {
+            startDate = Date.start(of: date, in: timezone)
+        } else if let newestExchangeValueDate = newestTickerPrice(for: tradingPair)?.date {
+            startDate = Date.start(of: Calendar.current.date(byAdding: .day, value: 1, to: newestExchangeValueDate as Date)!, in: timezone)
+        } else {
+            // database lookup error
+        }
+        
+        guard let downloadStartDate = startDate, !downloadStartDate.isToday(), !downloadStartDate.isFuture() else {
+            if let completion = completion {
+                completion()
+            }
+            
+            print("Price history for trading pair \(tradingPair) is already up-to-date.")
             return
         }
         
-        TickerConnector.fetchPriceHistory(for: tradingPair, since: date, completion: { result in
+        TickerConnector.fetchPriceHistory(for: tradingPair, since: downloadStartDate, completion: { result in
             switch result {
             case let .success(priceHistory):
                 let context = AppDelegate.viewContext
@@ -119,7 +125,11 @@ class TickerPrice: NSManagedObject {
                 do {
                     if context.hasChanges {
                         try context.save()
-                        print("Saved price history for \(tradingPair.rawValue) with \(priceHistory.count) prices since \(date).")
+                        print("Saved price history for \(tradingPair.rawValue) with \(priceHistory.count) prices since \(downloadStartDate).")
+                    }
+                    
+                    if let completion = completion {
+                        completion()
                     }
                 } catch {
                     print("Failed to save fetched contract transaction history: \(error)")

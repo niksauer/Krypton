@@ -15,8 +15,8 @@ enum TransactionError: Error {
 
 class Transaction: NSManagedObject {
     
-    // MARK: - Class Methods
-    /// creates and returns a transaction if non-existent in database, throws otherwise
+    // MARK: - Public Class Methods
+    /// creates and returns transaction if non-existent in database, throws otherwise
     class func createTransaction(from txInfo: EtherscanAPI.Transaction, in context: NSManagedObjectContext) throws -> Transaction {
         let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
         request.predicate = NSPredicate(format: "identifier = %@ AND type = %@", txInfo.identifier, txInfo.type.rawValue)
@@ -44,7 +44,7 @@ class Transaction: NSManagedObject {
     }
     
     // MARK: - Public Properties
-    /// returns exchange value as encountered on execution date
+    /// returns exchange value as encountered on execution date according to owners trading pair
     var exchangeValue: Double? {
         if let unitExchangeValue = TickerPrice.tickerPrice(for: self.owner!.tradingPair, on: date! as Date)?.value {
             return unitExchangeValue * value
@@ -53,7 +53,7 @@ class Transaction: NSManagedObject {
         }
     }
     
-    /// returns exchange value according to today's current price
+    /// returns the current exchange value according to owners trading pair
     var currentExchangeValue: Double? {
         if let unitExchangeValue = TickerWatchlist.currentPrice(for: self.owner!.tradingPair) {
             return unitExchangeValue * value
@@ -63,6 +63,7 @@ class Transaction: NSManagedObject {
     }
     
     // MARK: - Public Methods
+    /// returns absolute return history since specified date, nil if date is today or in the future
     func absoluteReturnHistory(since date: Date) -> [(date: Date, value: Double)]? {
         guard !date.isToday(), !date.isFuture() else {
             return nil
@@ -88,23 +89,26 @@ class Transaction: NSManagedObject {
             startDate = date
         }
         
+        // get transaction value at start date and current exchange value needed for todays absolute return
         guard let unitExchangeValue = TickerPrice.tickerPrice(for: owner!.tradingPair, on: startDate)?.value, let currentExchangeValue = currentExchangeValue else {
             return nil
         }
-        
-        // get transaction value at start date
+    
         let baseExchangeValue = unitExchangeValue * value
         
         // calculate number of days for which return history must be aggregated
         let daysMissing = Calendar.current.dateComponents([.day], from: startDate, to: Date()).day!
         
         for daysPassed in 0..<daysMissing {
-            let date = Calendar.current.date(byAdding: .day, value: daysPassed, to: startDate)!
-            let unitExchangeValue = TickerPrice.tickerPrice(for: owner!.tradingPair, on: date)!.value
-            let absolutePerformance = (unitExchangeValue * value) - baseExchangeValue
-            returnHistory.append((date, absolutePerformance))
+            if let unitExchangeValue = TickerPrice.tickerPrice(for: owner!.tradingPair, on: date)?.value {
+                let date = Calendar.current.date(byAdding: .day, value: daysPassed, to: startDate)!
+                let absolutePerformance = (unitExchangeValue * value) - baseExchangeValue
+                returnHistory.append((date, absolutePerformance))
+            } else {
+                return nil
+            }
         }
-        
+    
         // todays absolute return
         returnHistory.append((Date(), currentExchangeValue - baseExchangeValue))
         
@@ -114,9 +118,8 @@ class Transaction: NSManagedObject {
     /// replaces exchange value as encountered on execution date by user defined value
     func setUserExchangeValue(_ newValue: Double, in context: NSManagedObjectContext) {
         if newValue != userExchangeValue {
-            userExchangeValue = newValue
-            
             do {
+                userExchangeValue = newValue
                 try context.save()
                 print("Saved updated user exchange value.")
             } catch {
