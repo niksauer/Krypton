@@ -79,7 +79,7 @@ class Address: NSManagedObject {
     // MARK: - Public Methods
     /// returns absolute return history since specified date, nil if date is today or in the future
     func absolutReturnHistory(since date: Date) -> [(date: Date, date: Double)]? {
-        guard !date.isToday(), !date.isFuture() else {
+        guard !date.isToday, !date.isFuture else {
             return nil
         }
         
@@ -105,7 +105,7 @@ class Address: NSManagedObject {
     
     /// returns exchange value on speicfied date, nil if date is today or in the future
     func exchangeValue(on date: Date) -> Double? {
-        guard !date.isToday(), !date.isFuture() else {
+        guard !date.isToday, !date.isFuture else {
             return nil
         }
         
@@ -224,5 +224,6 @@ class Address: NSManagedObject {
 }
 
 protocol AddressDelegate {
+    func didUpdateUserExchangeValue(for transaction: Transaction)
     func didUpdateBalance(for address: Address)
 }

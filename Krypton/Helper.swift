@@ -70,12 +70,12 @@ extension Date {
     
     // MARK: - Public Methods
     /// checks whether date is today according to current (system) calendar
-    func isToday() -> Bool {
+    var isToday: Bool {
         return Calendar.current.compare(self, to: Date(), toGranularity: .day) == .orderedSame
     }
     
     /// checks whether date lays in future according to current (system) calendar
-    func isFuture() -> Bool {
+    var isFuture: Bool {
         return Calendar.current.compare(self, to: Date(), toGranularity: .day) == .orderedDescending
     }
     

@@ -62,7 +62,7 @@ class TickerPrice: NSManagedObject {
     
     /// returns exchange value for specified trading pair on specified date, nil if date is today or in the future
     class func tickerPrice(for tradingPair: Currency.TradingPair, on date: Date) -> TickerPrice? {
-        guard !date.isToday(), !date.isFuture() else {
+        guard !date.isToday, !date.isFuture else {
             return nil
         }
         
@@ -100,7 +100,7 @@ class TickerPrice: NSManagedObject {
             // database lookup error
         }
         
-        guard let downloadStartDate = startDate, !downloadStartDate.isToday(), !downloadStartDate.isFuture() else {
+        guard let downloadStartDate = startDate, !downloadStartDate.isToday, !downloadStartDate.isFuture else {
             if let completion = completion {
                 completion()
             }
@@ -116,7 +116,11 @@ class TickerPrice: NSManagedObject {
                 
                 for price in priceHistory {
                     do {
-                        _ = try TickerPrice.createTickerPrice(from: price, in: context)
+                        let date = price.date as Date
+                        // leave out result for today
+                        if !date.isToday {
+                            _ = try TickerPrice.createTickerPrice(from: price, in: context)
+                        }
                     } catch {
                         print("Failed to create tickerPrice from: \(price, error)")
                     }
@@ -125,7 +129,7 @@ class TickerPrice: NSManagedObject {
                 do {
                     if context.hasChanges {
                         try context.save()
-                        print("Saved price history for \(tradingPair.rawValue) with \(priceHistory.count) prices since \(downloadStartDate).")
+                        print("Saved price history for \(tradingPair.rawValue) with \(priceHistory.count-1) prices since \(downloadStartDate).")
                     }
                     
                     if let completion = completion {

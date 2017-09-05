@@ -97,7 +97,7 @@ class Wallet: AddressDelegate {
     
     /// returns summed absolute return history of all addresses since specified date, nil if date is today or in the future
     func absoluteReturnHistory(since date: Date) -> [(date: Date, value: Double)]? {
-        guard !date.isToday(), !date.isFuture() else {
+        guard !date.isToday, !date.isFuture else {
             return nil
         }
         
@@ -164,6 +164,10 @@ class Wallet: AddressDelegate {
     // MARK: - Address Delegate
     /// notifies delegate that balance has changed for specified address
     func didUpdateBalance(for address: Address) {
+        delegate?.didUpdateWallet(self)
+    }
+    
+    func didUpdateUserExchangeValue(for transaction: Transaction) {
         delegate?.didUpdateWallet(self)
     }
 
