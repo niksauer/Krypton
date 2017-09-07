@@ -40,14 +40,22 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="current" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2Dn-mP-C0Q">
+                                <rect key="frame" x="159" y="264" width="56" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="iFG-nm-Oga" firstAttribute="top" secondItem="Ia1-K6-d13" secondAttribute="bottom" constant="42" id="1AV-EE-AaL"/>
+                            <constraint firstItem="2Dn-mP-C0Q" firstAttribute="top" secondItem="oVE-Wg-SFw" secondAttribute="bottom" constant="17" id="3bU-CQ-UAn"/>
                             <constraint firstItem="iFG-nm-Oga" firstAttribute="centerX" secondItem="tsR-hK-woN" secondAttribute="centerX" id="5GI-nb-ZwD"/>
                             <constraint firstItem="R0s-e6-ckW" firstAttribute="top" secondItem="iFG-nm-Oga" secondAttribute="bottom" constant="29" id="FZq-SP-aiI"/>
                             <constraint firstItem="oVE-Wg-SFw" firstAttribute="centerX" secondItem="tsR-hK-woN" secondAttribute="centerX" id="R6o-Na-7o5"/>
                             <constraint firstItem="oVE-Wg-SFw" firstAttribute="top" secondItem="R0s-e6-ckW" secondAttribute="bottom" constant="25" id="aQN-Sq-IhV"/>
+                            <constraint firstItem="2Dn-mP-C0Q" firstAttribute="centerX" secondItem="tsR-hK-woN" secondAttribute="centerX" id="cPM-hz-smV"/>
                             <constraint firstItem="R0s-e6-ckW" firstAttribute="centerX" secondItem="tsR-hK-woN" secondAttribute="centerX" id="uft-YJ-2bw"/>
                         </constraints>
                     </view>
@@ -65,6 +73,7 @@
                     </navigationItem>
                     <connections>
                         <outlet property="absoluteReturnLabel" destination="oVE-Wg-SFw" id="vrI-Os-2dI"/>
+                        <outlet property="currentRateLabel" destination="2Dn-mP-C0Q" id="nYO-L1-JKL"/>
                         <outlet property="portfolioValueLabel" destination="iFG-nm-Oga" id="d2D-c4-Fxq"/>
                         <outlet property="relativeReturnLabel" destination="R0s-e6-ckW" id="Eza-KS-Q1M"/>
                     </connections>

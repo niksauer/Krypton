@@ -44,7 +44,7 @@ class Address: NSManagedObject {
     
     /// returns trading pair constructed from Wallet.baseCurrency + cryptoCurrency
     var tradingPair: Currency.TradingPair {
-        return Currency.tradingPair(cryptoCurrency: Currency.Crypto(rawValue: cryptoCurrency!)!, fiatCurrency: Wallet.baseCurrency)!
+        return Currency.tradingPair(cryptoCurrency: Currency.Crypto(rawValue: cryptoCurrency!)!, fiatCurrency: Currency.Fiat(rawValue: portfolio!.baseCurrency!)!)!
     }
     
     /// returns the oldest transaction
@@ -195,6 +195,8 @@ class Address: NSManagedObject {
                                     print("Contract transaction history is already up-to-date.")
                                 }
                                 
+                                self.delegate?.didUpdateTransactionHistory(for: self)
+                                
                                 if let completion = completion {
                                     completion()
                                 }
@@ -215,15 +217,16 @@ class Address: NSManagedObject {
     }
     
     /// asks tickerPrice to update price history for set trading pair starting from oldest transaction date encountered, passes completion block
-    func updatePriceHistory(completion: (() -> Void)?) {
+    func updatePriceHistory() {
         if let firstTransactionDate = oldestTransaction?.date {
-            TickerPrice.updatePriceHistory(for: tradingPair, since: firstTransactionDate as Date, completion: completion)
+            TickerPrice.updatePriceHistory(for: tradingPair, since: firstTransactionDate as Date)
         }
     }
 
 }
 
 protocol AddressDelegate {
-    func didUpdateUserExchangeValue(for transaction: Transaction)
+    func didUpdateTransactionHistory(for address: Address)
     func didUpdateBalance(for address: Address)
+    func didUpdateUserExchangeValue(for transaction: Transaction)
 }

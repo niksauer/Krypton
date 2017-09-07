@@ -62,13 +62,12 @@ class TickerPrice: NSManagedObject {
     
     /// returns exchange value for specified trading pair on specified date, nil if date is today or in the future
     class func tickerPrice(for tradingPair: Currency.TradingPair, on date: Date) -> TickerPrice? {
-        guard !date.isToday, !date.isFuture else {
+        guard !date.isUTCToday, !date.isUTCFuture else {
             return nil
         }
-        
-        let timezone = TimeZone(abbreviation: "UTC")!
-        let startDate = Date.start(of: date, in: timezone)
-        let endDate = Date.end(of: date, in: timezone)
+    
+        let startDate = date.UTCStart
+        let endDate = date.UTCEnd
         
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()
@@ -88,37 +87,31 @@ class TickerPrice: NSManagedObject {
     }
 
     /// fetches and saves price history for specified trading pair starting from specified date, executes completion block if no error is thrown during retrieval and saving
-    class func updatePriceHistory(for tradingPair: Currency.TradingPair, since date: Date, completion: (() -> Void)?) {
-        var startDate: Date? = nil
-        let timezone = TimeZone(abbreviation: "UTC")!
+    class func updatePriceHistory(for tradingPair: Currency.TradingPair, since date: Date) {
+        var startDate: Date!
         
         if TickerPrice.tickerPrice(for: tradingPair, on: date) == nil {
-            startDate = Date.start(of: date, in: timezone)
+            startDate = date.UTCStart
         } else if let newestExchangeValueDate = newestTickerPrice(for: tradingPair)?.date {
-            startDate = Date.start(of: Calendar.current.date(byAdding: .day, value: 1, to: newestExchangeValueDate as Date)!, in: timezone)
-        } else {
-            // database lookup error
+            startDate = Calendar.current.date(byAdding: .day, value: 1, to: newestExchangeValueDate as Date)!.UTCStart
         }
         
-        guard let downloadStartDate = startDate, !downloadStartDate.isToday, !downloadStartDate.isFuture else {
-            if let completion = completion {
-                completion()
-            }
-            
+        guard !startDate.isUTCToday, !startDate.isUTCFuture else {
             print("Price history for trading pair \(tradingPair) is already up-to-date.")
             return
         }
         
-        TickerConnector.fetchPriceHistory(for: tradingPair, since: downloadStartDate, completion: { result in
+        TickerConnector.fetchPriceHistory(for: tradingPair, since: startDate, completion: { result in
             switch result {
             case let .success(priceHistory):
                 let context = AppDelegate.viewContext
-                
+            
                 for price in priceHistory {
                     do {
                         let date = price.date as Date
+            
                         // leave out result for today
-                        if !date.isToday {
+                        if !date.isUTCToday {
                             _ = try TickerPrice.createTickerPrice(from: price, in: context)
                         }
                     } catch {
@@ -129,11 +122,7 @@ class TickerPrice: NSManagedObject {
                 do {
                     if context.hasChanges {
                         try context.save()
-                        print("Saved price history for \(tradingPair.rawValue) with \(priceHistory.count-1) prices since \(downloadStartDate).")
-                    }
-                    
-                    if let completion = completion {
-                        completion()
+                        print("Saved price history for \(tradingPair.rawValue) with \(priceHistory.count-1) prices since \(startDate!).")
                     }
                 } catch {
                     print("Failed to save fetched contract transaction history: \(error)")
