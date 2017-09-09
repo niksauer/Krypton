@@ -32,7 +32,7 @@ struct Format {
     static let fiatFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
-        formatter.currencyCode = Wallet.baseCurrency.rawValue
+        formatter.currencyCode = PortfolioManager.shared.baseCurrency.rawValue
         return formatter
     }()
     
@@ -49,26 +49,46 @@ struct Format {
 
 extension Date {
     
-    // MARK: - Public Class Methods
-    /// returns specified date in specified timezone but with set time of 0AM
-    static func start(of date: Date, in timezone: TimeZone) -> Date {
-        var calendar = Calendar.current
+    // MARK: - Public Properties
+    var UTC: Date {
+        var calendar = Calendar(identifier: .gregorian)
+        let timezone = TimeZone(abbreviation: "UTC")!
         calendar.timeZone = timezone
+        let dateComponents = calendar.dateComponents([.day, .month, .year], from: self)
+        return calendar.date(from: dateComponents)!
+    }
     
-        let dateComponents = Calendar.current.dateComponents([.day, .month, .year], from: date)
+    /// returns specified date in specified timezone but with set time of 0AM
+    var UTCStart: Date {
+        var calendar = Calendar(identifier: .gregorian)
+        let timezone = TimeZone(abbreviation: "UTC")!
+        calendar.timeZone = timezone
+        let dateComponents = calendar.dateComponents([.day, .month, .year], from: self)
         return calendar.date(from: dateComponents)!
     }
     
     /// returns successor of specified date in specified timezone but with set time of 0AM
-    static func end(of date: Date, in timezone: TimeZone) -> Date {
-        var calendar = Calendar.current
+    var UTCEnd: Date {
+        var calendar = Calendar(identifier: .gregorian)
+        let timezone = TimeZone(abbreviation: "UTC")!
         calendar.timeZone = timezone
-        
-        let startDate = Date.start(of: date, in: timezone)
-        return calendar.date(byAdding: .day, value: +1, to: startDate)!
+        return calendar.date(byAdding: .day, value: +1, to: self.UTCStart)!
     }
     
-    // MARK: - Public Methods
+    var isUTCToday: Bool {
+        var calendar = Calendar(identifier: .gregorian)
+        let timezone = TimeZone(abbreviation: "UTC")!
+        calendar.timeZone = timezone
+        return calendar.compare(self, to: Date(), toGranularity: .day) == .orderedSame
+    }
+    
+    var isUTCFuture: Bool {
+        var calendar = Calendar(identifier: .gregorian)
+        let timezone = TimeZone(abbreviation: "UTC")!
+        calendar.timeZone = timezone
+        return calendar.compare(self, to: Date(), toGranularity: .day) == .orderedDescending
+    }
+    
     /// checks whether date is today according to current (system) calendar
     var isToday: Bool {
         return Calendar.current.compare(self, to: Date(), toGranularity: .day) == .orderedSame
