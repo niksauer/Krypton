@@ -39,6 +39,18 @@ class Portfolio: NSManagedObject, AddressDelegate {
         return exchangeValue
     }
 
+    var absoluteReturn: Double? {
+        var absoluteReturn = 0.0
+        for address in storedAddresses {
+            if let addressAbsoluteReturn = address.absoluteReturn {
+                absoluteReturn = absoluteReturn + addressAbsoluteReturn
+            } else {
+                return nil
+            }
+        }
+        return absoluteReturn
+    }
+    
     // MARK: - Public Methods
     /// returns summed absolute return history of all addresses since specified date, nil if date is today or in the future
     func absoluteReturnHistory(since date: Date) -> [(date: Date, value: Double)]? {

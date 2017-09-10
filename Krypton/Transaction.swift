@@ -62,10 +62,30 @@ class Transaction: NSManagedObject {
         }
     }
     
+    var absoluteReturn: Double? {
+        if let exchangeValue = exchangeValue, let currentExchangeValue = currentExchangeValue {
+            let absoluteReturn: Double
+            
+            if userExchangeValue != -1 {
+                absoluteReturn = currentExchangeValue - userExchangeValue
+            } else {
+                absoluteReturn = currentExchangeValue - exchangeValue
+            }
+            
+            if from!.caseInsensitiveCompare(owner!.address!) == ComparisonResult.orderedSame {
+                return absoluteReturn * -1
+            } else {
+                return absoluteReturn
+            }
+        } else {
+            return nil
+        }
+    }
+    
     // MARK: - Public Methods
     /// returns absolute return history since specified date, nil if date is today or in the future
     func absoluteReturnHistory(since date: Date) -> [(date: Date, value: Double)]? {
-        guard !date.isToday, !date.isFuture else {
+        guard !date.isUTCToday, !date.isUTCFuture else {
             return nil
         }
 
@@ -93,7 +113,7 @@ class Transaction: NSManagedObject {
         guard let unitExchangeValue = TickerPrice.tickerPrice(for: owner!.tradingPair, on: startDate)?.value else {
             return nil
         }
-    
+        
         let baseExchangeValue = unitExchangeValue * value
         
         // calculate number of days between startDate and today, including today 
@@ -107,7 +127,7 @@ class Transaction: NSManagedObject {
             if daysPassed == 0 {
                 // return for startDate
                 absolutePerformance = 0.0
-            } else if date.isToday, let currentExchangeValue = currentExchangeValue {
+            } else if date.isUTCToday, let currentExchangeValue = currentExchangeValue {
                 // return for today
                 absolutePerformance = currentExchangeValue - baseExchangeValue
             } else if let unitExchangeValue = TickerPrice.tickerPrice(for: owner!.tradingPair, on: date)?.value {

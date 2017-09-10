@@ -42,6 +42,10 @@ class Address: NSManagedObject {
     /// delegate who gets notified of balance changes
     var delegate: AddressDelegate?
     
+    var storedTransactions: [Transaction] {
+        return Array(transactions!) as! [Transaction]
+    }
+    
     /// returns trading pair constructed from Wallet.baseCurrency + cryptoCurrency
     var tradingPair: Currency.TradingPair {
         return Currency.tradingPair(cryptoCurrency: Currency.Crypto(rawValue: cryptoCurrency!)!, fiatCurrency: Currency.Fiat(rawValue: portfolio!.baseCurrency!)!)!
@@ -76,6 +80,18 @@ class Address: NSManagedObject {
         }
     }
     
+    var absoluteReturn: Double? {
+        var absoluteReturn = 0.0
+        for transaction in storedTransactions {
+            if let transactionAbsoluteReturn = transaction.absoluteReturn {
+                absoluteReturn = absoluteReturn + transactionAbsoluteReturn
+            } else {
+                return nil
+            }
+        }
+        return absoluteReturn
+    }
+    
     // MARK: - Public Methods
     /// returns absolute return history since specified date, nil if date is today or in the future
     func absolutReturnHistory(since date: Date) -> [(date: Date, date: Double)]? {
@@ -84,9 +100,8 @@ class Address: NSManagedObject {
         }
         
         var returnHistory: [(Date, Double)] = []
-        let txs = Array(transactions!) as! [Transaction]
         
-        for (index, tx) in txs.enumerated() {
+        for (index, tx) in storedTransactions.enumerated() {
             if let absoluteReturnHistory = tx.absoluteReturnHistory(since: date) {
                 if index == 0 {
                     for (date, absoluteReturn) in absoluteReturnHistory {

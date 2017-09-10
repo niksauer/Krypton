@@ -17,19 +17,18 @@ class TransactionController: UIViewController, UITextFieldDelegate {
     var currentExchangeValue: Double?
     var showsCurrentExchangeValue = false {
         didSet {
+            guard let currentExchangeValue = transaction?.currentExchangeValue, let exchangeValue = transaction?.exchangeValue else {
+                exchangeValueField.text = "???"
+                return
+            }
+        
             if showsCurrentExchangeValue {
-                if let currentExchangeValue = transaction?.currentExchangeValue {
-                    exchangeValueField.text = Format.fiatFormatter.string(from: NSNumber(value: currentExchangeValue))
-                } else {
-                    exchangeValueField.text = "???"
-                }
+                exchangeValueField.text = Format.fiatFormatter.string(from: NSNumber(value: currentExchangeValue))
             } else {
                 if let userExchangeValue = transaction?.userExchangeValue, userExchangeValue != -1 {
                     exchangeValueField.text = Format.fiatFormatter.string(from: NSNumber(value: userExchangeValue))
-                } else if let exchangeValue = transaction?.exchangeValue {
-                    exchangeValueField.text = Format.fiatFormatter.string(from: NSNumber(value: exchangeValue))
                 } else {
-                    exchangeValueField.text = "???"
+                    exchangeValueField.text = Format.fiatFormatter.string(from: NSNumber(value: exchangeValue))
                 }
             }
         }
@@ -45,6 +44,7 @@ class TransactionController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var blockField: UITextField!
     @IBOutlet weak var hashField: UITextField!
     @IBOutlet weak var exchangeValueTypeToggle: UIButton!
+    @IBOutlet weak var absoluteReturnValueField: UITextField!
     
     // MARK: - Initialization
     override func viewDidLoad() {
@@ -64,6 +64,13 @@ class TransactionController: UIViewController, UITextFieldDelegate {
         
         dateField.text = Format.dateFormatter.string(from: tx.date! as Date)
         typeField.text = tx.type
+        
+        if let absoluteReturn = tx.absoluteReturn {
+            absoluteReturnValueField.text = Format.fiatFormatter.string(from: NSNumber(value: absoluteReturn))
+        } else {
+            absoluteReturnValueField.text = "???"
+        }
+        
         blockField.text = String(tx.block)
         hashField.text = tx.identifier
         

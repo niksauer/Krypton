@@ -34,6 +34,18 @@ final class PortfolioManager: PortfolioDelegate {
         return currentExchangeValue
     }
     
+    var absoluteReturn: Double? {
+        var absoluteReturn = 0.0
+        for portfolio in portfolios {
+            if let portfolioAbsoluteReturn = portfolio.absoluteReturn {
+                absoluteReturn = absoluteReturn + portfolioAbsoluteReturn
+            } else {
+                return nil
+            }
+        }
+        return absoluteReturn
+    }
+    
     var selectedAddresses: [Address] {
         var selectedAddresses = [Address]()
         for portfolio in selectedPortfolios {
