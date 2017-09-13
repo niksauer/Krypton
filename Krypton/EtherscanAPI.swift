@@ -28,7 +28,7 @@ struct EtherscanAPI {
     struct Transaction {
         let identifier: String
         let date: NSDate
-        let value: Double
+        let amount: Double
         let from: String
         let to: String
         let type: TransactionHistoryType
@@ -79,11 +79,11 @@ struct EtherscanAPI {
     }
     
     private static func transaction(type: TransactionHistoryType, fromJSON json: [String: Any]) -> Transaction? {
-        guard let isErrorString = json["isError"] as? String, isErrorString != "1", let hashString = json["hash"] as? String, let timeString = json["timeStamp"] as? String, let time = Double(timeString), let weiString = json["value"] as? String, let value = ether(from: weiString), let fromString = json["from"] as? String, let toString = json["to"] as? String, let blockString = json["blockNumber"] as? String, let block = Int32(blockString) else {
+        guard let isErrorString = json["isError"] as? String, isErrorString != "1", let hashString = json["hash"] as? String, let timeString = json["timeStamp"] as? String, let time = Double(timeString), let weiString = json["value"] as? String, let amount = ether(from: weiString), let fromString = json["from"] as? String, let toString = json["to"] as? String, let blockString = json["blockNumber"] as? String, let block = Int32(blockString) else {
             return nil
         }
         
-        return Transaction(identifier: hashString, date: NSDate(timeIntervalSince1970: time), value: value, from: fromString, to: toString, type: type, block: block)
+        return Transaction(identifier: hashString, date: NSDate(timeIntervalSince1970: time), amount: amount, from: fromString, to: toString, type: type, block: block)
     }
     
     private static func ether(from weiString: String) -> Double? {

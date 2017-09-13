@@ -12,9 +12,8 @@ import CoreData
 class TransactionController: UIViewController, UITextFieldDelegate {
 
     // MARK: - Properties
-    var addresses: [Address]?
     var transaction: Transaction?
-    var currentExchangeValue: Double?
+    
     var showsCurrentExchangeValue = false {
         didSet {
             guard let currentExchangeValue = transaction?.currentExchangeValue, let exchangeValue = transaction?.exchangeValue else {
@@ -45,6 +44,7 @@ class TransactionController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var hashField: UITextField!
     @IBOutlet weak var exchangeValueTypeToggle: UIButton!
     @IBOutlet weak var absoluteReturnValueField: UITextField!
+    @IBOutlet weak var isInvestmentToggle: UISwitch!
     
     // MARK: - Initialization
     override func viewDidLoad() {
@@ -57,15 +57,15 @@ class TransactionController: UIViewController, UITextFieldDelegate {
         
         let cryptoCurrency = Currency.Crypto(rawValue: tx.owner!.cryptoCurrency!)!
         let unitSymbol = cryptoCurrency.symbol
-        valueLabel.text = unitSymbol + " " + Format.cryptoFormatter.string(from: NSNumber(value: tx.value))!
+        valueLabel.text = unitSymbol + " " + Format.cryptoFormatter.string(from: NSNumber(value: tx.amount))!
         
-        senderField.text = alias(for: tx.from!) ?? tx.from
-        receiverField.text = alias(for: tx.from!) ?? tx.to
+        senderField.text = PortfolioManager.shared.alias(for: tx.from!) ?? tx.from
+        receiverField.text = PortfolioManager.shared.alias(for: tx.to!) ?? tx.to
         
         dateField.text = Format.dateFormatter.string(from: tx.date! as Date)
         typeField.text = tx.type
         
-        if let absoluteReturn = tx.absoluteReturn {
+        if let absoluteReturn = tx.absoluteProfit {
             absoluteReturnValueField.text = Format.fiatFormatter.string(from: NSNumber(value: absoluteReturn))
         } else {
             absoluteReturnValueField.text = "???"
@@ -73,6 +73,8 @@ class TransactionController: UIViewController, UITextFieldDelegate {
         
         blockField.text = String(tx.block)
         hashField.text = tx.identifier
+        
+        isInvestmentToggle.isOn = tx.isInvestment
         
         showsCurrentExchangeValue = false
     }
@@ -90,8 +92,8 @@ class TransactionController: UIViewController, UITextFieldDelegate {
                 showsCurrentExchangeValue = false
             }
         } else {
-            if let newValueString = exchangeValueField.text, let newValue = Double(newValueString) {
-                transaction?.setUserExchangeValue(newValue, in: AppDelegate.viewContext)
+            if let newValueString = exchangeValueField.text, let newValue = Format.numberFormatter.number(from: newValueString)  {
+                transaction?.setUserExchangeValue(value: Double(newValue))
                 showsCurrentExchangeValue = false
             }
         }
@@ -101,9 +103,8 @@ class TransactionController: UIViewController, UITextFieldDelegate {
         showsCurrentExchangeValue = !showsCurrentExchangeValue
     }
     
-    // MARK: - Private Methods
-    private func alias(for address: String) -> String? {
-        return addresses?.first(where: { $0.address == address })?.alias
+    @IBAction func toggleIsInvestment(_ sender: UISwitch) {
+        transaction?.setIsInvestment(state: sender.isOn)
     }
     
     // MARK: - exchangeValueField Delegate
@@ -124,9 +125,7 @@ class TransactionController: UIViewController, UITextFieldDelegate {
                 // backspace pressed
                 return true
             } else {
-//                if string.range(of: decimalSeperator) != nil {
-//                    
-//                }
+                // pasted text
                 return false
             }
         }

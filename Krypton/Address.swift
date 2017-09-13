@@ -38,21 +38,9 @@ class Address: NSManagedObject {
         return address
     }
 
-    // MARK: - Public Properties
-    /// delegate who gets notified of balance changes
-    var delegate: AddressDelegate?
-    
-    var storedTransactions: [Transaction] {
-        return Array(transactions!) as! [Transaction]
-    }
-    
-    /// returns trading pair constructed from Wallet.baseCurrency + cryptoCurrency
-    var tradingPair: Currency.TradingPair {
-        return Currency.tradingPair(cryptoCurrency: Currency.Crypto(rawValue: cryptoCurrency!)!, fiatCurrency: Currency.Fiat(rawValue: portfolio!.baseCurrency!)!)!
-    }
-    
-    /// returns the oldest transaction
-    var oldestTransaction: Transaction? {
+    // MARK: - Private Properties
+    /// returns the oldest transaction associated with address
+    private var oldestTransaction: Transaction? {
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
         request.predicate = NSPredicate(format: "owner = %@", self)
@@ -70,6 +58,20 @@ class Address: NSManagedObject {
             return nil
         }
     }
+    
+    // MARK: - Public Properties
+    /// delegate who gets notified of changes in balance, transaction history and all associated transactions' userExchangeValue, isInvestment properties
+    var delegate: AddressDelegate?
+    
+    /// returns all transaction associated with address
+    var storedTransactions: [Transaction] {
+        return Array(transactions!) as! [Transaction]
+    }
+    
+    /// returns trading pair constructed from owner's baseCurrency + address' cryptoCurrency
+    var tradingPair: Currency.TradingPair {
+        return Currency.tradingPair(cryptoCurrency: Currency.Crypto(rawValue: cryptoCurrency!)!, fiatCurrency: Currency.Fiat(rawValue: portfolio!.baseCurrency!)!)!
+    }
 
     /// returns the current exchange value according to set trading pair
     var currentExchangeValue: Double? {
@@ -80,42 +82,65 @@ class Address: NSManagedObject {
         }
     }
     
-    var absoluteReturn: Double? {
-        var absoluteReturn = 0.0
+    /// returns the absolute profit generated from all transactions according to set trading pair
+    var absoluteProfit: Double? {
+        if currentExchangeValue != nil, investmentValue != nil {
+            return currentExchangeValue! - investmentValue!
+        } else {
+            return nil
+        }
+    }
+    
+    /// returns total value invested in address
+    var investmentValue: Double? {
+        var investmentValue = 0.0
         for transaction in storedTransactions {
-            if let transactionAbsoluteReturn = transaction.absoluteReturn {
-                absoluteReturn = absoluteReturn + transactionAbsoluteReturn
+            if let txInvestmentValue = transaction.investmentValue {
+                investmentValue = investmentValue + txInvestmentValue
             } else {
                 return nil
             }
         }
-        return absoluteReturn
+        return investmentValue
     }
     
     // MARK: - Public Methods
+    /// returns the absolute profit generated from all transactions since specified date according to set trading pair
+    func absoluteProfit(since date: Date) -> Double? {
+        guard storedTransactions.count > 0 else {
+            return 0.0
+        }
+        
+        if let oldestTransactionDate = oldestTransaction?.date, let absoluteProfitHistory = absoluteProfitHistory(since: oldestTransactionDate as Date), let absoluteProfit = absoluteProfitHistory.last?.profit {
+            return absoluteProfit
+        } else {
+            return nil
+        }
+    }
+    
     /// returns absolute return history since specified date, nil if date is today or in the future
-    func absolutReturnHistory(since date: Date) -> [(date: Date, date: Double)]? {
+    func absoluteProfitHistory(since date: Date) -> [(date: Date, profit: Double)]? {
         guard !date.isToday, !date.isFuture else {
             return nil
         }
         
-        var returnHistory: [(Date, Double)] = []
+        var profitHistory: [(Date, Double)] = []
         
         for (index, tx) in storedTransactions.enumerated() {
-            if let absoluteReturnHistory = tx.absoluteReturnHistory(since: date) {
+            if let absoluteReturnHistory = tx.absoluteProfitHistory(since: date) {
                 if index == 0 {
                     for (date, absoluteReturn) in absoluteReturnHistory {
-                        returnHistory.append((date, absoluteReturn))
+                        profitHistory.append((date, absoluteReturn))
                     }
                 } else {
-                    returnHistory = zip(returnHistory, absoluteReturnHistory).map() { ($0.0, $0.1 + $1.1) }
+                    profitHistory = zip(profitHistory, absoluteReturnHistory).map() { ($0.0, $0.1 + $1.1) }
                 }
             } else {
                 return nil
             }
         }
         
-        return returnHistory
+        return profitHistory
     }
     
     /// returns exchange value on speicfied date, nil if date is today or in the future
@@ -132,19 +157,21 @@ class Address: NSManagedObject {
     }
     
     /// fetches and saves balance if it has changed, notifies delegate
-    func updateBalance(in context: NSManagedObjectContext) {
+    func updateBalance() {
         BlockchainConnector.fetchBalance(for: self, completion: { result in
             switch result {
             case let .success(balance):
                 if balance != self.balance {
                     do {
                         self.balance = balance
-                        try context.save()
+                        try AppDelegate.viewContext.save()
                         print("Saved updated balance for \(self.address!).")
                         self.delegate?.didUpdateBalance(for: self)
                     } catch {
                         print("Failed to save fetched balance: \(error)")
                     }
+                } else {
+                    print("Balance for \(self.address!) is already up-to-date.")
                 }
             case let .failure(error):
                 print("Failed to fetch balance: \(error)")
@@ -153,7 +180,7 @@ class Address: NSManagedObject {
     }
     
     /// fetches and saves transaction history since last retrieved block, executes completion block if no error is thrown during retrieval and saving
-    func updateTransactionHistory(in context: NSManagedObjectContext, completion: (() -> Void)?) {
+    func updateTransactionHistory(completion: (() -> Void)?) {
         let timeframe: TransactionHistoryTimeframe
         
         if lastBlock == 0 {
@@ -165,6 +192,8 @@ class Address: NSManagedObject {
         BlockchainConnector.fetchTransactionHistory(for: self, type: .normal, timeframe: timeframe) { result in
             switch result {
             case let .success(txs):
+                let context = AppDelegate.viewContext
+                
                 for txInfo in txs {
                     do {
                         let transaction = try Transaction.createTransaction(from: txInfo, in: context)
@@ -232,16 +261,18 @@ class Address: NSManagedObject {
     }
     
     /// asks tickerPrice to update price history for set trading pair starting from oldest transaction date encountered, passes completion block
-    func updatePriceHistory() {
+    func updatePriceHistory(completion: (() -> Void)?) {
         if let firstTransactionDate = oldestTransaction?.date {
-            TickerPrice.updatePriceHistory(for: tradingPair, since: firstTransactionDate as Date)
+            TickerPrice.updatePriceHistory(for: tradingPair, since: firstTransactionDate as Date, completion: completion)
         }
     }
 
 }
 
+// MARK: - Address Delegate Protocol
 protocol AddressDelegate {
     func didUpdateTransactionHistory(for address: Address)
     func didUpdateBalance(for address: Address)
     func didUpdateUserExchangeValue(for transaction: Transaction)
+    func didUpdateIsInvestmentStatus(for transaction: Transaction)
 }

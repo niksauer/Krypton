@@ -52,7 +52,7 @@ class TransactionTableController: FetchedResultsTableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "transactionCell", for: indexPath)
         
         let transaction = fetchedResultsController!.object(at: indexPath)
-        cell.textLabel?.text = Currency.Crypto(rawValue: transaction.owner!.cryptoCurrency!)!.symbol + " " + Format.cryptoFormatter.string(from: NSNumber(value: transaction.value))!
+        cell.textLabel?.text = Currency.Crypto(rawValue: transaction.owner!.cryptoCurrency!)!.symbol + " " + Format.cryptoFormatter.string(from: NSNumber(value: transaction.amount))!
         cell.detailTextLabel?.text = Format.dateFormatter.string(from: transaction.date! as Date)
         return cell
     }

@@ -17,67 +17,14 @@ final class PortfolioManager: PortfolioDelegate {
     // MARK: - Singleton
     static let shared = PortfolioManager()
     
-    // MARK: - Public Properties
-    let baseCurrency = Currency.Fiat.EUR
-    
-    var delegate: PortfolioManagerDelegate?
-    
-    var currentExchangeValue: Double? {
-        var currentExchangeValue = 0.0
-        for portfolio in portfolios {
-            if let portfolioValue = portfolio.currentExchangeValue {
-                currentExchangeValue = currentExchangeValue + portfolioValue
-            } else {
-                return nil
-            }
-        }
-        return currentExchangeValue
-    }
-    
-    var absoluteReturn: Double? {
-        var absoluteReturn = 0.0
-        for portfolio in portfolios {
-            if let portfolioAbsoluteReturn = portfolio.absoluteReturn {
-                absoluteReturn = absoluteReturn + portfolioAbsoluteReturn
-            } else {
-                return nil
-            }
-        }
-        return absoluteReturn
-    }
-    
-    var selectedAddresses: [Address] {
-        var selectedAddresses = [Address]()
-        for portfolio in selectedPortfolios {
-            selectedAddresses.append(contentsOf: portfolio.storedAddresses)
-        }
-        return selectedAddresses
-    }
-    
-    // MARK: - Private Properties
-    private var portfolios = [Portfolio]()
-    
-    private var selectedPortfolios: [Portfolio] {
-        var selectedPortfolios = [Portfolio]()
-        for portfolio in portfolios {
-            if portfolio.isSelected {
-                selectedPortfolios.append(portfolio)
-            }
-        }
-        return selectedPortfolios
-    }
-    
-    private var defaultPortfolio: Portfolio? {
-        return portfolios.first(where: { $0.isDefault })
-    }
-    
     // MARK: - Initialization
-    /// loads and updates all stored addresses, request continious ticker price updates
+    /// loads all available portfolios, sets itself as their delegate,
+    /// updates all stored addresses, requests continious ticker price updates for their trading pars
     private init() {
-//        deletePortfolios()
-//        deleteAddresses()
-//        deleteTransactions()
-//        deletePriceHistory()
+        //        deletePortfolios()
+        //        deleteAddresses()
+        //        deleteTransactions()
+        //        deletePriceHistory()
         
         do {
             portfolios = try loadPortfolios()
@@ -97,65 +44,178 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
-    // MARK: - Public Methods
-    /// returns relative, i.e. percentage, return compared to specified date
-    func relativeReturn(since date: Date) -> Double? {
-        guard !date.isFuture else {
-            return nil
+    // MARK: - Private Properties
+    /// returns all stored portfolios
+    private var portfolios = [Portfolio]()
+    
+    /// returns all selected portfolios
+    private var selectedPortfolios: [Portfolio] {
+        var selectedPortfolios = [Portfolio]()
+        for portfolio in portfolios {
+            if portfolio.isSelected {
+                selectedPortfolios.append(portfolio)
+            }
         }
+        return selectedPortfolios
+    }
+    
+    /// returns default portfolio used to add addresses
+    private var defaultPortfolio: Portfolio? {
+        return portfolios.first(where: { $0.isDefault })
+    }
+    
+    /// returns all addresses associated with stored portfolios
+    private var storedAddresses: [Address]? {
+        var storedAddresses = [Address]()
+        for portfolio in portfolios {
+            storedAddresses.append(contentsOf: portfolio.storedAddresses)
+        }
+        return storedAddresses
+    }
+    
+    // MARK: - Public Properties
+    /// fiat currency used to calculate exchange values of all stored portfolios
+    let baseCurrency = Currency.Fiat.EUR
+    
+    /// delegate who gets notified of changes in portfolio
+    var delegate: PortfolioManagerDelegate?
+    
+    /// returns all addresses stored in selected portfolios
+    var selectedAddresses: [Address] {
+        var selectedAddresses = [Address]()
+        for portfolio in selectedPortfolios {
+            selectedAddresses.append(contentsOf: portfolio.storedAddresses)
+        }
+        return selectedAddresses
+    }
+    
+    /// returns the current exchange value of all selected addresses
+    var currentExchangeValue: Double? {
+        var currentExchangeValue = 0.0
+        for address in selectedAddresses {
+            if let addressValue = address.currentExchangeValue {
+                currentExchangeValue = currentExchangeValue + addressValue
+            } else {
+                return nil
+            }
+        }
+        return currentExchangeValue
+    }
+    
+    /// returns the absolute profit generated from all selected addresses
+    var absoluteProfit: Double? {
+        var absoluteProfit = 0.0
+        for address in selectedAddresses {
+            if let addressAbsoluteProfit = address.absoluteProfit {
+                absoluteProfit = absoluteProfit + addressAbsoluteProfit
+            } else {
+                return nil
+            }
+        }
+        return absoluteProfit
+    }
+    
+    /// returns the total value invested in all selected addresses
+    var investmentValue: Double? {
+        var investmentValue = 0.0
+        for address in selectedAddresses {
+            if let addressInvestmentValue = address.investmentValue {
+                investmentValue = investmentValue + addressInvestmentValue
+            } else {
+                return nil
+            }
+        }
+        return investmentValue
+    }
+    
+    // MARK: - Private Methods
+    /// loads and returns all addresses stored in Core Data
+    private func loadPortfolios() throws -> [Portfolio] {
+        let context = AppDelegate.viewContext
+        let request: NSFetchRequest<Portfolio> = Portfolio.fetchRequest()
         
-        if date.isToday {
+        do {
+            return try context.fetch(request)
+        } catch {
+            throw error
+        }
+    }
+
+    // MARK: - Public Methods
+    /// returns relative profit, i.e., percentage increase, of selected addresses compared to specified date
+    func relativeProfit(since date: Date) -> Double? {
+        if date.isToday || selectedAddresses.count == 0 {
             return 0.0
         }
         
-        guard let currentExchangeValue = currentExchangeValue, let comparisonExchangeValue = exchangeValue(on: date) else {
+        guard !date.isFuture, let currentExchangeValue = currentExchangeValue, let comparisonExchangeValue = exchangeValue(on: date) else {
             return nil
         }
         
         let difference = currentExchangeValue - comparisonExchangeValue
         return difference / comparisonExchangeValue * 100
     }
+    
+    /// returns absolute profit of selected addresses compared to specified date
+    func absoluteProfit(since date: Date) -> Double? {
+        if date.isToday || selectedAddresses.count == 0 {
+            return 0.0
+        }
+        
+        guard !date.isFuture, let currentExchangeValue = currentExchangeValue, let comparisonExchangeValue = exchangeValue(on: date) else {
+            return nil
+        }
+        
+        return currentExchangeValue - comparisonExchangeValue
+    }
 
-    func absoluteReturnHistory(since date: Date) -> [(date: Date, value: Double)]? {
+    /// returns absolute profit history of selected addresses since specified date
+    func absoluteReturnHistory(since date: Date) -> [(date: Date, profit: Double)]? {
         guard !date.isToday, !date.isFuture else {
             return nil
         }
         
-        var returnHistory: [(Date, Double)] = []
+        var profitHistory: [(Date, Double)] = []
         
-        for (portfolioNumber, portfolio) in portfolios.enumerated() {
-            for address in portfolio.storedAddresses {
-                if let absoluteReturnHistory = address.absolutReturnHistory(since: date) {
-                    if portfolioNumber == 0 {
-                        for (date, absoluteReturn) in absoluteReturnHistory {
-                            returnHistory.append((date, absoluteReturn))
-                        }
-                    } else {
-                        returnHistory = zip(returnHistory, absoluteReturnHistory).map() { ($0.0, $0.1 + $1.1) }
+        for (index, address) in selectedAddresses.enumerated() {
+            if let absoluteProfitHistory = address.absoluteProfitHistory(since: date) {
+                if index == 0 {
+                    for (date, absoluteProfit) in absoluteProfitHistory {
+                        profitHistory.append((date, absoluteProfit))
                     }
                 } else {
-                    return nil
+                    profitHistory = zip(profitHistory, absoluteProfitHistory).map() { ($0.0, $0.1 + $1.1) }
                 }
+            } else {
+                return nil
             }
+
         }
         
-        return returnHistory
+        return profitHistory
     }
     
+    /// returns exchange value of selected addresses on specified date
     func exchangeValue(on date: Date) -> Double? {
         var exchangeValue = 0.0
-        for portfolio in selectedPortfolios {
-            for address in portfolio.storedAddresses {
-                if let addressExchangeValue = address.exchangeValue(on: date) {
-                    exchangeValue = exchangeValue + addressExchangeValue
-                } else {
-                    return nil
-                }
+        for address in selectedAddresses {
+            if let addressExchangeValue = address.exchangeValue(on: date) {
+                exchangeValue = exchangeValue + addressExchangeValue
+            } else {
+                return nil
             }
         }
         return exchangeValue
     }
     
+
+    /// returns alias for specified address string
+    func alias(for addressString: String) -> String? {
+        return storedAddresses?.first(where: { $0.address == addressString })?.alias
+    }
+    
+    
+    /// creates address from specfied string with specified crypto unit, adds it to default portfolio
     func addAddress(_ addressString: String, unit: Currency.Crypto) throws {
         do {
             let context = AppDelegate.viewContext
@@ -188,6 +248,7 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
+    /// creates address from specfied string with specified crypto unit, add it to specified portfolio
     func addAddress(_ addressString: String, unit: Currency.Crypto, to portfolio: Portfolio) throws {
         do {
             let context = AppDelegate.viewContext
@@ -203,6 +264,7 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
+    /// creates, saves and adds portfolio with specified base currency
     func addPortfolio(baseCurrency: Currency.Fiat) throws -> Portfolio {
         do {
             let context = AppDelegate.viewContext
@@ -218,24 +280,11 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
-    // MARK: - Private Methods
-    /// loads and returns all addresses stored in Core Data
-    private func loadPortfolios() throws -> [Portfolio] {
-        let context = AppDelegate.viewContext
-        let request: NSFetchRequest<Portfolio> = Portfolio.fetchRequest()
-        
-        do {
-            return try context.fetch(request)
-        } catch {
-            throw error
-        }
-    }
-    
     // MARK: - Portfolio Delegate
+    /// notifies delegate of changes in portfolio
     func didUpdatePortfolio() {
         delegate?.didUpdatePortfolioManager()
     }
-    
     
     // MARK: - Experimental
     private func deleteCoreDate() {
@@ -299,6 +348,7 @@ final class PortfolioManager: PortfolioDelegate {
 
 }
 
+// MARK: - Portfolio Manager Delegate Protocol
 protocol PortfolioManagerDelegate {
     func didUpdatePortfolioManager()
 }

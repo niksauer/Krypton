@@ -22,20 +22,21 @@
         <attribute name="value" attributeType="Double" usesScalarValueType="YES" syncable="YES"/>
     </entity>
     <entity name="Transaction" representedClassName=".Transaction" syncable="YES" codeGenerationType="category">
+        <attribute name="amount" attributeType="Double" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="block" attributeType="Integer 32" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="date" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="from" attributeType="String" syncable="YES"/>
         <attribute name="identifier" attributeType="String" syncable="YES"/>
+        <attribute name="isInvestment" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="to" attributeType="String" syncable="YES"/>
         <attribute name="type" attributeType="String" syncable="YES"/>
         <attribute name="userExchangeValue" optional="YES" attributeType="Double" defaultValueString="-1" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="value" attributeType="Double" usesScalarValueType="YES" syncable="YES"/>
         <relationship name="owner" maxCount="1" deletionRule="Deny" destinationEntity="Address" inverseName="transactions" inverseEntity="Address" syncable="YES"/>
     </entity>
     <elements>
         <element name="Address" positionX="-146" positionY="-235" width="128" height="148"/>
         <element name="Portfolio" positionX="-396" positionY="-162" width="128" height="118"/>
         <element name="TickerPrice" positionX="-144" positionY="-18" width="128" height="90"/>
-        <element name="Transaction" positionX="70" positionY="-277" width="128" height="180"/>
+        <element name="Transaction" positionX="70" positionY="-277" width="128" height="193"/>
     </elements>
 </model>

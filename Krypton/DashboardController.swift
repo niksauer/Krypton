@@ -11,30 +11,80 @@ import UIKit
 class DashboardController: UIViewController, UITabBarControllerDelegate, PortfolioManagerDelegate, TickerWatchlistDelegate {
     
     // MARK: - Properties
+    enum PortfolioValueDisplayType {
+        case currentExchangeValue
+        case relativeProfit
+        case absoluteProfit
+    }
+    
     var comparisonDate = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
+    
+//    var portfolioValueDisplay: PortfolioValueDisplayType = .currentExchangeValue {
+//        didSet {
+//            switch self {
+//            case .currentExchangeValue:
+//                break
+//            case .relativeProfit:
+//                break
+//            case .absoluteProfit:
+//                break
+//            }
+//        }
+//        
+//    }
+
     var showsPortfolioValue = true {
         didSet {
-            guard let portfolioExchangeValue = PortfolioManager.shared.currentExchangeValue, let portfolioAbsoluteReturn = PortfolioManager.shared.absoluteReturn else {
+            if showsPortfolioValue {
+                portfolioLabel.text = "Total Portfolio Value"
+            } else {
+                portfolioLabel.text = "Total Absolute Profit"
+            }
+            
+            guard let currentExchangeValue = PortfolioManager.shared.currentExchangeValue, let absoluteProfit = PortfolioManager.shared.absoluteProfit else {
                 portfolioValueLabel.text = "???"
                 return
             }
             
             if showsPortfolioValue {
-                portfolioValueLabel.text = Format.fiatFormatter.string(from: NSNumber(value: portfolioExchangeValue))
-                portfolioValueTypeLabel.text = "Portfolio Value"
+                portfolioValueLabel.text = Format.fiatFormatter.string(from: NSNumber(value: currentExchangeValue))
             } else {
-                portfolioValueLabel.text = Format.fiatFormatter.string(from: NSNumber(value: portfolioAbsoluteReturn))
-                portfolioValueTypeLabel.text = "Total Absolute Increase"
+                portfolioValueLabel.text = Format.fiatFormatter.string(from: NSNumber(value: absoluteProfit))
+            }
+        }
+    }
+    
+    var showsRelativeProfit = true {
+        didSet {
+            if showsRelativeProfit {
+                profitLabel.text = "Relative Profit"
+            } else {
+                profitLabel.text = "Absolute Profit"
+            }
+            
+            guard let relativeProfit = PortfolioManager.shared.relativeProfit(since: comparisonDate), let absoluteProfit = PortfolioManager.shared.absoluteProfit(since: comparisonDate) else {
+                profitValueLabel.text = "???"
+                return
+            }
+            
+            if showsRelativeProfit {
+                profitValueLabel.text = Format.numberFormatter.string(from: NSNumber(value: relativeProfit))! + "%"
+            } else {
+                profitValueLabel.text = Format.fiatFormatter.string(from: NSNumber(value: absoluteProfit))
             }
         }
     }
     
     // Mark: - Outlets
     @IBOutlet weak var portfolioValueLabel: UILabel!
-    @IBOutlet weak var portfolioValueTypeLabel: UILabel!
+    @IBOutlet weak var portfolioLabel: UILabel!
     
-    @IBOutlet weak var relativeReturnSinceLabel: UILabel!
-    @IBOutlet weak var absoluteReturnSinceLabel: UILabel!
+    @IBOutlet weak var profitValueLabel: UILabel!
+    @IBOutlet weak var profitLabel: UILabel!
+    
+    @IBOutlet weak var investmentValueLabel: UILabel!
+    @IBOutlet weak var investmentLabel: UILabel!
+    
 
     // MARK: - Initialization
     override func viewDidLoad() {
@@ -43,12 +93,28 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
         PortfolioManager.shared.delegate = self
         TickerWatchlist.delegate = self
         
-        showsPortfolioValue = true
+        investmentLabel.text = "Total Investment"
         
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(toggleDashboard))
-        portfolioValueLabel.isUserInteractionEnabled = true
-        portfolioValueLabel.addGestureRecognizer(tapGestureRecognizer)
         portfolioValueLabel.tag = 0
+        portfolioValueLabel.isUserInteractionEnabled = true
+        
+        let portfolioValueTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(togglePortfolioValueType))
+        portfolioValueLabel.addGestureRecognizer(portfolioValueTapRecognizer)
+        
+        profitValueLabel.tag = 1
+        profitValueLabel.isUserInteractionEnabled = true
+        
+        let profitValueTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(toggleReturnSinceValueType))
+        profitValueLabel.addGestureRecognizer(profitValueTapRecognizer)
+        
+        showsPortfolioValue = true
+        showsRelativeProfit = true
+        
+        if let investmentValue = PortfolioManager.shared.investmentValue {
+            investmentValueLabel.text = Format.fiatFormatter.string(from: NSNumber(value: investmentValue))
+        } else {
+            investmentValueLabel.text = "???"
+        }
     }
 
     // MARK: - Navigation
@@ -64,34 +130,31 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
     
     // MARK: - Private Methods
     private func updateUI() {
-        guard let absoluteReturnHistory = PortfolioManager.shared.absoluteReturnHistory(since: comparisonDate), let absoluteReturnSince = absoluteReturnHistory.last?.value, let relativeReturnSince = PortfolioManager.shared.relativeReturn(since: comparisonDate) else {
-            relativeReturnSinceLabel.text = "???"
-            absoluteReturnSinceLabel.text = "???"
-            portfolioValueLabel.text = "???"
-            return
-        }
-        
         if showsPortfolioValue {
             showsPortfolioValue = true
         } else {
             showsPortfolioValue = false
         }
         
-        relativeReturnSinceLabel.text = Format.numberFormatter.string(from: NSNumber(value: relativeReturnSince))! + "%"
-        absoluteReturnSinceLabel.text = Format.fiatFormatter.string(from: NSNumber(value: absoluteReturnSince))
-    }
-    
-    func toggleDashboard(sender: UITapGestureRecognizer) {
-        guard let sender = sender.view else {
-            return
+        if showsRelativeProfit {
+            showsRelativeProfit = true
+        } else {
+            showsRelativeProfit = false
         }
         
-        switch sender.tag {
-        case 0:
-            showsPortfolioValue = !showsPortfolioValue
-        default:
-            return
+        if let investmentValue = PortfolioManager.shared.investmentValue {
+            investmentValueLabel.text = Format.fiatFormatter.string(from: NSNumber(value: investmentValue))
+        } else {
+            investmentValueLabel.text = "???"
         }
+    }
+    
+    func toggleReturnSinceValueType(sender: UITapGestureRecognizer) {
+        showsRelativeProfit = !showsRelativeProfit
+    }
+    
+    func togglePortfolioValueType(sender: UITapGestureRecognizer) {
+        showsPortfolioValue = !showsPortfolioValue
     }
     
     // MARK: - TabBarControllerDelegate
@@ -101,7 +164,7 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
         }
     }
     
-    // MARK: - WalletDelegate
+    // MARK: - PortfolioManagerDelegate
     func didUpdatePortfolioManager() {
         updateUI()
     }

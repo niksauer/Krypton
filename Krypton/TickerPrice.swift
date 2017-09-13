@@ -87,7 +87,7 @@ class TickerPrice: NSManagedObject {
     }
 
     /// fetches and saves price history for specified trading pair starting from specified date, executes completion block if no error is thrown during retrieval and saving
-    class func updatePriceHistory(for tradingPair: Currency.TradingPair, since date: Date) {
+    class func updatePriceHistory(for tradingPair: Currency.TradingPair, since date: Date, completion: (() -> Void)?) {
         var startDate: Date!
         
         if TickerPrice.tickerPrice(for: tradingPair, on: date) == nil {
@@ -98,6 +98,11 @@ class TickerPrice: NSManagedObject {
         
         guard !startDate.isUTCToday, !startDate.isUTCFuture else {
             print("Price history for trading pair \(tradingPair) is already up-to-date.")
+            
+            if let completion = completion {
+                completion()
+            }
+            
             return
         }
         
@@ -105,12 +110,12 @@ class TickerPrice: NSManagedObject {
             switch result {
             case let .success(priceHistory):
                 let context = AppDelegate.viewContext
-            
+                
                 for price in priceHistory {
                     do {
                         let date = price.date as Date
             
-                        // leave out result for today
+                        // leave out result for today<
                         if !date.isUTCToday {
                             _ = try TickerPrice.createTickerPrice(from: price, in: context)
                         }
@@ -123,6 +128,10 @@ class TickerPrice: NSManagedObject {
                     if context.hasChanges {
                         try context.save()
                         print("Saved price history for \(tradingPair.rawValue) with \(priceHistory.count-1) prices since \(startDate!).")
+                    }
+                    
+                    if let completion = completion {
+                        completion()
                     }
                 } catch {
                     print("Failed to save fetched contract transaction history: \(error)")
