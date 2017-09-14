@@ -24,11 +24,24 @@ class TransactionController: UIViewController, UITextFieldDelegate {
             if showsCurrentExchangeValue {
                 exchangeValueField.text = Format.fiatFormatter.string(from: NSNumber(value: currentExchangeValue))
             } else {
-                if let userExchangeValue = transaction?.userExchangeValue, userExchangeValue != -1 {
-                    exchangeValueField.text = Format.fiatFormatter.string(from: NSNumber(value: userExchangeValue))
-                } else {
-                    exchangeValueField.text = Format.fiatFormatter.string(from: NSNumber(value: exchangeValue))
-                }
+                exchangeValueField.text = Format.fiatFormatter.string(from: NSNumber(value: exchangeValue))
+            }
+        }
+    }
+    
+    var showsRelativeProfit = true {
+        didSet {
+            guard let profitStats = transaction?.getProfitStats(timeframe: .allTime) else {
+                profitValueField.text = "???"
+                return
+            }
+            
+            if showsRelativeProfit {
+                let relativeProfit = Format.relativeProfit(from: profitStats)
+                profitValueField.text = Format.numberFormatter.string(from: NSNumber(value: relativeProfit))! + "%"
+            } else {
+                let absoluteProfit = Format.absoluteProfit(from: profitStats)
+                profitValueField.text = Format.fiatFormatter.string(from: NSNumber(value: absoluteProfit))
             }
         }
     }
@@ -43,7 +56,7 @@ class TransactionController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var blockField: UITextField!
     @IBOutlet weak var hashField: UITextField!
     @IBOutlet weak var exchangeValueTypeToggle: UIButton!
-    @IBOutlet weak var absoluteReturnValueField: UITextField!
+    @IBOutlet weak var profitValueField: UITextField!
     @IBOutlet weak var isInvestmentToggle: UISwitch!
     
     // MARK: - Initialization
@@ -64,19 +77,13 @@ class TransactionController: UIViewController, UITextFieldDelegate {
         
         dateField.text = Format.dateFormatter.string(from: tx.date! as Date)
         typeField.text = tx.type
-        
-        if let absoluteReturn = tx.absoluteProfit {
-            absoluteReturnValueField.text = Format.fiatFormatter.string(from: NSNumber(value: absoluteReturn))
-        } else {
-            absoluteReturnValueField.text = "???"
-        }
-        
         blockField.text = String(tx.block)
         hashField.text = tx.identifier
         
         isInvestmentToggle.isOn = tx.isInvestment
         
         showsCurrentExchangeValue = false
+        showsRelativeProfit = true
     }
     
     // MARK: - Navigation
@@ -88,9 +95,7 @@ class TransactionController: UIViewController, UITextFieldDelegate {
         exchangeValueTypeToggle.isEnabled = !exchangeValueTypeToggle.isEnabled
 
         if editing {
-            if showsCurrentExchangeValue {
-                showsCurrentExchangeValue = false
-            }
+            showsCurrentExchangeValue = false
         } else {
             if let newValueString = exchangeValueField.text, let newValue = Format.numberFormatter.number(from: newValueString)  {
                 transaction?.setUserExchangeValue(value: Double(newValue))
@@ -102,6 +107,11 @@ class TransactionController: UIViewController, UITextFieldDelegate {
     @IBAction func toggleExchangeValueType(_ sender: UIButton) {
         showsCurrentExchangeValue = !showsCurrentExchangeValue
     }
+    
+    @IBAction func toggleProfitValueType(_ sender: UIButton) {
+        showsRelativeProfit = !showsRelativeProfit
+    }
+    
     
     @IBAction func toggleIsInvestment(_ sender: UISwitch) {
         transaction?.setIsInvestment(state: sender.isOn)

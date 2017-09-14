@@ -53,7 +53,7 @@
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="profitLabel" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bPa-KR-qKO">
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="profitLabel" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bPa-KR-qKO">
                                                         <rect key="frame" x="0.0" y="34.5" width="167.5" height="26.5"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                         <nil key="textColor"/>
@@ -483,24 +483,31 @@
                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="a5A-Y6-NOO">
                                         <rect key="frame" x="16" y="313.5" width="343" height="30"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Return" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h9C-8Q-C1b">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Profit" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h9C-8Q-C1b">
                                                 <rect key="frame" x="0.0" y="0.0" width="66" height="30"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" horizontalCompressionResistancePriority="749" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" clearsOnBeginEditing="YES" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="PLx-4h-u9U">
-                                                <rect key="frame" x="74" y="0.0" width="269" height="30"/>
+                                                <rect key="frame" x="74" y="0.0" width="231" height="30"/>
                                                 <nil key="textColor"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <textInputTraits key="textInputTraits" keyboardType="decimalPad"/>
                                             </textField>
+                                            <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" horizontalCompressionResistancePriority="749" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Pyw-gX-zhh">
+                                                <rect key="frame" x="313" y="0.0" width="30" height="30"/>
+                                                <state key="normal" title="&lt;&gt;"/>
+                                                <connections>
+                                                    <action selector="toggleProfitValueType:" destination="eS5-l6-vgl" eventType="touchUpInside" id="5cZ-cb-hEy"/>
+                                                </connections>
+                                            </button>
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="TSW-Vp-lJC">
                                         <rect key="frame" x="16" y="359.5" width="343" height="31"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Investment" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PqA-Pm-FKe">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Is Investment" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PqA-Pm-FKe">
                                                 <rect key="frame" x="0.0" y="0.0" width="286" height="31"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>
@@ -570,13 +577,13 @@
                     </view>
                     <navigationItem key="navigationItem" title="Transaction" id="GtB-va-IFJ"/>
                     <connections>
-                        <outlet property="absoluteReturnValueField" destination="PLx-4h-u9U" id="3Ot-R1-qJI"/>
                         <outlet property="blockField" destination="3L7-wZ-I7S" id="dk9-g5-U2Y"/>
                         <outlet property="dateField" destination="CLG-Y2-IY5" id="b7O-LS-If1"/>
                         <outlet property="exchangeValueField" destination="8Ol-oW-iqH" id="eBM-Up-zqB"/>
                         <outlet property="exchangeValueTypeToggle" destination="POA-uV-6SN" id="E70-ev-DcW"/>
                         <outlet property="hashField" destination="N5e-wj-Qhv" id="S7r-DN-Bcw"/>
                         <outlet property="isInvestmentToggle" destination="q7c-P5-anm" id="MVS-T9-oPq"/>
+                        <outlet property="profitValueField" destination="PLx-4h-u9U" id="EaI-La-Ulg"/>
                         <outlet property="receiverField" destination="pQ6-0t-WV8" id="e6t-gB-YNl"/>
                         <outlet property="senderField" destination="Vrh-HI-GIx" id="40W-8n-qwT"/>
                         <outlet property="typeField" destination="VjK-iS-vHG" id="nUZ-BQ-m2a"/>
