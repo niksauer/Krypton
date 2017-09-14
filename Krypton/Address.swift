@@ -13,6 +13,12 @@ enum AddressError: Error {
     case duplicate
 }
 
+enum TransactionType {
+    case investment
+    case normal
+    case all
+}
+
 class Address: NSManagedObject {
     
     // MARK: - Public Class Methods
@@ -37,7 +43,7 @@ class Address: NSManagedObject {
         
         return address
     }
-
+    
     // MARK: - Private Properties
     /// returns the oldest transaction associated with address
     private var oldestTransaction: Transaction? {
@@ -73,89 +79,8 @@ class Address: NSManagedObject {
         return Currency.tradingPair(cryptoCurrency: Currency.Crypto(rawValue: cryptoCurrency!)!, fiatCurrency: Currency.Fiat(rawValue: portfolio!.baseCurrency!)!)!
     }
 
-    /// returns the current exchange value according to set trading pair
-    var currentExchangeValue: Double? {
-        if let unitExchangeValue = TickerWatchlist.currentPrice(for: tradingPair) {
-            return balance * unitExchangeValue
-        } else {
-            return nil
-        }
-    }
-    
-    /// returns the absolute profit generated from all transactions according to set trading pair
-    var absoluteProfit: Double? {
-        if currentExchangeValue != nil, investmentValue != nil {
-            return currentExchangeValue! - investmentValue!
-        } else {
-            return nil
-        }
-    }
-    
-    /// returns total value invested in address
-    var investmentValue: Double? {
-        var investmentValue = 0.0
-        for transaction in storedTransactions {
-            if let txInvestmentValue = transaction.investmentValue {
-                investmentValue = investmentValue + txInvestmentValue
-            } else {
-                return nil
-            }
-        }
-        return investmentValue
-    }
-    
     // MARK: - Public Methods
-    /// returns the absolute profit generated from all transactions since specified date according to set trading pair
-    func absoluteProfit(since date: Date) -> Double? {
-        guard storedTransactions.count > 0 else {
-            return 0.0
-        }
-        
-        if let oldestTransactionDate = oldestTransaction?.date, let absoluteProfitHistory = absoluteProfitHistory(since: oldestTransactionDate as Date), let absoluteProfit = absoluteProfitHistory.last?.profit {
-            return absoluteProfit
-        } else {
-            return nil
-        }
-    }
-    
-    /// returns absolute return history since specified date, nil if date is today or in the future
-    func absoluteProfitHistory(since date: Date) -> [(date: Date, profit: Double)]? {
-        guard !date.isToday, !date.isFuture else {
-            return nil
-        }
-        
-        var profitHistory: [(Date, Double)] = []
-        
-        for (index, tx) in storedTransactions.enumerated() {
-            if let absoluteReturnHistory = tx.absoluteProfitHistory(since: date) {
-                if index == 0 {
-                    for (date, absoluteReturn) in absoluteReturnHistory {
-                        profitHistory.append((date, absoluteReturn))
-                    }
-                } else {
-                    profitHistory = zip(profitHistory, absoluteReturnHistory).map() { ($0.0, $0.1 + $1.1) }
-                }
-            } else {
-                return nil
-            }
-        }
-        
-        return profitHistory
-    }
-    
-    /// returns exchange value on speicfied date, nil if date is today or in the future
-    func exchangeValue(on date: Date) -> Double? {
-        guard !date.isToday, !date.isFuture else {
-            return nil
-        }
-        
-        if let unitExchangeValue = TickerPrice.tickerPrice(for: tradingPair, on: date)?.value {
-            return balance * unitExchangeValue
-        } else {
-            return nil
-        }
-    }
-    
+    // MARK: Blockchain
     /// fetches and saves balance if it has changed, notifies delegate
     func updateBalance() {
         BlockchainConnector.fetchBalance(for: self, completion: { result in
@@ -260,13 +185,139 @@ class Address: NSManagedObject {
         }
     }
     
-    /// asks tickerPrice to update price history for set trading pair starting from oldest transaction date encountered, passes completion block
+    /// asks tickerPrice to update price history for set trading pair starting from oldest transaction date encountered, passes completion block to retrieval
     func updatePriceHistory(completion: (() -> Void)?) {
         if let firstTransactionDate = oldestTransaction?.date {
             TickerPrice.updatePriceHistory(for: tradingPair, since: firstTransactionDate as Date, completion: completion)
         }
     }
+    
+    // MARK: Finance
+    /// returns balance for specified transaction type on specified date
+    func getBalance(for type: TransactionType, on date: Date) -> Double? {
+        guard storedTransactions.count > 0 else {
+            return 0.0
+        }
+        
+        var balance = 0.0
+        
+        for transaction in storedTransactions {
+            guard !(transaction.date! as Date > date) else {
+                continue
+            }
+            
+            switch type {
+            case .investment:
+                guard transaction.isInvestment else {
+                    continue
+                }
+            case .normal:
+                guard !transaction.isInvestment else {
+                    continue
+                }
+            case .all:
+                break
+            }
+            
+            if transaction.isOutbound {
+                balance = balance - transaction.amount
+            } else {
+                balance = balance + transaction.amount
+            }
+        }
+        
+        return balance
+    }
+    
+    /// returns exchange value on speicfied date, nil if date is in the future
+    func getExchangeValue(for type: TransactionType, on date: Date) -> (balance: Double, value: Double)? {
+        guard !date.isFuture, let balance = getBalance(for: type, on: date) else {
+            return nil
+        }
+        
+        let unitExchangeValue: Double?
+        
+        if date.isToday {
+            unitExchangeValue = TickerWatchlist.currentPrice(for: tradingPair)
+        } else {
+            unitExchangeValue = TickerPrice.tickerPrice(for: tradingPair, on: date)?.value
+        }
+        
+        guard unitExchangeValue != nil else {
+            return nil
+        }
+        
+        return (balance, unitExchangeValue! * balance)
+    }
+    
+    /// returns total value invested in address
+    func getProfitStats(for type: TransactionType, timeframe: ProfitTimeframe) -> (startValue: Double, endValue: Double)? {
+        var startValue = 0.0
+        var endValue = 0.0
+        
+        for transaction in storedTransactions {
+            switch type {
+            case .investment:
+                guard transaction.isInvestment else {
+                    continue
+                }
+            case .normal:
+                guard !transaction.isInvestment else {
+                    continue
+                }
+            case .all:
+                break
+            }
+            
+            if let profitStats = transaction.getProfitStats(timeframe: timeframe) {
+                startValue = startValue + profitStats.startValue
+                endValue = endValue + profitStats.endValue
+            } else {
+                return nil
+            }
+        }
 
+        return (startValue, endValue)
+    }
+    
+    /// returns absolute return history since specified date, nil if date is today or in the future
+    func getAbsoluteProfitHistory(for type: TransactionType, since date: Date) -> [(date: Date, profit: Double)]? {
+        guard !date.isToday, !date.isFuture, storedTransactions.count > 0 else {
+            return nil
+        }
+        
+        var profitHistory: [(Date, Double)] = []
+        
+        for (index, tx) in storedTransactions.enumerated() {
+            switch type {
+            case .investment:
+                guard tx.isInvestment else {
+                    continue
+                }
+            case .normal:
+                guard !tx.isInvestment else {
+                    continue
+                }
+            case .all:
+                break
+            }
+            
+            if let absoluteReturnHistory = tx.getAbsoluteProfitHistory(since: date) {
+                if index == 0 {
+                    for (date, absoluteReturn) in absoluteReturnHistory {
+                        profitHistory.append((date, absoluteReturn))
+                    }
+                } else {
+                    profitHistory = zip(profitHistory, absoluteReturnHistory).map() { ($0.0, $0.1 + $1.1) }
+                }
+            } else {
+                return nil
+            }
+        }
+        
+        return profitHistory
+    }
+    
 }
 
 // MARK: - Address Delegate Protocol

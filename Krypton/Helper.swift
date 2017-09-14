@@ -45,19 +45,19 @@ struct Format {
         return formatter
     }()
     
+    static func absoluteProfit(from: (startValue: Double, endValue: Double)) -> Double {
+        return from.endValue - from.startValue
+    }
+    
+    static func relativeProfit(from: (startValue: Double, endValue: Double)) -> Double {
+        return (from.endValue - from.startValue) / from.startValue * 100
+    }
+    
 }
 
 extension Date {
     
     // MARK: - Public Properties
-    var UTC: Date {
-        var calendar = Calendar(identifier: .gregorian)
-        let timezone = TimeZone(abbreviation: "UTC")!
-        calendar.timeZone = timezone
-        let dateComponents = calendar.dateComponents([.day, .month, .year], from: self)
-        return calendar.date(from: dateComponents)!
-    }
-    
     /// returns specified date in specified timezone but with set time of 0AM
     var UTCStart: Date {
         var calendar = Calendar(identifier: .gregorian)

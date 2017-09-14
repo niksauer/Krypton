@@ -13,6 +13,11 @@ enum TransactionError: Error {
     case duplicate
 }
 
+enum ProfitTimeframe {
+    case allTime
+    case sinceDate(Date)
+}
+
 class Transaction: NSManagedObject {
     
     // MARK: - Public Class Methods
@@ -44,91 +49,103 @@ class Transaction: NSManagedObject {
     }
     
     // MARK: - Public Properties
-    /// returns exchange value as encountered on execution date according to owners trading pair
-    var exchangeValue: Double? {
-        if let unitExchangeValue = TickerPrice.tickerPrice(for: self.owner!.tradingPair, on: date! as Date)?.value {
-            return unitExchangeValue * amount
-        } else {
-            return nil
-        }
-    }
-    
-    /// returns the current exchange value according to owners trading pair
-    var currentExchangeValue: Double? {
-        if let unitExchangeValue = TickerWatchlist.currentPrice(for: self.owner!.tradingPair) {
-            return unitExchangeValue * amount
-        } else {
-            return nil
-        }
-    }
-    
-    /// returns the total absolute profit according to owners trading pair
-    var absoluteProfit: Double? {
-        if currentExchangeValue != nil, exchangeValue != nil {
-            return currentExchangeValue! - exchangeValue!
-        } else {
-            return nil
-        }
-    }
-    
-    /// returns the value of transaction when regarded as investment, must be specified as such, returns 0 otherwise
-    /// will use userExchangeValue if specified
-    /// outgoing -> investment has been realized = negative
-    /// incoming -> investment has been made = positive
-    var investmentValue: Double? {
-        guard isInvestment else {
-            return 0.0
-        }
-        
-        var investmentValue: Double?
-        
-        if userExchangeValue != -1 {
-            investmentValue = userExchangeValue
-        } else {
-            investmentValue = exchangeValue
-        }
-        
-        guard investmentValue != nil else {
-            return nil
-        }
-        
-        if isOutbound {
-            return investmentValue! * -1
-        } else {
-            return investmentValue!
-        }
-    }
-    
     /// checks if transaction is outbound, i.e. owner sent amount and has not received it
     var isOutbound: Bool {
         return from!.caseInsensitiveCompare(owner!.address!) == ComparisonResult.orderedSame
     }
     
+    /// returns exchange value as encountered on execution date according to owners trading pair
+    var exchangeValue: Double? {
+        return getExchangeValue(on: date! as Date)
+    }
+    
+    /// returns the current exchange value according to owners trading pair
+    var currentExchangeValue: Double? {
+        return getExchangeValue(on: Date())
+    }
+    
     // MARK: - Public Methods
+    // MARK: Finance
+    func getExchangeValue(on date: Date) -> Double? {
+        guard !date.isFuture else {
+            return nil
+        }
+        
+        let unitExchangeValue: Double?
+        
+        if date.isToday {
+            unitExchangeValue = TickerWatchlist.currentPrice(for: owner!.tradingPair)
+        } else {
+            unitExchangeValue = TickerPrice.tickerPrice(for: owner!.tradingPair, on: date)?.value
+        }
+        
+        guard unitExchangeValue != nil else {
+            return nil
+        }
+        
+        return unitExchangeValue! * amount
+    }
+
+    /// returns the total absolute profit according to owners trading pair
+    func getProfitStats(timeframe: ProfitTimeframe) -> (startValue: Double, endValue: Double)? {
+        let startDate: Date
+        let txDate = self.date! as Date
+        
+        switch timeframe {
+        case .allTime:
+            startDate = txDate
+        case .sinceDate(let date):
+            guard !date.isToday, !date.isFuture else {
+                return nil
+            }
+        
+            if date < txDate {
+                startDate = txDate
+            } else {
+                startDate = date
+            }
+        }
+        
+        guard let startValue = getExchangeValue(on: startDate), let endValue = currentExchangeValue else {
+            return nil
+        }
+        
+        if isOutbound {
+            return (startValue * -1, endValue * -1)
+        } else {
+            return (startValue, endValue)
+        }
+        
+    }
+    
     /// returns absolute profit history since specified date, nil if date is today or in the future
-    func absoluteProfitHistory(since date: Date) -> [(date: Date, profit: Double)]? {
-        guard !date.isUTCToday, !date.isUTCFuture else {
+    func getAbsoluteProfitHistory(since date: Date) -> [(date: Date, profit: Double)]? {
+        guard !date.isToday, !date.isFuture else {
             return nil
         }
 
+        let sinceDate = date.UTCStart
+        let txDate = (self.date! as Date).UTCStart
+        
         var absoluteProfitHistory: [(Date, Double)] = []
 
         // fill response with 0s if requested date preceeds transaction
         // calculate start date of absolute return history -> either specified date or transaction start
         let startDate: Date
-        
-        if date < self.date! as Date {
-            let daysUntilStart = Calendar.current.dateComponents([.day], from: date, to: self.date! as Date).day!
+    
+        if sinceDate < txDate {
+            // calculate number of days between sinceDate and txDance, including txDate ??
+            let daysUntilStart = Calendar.current.dateComponents([.day], from: sinceDate, to: txDate).day!
             
             for daysPassed in 0..<daysUntilStart {
-                let date = Calendar.current.date(byAdding: .day, value: daysPassed, to: date)!
+                let date = Calendar.current.date(byAdding: .day, value: daysPassed, to: sinceDate)!
                 let absoluteProfit = 0.0
                 absoluteProfitHistory.append((date, absoluteProfit))
             }
             
-            startDate = Calendar.current.date(byAdding: .day, value: daysUntilStart, to: date)!
+            startDate = Calendar.current.date(byAdding: .day, value: daysUntilStart, to: sinceDate)!
         } else {
-            startDate = date
+            startDate = sinceDate
         }
         
         // get transaction value at start date
@@ -138,14 +155,14 @@ class Transaction: NSManagedObject {
         
         let baseExchangeValue = unitExchangeValue * amount
         
-        // calculate number of days between startDate and today, including today 
+        // calculate number of days between startDate and today, including today
         // calculate return history for that timeframe accordingly
-        let daysMissing = Calendar.current.dateComponents([.day], from: startDate, to: Date()).day!
+        let daysMissing = Calendar.current.dateComponents([.day], from: startDate, to: Date().UTCStart).day!
         
         for daysPassed in 0...daysMissing {
             let date = Calendar.current.date(byAdding: .day, value: daysPassed, to: startDate)!
             var absoluteProfit: Double
-            
+
             if daysPassed == 0 {
                 // return for startDate
                 absoluteProfit = 0.0
@@ -159,18 +176,19 @@ class Transaction: NSManagedObject {
                 // error retrieving tickerprice
                 return nil
             }
-        
+
             // outbound transaction = loss
             if isOutbound {
                 absoluteProfit = absoluteProfit * -1
             }
-            
+
             absoluteProfitHistory.append((date, absoluteProfit))
         }
         
         return absoluteProfitHistory
     }
     
+    // MARK: Setters
     /// replaces exchange value as encountered on execution date by user specified value, notifies owner's delegate if change occurred
     func setUserExchangeValue(value newValue: Double) {
         guard newValue != userExchangeValue else {
@@ -204,4 +222,5 @@ class Transaction: NSManagedObject {
     }
     
 }
+
 

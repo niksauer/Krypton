@@ -21,10 +21,10 @@ final class PortfolioManager: PortfolioDelegate {
     /// loads all available portfolios, sets itself as their delegate,
     /// updates all stored addresses, requests continious ticker price updates for their trading pars
     private init() {
-        //        deletePortfolios()
-        //        deleteAddresses()
-        //        deleteTransactions()
-        //        deletePriceHistory()
+        deletePortfolios()
+        deleteAddresses()
+        deleteTransactions()
+        deletePriceHistory()
         
         do {
             portfolios = try loadPortfolios()
@@ -89,45 +89,6 @@ final class PortfolioManager: PortfolioDelegate {
         return selectedAddresses
     }
     
-    /// returns the current exchange value of all selected addresses
-    var currentExchangeValue: Double? {
-        var currentExchangeValue = 0.0
-        for address in selectedAddresses {
-            if let addressValue = address.currentExchangeValue {
-                currentExchangeValue = currentExchangeValue + addressValue
-            } else {
-                return nil
-            }
-        }
-        return currentExchangeValue
-    }
-    
-    /// returns the absolute profit generated from all selected addresses
-    var absoluteProfit: Double? {
-        var absoluteProfit = 0.0
-        for address in selectedAddresses {
-            if let addressAbsoluteProfit = address.absoluteProfit {
-                absoluteProfit = absoluteProfit + addressAbsoluteProfit
-            } else {
-                return nil
-            }
-        }
-        return absoluteProfit
-    }
-    
-    /// returns the total value invested in all selected addresses
-    var investmentValue: Double? {
-        var investmentValue = 0.0
-        for address in selectedAddresses {
-            if let addressInvestmentValue = address.investmentValue {
-                investmentValue = investmentValue + addressInvestmentValue
-            } else {
-                return nil
-            }
-        }
-        return investmentValue
-    }
-    
     // MARK: - Private Methods
     /// loads and returns all addresses stored in Core Data
     private func loadPortfolios() throws -> [Portfolio] {
@@ -142,78 +103,10 @@ final class PortfolioManager: PortfolioDelegate {
     }
 
     // MARK: - Public Methods
-    /// returns relative profit, i.e., percentage increase, of selected addresses compared to specified date
-    func relativeProfit(since date: Date) -> Double? {
-        if date.isToday || selectedAddresses.count == 0 {
-            return 0.0
-        }
-        
-        guard !date.isFuture, let currentExchangeValue = currentExchangeValue, let comparisonExchangeValue = exchangeValue(on: date) else {
-            return nil
-        }
-        
-        let difference = currentExchangeValue - comparisonExchangeValue
-        return difference / comparisonExchangeValue * 100
-    }
-    
-    /// returns absolute profit of selected addresses compared to specified date
-    func absoluteProfit(since date: Date) -> Double? {
-        if date.isToday || selectedAddresses.count == 0 {
-            return 0.0
-        }
-        
-        guard !date.isFuture, let currentExchangeValue = currentExchangeValue, let comparisonExchangeValue = exchangeValue(on: date) else {
-            return nil
-        }
-        
-        return currentExchangeValue - comparisonExchangeValue
-    }
-
-    /// returns absolute profit history of selected addresses since specified date
-    func absoluteReturnHistory(since date: Date) -> [(date: Date, profit: Double)]? {
-        guard !date.isToday, !date.isFuture else {
-            return nil
-        }
-        
-        var profitHistory: [(Date, Double)] = []
-        
-        for (index, address) in selectedAddresses.enumerated() {
-            if let absoluteProfitHistory = address.absoluteProfitHistory(since: date) {
-                if index == 0 {
-                    for (date, absoluteProfit) in absoluteProfitHistory {
-                        profitHistory.append((date, absoluteProfit))
-                    }
-                } else {
-                    profitHistory = zip(profitHistory, absoluteProfitHistory).map() { ($0.0, $0.1 + $1.1) }
-                }
-            } else {
-                return nil
-            }
-
-        }
-        
-        return profitHistory
-    }
-    
-    /// returns exchange value of selected addresses on specified date
-    func exchangeValue(on date: Date) -> Double? {
-        var exchangeValue = 0.0
-        for address in selectedAddresses {
-            if let addressExchangeValue = address.exchangeValue(on: date) {
-                exchangeValue = exchangeValue + addressExchangeValue
-            } else {
-                return nil
-            }
-        }
-        return exchangeValue
-    }
-    
-
     /// returns alias for specified address string
     func alias(for addressString: String) -> String? {
         return storedAddresses?.first(where: { $0.address == addressString })?.alias
     }
-    
     
     /// creates address from specfied string with specified crypto unit, adds it to default portfolio
     func addAddress(_ addressString: String, unit: Currency.Crypto) throws {
@@ -278,6 +171,65 @@ final class PortfolioManager: PortfolioDelegate {
         } catch {
             throw error
         }
+    }
+    
+    // MARK: Finance
+    /// returns the current exchange value of all selected addresses
+    /// returns exchange value of selected addresses on specified date
+    func getExchangeValue(for type: TransactionType, on date: Date) -> Double? {
+        var value = 0.0
+        for address in selectedAddresses {
+            if let addressValue = address.getExchangeValue(for: type, on: date)?.value {
+                value = value + addressValue
+            } else {
+                return nil
+            }
+        }
+        return value
+    }
+    
+    /// returns absolute profit of selected addresses compared to specified date
+    /// returns the absolute profit generated from all selected addresses
+    func getProfitStats(for type: TransactionType, timeframe: ProfitTimeframe) -> (startValue: Double, endValue: Double)? {
+        var startValue = 0.0
+        var endValue = 0.0
+        
+        for address in selectedAddresses {
+            if let profitStats = address.getProfitStats(for: type, timeframe: timeframe) {
+                startValue = startValue + profitStats.startValue
+                endValue = endValue + profitStats.endValue
+            } else {
+                return nil
+            }
+        }
+        
+        return (startValue, endValue)
+    }
+    
+    /// returns absolute profit history of selected addresses since specified date
+    func getAbsoluteProfitHistory(for type: TransactionType, since date: Date) -> [(date: Date, profit: Double)]? {
+        guard !date.isToday, !date.isFuture else {
+            return nil
+        }
+        
+        var profitHistory: [(Date, Double)] = []
+        
+        for (index, address) in selectedAddresses.enumerated() {
+            if let absoluteProfitHistory = address.getAbsoluteProfitHistory(for: type, since: date) {
+                if index == 0 {
+                    for (date, absoluteProfit) in absoluteProfitHistory {
+                        profitHistory.append((date, absoluteProfit))
+                    }
+                } else {
+                    profitHistory = zip(profitHistory, absoluteProfitHistory).map() { ($0.0, $0.1 + $1.1) }
+                }
+            } else {
+                return nil
+            }
+            
+        }
+        
+        return profitHistory
     }
     
     // MARK: - Portfolio Delegate
