@@ -13,11 +13,12 @@ class TransactionTableController: FetchedResultsTableViewController {
     
     // MARK: - Properties
     var database = AppDelegate.persistentContainer
-    var addresses: [Address]? {
+    var addresses = PortfolioManager.shared.selectedAddresses {
         didSet {
             updateUI()
         }
     }
+    
     var fetchedResultsController: NSFetchedResultsController<Transaction>?
     var selectedTransaction: Transaction?
     
@@ -43,35 +44,37 @@ class TransactionTableController: FetchedResultsTableViewController {
     @IBAction func unwindFromFilterPanel(segue: UIStoryboardSegue) {
         if let sourceVC = segue.source as? FilterController, let selectedTransactionType = sourceVC.transactionType {
             transactionFilter = selectedTransactionType
+            
+            if sourceVC.selectionHasChanged {
+                addresses = PortfolioManager.shared.selectedAddresses
+            }
         }
     }
     
     // MARK: - Private Methods
     private func updateUI() {
-        if let addresses = addresses {
-            let context = database.viewContext
-            let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
-            request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
+        let context = database.viewContext
+        let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
         
-            switch transactionFilter {
-            case .investment:
-                request.predicate = NSPredicate(format: "owner IN %@ AND isInvestment = YES", addresses)
-            case .other:
-                request.predicate = NSPredicate(format: "owner IN %@ AND isInvestment = NO", addresses)
-            case .all:
-                request.predicate = NSPredicate(format: "owner IN %@", addresses)
-            }
-            
-            fetchedResultsController = NSFetchedResultsController<Transaction>(
-                fetchRequest: request,
-                managedObjectContext: context,
-                sectionNameKeyPath: nil,
-                cacheName: nil
-            )
-            fetchedResultsController?.delegate = self 
-            try? fetchedResultsController?.performFetch()
-            tableView.reloadData()
+        switch transactionFilter {
+        case .investment:
+            request.predicate = NSPredicate(format: "owner IN %@ AND isInvestment = YES", addresses)
+        case .other:
+            request.predicate = NSPredicate(format: "owner IN %@ AND isInvestment = NO", addresses)
+        case .all:
+            request.predicate = NSPredicate(format: "owner IN %@", addresses)
         }
+        
+        fetchedResultsController = NSFetchedResultsController<Transaction>(
+            fetchRequest: request,
+            managedObjectContext: context,
+            sectionNameKeyPath: nil,
+            cacheName: nil
+        )
+        fetchedResultsController?.delegate = self
+        try? fetchedResultsController?.performFetch()
+        tableView.reloadData()
     }
     
     // MARK: - TableView Data Source
