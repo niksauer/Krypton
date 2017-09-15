@@ -80,10 +80,11 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
     
     @IBOutlet weak var investmentValueLabel: UILabel!
     @IBOutlet weak var investmentLabel: UILabel!
-
+    
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         tabBarController?.delegate = self
         PortfolioManager.shared.delegate = self
         TickerWatchlist.delegate = self
@@ -104,8 +105,16 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
     }
 
     // MARK: - Navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        super.prepare(for: segue, sender: sender)
+        
+        if let destNavVC = segue.destination as? UINavigationController, let destVC = destNavVC.topViewController as? FilterController {
+            destVC.transactionType = transactionFilter
+        }
+    }
+    
     @IBAction func unwindToDashboard(segue: UIStoryboardSegue) {
-        if let sourceVC = segue.source as? AddAddressController, let addressString = sourceVC.address, let unit = sourceVC.unit {
+        if let sourceVC = segue.source as? AddAddressController, let addressString = sourceVC.addressString, let unit = sourceVC.unit {
             do {
                 try PortfolioManager.shared.addAddress(addressString, unit: unit)
             } catch {
@@ -114,6 +123,12 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
         }
     }
     
+    @IBAction func unwindFromFilterPanel(segue: UIStoryboardSegue) {
+        if let sourceVC = segue.source as? FilterController, let selectedTransactionType = sourceVC.transactionType {
+            transactionFilter = selectedTransactionType
+        }
+    }
+
     // MARK: - Private Methods
     private func updateUI() {
         portfolioDisplay = { portfolioDisplay }()

@@ -13,6 +13,10 @@ enum TransactionError: Error {
     case duplicate
 }
 
+enum TransactionType: Int {
+    case all = 0, investment, other
+}
+
 enum ProfitTimeframe {
     case allTime
     case sinceDate(Date)

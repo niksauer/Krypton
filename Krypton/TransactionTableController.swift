@@ -20,11 +20,29 @@ class TransactionTableController: FetchedResultsTableViewController {
     }
     var fetchedResultsController: NSFetchedResultsController<Transaction>?
     var selectedTransaction: Transaction?
+    
+    var transactionFilter: TransactionType = .all {
+        didSet {
+            updateUI()
+        }
+    }
 
     // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        super.prepare(for: segue, sender: sender)
+        
         if let destVC = segue.destination as? TransactionController {
             destVC.transaction = selectedTransaction
+        }
+        
+        if let destNavVC = segue.destination as? UINavigationController, let destVC = destNavVC.topViewController as? FilterController {
+            destVC.transactionType = transactionFilter
+        }
+    }
+    
+    @IBAction func unwindFromFilterPanel(segue: UIStoryboardSegue) {
+        if let sourceVC = segue.source as? FilterController, let selectedTransactionType = sourceVC.transactionType {
+            transactionFilter = selectedTransactionType
         }
     }
     
@@ -34,7 +52,16 @@ class TransactionTableController: FetchedResultsTableViewController {
             let context = database.viewContext
             let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
             request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
-            request.predicate = NSPredicate(format: "owner IN %@", addresses)
+        
+            switch transactionFilter {
+            case .investment:
+                request.predicate = NSPredicate(format: "owner IN %@ AND isInvestment = YES", addresses)
+            case .other:
+                request.predicate = NSPredicate(format: "owner IN %@ AND isInvestment = NO", addresses)
+            case .all:
+                request.predicate = NSPredicate(format: "owner IN %@", addresses)
+            }
+            
             fetchedResultsController = NSFetchedResultsController<Transaction>(
                 fetchRequest: request,
                 managedObjectContext: context,
@@ -64,8 +91,9 @@ class TransactionTableController: FetchedResultsTableViewController {
     
 }
 
+// MARK: - TableView Data Source
 extension TransactionTableController {
-    // MARK: - TableView Data Source
+   
     override func numberOfSections(in tableView: UITableView) -> Int {
         return fetchedResultsController?.sections?.count ?? 1
     }
@@ -95,8 +123,9 @@ extension TransactionTableController {
     }
 }
 
+// MARK: - NSFetchedResultsControllerDelegate
 class FetchedResultsTableViewController: UITableViewController, NSFetchedResultsControllerDelegate {
-    // MARK: - NSFetchedResultsControllerDelegate
+    
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView.beginUpdates()
     }

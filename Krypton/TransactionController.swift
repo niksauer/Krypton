@@ -112,7 +112,6 @@ class TransactionController: UIViewController, UITextFieldDelegate {
         showsRelativeProfit = !showsRelativeProfit
     }
     
-    
     @IBAction func toggleIsInvestment(_ sender: UISwitch) {
         transaction?.setIsInvestment(state: sender.isOn)
     }

@@ -38,6 +38,16 @@ class Portfolio: NSManagedObject, AddressDelegate {
         return Array(addresses!) as! [Address]
     }
     
+    var selectedAddresses: [Address] {
+        var selectedAddresses = [Address]()
+        for address in storedAddresses {
+            if address.isSelected {
+                selectedAddresses.append(address)
+            }
+        }
+        return selectedAddresses
+    }
+    
     // MARK: - Public Methods
     /// updates all stored addresses by updating their transaction history, price history and balance
     func update() {
