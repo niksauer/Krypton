@@ -12,7 +12,7 @@ import CoreData
 class AddAddressController: UIViewController {
     
     // MARK: - Properties
-    var address: String?
+    var addressString: String?
     var unit: Currency.Crypto?
     
     // MARK: - Outlets
@@ -36,11 +36,11 @@ class AddAddressController: UIViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         super.prepare(for: segue, sender: sender)
         
-        guard let button = sender as? UIBarButtonItem, button === saveButton, let addressString = addressField.text else {
+        guard let button = sender as? UIBarButtonItem, button === saveButton, let address = addressField.text else {
             return
         }
         
-        address = addressString
+        addressString = address
         unit = Currency.Crypto.ETH
     }
 

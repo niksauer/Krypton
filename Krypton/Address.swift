@@ -13,12 +13,6 @@ enum AddressError: Error {
     case duplicate
 }
 
-enum TransactionType {
-    case investment
-    case normal
-    case all
-}
-
 class Address: NSManagedObject {
     
     // MARK: - Public Class Methods
@@ -211,7 +205,7 @@ class Address: NSManagedObject {
                 guard transaction.isInvestment else {
                     continue
                 }
-            case .normal:
+            case .other:
                 guard !transaction.isInvestment else {
                     continue
                 }
@@ -261,7 +255,7 @@ class Address: NSManagedObject {
                 guard transaction.isInvestment else {
                     continue
                 }
-            case .normal:
+            case .other:
                 guard !transaction.isInvestment else {
                     continue
                 }
@@ -294,7 +288,7 @@ class Address: NSManagedObject {
                 guard tx.isInvestment else {
                     continue
                 }
-            case .normal:
+            case .other:
                 guard !tx.isInvestment else {
                     continue
                 }

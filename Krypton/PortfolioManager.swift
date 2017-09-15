@@ -13,6 +13,8 @@ final class PortfolioManager: PortfolioDelegate {
     
 //    0xAA2F9BFAA9Ec168847216357b0856d776F34881f
 //    0xB15E9Ca894b6134Ac7C22B70b20Fd30De87451B2
+//    0x173BAF5C0f1ff25D18b4448C20ff209adC7cc220
+//    0x1f4aEDc00572634Bc83A9da8B90617a175476690
     
     // MARK: - Singleton
     static let shared = PortfolioManager()
@@ -21,10 +23,10 @@ final class PortfolioManager: PortfolioDelegate {
     /// loads all available portfolios, sets itself as their delegate,
     /// updates all stored addresses, requests continious ticker price updates for their trading pars
     private init() {
-        deletePortfolios()
-        deleteAddresses()
-        deleteTransactions()
-        deletePriceHistory()
+//        deletePortfolios()
+//        deleteAddresses()
+//        deleteTransactions()
+//        deletePriceHistory()
         
         do {
             portfolios = try loadPortfolios()
@@ -47,17 +49,6 @@ final class PortfolioManager: PortfolioDelegate {
     // MARK: - Private Properties
     /// returns all stored portfolios
     private var portfolios = [Portfolio]()
-    
-    /// returns all selected portfolios
-    private var selectedPortfolios: [Portfolio] {
-        var selectedPortfolios = [Portfolio]()
-        for portfolio in portfolios {
-            if portfolio.isSelected {
-                selectedPortfolios.append(portfolio)
-            }
-        }
-        return selectedPortfolios
-    }
     
     /// returns default portfolio used to add addresses
     private var defaultPortfolio: Portfolio? {
@@ -83,8 +74,8 @@ final class PortfolioManager: PortfolioDelegate {
     /// returns all addresses stored in selected portfolios
     var selectedAddresses: [Address] {
         var selectedAddresses = [Address]()
-        for portfolio in selectedPortfolios {
-            selectedAddresses.append(contentsOf: portfolio.storedAddresses)
+        for portfolio in portfolios {
+            selectedAddresses.append(contentsOf: portfolio.selectedAddresses)
         }
         return selectedAddresses
     }
@@ -170,6 +161,27 @@ final class PortfolioManager: PortfolioDelegate {
             return portfolio
         } catch {
             throw error
+        }
+    }
+    
+    func getPortfolios() -> [Portfolio] {
+        return portfolios
+    }
+    
+    func save() -> Bool {
+        let context = AppDelegate.viewContext
+        if context.hasChanges {
+            do {
+                try context.save()
+                print("Saved changes to Portfolio Manager.")
+                delegate?.didUpdatePortfolioManager()
+                return true
+            } catch {
+                print("Error saving changes to Portfolio Manager: \(error)")
+                return false
+            }
+        } else {
+            return true
         }
     }
     
