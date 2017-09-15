@@ -159,9 +159,9 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
     
     // MARK: - TabBarControllerDelegate
     func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
-        if let destVC = viewController as? UINavigationController, let transactionVC = destVC.topViewController as? TransactionTableController {
-            transactionVC.addresses = PortfolioManager.shared.selectedAddresses
-        }
+//        if let destVC = viewController as? UINavigationController, let transactionVC = destVC.topViewController as? TransactionTableController {
+//            transactionVC.addresses = PortfolioManager.shared.selectedAddresses
+//        }
     }
     
     // MARK: - PortfolioManagerDelegate

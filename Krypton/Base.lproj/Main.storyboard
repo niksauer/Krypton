@@ -100,11 +100,7 @@
                                     <segue destination="FZf-fB-E7b" kind="presentation" id="vTd-z3-oD0"/>
                                 </connections>
                             </barButtonItem>
-                            <barButtonItem systemItem="add" id="raZ-Dd-9kU">
-                                <connections>
-                                    <segue destination="ixO-ZF-rRU" kind="presentation" identifier="showFilterPanelForDashboard" id="eS1-fe-gDK"/>
-                                </connections>
-                            </barButtonItem>
+                            <barButtonItem systemItem="add" id="raZ-Dd-9kU"/>
                         </rightBarButtonItems>
                     </navigationItem>
                     <connections>
@@ -233,14 +229,16 @@
                     </navigationItem>
                     <connections>
                         <outlet property="addressField" destination="j4T-re-AOu" id="x8P-dm-vKB"/>
-                        <outlet property="saveButton" destination="QVe-gF-1m8" id="ZcQ-XY-pa9"/>
+                        <outlet property="aliasField" destination="gfo-dp-5rA" id="zDt-XN-4Ji"/>
+                        <outlet property="cryptoField" destination="v0z-U9-VdK" id="9Dx-Pr-fZA"/>
+                        <outlet property="portfolioField" destination="b3q-mo-fkS" id="PIr-MG-2Mz"/>
                         <segue destination="GVt-vU-tRJ" kind="unwind" identifier="unwindToDashboard" unwindAction="unwindToDashboardWithSegue:" id="wX1-As-w9G"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dST-0M-swL" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="GVt-vU-tRJ" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="3058" y="-680"/>
+            <point key="canvasLocation" x="3056.8000000000002" y="-680.5097451274363"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="yl2-sM-qoP">
@@ -646,7 +644,7 @@
                                 <rect key="frame" x="0.0" y="72" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="HYe-OZ-WKS" id="3F8-vA-uGb">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" translatesAutoresizingMaskIntoConstraints="NO" id="4CS-LM-Wxg">

@@ -10,27 +10,32 @@ import Foundation
 
 struct Currency {
     
-    // MARK: - Private Properties
-    /// dictionary mapping crypto currencies to their respective currency symbol
-    private static let symbolForCrypto: [Crypto : String ] = [
-        .ETH : "Ξ",
-        .BTC : "Ƀ"
-    ]
-    
     // MARK: - Public Properties
     enum Crypto: String {
         case ETH
         case BTC
         
+        // MARK: - Private Properties
+        /// dictionary mapping crypto currencies to their respective currency symbol
+        private static let symbolForCrypto: [Crypto : String ] = [
+            .ETH : "Ξ",
+            .BTC : "Ƀ"
+        ]
+        
+        // MARK: - Public Properties
         /// returns currency symbol
         var symbol: String {
-            return symbolForCrypto[self]!
+            return Crypto.symbolForCrypto[self]!
         }
+        
+        static var allValues = [ETH, BTC]
     }
 
     enum Fiat: String {
         case EUR
         case USD
+        
+        static var allValues = [EUR, USD]
     }
     
     enum TradingPair: String {
