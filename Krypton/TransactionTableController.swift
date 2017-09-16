@@ -28,11 +28,16 @@ class TransactionTableController: FetchedResultsTableViewController {
         }
     }
 
+    // MARK: - Initialization
+    override func viewDidLoad() {
+        updateUI()
+    }
+    
     // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         super.prepare(for: segue, sender: sender)
         
-        if let destVC = segue.destination as? TransactionController {
+        if let destVC = segue.destination as? TransactionDetailController {
             destVC.transaction = selectedTransaction
         }
         
