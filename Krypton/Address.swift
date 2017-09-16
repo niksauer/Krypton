@@ -17,7 +17,7 @@ class Address: NSManagedObject {
     
     // MARK: - Public Class Methods
     /// creates and returns address if non-existent in database, throws otherwise
-    class func createAddress(_ addressString: String, unit: Currency.Crypto, in context: NSManagedObjectContext) throws -> Address {
+    class func createAddress(_ addressString: String, unit: Currency.Crypto, alias: String?, in context: NSManagedObjectContext) throws -> Address {
         let request: NSFetchRequest<Address> = Address.fetchRequest()
         request.predicate = NSPredicate(format: "address = %@", addressString)
         
@@ -34,6 +34,7 @@ class Address: NSManagedObject {
         let address = Address(context: context)
         address.address = addressString
         address.cryptoCurrency = unit.rawValue
+        address.alias = alias
         
         return address
     }

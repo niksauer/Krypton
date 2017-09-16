@@ -114,13 +114,7 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
     }
     
     @IBAction func unwindToDashboard(segue: UIStoryboardSegue) {
-        if let sourceVC = segue.source as? AddAddressController, let addressString = sourceVC.addressString, let unit = sourceVC.unit {
-            do {
-                try PortfolioManager.shared.addAddress(addressString, unit: unit)
-            } catch {
-                print(error)
-            }
-        }
+    
     }
     
     @IBAction func unwindFromFilterPanel(segue: UIStoryboardSegue) {
