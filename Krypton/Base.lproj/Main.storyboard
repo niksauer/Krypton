@@ -162,15 +162,15 @@
         <scene sceneID="Seb-YU-OeW">
             <objects>
                 <tableViewController id="lFf-29-8lc" customClass="AddAddressController" customModule="Krypton" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="bk7-AO-OiC">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" id="bk7-AO-OiC">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <sections>
-                            <tableViewSection headerTitle="General" id="gK9-7x-wZA">
+                            <tableViewSection id="gK9-7x-wZA">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="textFieldCell" id="z5p-mc-OUR" customClass="TextFieldTableViewCell" customModule="Krypton" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="28" width="375" height="44"/>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="textFieldCell" id="z5p-mc-OUR">
+                                        <rect key="frame" x="0.0" y="35" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="z5p-mc-OUR" id="1LY-BD-rwo">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
@@ -189,12 +189,9 @@
                                                 <constraint firstItem="iiP-I6-QS7" firstAttribute="leading" secondItem="1LY-BD-rwo" secondAttribute="leadingMargin" constant="8" id="enl-b3-3cN"/>
                                             </constraints>
                                         </tableViewCellContentView>
-                                        <connections>
-                                            <outlet property="textField" destination="iiP-I6-QS7" id="sxW-gX-fQr"/>
-                                        </connections>
                                     </tableViewCell>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="textFieldCell" id="u6c-Pg-yIp" customClass="TextFieldTableViewCell" customModule="Krypton" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="72" width="375" height="44"/>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="textFieldCell" id="u6c-Pg-yIp">
+                                        <rect key="frame" x="0.0" y="79" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="u6c-Pg-yIp" id="GtA-hR-Ocw">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
@@ -213,16 +210,13 @@
                                                 <constraint firstItem="5m2-st-Ydr" firstAttribute="leading" secondItem="GtA-hR-Ocw" secondAttribute="leadingMargin" constant="8" id="sFe-Te-LuW"/>
                                             </constraints>
                                         </tableViewCellContentView>
-                                        <connections>
-                                            <outlet property="textField" destination="5m2-st-Ydr" id="EbV-SK-SOi"/>
-                                        </connections>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
-                            <tableViewSection headerTitle="Blockchain" id="VVU-5Q-BTp">
+                            <tableViewSection id="VVU-5Q-BTp">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="rightDetailCell" textLabel="8hf-NK-HkC" detailTextLabel="tK7-NV-g8y" rowHeight="44" style="IBUITableViewCellStyleValue1" id="BNh-1y-tox">
-                                        <rect key="frame" x="0.0" y="144" width="375" height="44"/>
+                                        <rect key="frame" x="0.0" y="159" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="BNh-1y-tox" id="A2L-aj-cLL">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
@@ -246,7 +240,7 @@
                                         </tableViewCellContentView>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="pickerCell" rowHeight="216" id="ASS-be-vHz">
-                                        <rect key="frame" x="0.0" y="188" width="375" height="216"/>
+                                        <rect key="frame" x="0.0" y="203" width="375" height="216"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="ASS-be-vHz" id="b3l-zI-Ghe">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="215.5"/>
@@ -265,10 +259,10 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
-                            <tableViewSection headerTitle="Portfolio" id="Uu7-xA-55W">
+                            <tableViewSection id="Uu7-xA-55W">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="rightDetailCell" textLabel="5h4-6b-1ON" detailTextLabel="ksA-ub-Alf" style="IBUITableViewCellStyleValue1" id="kWb-O9-auj">
-                                        <rect key="frame" x="0.0" y="432" width="375" height="44"/>
+                                        <rect key="frame" x="0.0" y="455" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="kWb-O9-auj" id="a3n-Dm-bQy">
                                             <rect key="frame" x="0.0" y="0.0" width="342" height="43.5"/>
@@ -326,19 +320,19 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="G9a-9g-w0a" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="V4A-Cs-7w5" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="3114" y="-743"/>
+            <point key="canvasLocation" x="3143" y="-753"/>
         </scene>
         <!--Portfolios-->
         <scene sceneID="Di5-5a-bB3">
             <objects>
                 <tableViewController id="n5n-jW-X68" customClass="PortfolioTableController" customModule="Krypton" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="hAX-9l-zpL">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" id="hAX-9l-zpL">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="portfolioCell" textLabel="D2g-Kn-dyr" style="IBUITableViewCellStyleDefault" id="bOy-Zm-Fhf">
-                                <rect key="frame" x="0.0" y="28" width="375" height="44"/>
+                                <rect key="frame" x="0.0" y="55.5" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="bOy-Zm-Fhf" id="Fxp-tQ-psn">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
@@ -368,7 +362,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="WaC-e3-2DI" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="I7h-mc-4J4" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="3801" y="-754"/>
+            <point key="canvasLocation" x="3868" y="-753"/>
         </scene>
         <!--Transactions-->
         <scene sceneID="rGX-Rz-9Pb">
@@ -685,13 +679,13 @@
         <scene sceneID="tiL-sz-exp">
             <objects>
                 <tableViewController id="74m-fl-QD2" customClass="FilterController" customModule="Krypton" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="o6f-7y-OZJ">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" id="o6f-7y-OZJ">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="addressCell" textLabel="VGY-4V-766" detailTextLabel="ztj-Mt-DsO" style="IBUITableViewCellStyleSubtitle" id="27D-6I-eaW">
-                                <rect key="frame" x="0.0" y="28" width="375" height="44"/>
+                                <rect key="frame" x="0.0" y="55.5" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="27D-6I-eaW" id="jKL-OI-znY">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
@@ -715,7 +709,7 @@
                                 </tableViewCellContentView>
                             </tableViewCell>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="transactionTypeCell" id="HYe-OZ-WKS">
-                                <rect key="frame" x="0.0" y="72" width="375" height="44"/>
+                                <rect key="frame" x="0.0" y="99.5" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="HYe-OZ-WKS" id="3F8-vA-uGb">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
