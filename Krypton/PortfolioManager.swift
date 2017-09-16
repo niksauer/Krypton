@@ -32,6 +32,19 @@ final class PortfolioManager: PortfolioDelegate {
             portfolios = try loadPortfolios()
             print("Loaded \(portfolios.count) portfolio(s) from Core Data.")
             
+            if portfolios.count == 0 {
+                do {
+                    let portfolio = try addPortfolio(baseCurrency: baseCurrency, alias: "Default Portfolio")
+                    portfolio.isDefault = true
+                    
+                    try AppDelegate.viewContext.save()
+                    print("Created and saved empty default portfolio.")
+                } catch {
+                    print("Failed to create default portfolio.")
+                    throw error
+                }
+            }
+            
             for portfolio in portfolios {
                 portfolio.delegate = self
                 portfolio.update()
@@ -51,14 +64,8 @@ final class PortfolioManager: PortfolioDelegate {
     private var portfolios = [Portfolio]()
     
     /// returns default portfolio used to add addresses
-    private var defaultPortfolio: Portfolio? {
-        if let defaultPortfolio = portfolios.first(where: { $0.isDefault }) {
-            return defaultPortfolio
-        } else {
-            let portfolio = try? addPortfolio(baseCurrency: baseCurrency)
-            portfolio?.isDefault = true
-            return portfolio
-        }
+    var defaultPortfolio: Portfolio? {
+        return portfolios.first(where: { $0.isDefault })
     }
     
     /// returns all addresses associated with stored portfolios
@@ -106,59 +113,26 @@ final class PortfolioManager: PortfolioDelegate {
     }
     
     /// creates address from specfied string with specified crypto unit, adds it to default portfolio
-    func addAddress(_ addressString: String, unit: Currency.Crypto) throws {
-        do {
-            let context = AppDelegate.viewContext
-            var portfolio: Portfolio!
-            
-            if portfolios.count == 0 {
-                do {
-                    portfolio = try addPortfolio(baseCurrency: baseCurrency)
-                    portfolio.isDefault = true
-                } catch {
-                    throw error
-                }
-            } else if let defaultPortfolio = defaultPortfolio {
-                portfolio = defaultPortfolio
-            }
-
-            let address = try Address.createAddress(addressString, unit: unit, in: context)
-            portfolio.addAddress(address)
-            
-            do {
-                if context.hasChanges {
-                    try context.save()
-                    TickerWatchlist.addTradingPair(address.tradingPair)
-                }
-            } catch {
-                throw error
-            }
-        } catch {
-            throw error
-        }
-    }
-    
     /// creates address from specfied string with specified crypto unit, add it to specified portfolio
-    func addAddress(_ addressString: String, unit: Currency.Crypto, to portfolio: Portfolio) throws {
+    func addAddress(_ addressString: String, unit: Currency.Crypto, alias: String?, to portfolio: Portfolio) throws {
         do {
             let context = AppDelegate.viewContext
-            let address = try Address.createAddress(addressString, unit: unit, in: context)
+            let address = try Address.createAddress(addressString, unit: unit, alias: alias, in: context)
             portfolio.addAddress(address)
             
-            do {
-                try context.save()
-                TickerWatchlist.addTradingPair(address.tradingPair)
-            }
+            try context.save()
+            TickerWatchlist.addTradingPair(address.tradingPair)
         } catch {
             throw error
         }
     }
     
     /// creates, saves and adds portfolio with specified base currency
-    func addPortfolio(baseCurrency: Currency.Fiat) throws -> Portfolio {
+    func addPortfolio(baseCurrency: Currency.Fiat, alias: String?) throws -> Portfolio {
         do {
             let context = AppDelegate.viewContext
             let portfolio = Portfolio.createPortfolio(baseCurrency: baseCurrency, in: context)
+            portfolio.alias = alias
             
             try context.save()
             portfolio.delegate = self
