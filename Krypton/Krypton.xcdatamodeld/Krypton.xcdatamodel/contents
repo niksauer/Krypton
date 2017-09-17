@@ -11,10 +11,10 @@
         <relationship name="transactions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Transaction" inverseName="owner" inverseEntity="Transaction" syncable="YES"/>
     </entity>
     <entity name="Portfolio" representedClassName=".Portfolio" syncable="YES" codeGenerationType="category">
-        <attribute name="alias" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="alias" attributeType="String" syncable="YES"/>
         <attribute name="baseCurrency" attributeType="String" syncable="YES"/>
         <attribute name="isDefault" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES" syncable="YES"/>
-        <relationship name="addresses" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Address" inverseName="portfolio" inverseEntity="Address" syncable="YES"/>
+        <relationship name="addresses" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Address" inverseName="portfolio" inverseEntity="Address" syncable="YES"/>
     </entity>
     <entity name="TickerPrice" representedClassName=".TickerPrice" syncable="YES" codeGenerationType="category">
         <attribute name="date" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>

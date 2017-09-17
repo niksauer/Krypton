@@ -29,12 +29,12 @@ final class PortfolioManager: PortfolioDelegate {
 //        deletePriceHistory()
         
         do {
-            portfolios = try loadPortfolios()
-            print("Loaded \(portfolios.count) portfolio(s) from Core Data.")
+            storedPortfolios = try loadPortfolios()
+            print("Loaded \(storedPortfolios.count) portfolio(s) from Core Data.")
             
-            if portfolios.count == 0 {
+            if storedPortfolios.count == 0 {
                 do {
-                    let portfolio = try addPortfolio(baseCurrency: baseCurrency, alias: "Default Portfolio")
+                    let portfolio = try addPortfolio(baseCurrency: baseCurrency, alias: "Portfolio 1")
                     portfolio.isDefault = true
                     
                     try AppDelegate.viewContext.save()
@@ -45,7 +45,7 @@ final class PortfolioManager: PortfolioDelegate {
                 }
             }
             
-            for portfolio in portfolios {
+            for portfolio in storedPortfolios {
                 portfolio.delegate = self
                 portfolio.update()
                 
@@ -61,17 +61,17 @@ final class PortfolioManager: PortfolioDelegate {
     
     // MARK: - Private Properties
     /// returns all stored portfolios
-    private var portfolios = [Portfolio]()
+    private var storedPortfolios = [Portfolio]()
     
     /// returns default portfolio used to add addresses
     var defaultPortfolio: Portfolio? {
-        return portfolios.first(where: { $0.isDefault })
+        return storedPortfolios.first(where: { $0.isDefault })
     }
     
     /// returns all addresses associated with stored portfolios
     private var storedAddresses: [Address]? {
         var storedAddresses = [Address]()
-        for portfolio in portfolios {
+        for portfolio in storedPortfolios {
             storedAddresses.append(contentsOf: portfolio.storedAddresses)
         }
         return storedAddresses
@@ -87,7 +87,7 @@ final class PortfolioManager: PortfolioDelegate {
     /// returns all addresses stored in selected portfolios
     var selectedAddresses: [Address] {
         var selectedAddresses = [Address]()
-        for portfolio in portfolios {
+        for portfolio in storedPortfolios {
             selectedAddresses.append(contentsOf: portfolio.selectedAddresses)
         }
         return selectedAddresses
@@ -112,21 +112,6 @@ final class PortfolioManager: PortfolioDelegate {
         return storedAddresses?.first(where: { $0.address == addressString })?.alias
     }
     
-    /// creates address from specfied string with specified crypto unit, adds it to default portfolio
-    /// creates address from specfied string with specified crypto unit, add it to specified portfolio
-    func addAddress(_ addressString: String, unit: Currency.Crypto, alias: String?, to portfolio: Portfolio) throws {
-        do {
-            let context = AppDelegate.viewContext
-            let address = try Address.createAddress(addressString, unit: unit, alias: alias, in: context)
-            portfolio.addAddress(address)
-            
-            try context.save()
-            TickerWatchlist.addTradingPair(address.tradingPair)
-        } catch {
-            throw error
-        }
-    }
-    
     /// creates, saves and adds portfolio with specified base currency
     func addPortfolio(baseCurrency: Currency.Fiat, alias: String?) throws -> Portfolio {
         do {
@@ -136,33 +121,29 @@ final class PortfolioManager: PortfolioDelegate {
             
             try context.save()
             portfolio.delegate = self
-            portfolios.append(portfolio)
-            
+            storedPortfolios.append(portfolio)
+            delegate?.didUpdatePortfolioManager()
             return portfolio
         } catch {
             throw error
         }
     }
     
-    func getPortfolios() -> [Portfolio] {
-        return portfolios
+    func removePortfolio(_ portfolio: Portfolio) throws {
+        do {
+            storedPortfolios.remove(at: storedPortfolios.index(of: portfolio)!)
+            let context = AppDelegate.viewContext
+            context.delete(portfolio)
+            try context.save()
+            print("Removed portfolio from Core Data.")
+            delegate?.didUpdatePortfolioManager()
+        } catch {
+            throw error
+        }
     }
     
-    func save() -> Bool {
-        let context = AppDelegate.viewContext
-        if context.hasChanges {
-            do {
-                try context.save()
-                print("Saved changes to Portfolio Manager.")
-                delegate?.didUpdatePortfolioManager()
-                return true
-            } catch {
-                print("Error saving changes to Portfolio Manager: \(error)")
-                return false
-            }
-        } else {
-            return true
-        }
+    func getPortfolios() -> [Portfolio] {
+        return storedPortfolios
     }
     
     // MARK: Finance
@@ -227,7 +208,32 @@ final class PortfolioManager: PortfolioDelegate {
     // MARK: - Portfolio Delegate
     /// notifies delegate of changes in portfolio
     func didUpdatePortfolio() {
+        if let addresses = storedAddresses {
+            for address in addresses {
+                TickerWatchlist.addTradingPair(address.tradingPair)
+            }
+        }
+        
         delegate?.didUpdatePortfolioManager()
+    }
+    
+    func didSetIsDefault(for portfolio: Portfolio, state: Bool) throws {
+        guard state == true else {
+            return
+        }
+        
+        for storedPortfolio in storedPortfolios {
+            if storedPortfolio != portfolio, storedPortfolio.isDefault {
+                storedPortfolio.isDefault = false
+            }
+        }
+        
+        do {
+            let context = AppDelegate.viewContext
+            try context.save()
+        } catch {
+            throw error
+        }
     }
     
     // MARK: - Experimental
