@@ -87,6 +87,15 @@ class Portfolio: NSManagedObject, AddressDelegate {
             throw error
         }
     }
+    
+    func setBaseCurrency(_ currency: Currency.Fiat) throws {
+        do {
+            baseCurrency = currency.rawValue
+            try AppDelegate.viewContext.save()
+        } catch {
+            throw error
+        }
+    }
 
     /// adds address to portfolio, sets portfolio as its delegate, updates portfolio
     /// creates address from specfied string with specified crypto unit, add it to specified portfolio

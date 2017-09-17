@@ -45,6 +45,11 @@ class TickerWatchlist {
         return currentPrice[tradingPair]
     }
     
+    class func reset() {
+        stopUpdateTimer()
+        tradingPairs = Set<Currency.TradingPair>()
+    }
+    
     /// starts unique timer to update current price in specified interval for all stored trading pairs
     /// timer stop if app enters background, starts/continues when becoming active again
     @objc class func startUpdateTimer() {
