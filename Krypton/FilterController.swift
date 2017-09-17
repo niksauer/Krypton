@@ -33,7 +33,7 @@ class FilterController: UITableViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         super.prepare(for: segue, sender: sender)
 
-        selectionHasChanged = PortfolioManager.shared.save()
+//        selectionHasChanged = PortfolioManager.shared.save()
     }
     
     // MARK: - Public Methods
@@ -57,8 +57,6 @@ class FilterController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "transactionTypeCell", for: indexPath)
-            cell.selectionStyle = .none
-            
             let transactionTypeSwitch = cell.contentView.subviews.first as! UISegmentedControl
     
             if let selectionIndex = transactionType?.rawValue {

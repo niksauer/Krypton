@@ -8,19 +8,49 @@
 
 import UIKit
 
-class PortfolioTableController: UITableViewController {
+class PortfolioTableController: UITableViewController, PortfolioManagerDelegate {
     
     // MARK: - Public Properties
-    var portfolio: Portfolio?
-    var portfolios = PortfolioManager.shared.getPortfolios()
+    var isSelector = false
+    var delegate: PortfolioSelectorDelegate?
+    var selectedPortfolio: Portfolio?
+    
+    // MARK: - Private Properties
+    private var portfolios = PortfolioManager.shared.getPortfolios()
     
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationItem.rightBarButtonItem = self.editButtonItem
+        PortfolioManager.shared.delegate = self
     }
 
-    // MARK: - TableView Data source
+    // MARK: - Navigation
+    override func setEditing(_ editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: animated)
+        navigationItem.hidesBackButton = !navigationItem.hidesBackButton
+        
+        if editing {
+            navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addPortfolio))
+        } else {
+            navigationItem.leftBarButtonItem = nil
+        }
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        super.prepare(for: segue, sender: sender)
+        
+        if let destVC = segue.destination as? PortfolioDetailController {
+            destVC.portfolio = selectedPortfolio
+        }
+    }
+    
+    // MARK: - Public Methods
+    func addPortfolio() {
+        performSegue(withIdentifier: "addPortfolio", sender: self)
+    }
+    
+    // MARK: - TableView Data Source
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
@@ -33,18 +63,49 @@ class PortfolioTableController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "portfolioCell", for: indexPath)
         let portfolio = portfolios[indexPath.row]
         
-        cell.textLabel?.text = portfolio.alias ?? "Portfolio \(indexPath.row + 1)"
+        cell.textLabel?.text = portfolio.alias
         
-        if portfolio.isDefault {
-            cell.accessoryType = .checkmark
+        if isSelector {
+            if portfolio == selectedPortfolio {
+                cell.accessoryType = .checkmark
+            }
+        } else {
+            cell.accessoryType = .disclosureIndicator
         }
         
         return cell
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        portfolio = portfolios[indexPath.row]
-        performSegue(withIdentifier: "undwindToAddAddressTable", sender: self)
+        selectedPortfolio = portfolios[indexPath.row]
+        
+        if isSelector, !tableView.isEditing {
+            delegate?.didChangeSelection(selection: selectedPortfolio)
+            self.navigationController?.popViewController(animated: true)
+        } else {
+            performSegue(withIdentifier: "showPortfolio", sender: self)
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
+        return false
+    }
+    
+    override func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCellEditingStyle {
+        return .none
+    }
+    
+    // MARK: - PortfolioManager Delegate
+    func didUpdatePortfolioManager() {
+        portfolios = PortfolioManager.shared.getPortfolios()
+        if portfolios.count == 0 {
+            delegate?.didChangeSelection(selection: nil)
+        }
+        tableView.reloadData()
     }
 
+}
+
+protocol PortfolioSelectorDelegate {
+    func didChangeSelection(selection: Portfolio?)
 }

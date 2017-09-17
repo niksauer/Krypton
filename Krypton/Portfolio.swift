@@ -59,14 +59,61 @@ class Portfolio: NSManagedObject, AddressDelegate {
             }
         }
     }
-
-    /// adds address to portfolio, sets portfolio as its delegate, updates portfolio
-    func addAddress(_ address: Address) {
-        address.delegate = self
-        self.addToAddresses(address)
-        update()
+    
+    func setAlias(_ alias: String) throws {
+        if self.alias != alias {
+            do {
+                let context = AppDelegate.viewContext
+                self.alias = alias
+                try context.save()
+                delegate?.didUpdatePortfolio()
+            } catch {
+                throw error
+            }
+        }
+    }
+    
+    func setIsDefault(_ state: Bool) throws {
+        guard self.isDefault != state else {
+            return
+        }
+        
+        do {
+            let context = AppDelegate.viewContext
+            isDefault = state
+            try context.save()
+            try delegate?.didSetIsDefault(for: self, state: state)
+        } catch {
+            throw error
+        }
     }
 
+    /// adds address to portfolio, sets portfolio as its delegate, updates portfolio
+    /// creates address from specfied string with specified crypto unit, add it to specified portfolio
+    func addAddress(_ addressString: String, unit: Currency.Crypto, alias: String?) throws {
+        do {
+            let context = AppDelegate.viewContext
+            let address = try Address.createAddress(addressString, unit: unit, alias: alias, in: context)
+            self.addToAddresses(address)
+            try context.save()
+            address.delegate = self
+            update()
+        } catch {
+            throw error
+        }
+    }
+    
+    func removeAddress(address: Address) throws {
+        do {
+            let context = AppDelegate.viewContext
+            context.delete(address)
+            try context.save()
+            delegate?.didUpdatePortfolio()
+        } catch {
+            throw error
+        }
+    }
+    
     // MARK: Finance
     /// returns the current exchange value of all stored addresses
     /// returns exchange value of all stored addresses on speicfied date, nil if date is today or in the future
@@ -150,5 +197,6 @@ class Portfolio: NSManagedObject, AddressDelegate {
 // MARK: - Portfolio Delegate Protocol
 protocol PortfolioDelegate {
     func didUpdatePortfolio()
+    func didSetIsDefault(for portfolio: Portfolio, state: Bool) throws
 }
 

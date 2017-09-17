@@ -8,7 +8,7 @@
 
 import UIKit
 
-class AddAddressController: UITableViewController {
+class AddAddressController: UITableViewController, PortfolioSelectorDelegate, UITextFieldDelegate {
     
     // MARK: - Public Properties
     var portfolio: Portfolio? = PortfolioManager.shared.defaultPortfolio
@@ -19,6 +19,8 @@ class AddAddressController: UITableViewController {
     let portfolioIndexPath = IndexPath(row: 0, section: 2)
     
     // MARK: - Outlets
+    @IBOutlet weak var saveButton: UIBarButtonItem!
+    
     @IBOutlet weak var addressField: UITextField!
     @IBOutlet weak var aliasField: UITextField!
     
@@ -30,23 +32,32 @@ class AddAddressController: UITableViewController {
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         cryptoPicker.delegate = self
         cryptoPicker.dataSource = self
         cryptoPicker.selectRow(0, inComponent: 0, animated: true)
         cryptoPicker.isHidden = true
-        tableView.tableFooterView = UIView()
-        selectedPortfolioLabel.text = portfolio?.alias
+        
+        selectedPortfolioLabel.text = portfolio?.alias ?? "None"
+        
+        addressField.delegate = self
+        aliasField.delegate = self
+        
+        checkSaveButton()
     }
     
     // MARK: - Navigation
-    @IBAction func unwindToAddAddressTable(segue: UIStoryboardSegue) {
-        if let sourceVC = segue.source as? PortfolioTableController, let portfolio = sourceVC.portfolio {
-            self.portfolio = portfolio
-            selectedPortfolioLabel.text = portfolio.alias
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        super.prepare(for: segue, sender: sender)
+        
+        if let destVC = segue.destination as? PortfolioTableController {
+            destVC.isSelector = true
+            destVC.delegate = self
+            destVC.selectedPortfolio = portfolio
         }
     }
     
-    @IBAction func dismiss(_ sender: UIBarButtonItem) {
+    @IBAction func cancel(_ sender: UIBarButtonItem) {
         dismiss(animated: true, completion: nil)
     }
     
@@ -56,11 +67,21 @@ class AddAddressController: UITableViewController {
         }
         
         do {
-            try PortfolioManager.shared.addAddress(addressString, unit: cryptoUnit, alias: aliasField.text, to: portfolio!)
+            try portfolio?.addAddress(addressString, unit: cryptoUnit, alias: aliasField.text)
             performSegue(withIdentifier: "unwindToDashboard", sender: self)
         } catch {
             print("Failed to add address due to error: \(error)")
         }
+    }
+    
+    // MARK: - Public Methods
+    func checkSaveButton() {
+        guard let addressString = addressField.text, !addressString.isEmpty, let selectedUnit = cryptoField.detailTextLabel?.text, let _ = Currency.Crypto(rawValue: selectedUnit), portfolio != nil else {
+            saveButton.isEnabled = false
+            return
+        }
+        
+        saveButton.isEnabled = true
     }
     
     // MARK: - TableView Delegate
@@ -89,10 +110,36 @@ class AddAddressController: UITableViewController {
         }
     }
     
+    // MARK: - PortfolioSelector Delegate
+    func didChangeSelection(selection: Portfolio?) {
+        if let selectedPortfolio = selection {
+            portfolio = selectedPortfolio
+            selectedPortfolioLabel.text = selectedPortfolio.alias
+        } else {
+            selectedPortfolioLabel.text = "None"
+        }
+        
+        checkSaveButton()
+    }
+    
+    // MARK: - TextField Delegate
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if let nextTextField = tableView.viewWithTag(textField.tag + 1) as? UITextField {
+            nextTextField.becomeFirstResponder()
+        } else {
+            textField.resignFirstResponder()
+        }
+        
+        checkSaveButton()
+        
+        return false
+    }
+    
 }
 
 // MARK: - PickerView Delegate
 extension AddAddressController: UIPickerViewDataSource, UIPickerViewDelegate {
+    
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }
