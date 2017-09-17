@@ -23,10 +23,10 @@ final class PortfolioManager: PortfolioDelegate {
     /// loads all available portfolios, sets itself as their delegate,
     /// updates all stored addresses, requests continious ticker price updates for their trading pars
     private init() {
-//        deletePortfolios()
-//        deleteAddresses()
-//        deleteTransactions()
-//        deletePriceHistory()
+        deletePortfolios()
+        deleteAddresses()
+        deleteTransactions()
+        deletePriceHistory()
         
         do {
             storedPortfolios = try loadPortfolios()
