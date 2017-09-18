@@ -12,15 +12,30 @@ class PortfolioDetailController: UITableViewController {
     
     // MARK: - Public Properties
     var portfolio: Portfolio!
-    var allowsAddressSelection = false
     
+    // MARK: - Public Properties
     let aliasIndexPath = IndexPath(row: 0, section: 0)
     let isDefaultIndexPath = IndexPath(row: 1, section: 0)
+    
+    var selectedAddress: Address?
     
     // MARK: - Initilization
     override func viewDidLoad() {
         super.viewDidLoad()
         checkEditButton()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        tableView.reloadData()
+    }
+    
+    // MARK: - Navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        super.prepare(for: segue, sender: sender)
+        
+        if let destVC = segue.destination as? AddresDetailController {
+            destVC.address = selectedAddress
+        }
     }
 
     // MARK: - Public Methods
@@ -148,7 +163,8 @@ class PortfolioDetailController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if portfolio.storedAddresses.count > 0 && indexPath.section == 2 || portfolio.storedAddresses.count == 0 && indexPath.section == 1 {
             deletePortfolio()
-        } else if allowsAddressSelection {
+        } else {
+            selectedAddress = portfolio.storedAddresses[indexPath.row]
             performSegue(withIdentifier: "showAddress", sender: self)
         }
     }

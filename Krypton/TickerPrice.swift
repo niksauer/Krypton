@@ -40,7 +40,7 @@ class TickerPrice: NSManagedObject {
     /// creates and returns ticker price if non-existent in database, throws otherwise
     class func createTickerPrice(from priceInfo: KrakenAPI.Price, in context: NSManagedObjectContext) throws -> TickerPrice {
         let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()
-        request.predicate = NSPredicate(format: "date = %@", priceInfo.date)
+        request.predicate = NSPredicate(format: "date = %@ AND tradingPair = %@", priceInfo.date, priceInfo.tradingPair.rawValue)
         
         do {
             let matches = try context.fetch(request)
@@ -115,7 +115,7 @@ class TickerPrice: NSManagedObject {
                     do {
                         let date = price.date as Date
             
-                        // leave out result for today<
+                        // leave out result for today
                         if !date.isUTCToday {
                             _ = try TickerPrice.createTickerPrice(from: price, in: context)
                         }

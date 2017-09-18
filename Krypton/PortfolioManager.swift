@@ -23,12 +23,13 @@ final class PortfolioManager: PortfolioDelegate {
     /// loads all available portfolios, sets itself as their delegate,
     /// updates all stored addresses, requests continious ticker price updates for their trading pars
     private init() {
-        deletePortfolios()
-        deleteAddresses()
-        deleteTransactions()
-        deletePriceHistory()
+//        deletePortfolios()
+//        deleteAddresses()
+//        deleteTransactions()
+//        deletePriceHistory()
         
         do {
+            baseCurrency = loadBaseCurrency()
             storedPortfolios = try loadPortfolios()
             print("Loaded \(storedPortfolios.count) portfolio(s) from Core Data.")
             
@@ -36,7 +37,6 @@ final class PortfolioManager: PortfolioDelegate {
                 do {
                     let portfolio = try addPortfolio(baseCurrency: baseCurrency, alias: "Portfolio 1")
                     portfolio.isDefault = true
-                    
                     try AppDelegate.viewContext.save()
                     print("Created and saved empty default portfolio.")
                 } catch {
@@ -79,7 +79,7 @@ final class PortfolioManager: PortfolioDelegate {
     
     // MARK: - Public Properties
     /// fiat currency used to calculate exchange values of all stored portfolios
-    let baseCurrency = Currency.Fiat.EUR
+    var baseCurrency = Currency.Fiat.EUR
     
     /// delegate who gets notified of changes in portfolio
     var delegate: PortfolioManagerDelegate?
@@ -103,6 +103,17 @@ final class PortfolioManager: PortfolioDelegate {
             return try context.fetch(request)
         } catch {
             throw error
+        }
+    }
+    
+    private func loadBaseCurrency() -> Currency.Fiat {
+        if let storedCurrencyString = UserDefaults.standard.value(forKey: "baseCurrency") as? String, let storedCurrency = Currency.Fiat(rawValue: storedCurrencyString) {
+            return storedCurrency
+        } else {
+            let standardCurrency = Currency.Fiat.EUR
+            UserDefaults.standard.setValue(standardCurrency.rawValue, forKey: "baseCurrency")
+            UserDefaults.standard.synchronize()
+            return standardCurrency
         }
     }
 
@@ -144,6 +155,53 @@ final class PortfolioManager: PortfolioDelegate {
     
     func getPortfolios() -> [Portfolio] {
         return storedPortfolios
+    }
+    
+    func setBaseCurrency(_ currency: Currency.Fiat) throws {
+        guard currency != baseCurrency else {
+            return
+        }
+        
+        do {
+            for portfolio in storedPortfolios {
+                try portfolio.setBaseCurrency(currency)
+            }
+            
+            baseCurrency = currency
+            UserDefaults.standard.setValue(currency.rawValue, forKey: "baseCurrency")
+            UserDefaults.standard.synchronize()
+            
+            TickerWatchlist.reset()
+            updatePortfolios()
+            
+            delegate?.didUpdatePortfolioManager()
+        } catch {
+            throw error
+        }
+    }
+    
+    func updatePortfolios() {
+        for portfolio in storedPortfolios {
+            portfolio.update()
+            
+            for address in portfolio.storedAddresses {
+                TickerWatchlist.addTradingPair(address.tradingPair)
+            }
+        }
+    }
+    
+    func save() throws -> Bool  {
+        let context = AppDelegate.viewContext
+        if context.hasChanges {
+            do {
+                try context.save()
+                return true
+            } catch {
+                throw error
+            }
+        } else {
+            return false
+        }
     }
     
     // MARK: Finance

@@ -16,13 +16,14 @@ class PortfolioTableController: UITableViewController, PortfolioManagerDelegate 
     var selectedPortfolio: Portfolio?
     
     // MARK: - Private Properties
-    private var portfolios = PortfolioManager.shared.getPortfolios()
+    private var portfolios = [Portfolio]()
     
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationItem.rightBarButtonItem = self.editButtonItem
         PortfolioManager.shared.delegate = self
+        portfolios = PortfolioManager.shared.getPortfolios()
     }
 
     // MARK: - Navigation

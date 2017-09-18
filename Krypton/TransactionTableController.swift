@@ -9,20 +9,22 @@
 import UIKit
 import CoreData
 
-class TransactionTableController: FetchedResultsTableViewController {
+class TransactionTableController: FetchedResultsTableViewController, FilterDelegate {
     
-    // MARK: - Properties
-    var database = AppDelegate.persistentContainer
-    var addresses = PortfolioManager.shared.selectedAddresses {
+    // MARK: - Public Properties
+    var fetchedResultsController: NSFetchedResultsController<Transaction>?
+    
+    // MARK: - Private Properties
+    private var database = AppDelegate.persistentContainer
+    private var selectedTransaction: Transaction?
+    
+    private var addresses = [Address]() {
         didSet {
             updateUI()
         }
     }
     
-    var fetchedResultsController: NSFetchedResultsController<Transaction>?
-    var selectedTransaction: Transaction?
-    
-    var transactionFilter: TransactionType = .all {
+    private var transactionFilter: TransactionType = .all {
         didSet {
             updateUI()
         }
@@ -30,6 +32,14 @@ class TransactionTableController: FetchedResultsTableViewController {
 
     // MARK: - Initialization
     override func viewDidLoad() {
+        super.viewDidLoad()
+        addresses = PortfolioManager.shared.selectedAddresses
+        updateUI()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        addresses = PortfolioManager.shared.selectedAddresses
         updateUI()
     }
     
@@ -42,17 +52,8 @@ class TransactionTableController: FetchedResultsTableViewController {
         }
         
         if let destNavVC = segue.destination as? UINavigationController, let destVC = destNavVC.topViewController as? FilterController {
+            destVC.delegate = self
             destVC.transactionType = transactionFilter
-        }
-    }
-    
-    @IBAction func unwindFromFilterPanel(segue: UIStoryboardSegue) {
-        if let sourceVC = segue.source as? FilterController, let selectedTransactionType = sourceVC.transactionType {
-            transactionFilter = selectedTransactionType
-            
-            if sourceVC.selectionHasChanged {
-                addresses = PortfolioManager.shared.selectedAddresses
-            }
         }
     }
     
@@ -82,13 +83,22 @@ class TransactionTableController: FetchedResultsTableViewController {
         tableView.reloadData()
     }
     
+    // MARK: - Filter Delegate
+    func didChangeTransactionType(to type: TransactionType) {
+        self.transactionFilter = type
+    }
+    
+    func didChangeSelectedAddresses() {
+        self.addresses = PortfolioManager.shared.selectedAddresses
+    }
+    
     // MARK: - TableView Data Source
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "transactionCell", for: indexPath)
         
         let transaction = fetchedResultsController!.object(at: indexPath)
-        cell.textLabel?.text = Currency.Crypto(rawValue: transaction.owner!.cryptoCurrency!)!.symbol + " " + Format.cryptoFormatter.string(from: NSNumber(value: transaction.amount))!
-        cell.detailTextLabel?.text = Format.dateFormatter.string(from: transaction.date! as Date)
+        cell.textLabel?.text = Format.getCryptoFormatting(for: NSNumber(value: transaction.amount), cryptoCurrency: Currency.Crypto(rawValue: transaction.owner!.cryptoCurrency!)!)
+        cell.detailTextLabel?.text = Format.getDateFormatting(for: transaction.date! as Date)
         return cell
     }
     
