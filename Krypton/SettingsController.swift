@@ -39,6 +39,7 @@ class SettingsController: UITableViewController, FiatCurrencyDelegate, Portfolio
         }
     }
     
+    // MARK: - PortfolioManager Delegate
     func didUpdatePortfolioManager() {
         selectedFiatCurrencyLabel.text = PortfolioManager.shared.baseCurrency.rawValue
     }

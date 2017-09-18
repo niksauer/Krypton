@@ -8,15 +8,16 @@
 
 import UIKit
 
-class AddAddressController: UITableViewController, PortfolioSelectorDelegate, UITextFieldDelegate {
+class AddAddressController: UITableViewController, UITextFieldDelegate, UIPickerViewDataSource, UIPickerViewDelegate, PortfolioSelectorDelegate {
     
     // MARK: - Public Properties
-    var portfolio: Portfolio? = PortfolioManager.shared.defaultPortfolio
+    var portfolio: Portfolio?
     
-    let cryptoData = Currency.Crypto.allValues
-    let cryptoFieldIndexPath = IndexPath(row: 0, section: 1)
-    let cryptoPickerIndexPath = IndexPath(row: 1, section: 1)
-    let portfolioIndexPath = IndexPath(row: 0, section: 2)
+    // MARK: - Private Properties
+    private let cryptoData = Currency.Crypto.allValues
+    private let cryptoFieldIndexPath = IndexPath(row: 0, section: 1)
+    private let cryptoPickerIndexPath = IndexPath(row: 1, section: 1)
+    private let portfolioIndexPath = IndexPath(row: 0, section: 2)
     
     // MARK: - Outlets
     @IBOutlet weak var saveButton: UIBarButtonItem!
@@ -32,6 +33,8 @@ class AddAddressController: UITableViewController, PortfolioSelectorDelegate, UI
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        portfolio = PortfolioManager.shared.defaultPortfolio
         
         cryptoPicker.delegate = self
         cryptoPicker.dataSource = self
@@ -68,7 +71,7 @@ class AddAddressController: UITableViewController, PortfolioSelectorDelegate, UI
         
         do {
             try portfolio?.addAddress(addressString, unit: cryptoUnit, alias: aliasField.text)
-            performSegue(withIdentifier: "unwindToDashboard", sender: self)
+            dismiss(animated: true, completion: nil)
         } catch {
             print("Failed to add address due to error: \(error)")
         }
@@ -135,11 +138,7 @@ class AddAddressController: UITableViewController, PortfolioSelectorDelegate, UI
         return false
     }
     
-}
-
-// MARK: - PickerView Delegate
-extension AddAddressController: UIPickerViewDataSource, UIPickerViewDelegate {
-    
+    // MARK: - PickerView Delegate
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }

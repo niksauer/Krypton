@@ -20,6 +20,7 @@
 		2400D09A1F42511800833958 /* BlockchainConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0991F42511800833958 /* BlockchainConnector.swift */; };
 		240C63B11F47A88300728B8B /* Portfolio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240C63B01F47A88300728B8B /* Portfolio.swift */; };
 		240C63B31F47A88E00728B8B /* Address.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240C63B21F47A88E00728B8B /* Address.swift */; };
+		242729A41F7075CC00E5231D /* AddresDetailController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242729A31F7075CC00E5231D /* AddresDetailController.swift */; };
 		243859941F6BE01F00D67791 /* FilterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243859931F6BE01F00D67791 /* FilterController.swift */; };
 		243859961F6C442300D67791 /* AddAddressController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243859951F6C442300D67791 /* AddAddressController.swift */; };
 		2438599B1F6C890600D67791 /* PortfolioTableController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2438599A1F6C890500D67791 /* PortfolioTableController.swift */; };
@@ -56,6 +57,7 @@
 		2400D0991F42511800833958 /* BlockchainConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockchainConnector.swift; sourceTree = "<group>"; };
 		240C63B01F47A88300728B8B /* Portfolio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Portfolio.swift; sourceTree = "<group>"; };
 		240C63B21F47A88E00728B8B /* Address.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Address.swift; sourceTree = "<group>"; };
+		242729A31F7075CC00E5231D /* AddresDetailController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddresDetailController.swift; sourceTree = "<group>"; };
 		243859931F6BE01F00D67791 /* FilterController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FilterController.swift; sourceTree = "<group>"; };
 		243859951F6C442300D67791 /* AddAddressController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddAddressController.swift; sourceTree = "<group>"; };
 		2438599A1F6C890500D67791 /* PortfolioTableController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PortfolioTableController.swift; sourceTree = "<group>"; };
@@ -145,6 +147,17 @@
 			name = EntitiesMO;
 			sourceTree = "<group>";
 		};
+		242729A21F704C4C00E5231D /* Portfolios */ = {
+			isa = PBXGroup;
+			children = (
+				2438599A1F6C890500D67791 /* PortfolioTableController.swift */,
+				2449F4361F6D5711006E21C8 /* PortfolioDetailController.swift */,
+				2449F4431F6F0D3A006E21C8 /* AddPortfolioController.swift */,
+				242729A31F7075CC00E5231D /* AddresDetailController.swift */,
+			);
+			name = Portfolios;
+			sourceTree = "<group>";
+		};
 		2438599C1F6CA6B600D67791 /* Dashboard */ = {
 			isa = PBXGroup;
 			children = (
@@ -158,9 +171,7 @@
 			isa = PBXGroup;
 			children = (
 				243859931F6BE01F00D67791 /* FilterController.swift */,
-				2438599A1F6C890500D67791 /* PortfolioTableController.swift */,
-				2449F4361F6D5711006E21C8 /* PortfolioDetailController.swift */,
-				2449F4431F6F0D3A006E21C8 /* AddPortfolioController.swift */,
+				242729A21F704C4C00E5231D /* Portfolios */,
 			);
 			name = Shared;
 			sourceTree = "<group>";
@@ -336,6 +347,7 @@
 				2400D07C1F40715900833958 /* AppDelegate.swift in Sources */,
 				243859961F6C442300D67791 /* AddAddressController.swift in Sources */,
 				2449F44A1F6F1F40006E21C8 /* SettingsController.swift in Sources */,
+				242729A41F7075CC00E5231D /* AddresDetailController.swift in Sources */,
 				2438599B1F6C890600D67791 /* PortfolioTableController.swift in Sources */,
 				2400D07E1F40715900833958 /* DashboardController.swift in Sources */,
 				2400D0941F40D90900833958 /* TickerPrice.swift in Sources */,

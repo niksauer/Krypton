@@ -8,28 +8,28 @@
 
 import UIKit
 
-class DashboardController: UIViewController, UITabBarControllerDelegate, PortfolioManagerDelegate, TickerWatchlistDelegate {
+class DashboardController: UIViewController, UITabBarControllerDelegate, PortfolioManagerDelegate, TickerWatchlistDelegate, FilterDelegate {
     
-    // MARK: - Properties
-    var comparisonDate = Calendar.current.date(byAdding: .day, value: -1, to: Date())! {
-        didSet {
-            updateUI()
-        }
-    }
-    
-    var transactionFilter: TransactionType = .investment {
-        didSet {
-            updateUI()
-        }
-    }
-    
-    enum PortfolioDisplayType {
+    // MARK: - Private Properties
+    private enum PortfolioDisplayType {
         case currentExchangeValue
         case relativeProfit
         case absoluteProfit
     }
+
+    private var comparisonDate = Calendar.current.date(byAdding: .day, value: -1, to: Date())! {
+        didSet {
+            updateUI()
+        }
+    }
     
-    var portfolioDisplay = PortfolioDisplayType.currentExchangeValue {
+    private var transactionFilter: TransactionType = .all {
+        didSet {
+            updateUI()
+        }
+    }
+    
+    private var portfolioDisplay: PortfolioDisplayType = .currentExchangeValue {
         didSet {
             guard let currentExchangeValue = PortfolioManager.shared.getExchangeValue(for: transactionFilter, on: Date()), let profitStats = PortfolioManager.shared.getProfitStats(for: transactionFilter, timeframe: .allTime) else {
                 portfolioValueLabel.text = "???"
@@ -39,20 +39,20 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
             switch portfolioDisplay {
             case .currentExchangeValue:
                 portfolioLabel.text = "Total Portfolio Value"
-                portfolioValueLabel.text = Format.fiatFormatter.string(from: NSNumber(value: currentExchangeValue))
+                portfolioValueLabel.text = Format.getFiatFormatting(for: NSNumber(value: currentExchangeValue), fiatCurrency: PortfolioManager.shared.baseCurrency)
             case .relativeProfit:
                 portfolioLabel.text = "Total Relative Profit"
                 let relativeProfit = Format.relativeProfit(from: profitStats)
-                portfolioValueLabel.text = Format.numberFormatter.string(from: NSNumber(value: relativeProfit))! + "%"
+                portfolioValueLabel.text = Format.getNumberFormatting(for: NSNumber(value: relativeProfit)) + "%"
             case .absoluteProfit:
                 portfolioLabel.text = "Total Absolute Profit"
                 let absoluteProfit = Format.absoluteProfit(from: profitStats)
-                portfolioValueLabel.text = Format.fiatFormatter.string(from: NSNumber(value: absoluteProfit))
+                portfolioValueLabel.text = Format.getFiatFormatting(for: NSNumber(value: absoluteProfit), fiatCurrency: PortfolioManager.shared.baseCurrency)
             }
         }
     }
     
-    var showsRelativeProfit = true {
+    private var showsRelativeProfit = true {
         didSet {
             guard let profitStats = PortfolioManager.shared.getProfitStats(for: transactionFilter, timeframe: .sinceDate(comparisonDate)) else {
                 profitValueLabel.text = "???"
@@ -63,10 +63,10 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
             
             if showsRelativeProfit {
                 let relativeProfit = Format.relativeProfit(from: profitStats)
-                profitValueLabel.text = Format.numberFormatter.string(from: NSNumber(value: relativeProfit))! + "%"
+                profitValueLabel.text = Format.getNumberFormatting(for: NSNumber(value: relativeProfit)) + "%"
             } else {
                 let absoluteProfit = Format.absoluteProfit(from: profitStats)
-                profitValueLabel.text = Format.fiatFormatter.string(from: NSNumber(value: absoluteProfit))
+                profitValueLabel.text = Format.getFiatFormatting(for: NSNumber(value: absoluteProfit), fiatCurrency: PortfolioManager.shared.baseCurrency)
             }
         }
     }
@@ -103,23 +103,19 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
         
         updateUI()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        updateUI()
+    }
 
     // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         super.prepare(for: segue, sender: sender)
         
         if let destNavVC = segue.destination as? UINavigationController, let destVC = destNavVC.topViewController as? FilterController {
+            destVC.delegate = self
             destVC.transactionType = transactionFilter
-        }
-    }
-    
-    @IBAction func unwindToDashboard(segue: UIStoryboardSegue) {
-    
-    }
-    
-    @IBAction func unwindFromFilterPanel(segue: UIStoryboardSegue) {
-        if let sourceVC = segue.source as? FilterController, let selectedTransactionType = sourceVC.transactionType {
-            transactionFilter = selectedTransactionType
         }
     }
 
@@ -129,7 +125,7 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
         showsRelativeProfit = { showsRelativeProfit }()
         
         if let investmentValue = PortfolioManager.shared.getProfitStats(for: transactionFilter, timeframe: .allTime)?.startValue {
-            investmentValueLabel.text = Format.fiatFormatter.string(from: NSNumber(value: investmentValue))
+            investmentValueLabel.text = Format.getFiatFormatting(for: NSNumber(value: investmentValue), fiatCurrency: PortfolioManager.shared.baseCurrency)
         } else {
             investmentValueLabel.text = "???"
         }
@@ -151,22 +147,30 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
         }
     }
     
-    // MARK: - TabBarControllerDelegate
+    // MARK: - TabBarController Delegate
     func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
 //        if let destVC = viewController as? UINavigationController, let transactionVC = destVC.topViewController as? TransactionTableController {
 //            transactionVC.addresses = PortfolioManager.shared.selectedAddresses
 //        }
     }
     
-    // MARK: - PortfolioManagerDelegate
+    // MARK: - PortfolioManager Delegate
     func didUpdatePortfolioManager() {
         updateUI()
     }
     
-    // MARK: - TickerWatchlistDelegate
+    // MARK: - TickerWatchlist Delegate
     func didUpdateCurrentPrice(for tradingPair: Currency.TradingPair) {
         updateUI()
     }
     
+    // MARK: - Filter Delegate
+    func didChangeSelectedAddresses() {
+        updateUI()
+    }
+    
+    func didChangeTransactionType(to type: TransactionType) {
+        self.transactionFilter = type
+    }
 
 }

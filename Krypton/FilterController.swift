@@ -11,34 +11,38 @@ import UIKit
 class FilterController: UITableViewController {
     
     // MARK: - Public Properties
-    let portfolios = PortfolioManager.shared.getPortfolios()
-    let filterOptionsCount = 1
-    var selectionHasChanged = false
+    var delegate: FilterDelegate?
     var transactionType: TransactionType?
-
-    // MARK: - Initialization
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
+    
+    // MARK: - Private Properties
+    private let filterOptionsCount = 1
+    private let portfolios = PortfolioManager.shared.getPortfolios()
+    private var newTransactionType: TransactionType?
 
     // MARK: - Navigation
     @IBAction func cancel(_ sender: UIBarButtonItem) {
         dismiss(animated: true, completion: nil)
     }
     
-    @IBAction func save(_ sender: UIBarButtonItem) {
-        performSegue(withIdentifier: "unwindFromFilterPanel", sender: sender)
-    }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        super.prepare(for: segue, sender: sender)
-
-//        selectionHasChanged = PortfolioManager.shared.save()
+    @IBAction func apply(_ sender: UIBarButtonItem) {
+        if newTransactionType != nil, newTransactionType != transactionType {
+            delegate?.didChangeTransactionType(to: newTransactionType!)
+        }
+        
+        do {
+            if try PortfolioManager.shared.save() {
+                delegate?.didChangeSelectedAddresses()
+            }
+        } catch {
+            print(error)
+        }
+        
+        dismiss(animated: true, completion: nil)
     }
     
     // MARK: - Public Methods
     @IBAction func setTransactionType(_ sender: UISegmentedControl) {
-        transactionType = TransactionType(rawValue: sender.selectedSegmentIndex)!
+        newTransactionType = TransactionType(rawValue: sender.selectedSegmentIndex)!
     }
     
     // MARK: - TableView Data Source
@@ -59,8 +63,8 @@ class FilterController: UITableViewController {
             let cell = tableView.dequeueReusableCell(withIdentifier: "transactionTypeCell", for: indexPath)
             let transactionTypeSwitch = cell.contentView.subviews.first as! UISegmentedControl
     
-            if let selectionIndex = transactionType?.rawValue {
-                transactionTypeSwitch.selectedSegmentIndex = selectionIndex
+            if let type = transactionType {
+                transactionTypeSwitch.selectedSegmentIndex = type.rawValue
             } else {
                 transactionTypeSwitch.selectedSegmentIndex = 0
             }
@@ -116,4 +120,10 @@ class FilterController: UITableViewController {
         }
     }
 
+}
+
+// MARK: - Filter Delegate Protocol
+protocol FilterDelegate {
+    func didChangeSelectedAddresses()
+    func didChangeTransactionType(to type: TransactionType)
 }

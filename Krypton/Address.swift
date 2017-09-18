@@ -75,6 +75,19 @@ class Address: NSManagedObject {
     }
 
     // MARK: - Public Methods
+    func setAlias(_ alias: String) throws {
+        if self.alias != alias {
+            do {
+                let context = AppDelegate.viewContext
+                self.alias = alias
+                try context.save()
+                delegate?.didUpdateAlias(for: self)
+            } catch {
+                throw error
+            }
+        }
+    }
+    
     // MARK: Blockchain
     /// fetches and saves balance if it has changed, notifies delegate
     func updateBalance() {
@@ -321,4 +334,5 @@ protocol AddressDelegate {
     func didUpdateBalance(for address: Address)
     func didUpdateUserExchangeValue(for transaction: Transaction)
     func didUpdateIsInvestmentStatus(for transaction: Transaction)
+    func didUpdateAlias(for address: Address)
 }

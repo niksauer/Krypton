@@ -190,6 +190,20 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
+    func save() throws -> Bool  {
+        let context = AppDelegate.viewContext
+        if context.hasChanges {
+            do {
+                try context.save()
+                return true
+            } catch {
+                throw error
+            }
+        } else {
+            return false
+        }
+    }
+    
     // MARK: Finance
     /// returns the current exchange value of all selected addresses
     /// returns exchange value of selected addresses on specified date

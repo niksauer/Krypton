@@ -200,6 +200,10 @@ class Portfolio: NSManagedObject, AddressDelegate {
     func didUpdateIsInvestmentStatus(for transaction: Transaction) {
         delegate?.didUpdatePortfolio()
     }
+    
+    func didUpdateAlias(for address: Address) {
+        delegate?.didUpdatePortfolio()
+    }
 
 }
 

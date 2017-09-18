@@ -24,10 +24,10 @@ class TransactionDetailController: UITableViewController {
             
             if showsExchangeValue {
                 exchangeValueTypeLabel.text = "Value"
-                exchangeValueField.text = Format.fiatFormatter.string(from: NSNumber(value: exchangeValue))
+                exchangeValueField.text = Format.getFiatFormatting(for: NSNumber(value: exchangeValue), fiatCurrency: PortfolioManager.shared.baseCurrency)
             } else {
                 exchangeValueTypeLabel.text = "Current Value"
-                exchangeValueField.text = Format.fiatFormatter.string(from: NSNumber(value: currentExchangeValue))
+                exchangeValueField.text = Format.getFiatFormatting(for: NSNumber(value: currentExchangeValue), fiatCurrency: PortfolioManager.shared.baseCurrency)
             }
         }
     }
@@ -42,11 +42,11 @@ class TransactionDetailController: UITableViewController {
             if showsRelativeProfit {
                 profitTypeLabel.text = "Relative Profit"
                 let relativeProfit = Format.relativeProfit(from: profitStats)
-                profitField.text = Format.numberFormatter.string(from: NSNumber(value: relativeProfit))! + "%"
+                profitField.text = Format.getNumberFormatting(for: NSNumber(value: relativeProfit)) + "%"
             } else {
                 profitTypeLabel.text = "Absolute Profit"
                 let absoluteProfit = Format.absoluteProfit(from: profitStats)
-                profitField.text = Format.fiatFormatter.string(from: NSNumber(value: absoluteProfit))
+                profitField.text = Format.getFiatFormatting(for: NSNumber(value: absoluteProfit), fiatCurrency: PortfolioManager.shared.baseCurrency)
             }
         }
     }
@@ -78,12 +78,11 @@ class TransactionDetailController: UITableViewController {
             return
         }
         
-        let unitSymbol = Currency.Crypto(rawValue: tx.owner!.cryptoCurrency!)!.symbol
-        amountField.text = unitSymbol + " " + Format.cryptoFormatter.string(from: NSNumber(value: tx.amount))!
+        amountField.text = Format.getCryptoFormatting(for: NSNumber(value: tx.amount), cryptoCurrency: Currency.Crypto(rawValue: tx.owner!.cryptoCurrency!)!)
         
         senderAddressField.text = PortfolioManager.shared.alias(for: tx.from!) ?? tx.from
         receiverAddressField.text = PortfolioManager.shared.alias(for: tx.to!) ?? tx.to
-        dateField.text = Format.dateFormatter.string(from: tx.date! as Date)
+        dateField.text = Format.getDateFormatting(for: tx.date! as Date)
         typeField.text = tx.type
         
         showsExchangeValue = true
