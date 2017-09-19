@@ -49,6 +49,49 @@ class Portfolio: NSManagedObject, AddressDelegate {
     }
     
     // MARK: - Public Methods
+    // MARK: Setters
+    func setAlias(_ alias: String) throws {
+        guard self.alias != alias else {
+            return
+        }
+        
+        do {
+            self.alias = alias
+            try AppDelegate.viewContext.save()
+            print("Saved updated alias for portfolio.")
+            delegate?.didUpdateAlias(for: self)
+        } catch {
+            throw error
+        }
+    }
+    
+    func setIsDefault(_ state: Bool) throws {
+        guard self.isDefault != state else {
+            return
+        }
+        
+        do {
+            isDefault = state
+            try AppDelegate.viewContext.save()
+            print("Saved updated is default status for portfolio.")
+            delegate?.didUpdateIsDefault(for: self)
+        } catch {
+            throw error
+        }
+    }
+    
+    func setBaseCurrency(_ currency: Currency.Fiat) throws {
+        do {
+            baseCurrency = currency.rawValue
+            try AppDelegate.viewContext.save()
+            print("Saved updated base currency for portfolio.")
+            delegate?.didUpdateBaseCurrency(for: self)
+        } catch {
+            throw error
+        }
+    }
+
+    // MARK: Management
     /// updates all stored addresses by updating their transaction history, price history and balance
     func update() {
         for address in storedAddresses {
@@ -60,45 +103,7 @@ class Portfolio: NSManagedObject, AddressDelegate {
         }
     }
     
-    func setAlias(_ alias: String) throws {
-        if self.alias != alias {
-            do {
-                let context = AppDelegate.viewContext
-                self.alias = alias
-                try context.save()
-                delegate?.didUpdatePortfolio()
-            } catch {
-                throw error
-            }
-        }
-    }
-    
-    func setIsDefault(_ state: Bool) throws {
-        guard self.isDefault != state else {
-            return
-        }
-        
-        do {
-            let context = AppDelegate.viewContext
-            isDefault = state
-            try context.save()
-            try delegate?.didSetIsDefault(for: self, state: state)
-        } catch {
-            throw error
-        }
-    }
-    
-    func setBaseCurrency(_ currency: Currency.Fiat) throws {
-        do {
-            baseCurrency = currency.rawValue
-            try AppDelegate.viewContext.save()
-        } catch {
-            throw error
-        }
-    }
-
     /// adds address to portfolio, sets portfolio as its delegate, updates portfolio
-    /// creates address from specfied string with specified crypto unit, add it to specified portfolio
     func addAddress(_ addressString: String, unit: Currency.Crypto, alias: String?) throws {
         do {
             let context = AppDelegate.viewContext
@@ -106,6 +111,7 @@ class Portfolio: NSManagedObject, AddressDelegate {
             self.addToAddresses(address)
             try context.save()
             address.delegate = self
+            delegate?.didUpdateAddresses(in: self)
             update()
         } catch {
             throw error
@@ -117,7 +123,7 @@ class Portfolio: NSManagedObject, AddressDelegate {
             let context = AppDelegate.viewContext
             context.delete(address)
             try context.save()
-            delegate?.didUpdatePortfolio()
+            delegate?.didUpdateAddresses(in: self)
         } catch {
             throw error
         }
@@ -183,33 +189,35 @@ class Portfolio: NSManagedObject, AddressDelegate {
     // MARK: - Address Delegate
     /// notifies delegate that balance has changed for specified address
     func didUpdateBalance(for address: Address) {
-        delegate?.didUpdatePortfolio()
+        delegate?.didUpdateAddresses(in: self)
     }
     
     /// notified delegate that tranasction history has changed for specified address
     func didUpdateTransactionHistory(for address: Address) {
-        delegate?.didUpdatePortfolio()
+        delegate?.didUpdateAddresses(in: self)
     }
     
     /// notifies delegate that userExchangeValue has been set for specified transaction
     func didUpdateUserExchangeValue(for transaction: Transaction) {
-        delegate?.didUpdatePortfolio()
+        delegate?.didUpdateAddresses(in: self)
     }
     
     /// notifies delegate that isInvestment property has changed for specified transaction
     func didUpdateIsInvestmentStatus(for transaction: Transaction) {
-        delegate?.didUpdatePortfolio()
+        delegate?.didUpdateAddresses(in: self)
     }
     
     func didUpdateAlias(for address: Address) {
-        delegate?.didUpdatePortfolio()
+        delegate?.didUpdateAddresses(in: self)
     }
 
 }
 
 // MARK: - Portfolio Delegate Protocol
 protocol PortfolioDelegate {
-    func didUpdatePortfolio()
-    func didSetIsDefault(for portfolio: Portfolio, state: Bool) throws
+    func didUpdateAddresses(in portfolio: Portfolio)
+    func didUpdateBaseCurrency(for portfolio: Portfolio)
+    func didUpdateIsDefault(for portfolio: Portfolio)
+    func didUpdateAlias(for portfolio: Portfolio)
 }
 

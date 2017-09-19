@@ -77,15 +77,17 @@ class Address: NSManagedObject {
     // MARK: - Public Methods
     // MARK: Setters
     func setAlias(_ alias: String) throws {
-        if self.alias != alias {
-            do {
-                let context = AppDelegate.viewContext
-                self.alias = alias
-                try context.save()
-                delegate?.didUpdateAlias(for: self)
-            } catch {
-                throw error
-            }
+        guard self.alias != alias else {
+            return
+        }
+        
+        do {
+            self.alias = alias
+            try AppDelegate.viewContext.save()
+            print("Saved updated alias for address: \(address!)")
+            delegate?.didUpdateAlias(for: self)
+        } catch {
+            throw error
         }
     }
     
@@ -264,16 +266,16 @@ class Address: NSManagedObject {
                             self.lastBlock = transaction.block + 1
                         }
                     } catch {
-                        print("Failed to create transaction from: \(txInfo.identifier, error)")
+                        print("Failed to create transaction \(txInfo.identifier): \(error)")
                     }
                 }
                 
                 do {
                     if context.hasChanges {
                         try context.save()
-                        print("Saved updated normal transaction history.")
+                        print("Saved updated normal transaction history for \(self.address!).")
                     } else {
-                        print("Normal transaction history is already up-to-date.")
+                        print("Normal transaction history for \(self.address!) is already up-to-date.")
                     }
                     
                     BlockchainConnector.fetchTransactionHistory(for: self, type: .contract, timeframe: timeframe, completion: { result in
@@ -288,16 +290,16 @@ class Address: NSManagedObject {
                                         self.lastBlock = transaction.block + 1
                                     }
                                 } catch {
-                                    print("Failed to create transaction from: \(txInfo.identifier, error)")
+                                    print("Failed to create transaction \(txInfo.identifier): \(error)")
                                 }
                             }
                             
                             do {
                                 if context.hasChanges {
                                     try context.save()
-                                    print("Saved updated contract transaction history.")
+                                    print("Saved updated contract transaction history for \(self.address!).")
                                 } else {
-                                    print("Contract transaction history is already up-to-date.")
+                                    print("Contract transaction history for \(self.address!) is already up-to-date.")
                                 }
                                 
                                 self.delegate?.didUpdateTransactionHistory(for: self)
@@ -306,17 +308,17 @@ class Address: NSManagedObject {
                                     completion()
                                 }
                             } catch {
-                                print("Failed to save fetched contract transaction history: \(error)")
+                                print("Failed to save fetched contract transaction history for \(self.address!): \(error)")
                             }
                         case let .failure(error):
-                            print("Failed to fetch contract transaction history: \(error)")
+                            print("Failed to fetch contract transaction history for \(self.address!): \(error)")
                         }
                     })
                 } catch {
-                    print("Failed to save fetched normal transaction history: \(error)")
+                    print("Failed to save fetched normal transaction history for \(self.address!): \(error)")
                 }
             case let .failure(error):
-                print("Failed to fetch normal transaction history: \(error)")
+                print("Failed to fetch normal transaction history for \(self.address!): \(error)")
             }
         }
     }
@@ -334,7 +336,7 @@ class Address: NSManagedObject {
 protocol AddressDelegate {
     func didUpdateTransactionHistory(for address: Address)
     func didUpdateBalance(for address: Address)
+    func didUpdateAlias(for address: Address)
     func didUpdateUserExchangeValue(for transaction: Transaction)
     func didUpdateIsInvestmentStatus(for transaction: Transaction)
-    func didUpdateAlias(for address: Address)
 }

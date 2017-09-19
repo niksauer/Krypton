@@ -47,7 +47,7 @@ class PortfolioTableController: UITableViewController, PortfolioManagerDelegate 
     }
     
     // MARK: - Public Methods
-    func addPortfolio() {
+    @objc func addPortfolio() {
         performSegue(withIdentifier: "addPortfolio", sender: self)
     }
     

@@ -14,7 +14,7 @@ enum TransactionError: Error {
 }
 
 enum TransactionType: Int {
-    case all = 0, investment, other
+    case all = 0, investment = 1, other = 2
 }
 
 enum ProfitTimeframe {
@@ -71,7 +71,7 @@ class Transaction: NSManagedObject {
     // MARK: - Public Methods
     // MARK: Setters
     /// replaces exchange value as encountered on execution date by user specified value, notifies owner's delegate if change occurred
-    func setUserExchangeValue(value newValue: Double) {
+    func setUserExchangeValue(value newValue: Double) throws {
         guard newValue != userExchangeValue else {
             return
         }
@@ -82,12 +82,12 @@ class Transaction: NSManagedObject {
             print("Saved updated user exchange value for transacion: \(identifier!)")
             self.owner!.delegate?.didUpdateUserExchangeValue(for: self)
         } catch {
-            print("Failed to save updated user exchange value.")
+            throw error
         }
     }
     
     /// updates isInvestment status as specified by user, notifies owner's delegate if change occurred
-    func setIsInvestment(state newValue: Bool) {
+    func setIsInvestment(state newValue: Bool) throws {
         guard newValue != isInvestment else {
             return
         }
@@ -98,10 +98,9 @@ class Transaction: NSManagedObject {
             print("Saved updated investment status for transacion: \(identifier!)")
             self.owner!.delegate?.didUpdateIsInvestmentStatus(for: self)
         } catch {
-            print("Failed to save updated investment status.")
+            throw error
         }
     }
-
     
     // MARK: Finance
     func getExchangeValue(on date: Date) -> Double? {

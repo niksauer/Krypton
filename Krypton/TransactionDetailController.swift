@@ -95,7 +95,11 @@ class TransactionDetailController: UITableViewController {
 
     // MARK: - Navigation
     @IBAction func toggleIsInvestment(_ sender: UISwitch) {
-        transaction?.setIsInvestment(state: sender.isOn)
+        do {
+            try transaction?.setIsInvestment(state: sender.isOn)
+        } catch {
+            print("Failed to save updated investment status.")
+        }
     }
     
     // MARK: - TableView Delegate

@@ -264,19 +264,8 @@ final class PortfolioManager: PortfolioDelegate {
     }
     
     // MARK: - Portfolio Delegate
-    /// notifies delegate of changes in portfolio
-    func didUpdatePortfolio() {
-        if let addresses = storedAddresses {
-            for address in addresses {
-                TickerWatchlist.addTradingPair(address.tradingPair)
-            }
-        }
-        
-        delegate?.didUpdatePortfolioManager()
-    }
-    
-    func didSetIsDefault(for portfolio: Portfolio, state: Bool) throws {
-        guard state == true else {
+    func didUpdateIsDefault(for portfolio: Portfolio) {
+        guard portfolio.isDefault == true else {
             return
         }
         
@@ -287,11 +276,31 @@ final class PortfolioManager: PortfolioDelegate {
         }
         
         do {
-            let context = AppDelegate.viewContext
-            try context.save()
+            try AppDelegate.viewContext.save()
+            delegate?.didUpdatePortfolioManager()
         } catch {
-            throw error
+            // handle error
         }
+    }
+    
+    func didUpdateAlias(for portfolio: Portfolio) {
+        delegate?.didUpdatePortfolioManager()
+    }
+    
+    func didUpdateBaseCurrency(for portfolio: Portfolio) {
+        didUpdateAddresses(in: portfolio)
+    }
+    
+    func didUpdateAddresses(in portfolio: Portfolio) {
+        TickerWatchlist.reset()
+        
+        if let addresses = storedAddresses {
+            for address in addresses {
+                TickerWatchlist.addTradingPair(address.tradingPair)
+            }
+        }
+        
+        delegate?.didUpdatePortfolioManager()
     }
     
     // MARK: - Experimental

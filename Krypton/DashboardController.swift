@@ -132,11 +132,11 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
     }
     
     // MARK: - Public Methods
-    func toggleProfitType(sender: UITapGestureRecognizer) {
+    @objc func toggleProfitType(sender: UITapGestureRecognizer) {
         showsRelativeProfit = !showsRelativeProfit
     }
     
-    func togglePortfolioDisplayType(sender: UITapGestureRecognizer) {
+    @objc func togglePortfolioDisplayType(sender: UITapGestureRecognizer) {
         switch portfolioDisplay {
         case .currentExchangeValue:
             portfolioDisplay = .relativeProfit
