@@ -17,7 +17,7 @@ class TickerPrice: NSManagedObject {
     
     // MARK: - Private Class Methods
     /// returns newest ticker price for specified trading pair
-    private class func newestTickerPrice(for tradingPair: Currency.TradingPair) -> TickerPrice? {
+    private class func getNewestTickerPrice(for tradingPair: Currency.TradingPair) -> TickerPrice? {
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()
         request.predicate = NSPredicate(format: "tradingPair = %@", tradingPair.rawValue)
@@ -61,22 +61,22 @@ class TickerPrice: NSManagedObject {
     }
     
     /// returns exchange value for specified trading pair on specified date, nil if date is today or in the future
-    class func tickerPrice(for tradingPair: Currency.TradingPair, on date: Date) -> TickerPrice? {
+    class func getTickerPrice(for tradingPair: Currency.TradingPair, on date: Date) -> TickerPrice? {
         guard !date.isUTCToday, !date.isUTCFuture else {
             return nil
         }
     
-        let startDate = date.UTCStart
-        let endDate = date.UTCEnd
+        let startDate = date.UTCStart as NSDate
+        let endDate = date.UTCEnd as NSDate
         
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()
-        request.predicate = NSPredicate(format: "tradingPair = %@ AND date >= %@ AND date < %@", tradingPair.rawValue, startDate as NSDate, endDate as NSDate)
+        request.predicate = NSPredicate(format: "tradingPair = %@ AND date >= %@ AND date < %@", tradingPair.rawValue, startDate, endDate)
         
         do {
             let matches = try context.fetch(request)
             if matches.count > 0 {
-                assert(matches.count >= 1, "Address.addAddress -- Database Inconsistency")
+                assert(matches.count >= 1, "TickerPrice.getTickerPrice -- Database Inconsistency")
                 return matches[0]
             } else {
                 return nil
@@ -90,19 +90,15 @@ class TickerPrice: NSManagedObject {
     class func updatePriceHistory(for tradingPair: Currency.TradingPair, since date: Date, completion: (() -> Void)?) {
         var startDate: Date!
         
-        if TickerPrice.tickerPrice(for: tradingPair, on: date) == nil {
+        if TickerPrice.getTickerPrice(for: tradingPair, on: date) == nil {
             startDate = date.UTCStart
-        } else if let newestExchangeValueDate = newestTickerPrice(for: tradingPair)?.date {
+        } else if let newestExchangeValueDate = getNewestTickerPrice(for: tradingPair)?.date {
             startDate = Calendar.current.date(byAdding: .day, value: 1, to: newestExchangeValueDate as Date)!.UTCStart
         }
         
         guard !startDate.isUTCToday, !startDate.isUTCFuture else {
             print("Price history for trading pair \(tradingPair) is already up-to-date.")
-            
-            if let completion = completion {
-                completion()
-            }
-            
+            completion?()
             return
         }
         
@@ -110,6 +106,7 @@ class TickerPrice: NSManagedObject {
             switch result {
             case let .success(priceHistory):
                 let context = AppDelegate.viewContext
+                var newPriceCount = 0
                 
                 for price in priceHistory {
                     do {
@@ -118,23 +115,22 @@ class TickerPrice: NSManagedObject {
                         // leave out result for today
                         if !date.isUTCToday {
                             _ = try TickerPrice.createTickerPrice(from: price, in: context)
+                            newPriceCount = newPriceCount + 1
                         }
                     } catch {
-                        print("Failed to create tickerPrice from: \(price, error)")
+                        print("Failed to create tickerPrice \(price.tradingPair, price.date, price.value): \(error)")
                     }
                 }
                 
                 do {
                     if context.hasChanges {
                         try context.save()
-                        print("Saved price history for \(tradingPair.rawValue) with \(priceHistory.count-1) prices since \(startDate!).")
+                        print("Saved price history for \(tradingPair.rawValue) with \(newPriceCount) new prices since \(startDate!).")
                     }
                     
-                    if let completion = completion {
-                        completion()
-                    }
+                    completion?()
                 } catch {
-                    print("Failed to save fetched contract transaction history: \(error)")
+                    print("Failed to save fetched price history for \(tradingPair.rawValue): \(error)")
                 }
             case let .failure(error):
                 print("Failed to fetch price history for \(tradingPair.rawValue): \(error)")
