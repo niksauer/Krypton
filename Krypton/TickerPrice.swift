@@ -53,7 +53,7 @@ class TickerPrice: NSManagedObject {
         }
         
         let price = TickerPrice(context: context)
-        price.date = priceInfo.date
+        price.date = priceInfo.date as Date
         price.tradingPair = priceInfo.tradingPair.rawValue
         price.value = priceInfo.value
         

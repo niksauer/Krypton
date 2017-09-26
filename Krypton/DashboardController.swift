@@ -8,7 +8,7 @@
 
 import UIKit
 
-class DashboardController: UIViewController, UITabBarControllerDelegate, PortfolioManagerDelegate, TickerWatchlistDelegate, FilterDelegate {
+class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWatchlistDelegate, FilterDelegate {
     
     // MARK: - Private Properties
     private enum PortfolioDisplayType {
@@ -85,12 +85,6 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tabBarController?.delegate = self
-        PortfolioManager.shared.delegate = self
-        TickerWatchlist.delegate = self
-        
-        investmentLabel.text = "Total Investment"
-        
         portfolioValueLabel.tag = 0
         portfolioValueLabel.isUserInteractionEnabled = true
         let portfolioValueTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(togglePortfolioDisplayType))
@@ -101,11 +95,13 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
         let profitValueTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(toggleProfitType))
         profitValueLabel.addGestureRecognizer(profitValueTapRecognizer)
         
-        updateUI()
+        investmentLabel.text = "Total Investment"
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        PortfolioManager.shared.delegate = self
+        TickerWatchlist.delegate = self
         updateUI()
     }
 
@@ -145,13 +141,6 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
         case .absoluteProfit:
             portfolioDisplay = .currentExchangeValue
         }
-    }
-    
-    // MARK: - TabBarController Delegate
-    func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
-//        if let destVC = viewController as? UINavigationController, let transactionVC = destVC.topViewController as? TransactionTableController {
-//            transactionVC.addresses = PortfolioManager.shared.selectedAddresses
-//        }
     }
     
     // MARK: - PortfolioManager Delegate

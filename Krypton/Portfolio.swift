@@ -13,9 +13,10 @@ class Portfolio: NSManagedObject, AddressDelegate {
     
     // MARK: - Public Class Methods
     /// creates and returns portfolio with specified base currency
-    class func createPortfolio(baseCurrency: Currency.Fiat, in context: NSManagedObjectContext) -> Portfolio {
+    class func createPortfolio(baseCurrency: Currency.Fiat, alias: String?, in context: NSManagedObjectContext) -> Portfolio {
         let portfolio = Portfolio(context: context)
         portfolio.baseCurrency = baseCurrency.rawValue
+        portfolio.alias = alias
         return portfolio
     }
     
@@ -111,8 +112,13 @@ class Portfolio: NSManagedObject, AddressDelegate {
             self.addToAddresses(address)
             try context.save()
             address.delegate = self
-            delegate?.didUpdateAddresses(in: self)
-            update()
+            delegate?.didAddAddress(to: self, address: address)
+            
+            address.updateTransactionHistory() {
+                address.updatePriceHistory {
+                    address.updateBalance()
+                }
+            }
         } catch {
             throw error
         }
@@ -121,19 +127,20 @@ class Portfolio: NSManagedObject, AddressDelegate {
     func removeAddress(address: Address) throws {
         do {
             let context = AppDelegate.viewContext
+            let tradingPair = address.tradingPair
             context.delete(address)
             try context.save()
-            delegate?.didUpdateAddresses(in: self)
+            delegate?.didRemoveAddress(from: self, tradingPair: tradingPair)
         } catch {
             throw error
         }
     }
     
     // MARK: Finance
-    /// returns the current exchange value of all stored addresses
     /// returns exchange value of all stored addresses on speicfied date, nil if date is today or in the future
     func getExchangeValue(for type: TransactionType, on date: Date) -> Double? {
         var value = 0.0
+        
         for address in storedAddresses {
             if let addressValue = address.getExchangeValue(for: type, on: date)?.value {
                 value = value + addressValue
@@ -141,6 +148,7 @@ class Portfolio: NSManagedObject, AddressDelegate {
                 return nil
             }
         }
+        
         return value
     }
     
@@ -189,35 +197,37 @@ class Portfolio: NSManagedObject, AddressDelegate {
     // MARK: - Address Delegate
     /// notifies delegate that balance has changed for specified address
     func didUpdateBalance(for address: Address) {
-        delegate?.didUpdateAddresses(in: self)
+        delegate?.didUpdateProperty(for: address, in: self)
     }
     
     /// notified delegate that tranasction history has changed for specified address
     func didUpdateTransactionHistory(for address: Address) {
-        delegate?.didUpdateAddresses(in: self)
+        delegate?.didUpdateProperty(for: address, in: self)
     }
     
     /// notifies delegate that userExchangeValue has been set for specified transaction
     func didUpdateUserExchangeValue(for transaction: Transaction) {
-        delegate?.didUpdateAddresses(in: self)
+        delegate?.didUpdateProperty(for: transaction.owner!, in: self)
     }
     
     /// notifies delegate that isInvestment property has changed for specified transaction
     func didUpdateIsInvestmentStatus(for transaction: Transaction) {
-        delegate?.didUpdateAddresses(in: self)
+        delegate?.didUpdateProperty(for: transaction.owner!, in: self)
     }
     
     func didUpdateAlias(for address: Address) {
-        delegate?.didUpdateAddresses(in: self)
+        delegate?.didUpdateProperty(for: address, in: self)
     }
 
 }
 
 // MARK: - Portfolio Delegate Protocol
 protocol PortfolioDelegate {
-    func didUpdateAddresses(in portfolio: Portfolio)
-    func didUpdateBaseCurrency(for portfolio: Portfolio)
-    func didUpdateIsDefault(for portfolio: Portfolio)
     func didUpdateAlias(for portfolio: Portfolio)
+    func didUpdateIsDefault(for portfolio: Portfolio)
+    func didUpdateBaseCurrency(for portfolio: Portfolio)
+    func didAddAddress(to portfolio: Portfolio, address: Address)
+    func didRemoveAddress(from portfolio: Portfolio, tradingPair: Currency.TradingPair)
+    func didUpdateProperty(for address: Address, in portfolio: Portfolio)
 }
 

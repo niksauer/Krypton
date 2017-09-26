@@ -41,6 +41,8 @@ struct Currency {
     enum TradingPair: String {
         case ETHEUR
         case ETHUSD
+        
+        static var allValues = [ETHEUR, ETHUSD]
     }
 
     // MARK: - Public Methods

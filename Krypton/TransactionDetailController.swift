@@ -80,8 +80,8 @@ class TransactionDetailController: UITableViewController {
         
         amountField.text = Format.getCryptoFormatting(for: NSNumber(value: tx.amount), cryptoCurrency: Currency.Crypto(rawValue: tx.owner!.cryptoCurrency!)!)
         
-        senderAddressField.text = PortfolioManager.shared.alias(for: tx.from!) ?? tx.from
-        receiverAddressField.text = PortfolioManager.shared.alias(for: tx.to!) ?? tx.to
+        senderAddressField.text = PortfolioManager.shared.getAlias(for: tx.from!) ?? tx.from
+        receiverAddressField.text = PortfolioManager.shared.getAlias(for: tx.to!) ?? tx.to
         dateField.text = Format.getDateFormatting(for: tx.date! as Date)
         typeField.text = tx.type
         

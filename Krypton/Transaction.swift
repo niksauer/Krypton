@@ -41,7 +41,7 @@ class Transaction: NSManagedObject {
         }
         
         let transaction = Transaction(context: context)
-        transaction.date = txInfo.date
+        transaction.date = txInfo.date as Date
         transaction.amount = txInfo.amount
         transaction.type = txInfo.type.rawValue
         transaction.to = txInfo.to

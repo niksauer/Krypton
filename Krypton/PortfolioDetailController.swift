@@ -20,11 +20,6 @@ class PortfolioDetailController: UITableViewController {
     var selectedAddress: Address?
     
     // MARK: - Initilization
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        checkEditButton()
-    }
-    
     override func viewWillAppear(_ animated: Bool) {
         tableView.reloadData()
     }
@@ -39,20 +34,10 @@ class PortfolioDetailController: UITableViewController {
     }
 
     // MARK: - Public Methods
-    /// enables edit button if portfolio has at least one associated address
-    func checkEditButton() {
-        if portfolio.storedAddresses.count > 0 {
-            self.navigationItem.rightBarButtonItem = self.editButtonItem
-        } else {
-            self.navigationItem.rightBarButtonItem = nil
-        }
-    }
-    
     func removeAddress(_ address: Address) {
         do {
             try portfolio.removeAddress(address: address)
             tableView.reloadData()
-            checkEditButton()
         } catch {
             // present error
             print(error)
@@ -137,7 +122,7 @@ class PortfolioDetailController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if section == 0 {
-            return "General"
+            return "Portfolio"
         } else if portfolio.storedAddresses.count > 0, section == 1 {
             return "Addresses"
         } else {

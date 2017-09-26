@@ -111,7 +111,6 @@
 				24B859AC1F47C90800969049 /* Controller */,
 				24B859AB1F47C8E400969049 /* Model */,
 				24B859AA1F47C8D500969049 /* Backend */,
-				24B859AD1F47C91C00969049 /* View */,
 				2449F4381F6D59CC006E21C8 /* Views */,
 				24B859A91F47C89A00969049 /* Supporting Files */,
 			);
@@ -199,6 +198,8 @@
 		24B859A91F47C89A00969049 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				2400D0811F40715900833958 /* Main.storyboard */,
+				2400D0861F40715900833958 /* LaunchScreen.storyboard */,
 				2400D07B1F40715900833958 /* AppDelegate.swift */,
 				246874F41F464B4E009BB60A /* Krypton.xcdatamodeld */,
 				2400D0891F40715900833958 /* Info.plist */,
@@ -238,15 +239,6 @@
 				2449F4491F6F1F40006E21C8 /* SettingsController.swift */,
 			);
 			name = Controller;
-			sourceTree = "<group>";
-		};
-		24B859AD1F47C91C00969049 /* View */ = {
-			isa = PBXGroup;
-			children = (
-				2400D0811F40715900833958 /* Main.storyboard */,
-				2400D0861F40715900833958 /* LaunchScreen.storyboard */,
-			);
-			name = View;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

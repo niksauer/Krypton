@@ -27,17 +27,34 @@ class TickerWatchlist {
     /// trading pairs for which continious price updates are retrieved
     private static var tradingPairs = Set<Currency.TradingPair>()
     
+    private static var requestsForTradingPair: [Currency.TradingPair : Int] = [:]
+    
     // MARK: - Public Class Methods
     /// adds trading pair and fetches current price if it has not already been added to watchlist, starts update timer
     class func addTradingPair(_ tradingPair: Currency.TradingPair) {
         if !tradingPairs.contains(tradingPair) {
             tradingPairs.insert(tradingPair)
             updatePrice(for: tradingPair)
-            
-            if tradingPairs.count == 1 {
-                startUpdateTimer()
-            }
         }
+        
+        if tradingPairs.count == 1 {
+            startUpdateTimer()
+        }
+        
+        if let requestCount = requestsForTradingPair[tradingPair] {
+            requestsForTradingPair[tradingPair] = requestCount + 1
+        } else {
+            requestsForTradingPair[tradingPair] = 1
+        }
+    }
+    
+    class func removeTradingPair(_ tradingPair: Currency.TradingPair) {
+        guard let requestCount = requestsForTradingPair[tradingPair], requestCount > 0 else {
+            return
+        }
+        
+        tradingPairs.remove(tradingPair)
+        requestsForTradingPair[tradingPair] = requestCount - 1
     }
     
     /// returns current price for specified trading pair
@@ -48,6 +65,7 @@ class TickerWatchlist {
     class func reset() {
         stopUpdateTimer()
         tradingPairs = Set<Currency.TradingPair>()
+        requestsForTradingPair = [:]
     }
     
     /// starts unique timer to update current price in specified interval for all stored trading pairs

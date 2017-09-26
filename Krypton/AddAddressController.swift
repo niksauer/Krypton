@@ -11,7 +11,11 @@ import UIKit
 class AddAddressController: UITableViewController, UITextFieldDelegate, UIPickerViewDataSource, UIPickerViewDelegate, PortfolioSelectorDelegate {
     
     // MARK: - Public Properties
-    var portfolio: Portfolio?
+    var selectedPortfolio: Portfolio? {
+        didSet {
+            selectedPortfolioLabel.text = selectedPortfolio?.alias ?? "???"
+        }
+    }
     
     // MARK: - Private Properties
     private let cryptoData = Currency.Crypto.allValues
@@ -34,17 +38,15 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        portfolio = PortfolioManager.shared.defaultPortfolio
-        
         cryptoPicker.delegate = self
         cryptoPicker.dataSource = self
         cryptoPicker.selectRow(0, inComponent: 0, animated: true)
         cryptoPicker.isHidden = true
         
-        selectedPortfolioLabel.text = portfolio?.alias ?? "None"
-        
         addressField.delegate = self
         aliasField.delegate = self
+        
+        selectedPortfolio = PortfolioManager.shared.defaultPortfolio
         
         checkSaveButton()
     }
@@ -56,7 +58,7 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
         if let destVC = segue.destination as? PortfolioTableController {
             destVC.isSelector = true
             destVC.delegate = self
-            destVC.selectedPortfolio = portfolio
+            destVC.selectedPortfolio = selectedPortfolio
         }
     }
     
@@ -65,12 +67,12 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
     }
     
     @IBAction func save(_ sender: UIBarButtonItem) {
-        guard let addressString = addressField.text, !addressString.isEmpty, let selectedUnit = cryptoField.detailTextLabel?.text, let cryptoUnit = Currency.Crypto(rawValue: selectedUnit), portfolio != nil else {
+        guard let addressString = addressField.text, !addressString.isEmpty, let selectedUnit = cryptoField.detailTextLabel?.text, let cryptoUnit = Currency.Crypto(rawValue: selectedUnit), selectedPortfolio != nil else {
             return
         }
         
         do {
-            try portfolio?.addAddress(addressString, unit: cryptoUnit, alias: aliasField.text)
+            try selectedPortfolio?.addAddress(addressString, unit: cryptoUnit, alias: aliasField.text)
             dismiss(animated: true, completion: nil)
         } catch {
             print("Failed to add address due to error: \(error)")
@@ -79,7 +81,7 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
     
     // MARK: - Public Methods
     func checkSaveButton() {
-        guard let addressString = addressField.text, !addressString.isEmpty, let selectedUnit = cryptoField.detailTextLabel?.text, let _ = Currency.Crypto(rawValue: selectedUnit), portfolio != nil else {
+        guard let addressString = addressField.text, !addressString.isEmpty, let selectedUnit = cryptoField.detailTextLabel?.text, let _ = Currency.Crypto(rawValue: selectedUnit), selectedPortfolio != nil else {
             saveButton.isEnabled = false
             return
         }
@@ -115,13 +117,7 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
     
     // MARK: - PortfolioSelector Delegate
     func didChangeSelection(selection: Portfolio?) {
-        if let selectedPortfolio = selection {
-            portfolio = selectedPortfolio
-            selectedPortfolioLabel.text = selectedPortfolio.alias
-        } else {
-            selectedPortfolioLabel.text = "None"
-        }
-        
+        selectedPortfolio = selection
         checkSaveButton()
     }
     
@@ -134,7 +130,6 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
         }
         
         checkSaveButton()
-        
         return false
     }
     
