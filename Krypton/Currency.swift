@@ -13,13 +13,18 @@ struct Currency {
     // MARK: - Public Properties
     enum Crypto: String {
         case ETH
-        case BTC
+        case XBT
         
         // MARK: - Private Properties
         /// dictionary mapping crypto currencies to their respective currency symbol
-        private static let symbolForCrypto: [Crypto : String ] = [
+        private static let symbolForCrypto: [Crypto : String] = [
             .ETH : "Ξ",
-            .BTC : "Ƀ"
+            .XBT : "Ƀ"
+        ]
+        
+        private static let blockchainForCrypto: [Crypto: String] = [
+            .ETH: "Ethereum",
+            .XBT: "Bitcoin"
         ]
         
         // MARK: - Public Properties
@@ -28,7 +33,12 @@ struct Currency {
             return Crypto.symbolForCrypto[self]!
         }
         
-        static var allValues = [ETH, BTC]
+        /// returns currency name
+        var blockchain: String {
+            return Crypto.blockchainForCrypto[self]!
+        }
+        
+        static var allValues = [ETH, XBT]
     }
 
     enum Fiat: String {
@@ -41,8 +51,11 @@ struct Currency {
     enum TradingPair: String {
         case ETHEUR
         case ETHUSD
+        case XBTEUR
+        case XBTUSD
         
-        static var allValues = [ETHEUR, ETHUSD]
+//        https://api.kraken.com/0/public/AssetPairs
+        static var allValues = [ETHEUR, ETHUSD, XBTEUR, XBTUSD]
         
         // MARK: - Public Class Methods
         /// returns trading pair constructed from specified crypto and fiat currency

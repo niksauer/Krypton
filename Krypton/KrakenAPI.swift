@@ -32,9 +32,11 @@ struct KrakenAPI {
         case currentPrice = "Ticker"
     }
     
-    private static let resultForCurrencyPair = [
-        "ETHEUR" : "XETHZEUR",
-        "ETHUSD" : "XETHZUSD"
+    private static let resultForCurrencyPair: [Currency.TradingPair : String] = [
+        .ETHEUR : "XETHZEUR",
+        .ETHUSD : "XETHZUSD",
+        .XBTEUR : "XXBTZEUR",
+        .XBTUSD : "XXBTZUSD"
     ]
     
     // MARK: - Private Methods
@@ -57,7 +59,7 @@ struct KrakenAPI {
         do {
             let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
             
-            guard let jsonDictionary = jsonObject as? [AnyHashable: Any], let result = jsonDictionary["result"] as? [String: Any], let resultName = resultForCurrencyPair[tradingPair.rawValue], let pricesArray = result[resultName] as? [[Any]] else {
+            guard let jsonDictionary = jsonObject as? [AnyHashable: Any], let result = jsonDictionary["result"] as? [String: Any], let resultName = resultForCurrencyPair[tradingPair], let pricesArray = result[resultName] as? [[Any]] else {
                 return .failure(KrakenError.invalidJSONData)
             }
             
@@ -84,7 +86,7 @@ struct KrakenAPI {
         do {
             let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
             
-            guard let jsonDictionary = jsonObject as? [AnyHashable: Any], let result = jsonDictionary["result"] as? [String: Any], let resultName = resultForCurrencyPair[tradingPair.rawValue], let tickerData = result[resultName] as? [String: Any], let lastClosedArray = tickerData["c"] as? [String], let lastClosedValue = Double(lastClosedArray[0])  else {
+            guard let jsonDictionary = jsonObject as? [AnyHashable: Any], let result = jsonDictionary["result"] as? [String: Any], let resultName = resultForCurrencyPair[tradingPair], let tickerData = result[resultName] as? [String: Any], let lastClosedArray = tickerData["c"] as? [String], let lastClosedValue = Double(lastClosedArray[0])  else {
                 return .failure(KrakenError.invalidJSONData)
             }
             

@@ -147,7 +147,7 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return cryptoData[row].rawValue
+        return cryptoData[row].blockchain
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {

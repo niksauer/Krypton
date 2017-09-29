@@ -37,16 +37,31 @@ struct BlockexplorerAPI {
         return components.url!
     }
     
-    private static func transaction(fromJSON json: [String: Any]) -> TransactionProto? {
-        return nil
-    }
-    
-    private static func bitcoin(from satoshiString: String) -> Double? {
-        return nil
+    private static func transaction(fromJSON json: [String: Any], for address: Address) -> [TransactionProto]? {
+        guard let hash = json["txid"] as? String, let time = json["time"] as? Double, let block = json["blockheight"] as? Int32, let vin = json["vin"] as? [[String: Any]], let firstSender = vin.first?["addr"] as? String, let vout = json["vout"] as? [[String: Any]] else {
+            return nil
+        }
+        
+        var transactions = [TransactionProto]()
+        
+        for out in vout {
+            guard let script = out["scriptPubKey"] as? [String: Any], let addresses = script["addresses"] as? [String], let firstReceiver = addresses.first, let amountString = out["value"] as? String, let amount = Double(amountString) else {
+                continue
+            }
+            
+//            guard firstSender == address.address! || firstReceiver == address.address! else {
+//                continue
+//            }
+            
+            let transaction = TransactionProto(identifier: hash, date: NSDate(timeIntervalSince1970: time), amount: amount, from: firstSender, to: firstReceiver, type: .normal, block: block)
+            transactions.append(transaction)
+        }
+        
+        return transactions
     }
     
     // MARK: - Public Methods
-    static func transactionHistory(fromJSON data: Data) -> TransactionHistoryResult {
+    static func transactionHistory(fromJSON data: Data, for address: Address) -> TransactionHistoryResult {
         do {
             let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
             
@@ -55,10 +70,10 @@ struct BlockexplorerAPI {
             }
             
             var transactionHistory = [TransactionProto]()
-            
+    
             for transactionJSON in transactionsArray {
-                if let transaction = transaction(fromJSON: transactionJSON) {
-                    transactionHistory.append(transaction)
+                if let transactions = transaction(fromJSON: transactionJSON, for: address) {
+                    transactionHistory.append(contentsOf: transactions)
                 }
             }
             
@@ -69,17 +84,11 @@ struct BlockexplorerAPI {
     }
     
     static func balance(fromJSON data: Data) -> BalanceResult {
-        do {
-            let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
-            
-            guard let jsonDictionary = jsonObject as? [AnyHashable: Any], let satoshiString = jsonDictionary["result"] as? String, let balance = bitcoin(from: satoshiString) else {
-                return .failure(BlockexplorerError.invalidJSONData)
-            }
-            
-            return .success(balance)
-        } catch {
-            return .failure(error)
+        guard let balanceString = String(data: data, encoding: .ascii), let balance = Double(balanceString) else {
+            return .failure(BlockexplorerError.invalidJSONData)
         }
+        
+        return .success(balance)
     }
     
     // MARK: - Private Methods

@@ -58,7 +58,7 @@ struct BlockchainConnector {
         let url: URL
         
         switch cryptoCurrency {
-        case .BTC:
+        case .XBT:
             url = BlockexplorerAPI.transactionHistoryURL(for: address.address!)
         case .ETH:
             url = EtherscanAPI.transactionHistoryURL(for: address.address!, type: type, timeframe: timeframe)
@@ -67,12 +67,16 @@ struct BlockchainConnector {
         let request = URLRequest(url: url)
 
         let task = session.dataTask(with: request) { (data, response, error) -> Void in
-            let result: TransactionHistoryResult
+            var result: TransactionHistoryResult
             
             if let jsonData = data {
                 switch cryptoCurrency {
-                case .BTC:
-                    result = BlockexplorerAPI.transactionHistory(fromJSON: jsonData)
+                case .XBT:
+                    result = BlockexplorerAPI.transactionHistory(fromJSON: jsonData, for: address)
+                    
+                    if case let TransactionHistoryResult.success(transactions) = result, case let TransactionHistoryTimeframe.sinceBlock(blockNumber) = timeframe {
+                        result = .success(transactions.filter { $0.block >= blockNumber })
+                    }
                 case .ETH:
                     result = EtherscanAPI.transactionHistory(type: type, fromJSON: jsonData)
                 }
@@ -93,7 +97,7 @@ struct BlockchainConnector {
         let url: URL
         
         switch cryptoCurrency {
-        case .BTC:
+        case .XBT:
             url = BlockexplorerAPI.balanceURL(for: address.address!)
         case .ETH:
             url = EtherscanAPI.balanceURL(for: address.address!)
@@ -106,7 +110,7 @@ struct BlockchainConnector {
             
             if let jsonData = data {
                 switch cryptoCurrency {
-                case .BTC:
+                case .XBT:
                     result = BlockexplorerAPI.balance(fromJSON: jsonData)
                 case .ETH:
                     result = EtherscanAPI.balance(fromJSON: jsonData)
