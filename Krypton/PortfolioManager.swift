@@ -28,6 +28,8 @@ final class PortfolioManager: PortfolioDelegate {
 //        deleteTransactions()
 //        deletePriceHistory()
         
+//        print(BlockexplorerAPI.transactionHistoryURL(for: "1eCjtYU5Fzmjs7P1iHGeYj6Tn86YdEmnY"))
+        
         do {
             baseCurrency = loadBaseCurrency()
             storedPortfolios = try loadPortfolios()
@@ -36,8 +38,7 @@ final class PortfolioManager: PortfolioDelegate {
             if storedPortfolios.count == 0 {
                 do {
                     let portfolio = try addPortfolio(baseCurrency: baseCurrency, alias: "Portfolio 1")
-                    portfolio.isDefault = true
-                    try AppDelegate.viewContext.save()
+                    try portfolio.setIsDefault(true)
                     print("Created and saved empty default portfolio.")
                 } catch {
                     print("Failed to create default portfolio.")
@@ -47,27 +48,23 @@ final class PortfolioManager: PortfolioDelegate {
             
             for portfolio in storedPortfolios {
                 portfolio.delegate = self
-                portfolio.update()
                 
                 for address in portfolio.storedAddresses {
                     print("\(address.address!): \(address.balance), \(address.transactions!.count) transaction(s)")
-                    TickerWatchlist.addTradingPair(address.tradingPair)
                 }
             }
+            
+            prepareTickerWatchlist()
+            updatePortfolios()
         } catch {
-            print("Failed to load portfolios: \(error)")
+            print("Failed to initialize portfolio manager: \(error)")
         }
     }
     
     // MARK: - Private Properties
     /// returns all stored portfolios
     private var storedPortfolios = [Portfolio]()
-    
-    /// returns default portfolio used to add addresses
-    var defaultPortfolio: Portfolio? {
-        return storedPortfolios.first(where: { $0.isDefault })
-    }
-    
+
     /// returns all addresses associated with stored portfolios
     private var storedAddresses: [Address]? {
         var storedAddresses = [Address]()
@@ -78,11 +75,16 @@ final class PortfolioManager: PortfolioDelegate {
     }
     
     // MARK: - Public Properties
+    /// delegate who gets notified of changes in portfolio
+    var delegate: PortfolioManagerDelegate?
+    
     /// fiat currency used to calculate exchange values of all stored portfolios
     var baseCurrency = Currency.Fiat.EUR
     
-    /// delegate who gets notified of changes in portfolio
-    var delegate: PortfolioManagerDelegate?
+    /// returns default portfolio used to add addresses
+    var defaultPortfolio: Portfolio? {
+        return storedPortfolios.first(where: { $0.isDefault })
+    }
     
     /// returns all addresses stored in selected portfolios
     var selectedAddresses: [Address] {
@@ -107,56 +109,38 @@ final class PortfolioManager: PortfolioDelegate {
     }
     
     private func loadBaseCurrency() -> Currency.Fiat {
-        if let storedCurrencyString = UserDefaults.standard.value(forKey: "baseCurrency") as? String, let storedCurrency = Currency.Fiat(rawValue: storedCurrencyString) {
-            return storedCurrency
+        if let storedCurrencyString = UserDefaults.standard.value(forKey: "baseCurrency") as? String, let storedBaseCurrency = Currency.Fiat(rawValue: storedCurrencyString) {
+            return storedBaseCurrency
         } else {
-            let standardCurrency = Currency.Fiat.EUR
-            UserDefaults.standard.setValue(standardCurrency.rawValue, forKey: "baseCurrency")
+            let standardBaseCurrency = Currency.Fiat.EUR
+            UserDefaults.standard.setValue(standardBaseCurrency.rawValue, forKey: "baseCurrency")
             UserDefaults.standard.synchronize()
-            return standardCurrency
+            return standardBaseCurrency
+        }
+    }
+    
+    private func prepareTickerWatchlist() {
+        TickerWatchlist.reset()
+        
+        for portfolio in storedPortfolios {
+            for address in portfolio.storedAddresses {
+                TickerWatchlist.addTradingPair(address.tradingPair)
+            }
         }
     }
 
     // MARK: - Public Methods
-    /// returns alias for specified address string
-    func alias(for addressString: String) -> String? {
-        return storedAddresses?.first(where: { $0.address == addressString })?.alias
-    }
-    
-    /// creates, saves and adds portfolio with specified base currency
-    func addPortfolio(baseCurrency: Currency.Fiat, alias: String?) throws -> Portfolio {
-        do {
-            let context = AppDelegate.viewContext
-            let portfolio = Portfolio.createPortfolio(baseCurrency: baseCurrency, in: context)
-            portfolio.alias = alias
-            
-            try context.save()
-            portfolio.delegate = self
-            storedPortfolios.append(portfolio)
-            delegate?.didUpdatePortfolioManager()
-            return portfolio
-        } catch {
-            throw error
-        }
-    }
-    
-    func removePortfolio(_ portfolio: Portfolio) throws {
-        do {
-            storedPortfolios.remove(at: storedPortfolios.index(of: portfolio)!)
-            let context = AppDelegate.viewContext
-            context.delete(portfolio)
-            try context.save()
-            print("Removed portfolio from Core Data.")
-            delegate?.didUpdatePortfolioManager()
-        } catch {
-            throw error
-        }
-    }
-    
+    // MARK: Getters
     func getPortfolios() -> [Portfolio] {
         return storedPortfolios
     }
     
+    /// returns alias for specified address string
+    func getAlias(for addressString: String) -> String? {
+        return storedAddresses?.first(where: { $0.address == addressString })?.alias
+    }
+    
+    // MARK: Setters
     func setBaseCurrency(_ currency: Currency.Fiat) throws {
         guard currency != baseCurrency else {
             return
@@ -171,9 +155,38 @@ final class PortfolioManager: PortfolioDelegate {
             UserDefaults.standard.setValue(currency.rawValue, forKey: "baseCurrency")
             UserDefaults.standard.synchronize()
             
-            TickerWatchlist.reset()
             updatePortfolios()
+            prepareTickerWatchlist()
+        } catch {
+            throw error
+        }
+    }
+    
+    // MARK: Management
+    /// creates, saves and adds portfolio with specified base currency
+    func addPortfolio(baseCurrency: Currency.Fiat, alias: String?) throws -> Portfolio {
+        do {
+            let context = AppDelegate.viewContext
+            let portfolio = Portfolio.createPortfolio(baseCurrency: baseCurrency, alias: alias, in: context)
+            let _ = try save()
+            portfolio.delegate = self
+            storedPortfolios.append(portfolio)
+            delegate?.didUpdatePortfolioManager()
+            return portfolio
+        } catch {
+            throw error
+        }
+    }
+    
+    func removePortfolio(_ portfolio: Portfolio) throws {
+        do {
+            storedPortfolios.remove(at: storedPortfolios.index(of: portfolio)!)
+            let context = AppDelegate.viewContext
+            context.delete(portfolio)
+            let _ = try save()
+            print("Removed portfolio from Core Data.")
             
+            prepareTickerWatchlist()
             delegate?.didUpdatePortfolioManager()
         } catch {
             throw error
@@ -183,10 +196,6 @@ final class PortfolioManager: PortfolioDelegate {
     func updatePortfolios() {
         for portfolio in storedPortfolios {
             portfolio.update()
-            
-            for address in portfolio.storedAddresses {
-                TickerWatchlist.addTradingPair(address.tradingPair)
-            }
         }
     }
     
@@ -205,10 +214,10 @@ final class PortfolioManager: PortfolioDelegate {
     }
     
     // MARK: Finance
-    /// returns the current exchange value of all selected addresses
     /// returns exchange value of selected addresses on specified date
     func getExchangeValue(for type: TransactionType, on date: Date) -> Double? {
         var value = 0.0
+        
         for address in selectedAddresses {
             if let addressValue = address.getExchangeValue(for: type, on: date)?.value {
                 value = value + addressValue
@@ -216,11 +225,11 @@ final class PortfolioManager: PortfolioDelegate {
                 return nil
             }
         }
+        
         return value
     }
     
-    /// returns absolute profit of selected addresses compared to specified date
-    /// returns the absolute profit generated from all selected addresses
+    /// returns the absolute profit generated from all selected addresses in specified timeframe
     func getProfitStats(for type: TransactionType, timeframe: ProfitTimeframe) -> (startValue: Double, endValue: Double)? {
         var startValue = 0.0
         var endValue = 0.0
@@ -246,37 +255,25 @@ final class PortfolioManager: PortfolioDelegate {
         var profitHistory: [(Date, Double)] = []
         
         for (index, address) in selectedAddresses.enumerated() {
-            if let absoluteProfitHistory = address.getAbsoluteProfitHistory(for: type, since: date) {
-                if index == 0 {
-                    for (date, absoluteProfit) in absoluteProfitHistory {
-                        profitHistory.append((date, absoluteProfit))
-                    }
-                } else {
-                    profitHistory = zip(profitHistory, absoluteProfitHistory).map() { ($0.0, $0.1 + $1.1) }
-                }
-            } else {
+            guard let absoluteProfitHistory = address.getAbsoluteProfitHistory(for: type, since: date) else {
                 return nil
             }
             
+            if index == 0 {
+                for (date, absoluteProfit) in absoluteProfitHistory {
+                    profitHistory.append((date, absoluteProfit))
+                }
+            } else {
+                profitHistory = zip(profitHistory, absoluteProfitHistory).map() { ($0.0, $0.1 + $1.1) }
+            }
         }
         
         return profitHistory
     }
     
     // MARK: - Portfolio Delegate
-    /// notifies delegate of changes in portfolio
-    func didUpdatePortfolio() {
-        if let addresses = storedAddresses {
-            for address in addresses {
-                TickerWatchlist.addTradingPair(address.tradingPair)
-            }
-        }
-        
-        delegate?.didUpdatePortfolioManager()
-    }
-    
-    func didSetIsDefault(for portfolio: Portfolio, state: Bool) throws {
-        guard state == true else {
+    func didUpdateIsDefault(for portfolio: Portfolio) {
+        guard portfolio.isDefault == true else {
             return
         }
         
@@ -287,21 +284,40 @@ final class PortfolioManager: PortfolioDelegate {
         }
         
         do {
-            let context = AppDelegate.viewContext
-            try context.save()
+            let _ = try save()
+            delegate?.didUpdatePortfolioManager()
         } catch {
-            throw error
+            do {
+                try portfolio.setIsDefault(false)
+            } catch {
+                print("Failed to reverse new default portfolio.")
+            }
         }
     }
     
-    // MARK: - Experimental
-    private func deleteCoreDate() {
-        deletePortfolios()
-        deleteAddresses()
-        deleteTransactions()
-        deletePriceHistory()
+    func didUpdateAlias(for portfolio: Portfolio) {
+        delegate?.didUpdatePortfolioManager()
     }
     
+    func didUpdateBaseCurrency(for portfolio: Portfolio) {
+        delegate?.didUpdatePortfolioManager()
+    }
+    
+    func didAddAddress(to portfolio: Portfolio, address: Address) {
+        TickerWatchlist.addTradingPair(address.tradingPair)
+        delegate?.didUpdatePortfolioManager()
+    }
+    
+    func didRemoveAddress(from portfolio: Portfolio, tradingPair: Currency.TradingPair) {
+        TickerWatchlist.removeTradingPair(tradingPair)
+        delegate?.didUpdatePortfolioManager()
+    }
+    
+    func didUpdateProperty(for address: Address, in portfolio: Portfolio) {
+        delegate?.didUpdatePortfolioManager()
+    }
+    
+    // MARK: - Experimental
     private func deletePortfolios() {
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<Portfolio> = Portfolio.fetchRequest()

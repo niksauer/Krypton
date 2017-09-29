@@ -19,6 +19,10 @@ class AddPortfolioController: UITableViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         aliasField.delegate = self
+        
+        if PortfolioManager.shared.defaultPortfolio == nil {
+            isDefaultSwitch.isOn = true
+        }
     }
     
     // MARK: - Navigation

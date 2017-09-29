@@ -19,36 +19,18 @@ class PortfolioTableController: UITableViewController, PortfolioManagerDelegate 
     private var portfolios = [Portfolio]()
     
     // MARK: - Initialization
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        self.navigationItem.rightBarButtonItem = self.editButtonItem
+    override func viewWillAppear(_ animated: Bool) {
         PortfolioManager.shared.delegate = self
-        portfolios = PortfolioManager.shared.getPortfolios()
+        didUpdatePortfolioManager()
     }
 
     // MARK: - Navigation
-    override func setEditing(_ editing: Bool, animated: Bool) {
-        super.setEditing(editing, animated: animated)
-        navigationItem.hidesBackButton = !navigationItem.hidesBackButton
-        
-        if editing {
-            navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addPortfolio))
-        } else {
-            navigationItem.leftBarButtonItem = nil
-        }
-    }
-    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         super.prepare(for: segue, sender: sender)
         
         if let destVC = segue.destination as? PortfolioDetailController {
             destVC.portfolio = selectedPortfolio
         }
-    }
-    
-    // MARK: - Public Methods
-    func addPortfolio() {
-        performSegue(withIdentifier: "addPortfolio", sender: self)
     }
     
     // MARK: - TableView Data Source
@@ -80,7 +62,7 @@ class PortfolioTableController: UITableViewController, PortfolioManagerDelegate 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         selectedPortfolio = portfolios[indexPath.row]
         
-        if isSelector, !tableView.isEditing {
+        if isSelector {
             delegate?.didChangeSelection(selection: selectedPortfolio)
             self.navigationController?.popViewController(animated: true)
         } else {
@@ -99,9 +81,17 @@ class PortfolioTableController: UITableViewController, PortfolioManagerDelegate 
     // MARK: - PortfolioManager Delegate
     func didUpdatePortfolioManager() {
         portfolios = PortfolioManager.shared.getPortfolios()
+        
         if portfolios.count == 0 {
             delegate?.didChangeSelection(selection: nil)
+            let noPortfoliosLabel = UILabel()
+            noPortfoliosLabel.text = "No Portfolios."
+            noPortfoliosLabel.textAlignment = .center
+            tableView.backgroundView = noPortfoliosLabel
+        } else {
+            tableView.backgroundView = nil
         }
+        
         tableView.reloadData()
     }
 

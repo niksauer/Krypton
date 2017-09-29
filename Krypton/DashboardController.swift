@@ -8,7 +8,7 @@
 
 import UIKit
 
-class DashboardController: UIViewController, UITabBarControllerDelegate, PortfolioManagerDelegate, TickerWatchlistDelegate, FilterDelegate {
+class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWatchlistDelegate, FilterDelegate {
     
     // MARK: - Private Properties
     private enum PortfolioDisplayType {
@@ -42,11 +42,11 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
                 portfolioValueLabel.text = Format.getFiatFormatting(for: NSNumber(value: currentExchangeValue), fiatCurrency: PortfolioManager.shared.baseCurrency)
             case .relativeProfit:
                 portfolioLabel.text = "Total Relative Profit"
-                let relativeProfit = Format.relativeProfit(from: profitStats)
+                let relativeProfit = Format.getRelativeProfit(from: profitStats)
                 portfolioValueLabel.text = Format.getNumberFormatting(for: NSNumber(value: relativeProfit)) + "%"
             case .absoluteProfit:
                 portfolioLabel.text = "Total Absolute Profit"
-                let absoluteProfit = Format.absoluteProfit(from: profitStats)
+                let absoluteProfit = Format.getAbsoluteProfit(from: profitStats)
                 portfolioValueLabel.text = Format.getFiatFormatting(for: NSNumber(value: absoluteProfit), fiatCurrency: PortfolioManager.shared.baseCurrency)
             }
         }
@@ -62,10 +62,10 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
             profitLabel.text = "Since Yesterday"
             
             if showsRelativeProfit {
-                let relativeProfit = Format.relativeProfit(from: profitStats)
+                let relativeProfit = Format.getRelativeProfit(from: profitStats)
                 profitValueLabel.text = Format.getNumberFormatting(for: NSNumber(value: relativeProfit)) + "%"
             } else {
-                let absoluteProfit = Format.absoluteProfit(from: profitStats)
+                let absoluteProfit = Format.getAbsoluteProfit(from: profitStats)
                 profitValueLabel.text = Format.getFiatFormatting(for: NSNumber(value: absoluteProfit), fiatCurrency: PortfolioManager.shared.baseCurrency)
             }
         }
@@ -85,12 +85,6 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tabBarController?.delegate = self
-        PortfolioManager.shared.delegate = self
-        TickerWatchlist.delegate = self
-        
-        investmentLabel.text = "Total Investment"
-        
         portfolioValueLabel.tag = 0
         portfolioValueLabel.isUserInteractionEnabled = true
         let portfolioValueTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(togglePortfolioDisplayType))
@@ -101,11 +95,13 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
         let profitValueTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(toggleProfitType))
         profitValueLabel.addGestureRecognizer(profitValueTapRecognizer)
         
-        updateUI()
+        investmentLabel.text = "Total Investment"
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        PortfolioManager.shared.delegate = self
+        TickerWatchlist.delegate = self
         updateUI()
     }
 
@@ -132,11 +128,11 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
     }
     
     // MARK: - Public Methods
-    func toggleProfitType(sender: UITapGestureRecognizer) {
+    @objc func toggleProfitType(sender: UITapGestureRecognizer) {
         showsRelativeProfit = !showsRelativeProfit
     }
     
-    func togglePortfolioDisplayType(sender: UITapGestureRecognizer) {
+    @objc func togglePortfolioDisplayType(sender: UITapGestureRecognizer) {
         switch portfolioDisplay {
         case .currentExchangeValue:
             portfolioDisplay = .relativeProfit
@@ -145,13 +141,6 @@ class DashboardController: UIViewController, UITabBarControllerDelegate, Portfol
         case .absoluteProfit:
             portfolioDisplay = .currentExchangeValue
         }
-    }
-    
-    // MARK: - TabBarController Delegate
-    func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
-//        if let destVC = viewController as? UINavigationController, let transactionVC = destVC.topViewController as? TransactionTableController {
-//            transactionVC.addresses = PortfolioManager.shared.selectedAddresses
-//        }
     }
     
     // MARK: - PortfolioManager Delegate

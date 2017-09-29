@@ -41,13 +41,15 @@ struct Currency {
     enum TradingPair: String {
         case ETHEUR
         case ETHUSD
-    }
-
-    // MARK: - Public Methods
-    /// returns trading pair constructed from specified crypto and fiat currency
-    static func tradingPair(cryptoCurrency: Crypto, fiatCurrency: Fiat) -> TradingPair? {
-        let tradingPair = cryptoCurrency.rawValue + fiatCurrency.rawValue
-        return TradingPair(rawValue: tradingPair)
+        
+        static var allValues = [ETHEUR, ETHUSD]
+        
+        // MARK: - Public Class Methods
+        /// returns trading pair constructed from specified crypto and fiat currency
+        static func getTradingPair(cryptoCurrency: Crypto, fiatCurrency: Fiat) -> TradingPair? {
+            let tradingPair = cryptoCurrency.rawValue + fiatCurrency.rawValue
+            return TradingPair(rawValue: tradingPair)
+        }
     }
     
 }

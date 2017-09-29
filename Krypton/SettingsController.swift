@@ -8,14 +8,14 @@
 
 import UIKit
 
-class SettingsController: UITableViewController, FiatCurrencyDelegate, PortfolioManagerDelegate {
+class SettingsController: UITableViewController, FiatSelectionDelegate, PortfolioManagerDelegate {
 
     // MARK: - Outlets
     @IBOutlet weak var selectedFiatCurrencyLabel: UILabel!
     
     // MARK: - Initialization
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         PortfolioManager.shared.delegate = self
         selectedFiatCurrencyLabel.text = PortfolioManager.shared.baseCurrency.rawValue
     }
@@ -24,7 +24,7 @@ class SettingsController: UITableViewController, FiatCurrencyDelegate, Portfolio
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         super.prepare(for: segue, sender: sender)
         
-        if let destVC = segue.destination as? FiatCurrencyController {
+        if let destVC = segue.destination as? FiatSelectionController {
             destVC.delegate = self
             destVC.selection = PortfolioManager.shared.baseCurrency
         }
@@ -43,4 +43,5 @@ class SettingsController: UITableViewController, FiatCurrencyDelegate, Portfolio
     func didUpdatePortfolioManager() {
         selectedFiatCurrencyLabel.text = PortfolioManager.shared.baseCurrency.rawValue
     }
+    
 }

@@ -63,11 +63,7 @@ class FilterController: UITableViewController {
             let cell = tableView.dequeueReusableCell(withIdentifier: "transactionTypeCell", for: indexPath)
             let transactionTypeSwitch = cell.contentView.subviews.first as! UISegmentedControl
     
-            if let type = transactionType {
-                transactionTypeSwitch.selectedSegmentIndex = type.rawValue
-            } else {
-                transactionTypeSwitch.selectedSegmentIndex = 0
-            }
+            transactionTypeSwitch.selectedSegmentIndex = transactionType?.rawValue ?? 0
             
             return cell
         } else {

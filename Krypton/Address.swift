@@ -24,7 +24,7 @@ class Address: NSManagedObject {
         do {
             let matches = try context.fetch(request)
             if matches.count > 0 {
-                assert(matches.count >= 1, "Address.addAddress -- Database Inconsistency")
+                assert(matches.count >= 1, "Address.createAddress -- Database Inconsistency")
                 throw AddressError.duplicate
             }
         } catch {
@@ -39,9 +39,23 @@ class Address: NSManagedObject {
         return address
     }
     
-    // MARK: - Private Properties
+    // MARK: - Public Properties
+    /// delegate who gets notified of changes in balance, transaction history and all associated transactions' userExchangeValue, isInvestment properties
+    var delegate: AddressDelegate?
+    
+    /// returns trading pair constructed from owner's baseCurrency + address' cryptoCurrency
+    var tradingPair: Currency.TradingPair {
+        return Currency.TradingPair.getTradingPair(cryptoCurrency: Currency.Crypto(rawValue: cryptoCurrency!)!, fiatCurrency: Currency.Fiat(rawValue: portfolio!.baseCurrency!)!)!
+    }
+    
+    /// returns all transaction associated with address
+    var storedTransactions: [Transaction] {
+        return Array(transactions!) as! [Transaction]
+    }
+    
+    // MARK: - Private Methods
     /// returns the oldest transaction associated with address
-    private var oldestTransaction: Transaction? {
+    private func getOldestTransaction() -> Transaction? {
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
         request.predicate = NSPredicate(format: "owner = %@", self)
@@ -60,54 +74,44 @@ class Address: NSManagedObject {
         }
     }
     
-    // MARK: - Public Properties
-    /// delegate who gets notified of changes in balance, transaction history and all associated transactions' userExchangeValue, isInvestment properties
-    var delegate: AddressDelegate?
-    
-    /// returns all transaction associated with address
-    var storedTransactions: [Transaction] {
-        return Array(transactions!) as! [Transaction]
-    }
-    
-    /// returns trading pair constructed from owner's baseCurrency + address' cryptoCurrency
-    var tradingPair: Currency.TradingPair {
-        return Currency.tradingPair(cryptoCurrency: Currency.Crypto(rawValue: cryptoCurrency!)!, fiatCurrency: Currency.Fiat(rawValue: portfolio!.baseCurrency!)!)!
-    }
-
     // MARK: - Public Methods
+    // MARK: Setters
     func setAlias(_ alias: String) throws {
-        if self.alias != alias {
-            do {
-                let context = AppDelegate.viewContext
-                self.alias = alias
-                try context.save()
-                delegate?.didUpdateAlias(for: self)
-            } catch {
-                throw error
-            }
+        guard self.alias != alias else {
+            return
+        }
+        
+        do {
+            self.alias = alias
+            try AppDelegate.viewContext.save()
+            print("Saved updated alias for address: \(address!)")
+            delegate?.didUpdateAlias(for: self)
+        } catch {
+            throw error
         }
     }
     
-    // MARK: Blockchain
+    // MARK: Management
     /// fetches and saves balance if it has changed, notifies delegate
     func updateBalance() {
         BlockchainConnector.fetchBalance(for: self, completion: { result in
             switch result {
             case let .success(balance):
-                if balance != self.balance {
-                    do {
-                        self.balance = balance
-                        try AppDelegate.viewContext.save()
-                        print("Saved updated balance for \(self.address!).")
-                        self.delegate?.didUpdateBalance(for: self)
-                    } catch {
-                        print("Failed to save fetched balance: \(error)")
-                    }
-                } else {
+                guard balance != self.balance else {
                     print("Balance for \(self.address!) is already up-to-date.")
+                    return
+                }
+                
+                do {
+                    self.balance = balance
+                    try AppDelegate.viewContext.save()
+                    print("Saved updated balance for \(self.address!).")
+                    self.delegate?.didUpdateBalance(for: self)
+                } catch {
+                    print("Failed to save fetched balance for \(self.address!): \(error)")
                 }
             case let .failure(error):
-                print("Failed to fetch balance: \(error)")
+                print("Failed to fetch balance for \(self.address!): \(error)")
             }
         })
     }
@@ -136,16 +140,16 @@ class Address: NSManagedObject {
                             self.lastBlock = transaction.block + 1
                         }
                     } catch {
-                        print("Failed to create transaction from: \(txInfo.identifier, error)")
+                        print("Failed to create transaction \(txInfo.identifier): \(error)")
                     }
                 }
                 
                 do {
                     if context.hasChanges {
                         try context.save()
-                        print("Saved updated normal transaction history.")
+                        print("Saved updated normal transaction history for \(self.address!).")
                     } else {
-                        print("Normal transaction history is already up-to-date.")
+                        print("Normal transaction history for \(self.address!) is already up-to-date.")
                     }
                     
                     BlockchainConnector.fetchTransactionHistory(for: self, type: .contract, timeframe: timeframe, completion: { result in
@@ -160,43 +164,41 @@ class Address: NSManagedObject {
                                         self.lastBlock = transaction.block + 1
                                     }
                                 } catch {
-                                    print("Failed to create transaction from: \(txInfo.identifier, error)")
+                                    print("Failed to create transaction \(txInfo.identifier): \(error)")
                                 }
                             }
                             
                             do {
                                 if context.hasChanges {
                                     try context.save()
-                                    print("Saved updated contract transaction history.")
+                                    print("Saved updated contract transaction history for \(self.address!).")
                                 } else {
-                                    print("Contract transaction history is already up-to-date.")
+                                    print("Contract transaction history for \(self.address!) is already up-to-date.")
                                 }
                                 
                                 self.delegate?.didUpdateTransactionHistory(for: self)
                                 
-                                if let completion = completion {
-                                    completion()
-                                }
+                                completion?()
                             } catch {
-                                print("Failed to save fetched contract transaction history: \(error)")
+                                print("Failed to save fetched contract transaction history for \(self.address!): \(error)")
                             }
                         case let .failure(error):
-                            print("Failed to fetch contract transaction history: \(error)")
+                            print("Failed to fetch contract transaction history for \(self.address!): \(error)")
                         }
                     })
                 } catch {
-                    print("Failed to save fetched normal transaction history: \(error)")
+                    print("Failed to save fetched normal transaction history for \(self.address!): \(error)")
                 }
             case let .failure(error):
-                print("Failed to fetch normal transaction history: \(error)")
+                print("Failed to fetch normal transaction history for \(self.address!): \(error)")
             }
         }
     }
     
     /// asks tickerPrice to update price history for set trading pair starting from oldest transaction date encountered, passes completion block to retrieval
     func updatePriceHistory(completion: (() -> Void)?) {
-        if let firstTransactionDate = oldestTransaction?.date {
-            TickerPrice.updatePriceHistory(for: tradingPair, since: firstTransactionDate as Date, completion: completion)
+        if let firstTransaction = getOldestTransaction() {
+            TickerPrice.updatePriceHistory(for: tradingPair, since: firstTransaction.date! as Date, completion: completion)
         }
     }
     
@@ -246,9 +248,9 @@ class Address: NSManagedObject {
         let unitExchangeValue: Double?
         
         if date.isToday {
-            unitExchangeValue = TickerWatchlist.currentPrice(for: tradingPair)
+            unitExchangeValue = TickerWatchlist.getCurrentPrice(for: tradingPair)
         } else {
-            unitExchangeValue = TickerPrice.tickerPrice(for: tradingPair, on: date)?.value
+            unitExchangeValue = TickerPrice.getTickerPrice(for: tradingPair, on: date)?.value
         }
         
         guard unitExchangeValue != nil else {
@@ -284,7 +286,7 @@ class Address: NSManagedObject {
                 return nil
             }
         }
-
+        
         return (startValue, endValue)
     }
     
@@ -310,16 +312,16 @@ class Address: NSManagedObject {
                 break
             }
             
-            if let absoluteReturnHistory = tx.getAbsoluteProfitHistory(since: date) {
-                if index == 0 {
-                    for (date, absoluteReturn) in absoluteReturnHistory {
-                        profitHistory.append((date, absoluteReturn))
-                    }
-                } else {
-                    profitHistory = zip(profitHistory, absoluteReturnHistory).map() { ($0.0, $0.1 + $1.1) }
+            guard let absoluteReturnHistory = tx.getAbsoluteProfitHistory(since: date) else {
+                return nil
+            }
+            
+            if index == 0 {
+                for (date, absoluteReturn) in absoluteReturnHistory {
+                    profitHistory.append((date, absoluteReturn))
                 }
             } else {
-                return nil
+                profitHistory = zip(profitHistory, absoluteReturnHistory).map() { ($0.0, $0.1 + $1.1) }
             }
         }
         
@@ -332,7 +334,7 @@ class Address: NSManagedObject {
 protocol AddressDelegate {
     func didUpdateTransactionHistory(for address: Address)
     func didUpdateBalance(for address: Address)
+    func didUpdateAlias(for address: Address)
     func didUpdateUserExchangeValue(for transaction: Transaction)
     func didUpdateIsInvestmentStatus(for transaction: Transaction)
-    func didUpdateAlias(for address: Address)
 }

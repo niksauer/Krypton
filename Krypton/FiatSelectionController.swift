@@ -1,5 +1,5 @@
 //
-//  FiatCurrencyController.swift
+//  FiatSelectionController.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 17.09.17.
@@ -8,17 +8,12 @@
 
 import UIKit
 
-class FiatCurrencyController: UITableViewController {
+class FiatSelectionController: UITableViewController {
 
     // MARK: - Public Properties
-    var delegate: FiatCurrencyDelegate?
+    var delegate: FiatSelectionDelegate?
     var selection: Currency.Fiat = .EUR
     var fiatCurrencies = Currency.Fiat.allValues
-    
-    // MARK: - Initialization
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
 
     // MARK: - TableView Data Source
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -50,6 +45,6 @@ class FiatCurrencyController: UITableViewController {
     
 }
 
-protocol FiatCurrencyDelegate {
+protocol FiatSelectionDelegate {
     func didSelectFiatCurrency(selection: Currency.Fiat)
 }

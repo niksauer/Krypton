@@ -14,7 +14,7 @@ enum TransactionError: Error {
 }
 
 enum TransactionType: Int {
-    case all = 0, investment, other
+    case all = 0, investment = 1, other = 2
 }
 
 enum ProfitTimeframe {
@@ -22,11 +22,21 @@ enum ProfitTimeframe {
     case sinceDate(Date)
 }
 
+struct TransactionProto {
+    let identifier: String
+    let date: NSDate
+    let amount: Double
+    let from: String
+    let to: String
+    let type: TransactionHistoryType
+    let block: Int32
+}
+
 class Transaction: NSManagedObject {
     
     // MARK: - Public Class Methods
     /// creates and returns transaction if non-existent in database, throws otherwise
-    class func createTransaction(from txInfo: EtherscanAPI.Transaction, in context: NSManagedObjectContext) throws -> Transaction {
+    class func createTransaction(from txInfo: TransactionProto, in context: NSManagedObjectContext) throws -> Transaction {
         let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
         request.predicate = NSPredicate(format: "identifier = %@ AND type = %@", txInfo.identifier, txInfo.type.rawValue)
         
@@ -41,7 +51,7 @@ class Transaction: NSManagedObject {
         }
         
         let transaction = Transaction(context: context)
-        transaction.date = txInfo.date
+        transaction.date = txInfo.date as Date
         transaction.amount = txInfo.amount
         transaction.type = txInfo.type.rawValue
         transaction.to = txInfo.to
@@ -69,6 +79,39 @@ class Transaction: NSManagedObject {
     }
     
     // MARK: - Public Methods
+    // MARK: Setters
+    /// replaces exchange value as encountered on execution date by user specified value, notifies owner's delegate if change occurred
+    func setUserExchangeValue(value newValue: Double) throws {
+        guard newValue != userExchangeValue else {
+            return
+        }
+        
+        do {
+            userExchangeValue = newValue
+            try AppDelegate.viewContext.save()
+            print("Saved updated user exchange value for transacion: \(identifier!)")
+            self.owner!.delegate?.didUpdateUserExchangeValue(for: self)
+        } catch {
+            throw error
+        }
+    }
+    
+    /// updates isInvestment status as specified by user, notifies owner's delegate if change occurred
+    func setIsInvestment(state newValue: Bool) throws {
+        guard newValue != isInvestment else {
+            return
+        }
+        
+        do {
+            isInvestment = newValue
+            try AppDelegate.viewContext.save()
+            print("Saved updated investment status for transacion: \(identifier!)")
+            self.owner!.delegate?.didUpdateIsInvestmentStatus(for: self)
+        } catch {
+            throw error
+        }
+    }
+    
     // MARK: Finance
     func getExchangeValue(on date: Date) -> Double? {
         guard !date.isFuture else {
@@ -78,9 +121,9 @@ class Transaction: NSManagedObject {
         let unitExchangeValue: Double?
         
         if date.isToday {
-            unitExchangeValue = TickerWatchlist.currentPrice(for: owner!.tradingPair)
+            unitExchangeValue = TickerWatchlist.getCurrentPrice(for: owner!.tradingPair)
         } else {
-            unitExchangeValue = TickerPrice.tickerPrice(for: owner!.tradingPair, on: date)?.value
+            unitExchangeValue = TickerPrice.getTickerPrice(for: owner!.tradingPair, on: date)?.value
         }
         
         guard unitExchangeValue != nil else {
@@ -119,7 +162,6 @@ class Transaction: NSManagedObject {
         } else {
             return (startValue, endValue)
         }
-        
     }
     
     /// returns absolute profit history since specified date, nil if date is today or in the future
@@ -153,7 +195,7 @@ class Transaction: NSManagedObject {
         }
         
         // get transaction value at start date
-        guard let unitExchangeValue = TickerPrice.tickerPrice(for: owner!.tradingPair, on: startDate)?.value else {
+        guard let unitExchangeValue = TickerPrice.getTickerPrice(for: owner!.tradingPair, on: startDate)?.value else {
             return nil
         }
         
@@ -173,7 +215,7 @@ class Transaction: NSManagedObject {
             } else if date.isUTCToday, currentExchangeValue != nil {
                 // return for today
                 absoluteProfit = currentExchangeValue! - baseExchangeValue
-            } else if let unitExchangeValue = TickerPrice.tickerPrice(for: owner!.tradingPair, on: date)?.value {
+            } else if let unitExchangeValue = TickerPrice.getTickerPrice(for: owner!.tradingPair, on: date)?.value {
                 // return for any other day between startDate and today
                 absoluteProfit = (unitExchangeValue * amount) - baseExchangeValue
             } else {
@@ -190,39 +232,6 @@ class Transaction: NSManagedObject {
         }
         
         return absoluteProfitHistory
-    }
-    
-    // MARK: Setters
-    /// replaces exchange value as encountered on execution date by user specified value, notifies owner's delegate if change occurred
-    func setUserExchangeValue(value newValue: Double) {
-        guard newValue != userExchangeValue else {
-            return
-        }
-        
-        do {
-            userExchangeValue = newValue
-            try AppDelegate.viewContext.save()
-            print("Saved updated user exchange value.")
-            self.owner!.delegate?.didUpdateUserExchangeValue(for: self)
-        } catch {
-            print("Failed to save updated user exchange value.")
-        }
-    }
-    
-    /// updates isInvestment status as specified by user, notifies owner's delegate if change occurred
-    func setIsInvestment(state newValue: Bool) {
-        guard newValue != isInvestment else {
-            return
-        }
-        
-        do {
-            isInvestment = newValue
-            try AppDelegate.viewContext.save()
-            print("Saved updated investment status.")
-            self.owner!.delegate?.didUpdateIsInvestmentStatus(for: self)
-        } catch {
-            print("Failed to save updated investment status.")
-        }
     }
     
 }
