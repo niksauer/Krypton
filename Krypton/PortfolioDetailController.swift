@@ -146,6 +146,10 @@ class PortfolioDetailController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard indexPath != aliasIndexPath, indexPath != isDefaultIndexPath else {
+            return
+        }
+        
         if portfolio.storedAddresses.count > 0 && indexPath.section == 2 || portfolio.storedAddresses.count == 0 && indexPath.section == 1 {
             deletePortfolio()
         } else {

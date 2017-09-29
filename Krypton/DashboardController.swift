@@ -42,11 +42,11 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
                 portfolioValueLabel.text = Format.getFiatFormatting(for: NSNumber(value: currentExchangeValue), fiatCurrency: PortfolioManager.shared.baseCurrency)
             case .relativeProfit:
                 portfolioLabel.text = "Total Relative Profit"
-                let relativeProfit = Format.relativeProfit(from: profitStats)
+                let relativeProfit = Format.getRelativeProfit(from: profitStats)
                 portfolioValueLabel.text = Format.getNumberFormatting(for: NSNumber(value: relativeProfit)) + "%"
             case .absoluteProfit:
                 portfolioLabel.text = "Total Absolute Profit"
-                let absoluteProfit = Format.absoluteProfit(from: profitStats)
+                let absoluteProfit = Format.getAbsoluteProfit(from: profitStats)
                 portfolioValueLabel.text = Format.getFiatFormatting(for: NSNumber(value: absoluteProfit), fiatCurrency: PortfolioManager.shared.baseCurrency)
             }
         }
@@ -62,10 +62,10 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
             profitLabel.text = "Since Yesterday"
             
             if showsRelativeProfit {
-                let relativeProfit = Format.relativeProfit(from: profitStats)
+                let relativeProfit = Format.getRelativeProfit(from: profitStats)
                 profitValueLabel.text = Format.getNumberFormatting(for: NSNumber(value: relativeProfit)) + "%"
             } else {
-                let absoluteProfit = Format.absoluteProfit(from: profitStats)
+                let absoluteProfit = Format.getAbsoluteProfit(from: profitStats)
                 profitValueLabel.text = Format.getFiatFormatting(for: NSNumber(value: absoluteProfit), fiatCurrency: PortfolioManager.shared.baseCurrency)
             }
         }

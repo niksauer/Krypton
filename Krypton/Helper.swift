@@ -45,11 +45,11 @@ struct Format {
         return formatter.string(from: value)!
     }
     
-    static func absoluteProfit(from: (startValue: Double, endValue: Double)) -> Double {
+    static func getAbsoluteProfit(from: (startValue: Double, endValue: Double)) -> Double {
         return from.endValue - from.startValue
     }
     
-    static func relativeProfit(from: (startValue: Double, endValue: Double)) -> Double {
+    static func getRelativeProfit(from: (startValue: Double, endValue: Double)) -> Double {
         return (from.endValue - from.startValue) / from.startValue * 100
     }
     

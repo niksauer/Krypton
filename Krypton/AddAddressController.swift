@@ -13,7 +13,11 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
     // MARK: - Public Properties
     var selectedPortfolio: Portfolio? {
         didSet {
-            selectedPortfolioLabel.text = selectedPortfolio?.alias ?? "???"
+            if selectedPortfolio == nil {
+                selectedPortfolioLabel.text = "None"
+            } else {
+                selectedPortfolioLabel.text = selectedPortfolio?.alias ?? "???"
+            }
         }
     }
     

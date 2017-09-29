@@ -28,6 +28,8 @@ final class PortfolioManager: PortfolioDelegate {
 //        deleteTransactions()
 //        deletePriceHistory()
         
+//        print(BlockexplorerAPI.transactionHistoryURL(for: "1eCjtYU5Fzmjs7P1iHGeYj6Tn86YdEmnY"))
+        
         do {
             baseCurrency = loadBaseCurrency()
             storedPortfolios = try loadPortfolios()
@@ -52,7 +54,7 @@ final class PortfolioManager: PortfolioDelegate {
                 }
             }
             
-            initTickerWatchlist()
+            prepareTickerWatchlist()
             updatePortfolios()
         } catch {
             print("Failed to initialize portfolio manager: \(error)")
@@ -117,7 +119,7 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
-    private func initTickerWatchlist() {
+    private func prepareTickerWatchlist() {
         TickerWatchlist.reset()
         
         for portfolio in storedPortfolios {
@@ -154,7 +156,7 @@ final class PortfolioManager: PortfolioDelegate {
             UserDefaults.standard.synchronize()
             
             updatePortfolios()
-            initTickerWatchlist()
+            prepareTickerWatchlist()
         } catch {
             throw error
         }
@@ -184,7 +186,7 @@ final class PortfolioManager: PortfolioDelegate {
             let _ = try save()
             print("Removed portfolio from Core Data.")
             
-            initTickerWatchlist()
+            prepareTickerWatchlist()
             delegate?.didUpdatePortfolioManager()
         } catch {
             throw error
@@ -253,18 +255,17 @@ final class PortfolioManager: PortfolioDelegate {
         var profitHistory: [(Date, Double)] = []
         
         for (index, address) in selectedAddresses.enumerated() {
-            if let absoluteProfitHistory = address.getAbsoluteProfitHistory(for: type, since: date) {
-                if index == 0 {
-                    for (date, absoluteProfit) in absoluteProfitHistory {
-                        profitHistory.append((date, absoluteProfit))
-                    }
-                } else {
-                    profitHistory = zip(profitHistory, absoluteProfitHistory).map() { ($0.0, $0.1 + $1.1) }
-                }
-            } else {
+            guard let absoluteProfitHistory = address.getAbsoluteProfitHistory(for: type, since: date) else {
                 return nil
             }
             
+            if index == 0 {
+                for (date, absoluteProfit) in absoluteProfitHistory {
+                    profitHistory.append((date, absoluteProfit))
+                }
+            } else {
+                profitHistory = zip(profitHistory, absoluteProfitHistory).map() { ($0.0, $0.1 + $1.1) }
+            }
         }
         
         return profitHistory

@@ -33,8 +33,8 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
-        addresses = PortfolioManager.shared.selectedAddresses
-        updateUI()
+        refreshControl = UIRefreshControl()
+        refreshControl?.addTarget(self, action: #selector(updateAddresses), for: UIControlEvents.valueChanged)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -83,6 +83,19 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
         tableView.reloadData()
     }
     
+    @objc private func updateAddresses() {
+        for (index, address) in addresses.enumerated() {
+            address.updateTransactionHistory() {
+                address.updatePriceHistory {
+                    address.updateBalance()
+                    if index == self.addresses.count-1 {
+                        self.refreshControl?.endRefreshing()
+                    }
+                }
+            }
+        }
+    }
+    
     // MARK: - Filter Delegate
     func didChangeTransactionType(to type: TransactionType) {
         self.transactionFilter = type
@@ -94,8 +107,11 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
     
     // MARK: - TableView Data Source
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "transactionCell", for: indexPath)
+//        let cell = tableView.dequeueReusableCell(withIdentifier: "txCell", for: indexPath) as! TransactionCell
+//        cell.configure(transaction: fetchedResultsController!.object(at: indexPath))
+//        return cell
         
+        let cell = tableView.dequeueReusableCell(withIdentifier: "transactionCell", for: indexPath)
         let transaction = fetchedResultsController!.object(at: indexPath)
         cell.textLabel?.text = Format.getCryptoFormatting(for: NSNumber(value: transaction.amount), cryptoCurrency: Currency.Crypto(rawValue: transaction.owner!.cryptoCurrency!)!)
         cell.detailTextLabel?.text = Format.getDateFormatting(for: transaction.date! as Date)

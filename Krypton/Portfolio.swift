@@ -178,16 +178,16 @@ class Portfolio: NSManagedObject, AddressDelegate {
         var profitHistory: [(Date, Double)] = []
         
         for (index, address) in storedAddresses.enumerated() {
-            if let absoluteProfitHistory = address.getAbsoluteProfitHistory(for: type, since: date) {
-                if index == 0 {
-                    for (date, absoluteReturn) in absoluteProfitHistory {
-                        profitHistory.append((date, absoluteReturn))
-                    }
-                } else {
-                    profitHistory = zip(profitHistory, absoluteProfitHistory).map() { ($0.0, $0.1 + $1.1) }
+            guard let absoluteProfitHistory = address.getAbsoluteProfitHistory(for: type, since: date) else {
+                return nil
+            }
+            
+            if index == 0 {
+                for (date, absoluteReturn) in absoluteProfitHistory {
+                    profitHistory.append((date, absoluteReturn))
                 }
             } else {
-                return nil
+                profitHistory = zip(profitHistory, absoluteProfitHistory).map() { ($0.0, $0.1 + $1.1) }
             }
         }
         

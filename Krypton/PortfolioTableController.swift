@@ -21,8 +21,7 @@ class PortfolioTableController: UITableViewController, PortfolioManagerDelegate 
     // MARK: - Initialization
     override func viewWillAppear(_ animated: Bool) {
         PortfolioManager.shared.delegate = self
-        portfolios = PortfolioManager.shared.getPortfolios()
-        tableView.reloadData()
+        didUpdatePortfolioManager()
     }
 
     // MARK: - Navigation
@@ -82,9 +81,17 @@ class PortfolioTableController: UITableViewController, PortfolioManagerDelegate 
     // MARK: - PortfolioManager Delegate
     func didUpdatePortfolioManager() {
         portfolios = PortfolioManager.shared.getPortfolios()
+        
         if portfolios.count == 0 {
             delegate?.didChangeSelection(selection: nil)
+            let noPortfoliosLabel = UILabel()
+            noPortfoliosLabel.text = "No Portfolios."
+            noPortfoliosLabel.textAlignment = .center
+            tableView.backgroundView = noPortfoliosLabel
+        } else {
+            tableView.backgroundView = nil
         }
+        
         tableView.reloadData()
     }
 

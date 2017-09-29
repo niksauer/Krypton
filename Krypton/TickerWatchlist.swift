@@ -8,7 +8,7 @@
 
 import Foundation
 
-class TickerWatchlist {
+final class TickerWatchlist {
     
     // MARK: - Public Properties
     /// delegate who is notified of price updates
@@ -58,7 +58,7 @@ class TickerWatchlist {
     }
     
     /// returns current price for specified trading pair
-    class func currentPrice(for tradingPair: Currency.TradingPair) -> Double? {
+    class func getCurrentPrice(for tradingPair: Currency.TradingPair) -> Double? {
         return currentPrice[tradingPair]
     }
     

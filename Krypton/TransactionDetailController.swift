@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TransactionDetailController: UITableViewController {
+class TransactionDetailController: UITableViewController, TickerWatchlistDelegate {
 
     // MARK: - Public Properties
     var transaction: Transaction?
@@ -41,16 +41,15 @@ class TransactionDetailController: UITableViewController {
             
             if showsRelativeProfit {
                 profitTypeLabel.text = "Relative Profit"
-                let relativeProfit = Format.relativeProfit(from: profitStats)
+                let relativeProfit = Format.getRelativeProfit(from: profitStats)
                 profitField.text = Format.getNumberFormatting(for: NSNumber(value: relativeProfit)) + "%"
             } else {
                 profitTypeLabel.text = "Absolute Profit"
-                let absoluteProfit = Format.absoluteProfit(from: profitStats)
+                let absoluteProfit = Format.getAbsoluteProfit(from: profitStats)
                 profitField.text = Format.getFiatFormatting(for: NSNumber(value: absoluteProfit), fiatCurrency: PortfolioManager.shared.baseCurrency)
             }
         }
     }
-
     
     // MARK: - Outlets
     @IBOutlet weak var amountField: UILabel!
@@ -72,11 +71,14 @@ class TransactionDetailController: UITableViewController {
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
+        
 //        self.navigationItem.rightBarButtonItem = self.editButtonItem
         
         guard let tx = transaction else {
             return
         }
+        
+        TickerWatchlist.delegate = self
         
         amountField.text = Format.getCryptoFormatting(for: NSNumber(value: tx.amount), cryptoCurrency: Currency.Crypto(rawValue: tx.owner!.cryptoCurrency!)!)
         
@@ -100,6 +102,12 @@ class TransactionDetailController: UITableViewController {
         } catch {
             print("Failed to save updated investment status.")
         }
+    }
+    
+    // MARK: - TableView Delegate
+    func didUpdateCurrentPrice(for tradingPair: Currency.TradingPair) {
+        showsExchangeValue = { showsExchangeValue }()
+        showsRelativeProfit = { showsRelativeProfit }()
     }
     
     // MARK: - TableView Delegate

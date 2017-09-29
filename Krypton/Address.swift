@@ -45,7 +45,7 @@ class Address: NSManagedObject {
     
     /// returns trading pair constructed from owner's baseCurrency + address' cryptoCurrency
     var tradingPair: Currency.TradingPair {
-        return Currency.tradingPair(cryptoCurrency: Currency.Crypto(rawValue: cryptoCurrency!)!, fiatCurrency: Currency.Fiat(rawValue: portfolio!.baseCurrency!)!)!
+        return Currency.TradingPair.getTradingPair(cryptoCurrency: Currency.Crypto(rawValue: cryptoCurrency!)!, fiatCurrency: Currency.Fiat(rawValue: portfolio!.baseCurrency!)!)!
     }
     
     /// returns all transaction associated with address
@@ -178,9 +178,7 @@ class Address: NSManagedObject {
                                 
                                 self.delegate?.didUpdateTransactionHistory(for: self)
                                 
-                                if let completion = completion {
-                                    completion()
-                                }
+                                completion?()
                             } catch {
                                 print("Failed to save fetched contract transaction history for \(self.address!): \(error)")
                             }
@@ -250,7 +248,7 @@ class Address: NSManagedObject {
         let unitExchangeValue: Double?
         
         if date.isToday {
-            unitExchangeValue = TickerWatchlist.currentPrice(for: tradingPair)
+            unitExchangeValue = TickerWatchlist.getCurrentPrice(for: tradingPair)
         } else {
             unitExchangeValue = TickerPrice.getTickerPrice(for: tradingPair, on: date)?.value
         }
@@ -314,16 +312,16 @@ class Address: NSManagedObject {
                 break
             }
             
-            if let absoluteReturnHistory = tx.getAbsoluteProfitHistory(since: date) {
-                if index == 0 {
-                    for (date, absoluteReturn) in absoluteReturnHistory {
-                        profitHistory.append((date, absoluteReturn))
-                    }
-                } else {
-                    profitHistory = zip(profitHistory, absoluteReturnHistory).map() { ($0.0, $0.1 + $1.1) }
+            guard let absoluteReturnHistory = tx.getAbsoluteProfitHistory(since: date) else {
+                return nil
+            }
+            
+            if index == 0 {
+                for (date, absoluteReturn) in absoluteReturnHistory {
+                    profitHistory.append((date, absoluteReturn))
                 }
             } else {
-                return nil
+                profitHistory = zip(profitHistory, absoluteReturnHistory).map() { ($0.0, $0.1 + $1.1) }
             }
         }
         

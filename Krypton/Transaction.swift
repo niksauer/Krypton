@@ -22,11 +22,21 @@ enum ProfitTimeframe {
     case sinceDate(Date)
 }
 
+struct TransactionProto {
+    let identifier: String
+    let date: NSDate
+    let amount: Double
+    let from: String
+    let to: String
+    let type: TransactionHistoryType
+    let block: Int32
+}
+
 class Transaction: NSManagedObject {
     
     // MARK: - Public Class Methods
     /// creates and returns transaction if non-existent in database, throws otherwise
-    class func createTransaction(from txInfo: EtherscanAPI.Transaction, in context: NSManagedObjectContext) throws -> Transaction {
+    class func createTransaction(from txInfo: TransactionProto, in context: NSManagedObjectContext) throws -> Transaction {
         let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
         request.predicate = NSPredicate(format: "identifier = %@ AND type = %@", txInfo.identifier, txInfo.type.rawValue)
         
@@ -111,7 +121,7 @@ class Transaction: NSManagedObject {
         let unitExchangeValue: Double?
         
         if date.isToday {
-            unitExchangeValue = TickerWatchlist.currentPrice(for: owner!.tradingPair)
+            unitExchangeValue = TickerWatchlist.getCurrentPrice(for: owner!.tradingPair)
         } else {
             unitExchangeValue = TickerPrice.getTickerPrice(for: owner!.tradingPair, on: date)?.value
         }
