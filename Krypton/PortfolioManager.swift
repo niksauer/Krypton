@@ -11,10 +11,15 @@ import CoreData
 
 final class PortfolioManager: PortfolioDelegate {
     
+//    ETH
 //    0xAA2F9BFAA9Ec168847216357b0856d776F34881f
 //    0xB15E9Ca894b6134Ac7C22B70b20Fd30De87451B2
 //    0x173BAF5C0f1ff25D18b4448C20ff209adC7cc220
 //    0x1f4aEDc00572634Bc83A9da8B90617a175476690
+    
+//    BTC
+//    1eCjtYU5Fzmjs7P1iHGeYj6Tn86YdEmnY
+//    3QJmV3qfvL9SuYo34YihAf3sRCW3qSinyC
     
     // MARK: - Singleton
     static let shared = PortfolioManager()
@@ -27,8 +32,6 @@ final class PortfolioManager: PortfolioDelegate {
 //        deleteAddresses()
 //        deleteTransactions()
 //        deletePriceHistory()
-        
-//        print(BlockexplorerAPI.transactionHistoryURL(for: "1eCjtYU5Fzmjs7P1iHGeYj6Tn86YdEmnY"))
         
         do {
             baseCurrency = loadBaseCurrency()
@@ -137,7 +140,11 @@ final class PortfolioManager: PortfolioDelegate {
     
     /// returns alias for specified address string
     func getAlias(for addressString: String) -> String? {
-        return storedAddresses?.first(where: { $0.address == addressString })?.alias
+        if let alias = storedAddresses?.first(where: { $0.address == addressString })?.alias, !alias.isEmpty {
+            return alias
+        } else {
+            return nil
+        }
     }
     
     // MARK: Setters

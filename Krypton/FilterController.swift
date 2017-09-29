@@ -47,7 +47,15 @@ class FilterController: UITableViewController {
     
     // MARK: - TableView Data Source
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return portfolios.count + filterOptionsCount
+        var sectionCount = filterOptionsCount
+        
+        for portfolio in portfolios {
+            if portfolio.storedAddresses.count > 0 {
+                sectionCount = sectionCount + 1
+            }
+        }
+        
+        return sectionCount
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -62,9 +70,7 @@ class FilterController: UITableViewController {
         if indexPath.section == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "transactionTypeCell", for: indexPath)
             let transactionTypeSwitch = cell.contentView.subviews.first as! UISegmentedControl
-    
             transactionTypeSwitch.selectedSegmentIndex = transactionType?.rawValue ?? 0
-            
             return cell
         } else {
             let address = portfolios[indexPath.section-filterOptionsCount].storedAddresses[indexPath.row]

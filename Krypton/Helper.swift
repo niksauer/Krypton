@@ -33,7 +33,7 @@ struct Format {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = 4
+        formatter.maximumFractionDigits = 8
         return cryptoCurrency.symbol + " " + formatter.string(from: value)!
     }
     

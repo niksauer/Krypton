@@ -38,7 +38,7 @@ class Transaction: NSManagedObject {
     /// creates and returns transaction if non-existent in database, throws otherwise
     class func createTransaction(from txInfo: TransactionProto, in context: NSManagedObjectContext) throws -> Transaction {
         let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
-        request.predicate = NSPredicate(format: "identifier = %@ AND type = %@", txInfo.identifier, txInfo.type.rawValue)
+        request.predicate = NSPredicate(format: "identifier = %@ AND type = %@ AND to = %@", txInfo.identifier, txInfo.type.rawValue, txInfo.to)
         
         do {
             let matches = try context.fetch(request)

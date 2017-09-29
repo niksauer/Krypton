@@ -130,7 +130,7 @@ class Address: NSManagedObject {
             switch result {
             case let .success(txs):
                 let context = AppDelegate.viewContext
-                
+            
                 for txInfo in txs {
                     do {
                         let transaction = try Transaction.createTransaction(from: txInfo, in: context)
@@ -152,6 +152,13 @@ class Address: NSManagedObject {
                         print("Normal transaction history for \(self.address!) is already up-to-date.")
                     }
                     
+                    let cryptoCurrency = Currency.Crypto(rawValue: self.cryptoCurrency!)!
+                    
+                    guard cryptoCurrency == .ETH else {
+                        completion?()
+                        return
+                    }
+                        
                     BlockchainConnector.fetchTransactionHistory(for: self, type: .contract, timeframe: timeframe, completion: { result in
                         switch result {
                         case let .success(txs):

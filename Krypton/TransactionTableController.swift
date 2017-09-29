@@ -113,8 +113,17 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "transactionCell", for: indexPath)
         let transaction = fetchedResultsController!.object(at: indexPath)
+        
         cell.textLabel?.text = Format.getCryptoFormatting(for: NSNumber(value: transaction.amount), cryptoCurrency: Currency.Crypto(rawValue: transaction.owner!.cryptoCurrency!)!)
+        
         cell.detailTextLabel?.text = Format.getDateFormatting(for: transaction.date! as Date)
+        if transaction.isOutbound {
+            cell.textLabel?.textColor = UIColor.red
+        } else {
+            cell.textLabel?.textColor = UIColor.green
+        }
+    
+        
         return cell
     }
     

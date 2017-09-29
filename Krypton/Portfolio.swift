@@ -96,7 +96,7 @@ class Portfolio: NSManagedObject, AddressDelegate {
     /// updates all stored addresses by updating their transaction history, price history and balance
     func update() {
         for address in storedAddresses {
-            address.updateTransactionHistory() {
+            address.updateTransactionHistory {
                 address.updatePriceHistory {
                     address.updateBalance()
                 }

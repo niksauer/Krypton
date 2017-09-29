@@ -12,28 +12,7 @@ enum EtherscanError: Error {
     case invalidJSONData
 }
 
-enum TransactionHistoryResult {
-    case success([EtherscanAPI.Transaction])
-    case failure(Error)
-}
-
-enum BalanceResult {
-    case success(Double)
-    case failure(Error)
-}
-
 struct EtherscanAPI {
-    
-    // MARK: - Public Properties
-    struct Transaction {
-        let identifier: String
-        let date: NSDate
-        let amount: Double
-        let from: String
-        let to: String
-        let type: TransactionHistoryType
-        let block: Int32
-    }
     
     // MARK: - Private Properties
     private static let baseURL = "https://api.etherscan.io/api"
@@ -78,12 +57,12 @@ struct EtherscanAPI {
         return components.url!
     }
     
-    private static func transaction(type: TransactionHistoryType, fromJSON json: [String: Any]) -> Transaction? {
+    private static func transaction(type: TransactionHistoryType, fromJSON json: [String: Any]) -> TransactionProto? {
         guard let isErrorString = json["isError"] as? String, isErrorString != "1", let hashString = json["hash"] as? String, let timeString = json["timeStamp"] as? String, let time = Double(timeString), let weiString = json["value"] as? String, let amount = ether(from: weiString), let fromString = json["from"] as? String, let toString = json["to"] as? String, let blockString = json["blockNumber"] as? String, let block = Int32(blockString) else {
             return nil
         }
         
-        return Transaction(identifier: hashString, date: NSDate(timeIntervalSince1970: time), amount: amount, from: fromString, to: toString, type: type, block: block)
+        return TransactionProto(identifier: hashString, date: NSDate(timeIntervalSince1970: time), amount: amount, from: fromString, to: toString, type: type, block: block)
     }
     
     private static func ether(from weiString: String) -> Double? {
@@ -108,7 +87,7 @@ struct EtherscanAPI {
                 return .failure(EtherscanError.invalidJSONData)
             }
 
-            var transactionHistory = [Transaction]()
+            var transactionHistory = [TransactionProto]()
             
             for transactionJSON in transactionsArray {
                 if let transaction = transaction(type: type, fromJSON: transactionJSON) {
@@ -121,7 +100,7 @@ struct EtherscanAPI {
             }
             
             return .success(transactionHistory)
-        } catch let error {
+        } catch {
             return .failure(error)
         }
     }
@@ -130,16 +109,12 @@ struct EtherscanAPI {
         do {
             let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
             
-            guard let jsonDictionary = jsonObject as? [AnyHashable: Any], let weiString = jsonDictionary["result"] as? String else {
+            guard let jsonDictionary = jsonObject as? [AnyHashable: Any], let weiString = jsonDictionary["result"] as? String, let balance = ether(from: weiString) else {
                 return .failure(EtherscanError.invalidJSONData)
             }
             
-            if let balance = ether(from: weiString) {
-                return .success(balance)
-            } else {
-                return .failure(EtherscanError.invalidJSONData)
-            }
-        } catch let error {
+            return .success(balance)
+        } catch {
             return .failure(error)
         }
     }
