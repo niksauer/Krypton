@@ -37,12 +37,12 @@ struct BlockexplorerAPI {
         return components.url!
     }
     
-    private static func transaction(fromJSON json: [String: Any], for address: Address) -> [TransactionProto]? {
+    private static func transaction(fromJSON json: [String: Any], for address: Address) -> [BlockchainConnector.Transaction]? {
         guard let hash = json["txid"] as? String, let time = json["time"] as? Double, let block = json["blockheight"] as? Int32, let vin = json["vin"] as? [[String: Any]], let firstSender = vin.first?["addr"] as? String, let vout = json["vout"] as? [[String: Any]] else {
             return nil
         }
         
-        var transactions = [TransactionProto]()
+        var transactions = [BlockchainConnector.Transaction]()
         
         for out in vout {
             guard let script = out["scriptPubKey"] as? [String: Any], let addresses = script["addresses"] as? [String], let firstReceiver = addresses.first, let amountString = out["value"] as? String, let amount = Double(amountString) else {
@@ -53,7 +53,7 @@ struct BlockexplorerAPI {
 //                continue
 //            }
             
-            let transaction = TransactionProto(identifier: hash, date: NSDate(timeIntervalSince1970: time), amount: amount, from: firstSender, to: firstReceiver, type: .normal, block: block)
+            let transaction = BlockchainConnector.Transaction(identifier: hash, date: NSDate(timeIntervalSince1970: time), amount: amount, from: firstSender, to: firstReceiver, type: .normal, block: block, isError: false, fee: 0)
             transactions.append(transaction)
         }
         
@@ -69,7 +69,7 @@ struct BlockexplorerAPI {
                 return .failure(BlockexplorerError.invalidJSONData)
             }
             
-            var transactionHistory = [TransactionProto]()
+            var transactionHistory = [BlockchainConnector.Transaction]()
     
             for transactionJSON in transactionsArray {
                 if let transactions = transaction(fromJSON: transactionJSON, for: address) {

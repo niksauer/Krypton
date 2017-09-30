@@ -65,6 +65,8 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
     @IBOutlet weak var profitField: UILabel!
     @IBOutlet weak var isInvestmentSwitch: UISwitch!
     
+    @IBOutlet weak var feeAmountLabel: UILabel!
+    @IBOutlet weak var executedLabel: UILabel!
     @IBOutlet weak var blockNumberField: UILabel!
     @IBOutlet weak var hashNumberField: UILabel!
     
@@ -80,7 +82,8 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
         
         TickerWatchlist.delegate = self
         
-        amountField.text = Format.getCryptoFormatting(for: NSNumber(value: tx.amount), cryptoCurrency: Currency.Crypto(rawValue: tx.owner!.cryptoCurrency!)!)
+        let cryptoCurrency = Currency.Crypto(rawValue: tx.owner!.cryptoCurrency!)!
+        amountField.text = Format.getCryptoFormatting(for: NSNumber(value: tx.amount), cryptoCurrency: cryptoCurrency)
         
         senderAddressField.text = PortfolioManager.shared.getAlias(for: tx.from!) ?? tx.from
         receiverAddressField.text = PortfolioManager.shared.getAlias(for: tx.to!) ?? tx.to
@@ -91,6 +94,8 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
         showsRelativeProfit = true
         isInvestmentSwitch.isOn = tx.isInvestment
         
+        feeAmountLabel.text = Format.getCryptoFormatting(for: NSNumber(value: tx.fee), cryptoCurrency: cryptoCurrency)
+        executedLabel.text = String(tx.isError)
         blockNumberField.text = String(tx.block)
         hashNumberField.text = tx.identifier
     }

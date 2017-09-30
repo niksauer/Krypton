@@ -57,12 +57,23 @@ struct EtherscanAPI {
         return components.url!
     }
     
-    private static func transaction(type: TransactionHistoryType, fromJSON json: [String: Any]) -> TransactionProto? {
-        guard let isErrorString = json["isError"] as? String, isErrorString != "1", let hashString = json["hash"] as? String, let timeString = json["timeStamp"] as? String, let time = Double(timeString), let weiString = json["value"] as? String, let amount = ether(from: weiString), let fromString = json["from"] as? String, let toString = json["to"] as? String, let blockString = json["blockNumber"] as? String, let block = Int32(blockString) else {
+    private static func transaction(type: TransactionHistoryType, fromJSON json: [String: Any]) -> BlockchainConnector.Transaction? {
+        guard let isErrorString = json["isError"] as? String, let hashString = json["hash"] as? String, let timeString = json["timeStamp"] as? String, let time = Double(timeString), let weiString = json["value"] as? String, let amount = ether(from: weiString), let fromString = json["from"] as? String, let toString = json["to"] as? String, let blockString = json["blockNumber"] as? String, let block = Int32(blockString) else {
             return nil
         }
         
-        return TransactionProto(identifier: hashString, date: NSDate(timeIntervalSince1970: time), amount: amount, from: fromString, to: toString, type: type, block: block)
+        let isError = (isErrorString == "1") ? true : false
+        var fee = 0.0
+        
+        if type == .normal {
+            guard let gasUsedString = json["gasUsed"] as? String, let gasUsed = Double(gasUsedString), let gasPriceString = json["gasPrice"] as? String, let gasPrice = ether(from: gasPriceString) else {
+                return nil
+            }
+            
+            fee = gasPrice * gasUsed
+        }
+        
+        return BlockchainConnector.Transaction(identifier: hashString, date: NSDate(timeIntervalSince1970: time), amount: amount, from: fromString, to: toString, type: type, block: block, isError: isError, fee: fee)
     }
     
     private static func ether(from weiString: String) -> Double? {
@@ -87,7 +98,7 @@ struct EtherscanAPI {
                 return .failure(EtherscanError.invalidJSONData)
             }
 
-            var transactionHistory = [TransactionProto]()
+            var transactionHistory = [BlockchainConnector.Transaction]()
             
             for transactionJSON in transactionsArray {
                 if let transaction = transaction(type: type, fromJSON: transactionJSON) {
