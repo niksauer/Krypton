@@ -98,6 +98,21 @@ final class PortfolioManager: PortfolioDelegate {
         return selectedAddresses
     }
     
+    var storedCryptoCurrencies: [Currency.Crypto]? {
+        guard storedAddresses != nil else {
+            return nil
+        }
+        
+        var cryptoCurrencies = Set<Currency.Crypto>()
+        
+        for address in storedAddresses! {
+            let cryptoCurrency = Currency.Crypto(rawValue: address.cryptoCurrency!)!
+            cryptoCurrencies.insert(cryptoCurrency)
+        }
+        
+        return Array(cryptoCurrencies)
+    }
+    
     // MARK: - Private Methods
     /// loads and returns all addresses stored in Core Data
     private func loadPortfolios() throws -> [Portfolio] {

@@ -41,6 +41,7 @@
 		24A3D32F1F7DAF250081BF09 /* BlockExplorerAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A3D32E1F7DAF250081BF09 /* BlockExplorerAPI.swift */; };
 		24A514D41F7DA5300003BD65 /* TransactionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A514D31F7DA5300003BD65 /* TransactionCell.swift */; };
 		24BB0DFE1F4E41B40042562C /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BB0DFD1F4E41B40042562C /* Currency.swift */; };
+		24C63DB41F7F15DD0096A807 /* WatchlistController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C63DB31F7F15DD0096A807 /* WatchlistController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -80,6 +81,7 @@
 		24A3D32E1F7DAF250081BF09 /* BlockExplorerAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockExplorerAPI.swift; sourceTree = "<group>"; };
 		24A514D31F7DA5300003BD65 /* TransactionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionCell.swift; sourceTree = "<group>"; };
 		24BB0DFD1F4E41B40042562C /* Currency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
+		24C63DB31F7F15DD0096A807 /* WatchlistController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchlistController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -243,6 +245,7 @@
 				242729A21F704C4C00E5231D /* Portfolios */,
 				2438599E1F6CA6D500D67791 /* Transactions */,
 				2449F4491F6F1F40006E21C8 /* SettingsController.swift */,
+				24C63DB31F7F15DD0096A807 /* WatchlistController.swift */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -332,6 +335,7 @@
 				240C63B11F47A88300728B8B /* Portfolio.swift in Sources */,
 				24A514D41F7DA5300003BD65 /* TransactionCell.swift in Sources */,
 				2400D09A1F42511800833958 /* BlockchainConnector.swift in Sources */,
+				24C63DB41F7F15DD0096A807 /* WatchlistController.swift in Sources */,
 				2449F4351F6CB30D006E21C8 /* TransactionDetailController.swift in Sources */,
 				246737651F4B9255003277B8 /* TransactionTableController.swift in Sources */,
 				2449F43E1F6D5D6D006E21C8 /* AddressCell.swift in Sources */,

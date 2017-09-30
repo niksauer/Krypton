@@ -14,17 +14,21 @@ class AddresDetailController: UITableViewController {
     var address: Address!
     
     // MARK: - Private Properties
-    let deleteIndexPath = IndexPath(row: 0, section: 1)
+    let deleteIndexPath = IndexPath(row: 0, section: 2)
     
     // MARK: - Outlets
     @IBOutlet weak var addressField: UITextField!
     @IBOutlet weak var aliasField: UITextField!
+    @IBOutlet weak var unitLabel: UILabel!
+    @IBOutlet weak var balanceLabel: UILabel!
     
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
         addressField.text = address.address
         aliasField.text = address.alias
+        unitLabel.text = address.cryptoCurrency
+        balanceLabel.text = String(address.balance)
     }
     
     // MARK: - Navigation
