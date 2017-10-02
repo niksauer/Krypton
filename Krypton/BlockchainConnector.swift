@@ -45,7 +45,7 @@ struct BlockchainConnector {
         let type: TransactionHistoryType
         let block: Int32
         let isError: Bool
-        let fee: Double
+        let feeAmount: Double
     }
     
     // MARK: - Private Methods

@@ -14,6 +14,7 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
     var transaction: Transaction?
     let exchangeValueIndexPath = IndexPath(row: 0, section: 2)
     let profitIndexPath = IndexPath(row: 1, section: 2)
+    let feeIndexPath = IndexPath(row: 0, section: 3)
     
     var showsExchangeValue = false {
         didSet {
@@ -51,6 +52,21 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
         }
     }
     
+    var showsCryptoFees = true {
+        didSet {
+            guard let cryptoCurrency = Currency.Crypto(rawValue: transaction!.owner!.cryptoCurrency!), let feeAmount = transaction?.feeAmount, let feeExchangeValue = transaction?.feeExchangeValue else {
+                feeField.text = "???"
+                return
+            }
+            
+            if showsCryptoFees {
+                feeField.text = Format.getCryptoFormatting(for: NSNumber(value: feeAmount), cryptoCurrency: cryptoCurrency)
+            } else {
+                feeField.text = Format.getFiatFormatting(for: NSNumber(value: feeExchangeValue), fiatCurrency: PortfolioManager.shared.baseCurrency)
+            }
+        }
+    }
+    
     // MARK: - Outlets
     @IBOutlet weak var amountField: UILabel!
     @IBOutlet weak var dateField: UILabel!
@@ -65,7 +81,7 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
     @IBOutlet weak var profitField: UILabel!
     @IBOutlet weak var isInvestmentSwitch: UISwitch!
     
-    @IBOutlet weak var feeAmountLabel: UILabel!
+    @IBOutlet weak var feeField: UILabel!
     @IBOutlet weak var executedLabel: UILabel!
     @IBOutlet weak var blockNumberField: UILabel!
     @IBOutlet weak var hashNumberField: UILabel!
@@ -94,7 +110,7 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
         showsRelativeProfit = true
         isInvestmentSwitch.isOn = tx.isInvestment
         
-        feeAmountLabel.text = Format.getCryptoFormatting(for: NSNumber(value: tx.fee), cryptoCurrency: cryptoCurrency)
+        showsCryptoFees = true
         executedLabel.text = String(tx.isError)
         blockNumberField.text = String(tx.block)
         hashNumberField.text = tx.identifier
@@ -113,6 +129,7 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
     func didUpdateCurrentPrice(for tradingPair: Currency.TradingPair) {
         showsExchangeValue = { showsExchangeValue }()
         showsRelativeProfit = { showsRelativeProfit }()
+        showsCryptoFees = { showsCryptoFees }()
     }
     
     // MARK: - TableView Delegate
@@ -123,6 +140,10 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
         
         if indexPath == profitIndexPath {
             showsRelativeProfit = !showsRelativeProfit
+        }
+        
+        if indexPath == feeIndexPath {
+            showsCryptoFees = !showsCryptoFees
         }
     }
     

@@ -237,9 +237,9 @@ class Address: NSManagedObject {
             }
             
             if transaction.isOutbound {
-                balance = balance - transaction.amount
+                balance = balance - transaction.totalAmount
             } else {
-                balance = balance + transaction.amount
+                balance = balance + transaction.totalAmount
             }
         }
         

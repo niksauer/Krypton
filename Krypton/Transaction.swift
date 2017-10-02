@@ -22,6 +22,12 @@ enum ProfitTimeframe {
     case sinceDate(Date)
 }
 
+enum ExchangeValueType {
+    case normal
+    case fee
+    case total
+}
+
 class Transaction: NSManagedObject {
     
     // MARK: - Public Class Methods
@@ -48,7 +54,7 @@ class Transaction: NSManagedObject {
         transaction.from = txInfo.from
         transaction.identifier = txInfo.identifier
         transaction.block = txInfo.block
-        transaction.fee = txInfo.fee
+        transaction.feeAmount = txInfo.feeAmount
         transaction.isError = txInfo.isError
         
         return transaction
@@ -60,14 +66,38 @@ class Transaction: NSManagedObject {
         return from!.caseInsensitiveCompare(owner!.address!) == ComparisonResult.orderedSame
     }
     
+    var totalAmount: Double {
+        let totalAmount: Double
+        
+        if !isError {
+            if isOutbound {
+                totalAmount = amount + feeAmount
+            } else {
+                totalAmount = amount
+            }
+        } else {
+            totalAmount = feeAmount
+        }
+        
+        return totalAmount
+    }
+    
     /// returns exchange value as encountered on execution date according to owners trading pair
     var exchangeValue: Double? {
-        return getExchangeValue(on: date! as Date)
+        return getExchangeValue(on: date! as Date, for: .normal)
     }
     
     /// returns the current exchange value according to owners trading pair
     var currentExchangeValue: Double? {
-        return getExchangeValue(on: Date())
+        return getExchangeValue(on: Date(), for: .normal)
+    }
+    
+    var feeExchangeValue: Double? {
+        return getExchangeValue(on: date! as Date, for: .fee)
+    }
+    
+    var feeCurrentExchangeValue: Double? {
+        return getExchangeValue(on: Date(), for: .fee)
     }
     
     // MARK: - Public Methods
@@ -105,7 +135,7 @@ class Transaction: NSManagedObject {
     }
     
     // MARK: Finance
-    func getExchangeValue(on date: Date) -> Double? {
+    func getExchangeValue(on date: Date, for type: ExchangeValueType) -> Double? {
         guard !date.isFuture else {
             return nil
         }
@@ -122,7 +152,18 @@ class Transaction: NSManagedObject {
             return nil
         }
         
-        return unitExchangeValue! * amount
+        let requestedAmount: Double
+        
+        switch type {
+        case .normal:
+            requestedAmount = amount
+        case .fee:
+            requestedAmount = feeAmount
+        case .total:
+            requestedAmount = totalAmount
+        }
+        
+        return unitExchangeValue! * requestedAmount
     }
 
     /// returns the total absolute profit according to owners trading pair
@@ -145,7 +186,7 @@ class Transaction: NSManagedObject {
             }
         }
         
-        guard let startValue = getExchangeValue(on: startDate), let endValue = currentExchangeValue else {
+        guard let startValue = getExchangeValue(on: startDate, for: .total), let endValue = getExchangeValue(on: Date(), for: .total) else {
             return nil
         }
         
@@ -187,11 +228,9 @@ class Transaction: NSManagedObject {
         }
         
         // get transaction value at start date
-        guard let unitExchangeValue = TickerPrice.getTickerPrice(for: owner!.tradingPair, on: startDate)?.value else {
+        guard let baseExchangeValue = getExchangeValue(on: startDate, for: .total) else {
             return nil
         }
-        
-        let baseExchangeValue = unitExchangeValue * amount
         
         // calculate number of days between startDate and today, including today
         // calculate return history for that timeframe accordingly
@@ -204,12 +243,9 @@ class Transaction: NSManagedObject {
             if daysPassed == 0 {
                 // return for startDate
                 absoluteProfit = 0.0
-            } else if date.isUTCToday, currentExchangeValue != nil {
-                // return for today
-                absoluteProfit = currentExchangeValue! - baseExchangeValue
-            } else if let unitExchangeValue = TickerPrice.getTickerPrice(for: owner!.tradingPair, on: date)?.value {
-                // return for any other day between startDate and today
-                absoluteProfit = (unitExchangeValue * amount) - baseExchangeValue
+            } else if let exchangeValue = getExchangeValue(on: date, for: .total) {
+                // return for any day between startDate and today, including today
+                absoluteProfit = exchangeValue - baseExchangeValue
             } else {
                 // error retrieving tickerprice
                 return nil

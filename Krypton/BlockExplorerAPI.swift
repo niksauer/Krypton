@@ -53,7 +53,7 @@ struct BlockexplorerAPI {
 //                continue
 //            }
             
-            let transaction = BlockchainConnector.Transaction(identifier: hash, date: NSDate(timeIntervalSince1970: time), amount: amount, from: firstSender, to: firstReceiver, type: .normal, block: block, isError: false, fee: 0)
+            let transaction = BlockchainConnector.Transaction(identifier: hash, date: NSDate(timeIntervalSince1970: time), amount: amount, from: firstSender, to: firstReceiver, type: .normal, block: block, isError: false, feeAmount: 0)
             transactions.append(transaction)
         }
         

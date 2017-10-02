@@ -63,17 +63,17 @@ struct EtherscanAPI {
         }
         
         let isError = (isErrorString == "1") ? true : false
-        var fee = 0.0
+        var feeAmount = 0.0
         
         if type == .normal {
             guard let gasUsedString = json["gasUsed"] as? String, let gasUsed = Double(gasUsedString), let gasPriceString = json["gasPrice"] as? String, let gasPrice = ether(from: gasPriceString) else {
                 return nil
             }
             
-            fee = gasPrice * gasUsed
+            feeAmount = gasPrice * gasUsed
         }
         
-        return BlockchainConnector.Transaction(identifier: hashString, date: NSDate(timeIntervalSince1970: time), amount: amount, from: fromString, to: toString, type: type, block: block, isError: isError, fee: fee)
+        return BlockchainConnector.Transaction(identifier: hashString, date: NSDate(timeIntervalSince1970: time), amount: amount, from: fromString, to: toString, type: type, block: block, isError: isError, feeAmount: feeAmount)
     }
     
     private static func ether(from weiString: String) -> Double? {

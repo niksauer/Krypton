@@ -25,7 +25,7 @@
         <attribute name="amount" attributeType="Double" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="block" attributeType="Integer 32" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="date" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
-        <attribute name="fee" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="feeAmount" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="from" attributeType="String" syncable="YES"/>
         <attribute name="identifier" attributeType="String" syncable="YES"/>
         <attribute name="isError" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>

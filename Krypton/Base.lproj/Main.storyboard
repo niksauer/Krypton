@@ -1161,7 +1161,7 @@
                         <outlet property="exchangeValueField" destination="617-tU-bSg" id="72U-dH-2wv"/>
                         <outlet property="exchangeValueTypeLabel" destination="PF5-19-7ar" id="mzU-5c-gjJ"/>
                         <outlet property="executedLabel" destination="CDe-so-1qd" id="ftZ-hm-msA"/>
-                        <outlet property="feeAmountLabel" destination="nMv-tg-QVH" id="rwD-GA-ifi"/>
+                        <outlet property="feeField" destination="nMv-tg-QVH" id="Qyi-R0-ef7"/>
                         <outlet property="hashNumberField" destination="vbk-t1-fXH" id="zUM-y6-STN"/>
                         <outlet property="isInvestmentSwitch" destination="hjz-iY-ygj" id="Bdn-rl-4HN"/>
                         <outlet property="profitField" destination="clm-fa-iaT" id="9jj-uy-KNG"/>
