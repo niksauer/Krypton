@@ -11,6 +11,7 @@ import CoreData
 
 enum AddressError: Error {
     case duplicate
+    case invalid
 }
 
 class Address: NSManagedObject {
@@ -237,9 +238,9 @@ class Address: NSManagedObject {
             }
             
             if transaction.isOutbound {
-                balance = balance - transaction.amount
+                balance = balance - transaction.totalAmount
             } else {
-                balance = balance + transaction.amount
+                balance = balance + transaction.totalAmount
             }
         }
         

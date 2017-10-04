@@ -106,6 +106,10 @@ class Portfolio: NSManagedObject, AddressDelegate {
     
     /// adds address to portfolio, sets portfolio as its delegate, updates portfolio
     func addAddress(_ addressString: String, unit: Currency.Crypto, alias: String?) throws {
+        guard Currency.Crypto.isAddress(addressString, cryptoCurrency: unit) else {
+            throw AddressError.invalid
+        }
+        
         do {
             let context = AppDelegate.viewContext
             let address = try Address.createAddress(addressString, unit: unit, alias: alias, in: context)

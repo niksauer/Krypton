@@ -40,9 +40,86 @@
 		24A226BE1F50ED9300907999 /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A226BD1F50ED9300907999 /* Helper.swift */; };
 		24A3D32F1F7DAF250081BF09 /* BlockExplorerAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A3D32E1F7DAF250081BF09 /* BlockExplorerAPI.swift */; };
 		24A514D41F7DA5300003BD65 /* TransactionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A514D31F7DA5300003BD65 /* TransactionCell.swift */; };
+		24AF7B1E1F830BE700400007 /* CryptoSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24AF7B181F830B6C00400007 /* CryptoSwift.framework */; };
+		24AF7B201F830C6300400007 /* CryptoSwift.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 24AF7B181F830B6C00400007 /* CryptoSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		24AF7B351F83131900400007 /* SwiftKeccak.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24AF7B301F83130E00400007 /* SwiftKeccak.framework */; };
+		24AF7B361F83132000400007 /* SwiftKeccak.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 24AF7B301F83130E00400007 /* SwiftKeccak.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		24BB0DFE1F4E41B40042562C /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BB0DFD1F4E41B40042562C /* Currency.swift */; };
 		24C63DB41F7F15DD0096A807 /* WatchlistController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C63DB31F7F15DD0096A807 /* WatchlistController.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		24AF7B171F830B6C00400007 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 24AF7B121F830B6C00400007 /* CryptoSwift.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 754BE45519693E190098E6F3;
+			remoteInfo = CryptoSwift;
+		};
+		24AF7B191F830B6C00400007 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 24AF7B121F830B6C00400007 /* CryptoSwift.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 754BE46019693E190098E6F3;
+			remoteInfo = Tests;
+		};
+		24AF7B1B1F830BC600400007 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 24AF7B121F830B6C00400007 /* CryptoSwift.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 754BE45419693E190098E6F3;
+			remoteInfo = CryptoSwift;
+		};
+		24AF7B261F83130500400007 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 24AF7B211F83130500400007 /* SwiftKeccak.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 64BF75321F1FC45C00DBBADF;
+			remoteInfo = SwiftKeccak;
+		};
+		24AF7B281F83130500400007 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 24AF7B211F83130500400007 /* SwiftKeccak.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 64BF753B1F1FC45D00DBBADF;
+			remoteInfo = SwiftKeccakTests;
+		};
+		24AF7B2F1F83130E00400007 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 24AF7B2A1F83130E00400007 /* SwiftKeccak.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 64BF75321F1FC45C00DBBADF;
+			remoteInfo = SwiftKeccak;
+		};
+		24AF7B311F83130E00400007 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 24AF7B2A1F83130E00400007 /* SwiftKeccak.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 64BF753B1F1FC45D00DBBADF;
+			remoteInfo = SwiftKeccakTests;
+		};
+		24AF7B331F83131600400007 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 24AF7B2A1F83130E00400007 /* SwiftKeccak.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 64BF75311F1FC45C00DBBADF;
+			remoteInfo = SwiftKeccak;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		24AF7B1F1F830C4D00400007 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				24AF7B361F83132000400007 /* SwiftKeccak.framework in CopyFiles */,
+				24AF7B201F830C6300400007 /* CryptoSwift.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		2400D0781F40715900833958 /* Krypton.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Krypton.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -80,6 +157,9 @@
 		24A226BD1F50ED9300907999 /* Helper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helper.swift; sourceTree = "<group>"; };
 		24A3D32E1F7DAF250081BF09 /* BlockExplorerAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockExplorerAPI.swift; sourceTree = "<group>"; };
 		24A514D31F7DA5300003BD65 /* TransactionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionCell.swift; sourceTree = "<group>"; };
+		24AF7B121F830B6C00400007 /* CryptoSwift.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CryptoSwift.xcodeproj; path = CryptoSwift/CryptoSwift.xcodeproj; sourceTree = "<group>"; };
+		24AF7B211F83130500400007 /* SwiftKeccak.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftKeccak.xcodeproj; path = SwiftKeccak/SwiftKeccak.xcodeproj; sourceTree = "<group>"; };
+		24AF7B2A1F83130E00400007 /* SwiftKeccak.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftKeccak.xcodeproj; path = SwiftKeccak/SwiftKeccak.xcodeproj; sourceTree = "<group>"; };
 		24BB0DFD1F4E41B40042562C /* Currency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
 		24C63DB31F7F15DD0096A807 /* WatchlistController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchlistController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -89,6 +169,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				24AF7B351F83131900400007 /* SwiftKeccak.framework in Frameworks */,
+				24AF7B1E1F830BE700400007 /* CryptoSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -98,8 +180,11 @@
 		2400D06F1F40715900833958 = {
 			isa = PBXGroup;
 			children = (
+				24AF7B2A1F83130E00400007 /* SwiftKeccak.xcodeproj */,
+				24AF7B121F830B6C00400007 /* CryptoSwift.xcodeproj */,
 				2400D07A1F40715900833958 /* Krypton */,
 				2400D0791F40715900833958 /* Products */,
+				24AF7B1D1F830BE700400007 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -203,6 +288,41 @@
 			name = Views;
 			sourceTree = "<group>";
 		};
+		24AF7B131F830B6C00400007 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				24AF7B181F830B6C00400007 /* CryptoSwift.framework */,
+				24AF7B1A1F830B6C00400007 /* Tests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		24AF7B1D1F830BE700400007 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				24AF7B211F83130500400007 /* SwiftKeccak.xcodeproj */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		24AF7B221F83130500400007 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				24AF7B271F83130500400007 /* SwiftKeccak.framework */,
+				24AF7B291F83130500400007 /* SwiftKeccakTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		24AF7B2B1F83130E00400007 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				24AF7B301F83130E00400007 /* SwiftKeccak.framework */,
+				24AF7B321F83130E00400007 /* SwiftKeccakTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		24B859A91F47C89A00969049 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
@@ -260,10 +380,13 @@
 				2400D0741F40715900833958 /* Sources */,
 				2400D0751F40715900833958 /* Frameworks */,
 				2400D0761F40715900833958 /* Resources */,
+				24AF7B1F1F830C4D00400007 /* CopyFiles */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				24AF7B341F83131600400007 /* PBXTargetDependency */,
+				24AF7B1C1F830BC600400007 /* PBXTargetDependency */,
 			);
 			name = Krypton;
 			productName = Krypton;
@@ -299,12 +422,71 @@
 			mainGroup = 2400D06F1F40715900833958;
 			productRefGroup = 2400D0791F40715900833958 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 24AF7B131F830B6C00400007 /* Products */;
+					ProjectRef = 24AF7B121F830B6C00400007 /* CryptoSwift.xcodeproj */;
+				},
+				{
+					ProductGroup = 24AF7B2B1F83130E00400007 /* Products */;
+					ProjectRef = 24AF7B2A1F83130E00400007 /* SwiftKeccak.xcodeproj */;
+				},
+				{
+					ProductGroup = 24AF7B221F83130500400007 /* Products */;
+					ProjectRef = 24AF7B211F83130500400007 /* SwiftKeccak.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				2400D0771F40715900833958 /* Krypton */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		24AF7B181F830B6C00400007 /* CryptoSwift.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = CryptoSwift.framework;
+			remoteRef = 24AF7B171F830B6C00400007 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		24AF7B1A1F830B6C00400007 /* Tests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = Tests.xctest;
+			remoteRef = 24AF7B191F830B6C00400007 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		24AF7B271F83130500400007 /* SwiftKeccak.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SwiftKeccak.framework;
+			remoteRef = 24AF7B261F83130500400007 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		24AF7B291F83130500400007 /* SwiftKeccakTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = SwiftKeccakTests.xctest;
+			remoteRef = 24AF7B281F83130500400007 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		24AF7B301F83130E00400007 /* SwiftKeccak.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SwiftKeccak.framework;
+			remoteRef = 24AF7B2F1F83130E00400007 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		24AF7B321F83130E00400007 /* SwiftKeccakTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = SwiftKeccakTests.xctest;
+			remoteRef = 24AF7B311F83130E00400007 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		2400D0761F40715900833958 /* Resources */ = {
@@ -360,6 +542,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		24AF7B1C1F830BC600400007 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CryptoSwift;
+			targetProxy = 24AF7B1B1F830BC600400007 /* PBXContainerItemProxy */;
+		};
+		24AF7B341F83131600400007 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SwiftKeccak;
+			targetProxy = 24AF7B331F83131600400007 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		2400D0811F40715900833958 /* Main.storyboard */ = {

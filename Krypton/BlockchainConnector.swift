@@ -19,7 +19,7 @@ enum TransactionHistoryTimeframe {
 }
 
 enum TransactionHistoryResult {
-    case success([TransactionProto])
+    case success([BlockchainConnector.Transaction])
     case failure(Error)
 }
 
@@ -34,6 +34,19 @@ struct BlockchainConnector {
         let config = URLSessionConfiguration.default
         return URLSession(configuration: config)
     }()
+    
+    // MARK: - Public Properties
+    struct Transaction {
+        let identifier: String
+        let date: NSDate
+        let amount: Double
+        let from: String
+        let to: String
+        let type: TransactionHistoryType
+        let block: Int32
+        let isError: Bool
+        let feeAmount: Double
+    }
     
     // MARK: - Private Methods
 //    private static func processTransactionHistoryRequest(type: TransactionHistoryType, data: Data?, error: Error?) -> TransactionHistoryResult {
