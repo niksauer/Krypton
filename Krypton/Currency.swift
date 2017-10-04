@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import CryptoSwift
+import SwiftKeccak
 
 struct Currency {
     
@@ -39,6 +41,49 @@ struct Currency {
         }
         
         static var allValues = [ETH, XBT]
+        
+        // MARK: - Public Methods
+        static func isAddress(_ addressString: String, cryptoCurrency: Crypto) -> Bool {
+            switch cryptoCurrency {
+            case .ETH:
+                let allLowerCapsTest = NSPredicate(format: "SELF MATCHES %@", "(0x)?[0-9a-f]{40}")
+                let allUpperCapsTest = NSPredicate(format: "SELF MATCHES %@", "(0x)?[0-9A-F]{40}")
+                
+                if !allLowerCapsTest.evaluate(with: addressString.lowercased()) {
+                    // basic requirements
+                    return false
+                } else if allLowerCapsTest.evaluate(with: addressString) || allUpperCapsTest.evaluate(with: addressString) {
+                    // either all lower or upper case
+                    return true
+                } else {
+                    return isChecksumAddress(addressString)
+                }
+            case .XBT:
+                return false
+            }
+        }
+        
+        static func isChecksumAddress(_ addressString: String) -> Bool{
+            let address = addressString.replacingOccurrences(of: "0x", with: "")
+            let addressHash = keccak256(address.lowercased()).hexEncodedString()
+            
+            for (index, character) in address.enumerated() {
+                guard let hashDigit = Int(String(addressHash[index]), radix: 16) else {
+                    return false
+                }
+                
+                let digit = String(character)
+                let uppercaseDigit = String(digit).uppercased()
+                let lowercaseDigit = String(digit).lowercased()
+                
+                if hashDigit > 7 && uppercaseDigit != digit || hashDigit <= 7 && lowercaseDigit != digit {
+                    return false
+                }
+            }
+            
+            return true
+        }
+        
     }
 
     enum Fiat: String {

@@ -11,6 +11,7 @@ import CoreData
 
 enum AddressError: Error {
     case duplicate
+    case invalid
 }
 
 class Address: NSManagedObject {

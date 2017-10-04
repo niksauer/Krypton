@@ -15,6 +15,9 @@ class AddPortfolioController: UITableViewController, UITextFieldDelegate {
     @IBOutlet weak var isDefaultSwitch: UISwitch!
     @IBOutlet weak var saveButton: UIBarButtonItem!
     
+    // MARK: - Properties
+    var delegate: PortfolioCreatorDelegate?
+    
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,13 +38,8 @@ class AddPortfolioController: UITableViewController, UITextFieldDelegate {
             return
         }
         
-        do {
-            let portfolio = try PortfolioManager.shared.addPortfolio(baseCurrency: PortfolioManager.shared.baseCurrency, alias: aliasString)
-            try portfolio.setIsDefault(isDefaultSwitch.isOn)
-            dismiss(animated: true, completion: nil)
-        } catch {
-            print(error)
-        }
+        delegate?.shouldCreatePortfolio(alias: aliasString, isDefault: isDefaultSwitch.isOn)
+        dismiss(animated: true, completion: nil)
     }
     
     // MARK: - Public Methods
@@ -61,4 +59,8 @@ class AddPortfolioController: UITableViewController, UITextFieldDelegate {
         return false
     }
 
+}
+
+protocol PortfolioCreatorDelegate {
+    func shouldCreatePortfolio(alias: String, isDefault: Bool)
 }

@@ -8,7 +8,7 @@
 
 import UIKit
 
-class PortfolioTableController: UITableViewController, PortfolioManagerDelegate {
+class PortfolioTableController: UITableViewController, PortfolioManagerDelegate, PortfolioCreatorDelegate  {
     
     // MARK: - Public Properties
     var isSelector = false
@@ -31,6 +31,25 @@ class PortfolioTableController: UITableViewController, PortfolioManagerDelegate 
         if let destVC = segue.destination as? PortfolioDetailController {
             destVC.portfolio = selectedPortfolio
         }
+        
+        if let destVC = (segue.destination as? UINavigationController)?.childViewControllers.first as? AddPortfolioController {
+            destVC.delegate = self
+        }
+    }
+    
+    // MARK: - Public Methods
+    func updateUI() {
+        if portfolios.count == 0 {
+            delegate?.didChangeSelection(selection: nil)
+            let noPortfoliosLabel = UILabel()
+            noPortfoliosLabel.text = "No Portfolios."
+            noPortfoliosLabel.textAlignment = .center
+            tableView.backgroundView = noPortfoliosLabel
+        } else {
+            tableView.backgroundView = nil
+        }
+        
+        tableView.reloadData()
     }
     
     // MARK: - TableView Data Source
@@ -51,6 +70,8 @@ class PortfolioTableController: UITableViewController, PortfolioManagerDelegate 
         if isSelector {
             if portfolio == selectedPortfolio {
                 cell.accessoryType = .checkmark
+            } else {
+                cell.accessoryType = .none
             }
         } else {
             cell.accessoryType = .disclosureIndicator
@@ -81,20 +102,23 @@ class PortfolioTableController: UITableViewController, PortfolioManagerDelegate 
     // MARK: - PortfolioManager Delegate
     func didUpdatePortfolioManager() {
         portfolios = PortfolioManager.shared.getPortfolios()
-        
-        if portfolios.count == 0 {
-            delegate?.didChangeSelection(selection: nil)
-            let noPortfoliosLabel = UILabel()
-            noPortfoliosLabel.text = "No Portfolios."
-            noPortfoliosLabel.textAlignment = .center
-            tableView.backgroundView = noPortfoliosLabel
-        } else {
-            tableView.backgroundView = nil
-        }
-        
-        tableView.reloadData()
+        updateUI()
     }
 
+    // MARK: - Portfolio Creator Delegate
+    func shouldCreatePortfolio(alias: String, isDefault: Bool) {
+        do {
+            let portfolio = try PortfolioManager.shared.addPortfolio(baseCurrency: PortfolioManager.shared.baseCurrency, alias: alias)
+            try portfolio.setIsDefault(isDefault)
+            portfolios = PortfolioManager.shared.getPortfolios()
+            selectedPortfolio = portfolio
+            delegate?.didChangeSelection(selection: portfolio)
+            updateUI()
+        } catch {
+            print(error)
+        }
+    }
+    
 }
 
 protocol PortfolioSelectorDelegate {

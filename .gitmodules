@@ -1,0 +1,6 @@
+[submodule "CryptoSwift"]
+	path = CryptoSwift
+	url = git@github.com:krzyzanowskim/CryptoSwift.git
+[submodule "SwiftKeccak"]
+	path = SwiftKeccak
+	url = git@github.com:uport-project/SwiftKeccak.git

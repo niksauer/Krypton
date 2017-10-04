@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TransactionDetailController: UITableViewController, TickerWatchlistDelegate {
+class TransactionDetailController: UITableViewController, TickerWatchlistDelegate, UITextFieldDelegate {
 
     // MARK: - Public Properties
     var transaction: Transaction?
@@ -25,7 +25,11 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
             
             if showsExchangeValue {
                 exchangeValueTypeLabel.text = "Value"
-                exchangeValueField.text = Format.getFiatFormatting(for: NSNumber(value: exchangeValue), fiatCurrency: PortfolioManager.shared.baseCurrency)
+                if let userExchangeValue = transaction?.userExchangeValue, userExchangeValue != -1 {
+                    exchangeValueField.text = Format.getFiatFormatting(for: NSNumber(value: userExchangeValue), fiatCurrency: PortfolioManager.shared.baseCurrency)
+                } else {
+                    exchangeValueField.text = Format.getFiatFormatting(for: NSNumber(value: exchangeValue), fiatCurrency: PortfolioManager.shared.baseCurrency)
+                }
             } else {
                 exchangeValueTypeLabel.text = "Current Value"
                 exchangeValueField.text = Format.getFiatFormatting(for: NSNumber(value: currentExchangeValue), fiatCurrency: PortfolioManager.shared.baseCurrency)
@@ -77,6 +81,7 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
     
     @IBOutlet weak var exchangeValueTypeLabel: UILabel!
     @IBOutlet weak var exchangeValueField: UILabel!
+    @IBOutlet weak var exchangeValueTextField: UITextField!
     @IBOutlet weak var profitTypeLabel: UILabel!
     @IBOutlet weak var profitField: UILabel!
     @IBOutlet weak var isInvestmentSwitch: UISwitch!
@@ -90,7 +95,8 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
     override func viewDidLoad() {
         super.viewDidLoad()
         
-//        self.navigationItem.rightBarButtonItem = self.editButtonItem
+        exchangeValueTextField.delegate = self
+        self.navigationItem.rightBarButtonItem = self.editButtonItem
         
         guard let tx = transaction else {
             return
@@ -125,6 +131,32 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
         }
     }
     
+    override func setEditing(_ editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: animated)
+        
+        navigationItem.hidesBackButton = !navigationItem.hidesBackButton
+        
+        if editing {
+            showsExchangeValue = true
+            exchangeValueField.isHidden = true
+            exchangeValueTextField.text = exchangeValueField.text
+            exchangeValueTextField.isHidden = false
+        } else {
+            if let newValueString = exchangeValueTextField.text, let newValue = Double(newValueString) {
+                do {
+                    try transaction?.setUserExchangeValue(value: newValue)
+                } catch {
+                    print(error)
+                }
+            }
+            
+            showsExchangeValue = { showsExchangeValue }()
+            exchangeValueTextField.isHidden = true
+            exchangeValueTextField.resignFirstResponder()
+            exchangeValueField.isHidden = false
+        }
+    }
+    
     // MARK: - TableView Delegate
     func didUpdateCurrentPrice(for tradingPair: Currency.TradingPair) {
         showsExchangeValue = { showsExchangeValue }()
@@ -147,44 +179,32 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
         }
     }
     
-//    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-//        let decimalSeperator = NumberFormatter().decimalSeparator!
-//        
-//        if string.characters.count == 1 {
-//            if string == decimalSeperator && (textField.text?.range(of: decimalSeperator) != nil) {
-//                return false
-//            } else {
-//                return true
-//            }
-//        } else {
-//            let char = string.cString(using: String.Encoding.utf8)!
-//            let isBackSpace = strcmp(char, "\\b")
-//            
-//            if (isBackSpace == -92) {
-//                // backspace pressed
-//                return true
-//            } else {
-//                // pasted text
-//                return false
-//            }
-//        }
-//    }
-
-//    override func setEditing(_ editing: Bool, animated: Bool) {
-//        super.setEditing(editing, animated: animated)
-//        
-//        navigationItem.hidesBackButton = !navigationItem.hidesBackButton
-//        exchangeValueField.isEnabled = !exchangeValueField.isEnabled
-//        exchangeValueTypeToggle.isEnabled = !exchangeValueTypeToggle.isEnabled
-//        
-//        if editing {
-//            showsCurrentExchangeValue = false
-//        } else {
-//            if let newValueString = exchangeValueField.text, let newValue = Format.numberFormatter.number(from: newValueString)  {
-//                transaction?.setUserExchangeValue(value: Double(newValue))
-//                showsCurrentExchangeValue = false
-//            }
-//        }
-//    }
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return false
+    }
+    
+    // MARK: - TextField Delegate
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let decimalSeperator = NumberFormatter().decimalSeparator!
+        
+        if string.characters.count == 1 {
+            if string == decimalSeperator && (textField.text?.range(of: decimalSeperator) != nil) {
+                return false
+            } else {
+                return true
+            }
+        } else {
+            let char = string.cString(using: String.Encoding.utf8)!
+            let isBackSpace = strcmp(char, "\\b")
+            
+            if (isBackSpace == -92) {
+                // backspace pressed
+                return true
+            } else {
+                // pasted text
+                return false
+            }
+        }
+    }
     
 }

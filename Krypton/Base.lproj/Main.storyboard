@@ -442,7 +442,7 @@
                     <navigationItem key="navigationItem" title="Portfolios" id="liP-JO-AeJ">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="2EE-UF-Yzv">
                             <connections>
-                                <segue destination="57R-kO-xBQ" kind="show" id="meF-Y4-2PY"/>
+                                <segue destination="57R-kO-xBQ" kind="show" identifier="addPortfolio" id="meF-Y4-2PY"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -969,28 +969,43 @@
                             </tableViewSection>
                             <tableViewSection id="qi0-hm-Gc7">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" textLabel="PF5-19-7ar" detailTextLabel="617-tU-bSg" style="IBUITableViewCellStyleValue1" id="zli-l6-W0h">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" id="zli-l6-W0h">
                                         <rect key="frame" x="0.0" y="309" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="zli-l6-W0h" id="prM-wL-GKb">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="43.666666666666664"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Value" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="PF5-19-7ar">
-                                                    <rect key="frame" x="16" y="11.999999999999998" width="42" height="20.333333333333332"/>
-                                                    <autoresizingMask key="autoresizingMask"/>
+                                                <textField hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="right" clearsOnBeginEditing="YES" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Anq-eh-CSS">
+                                                    <rect key="frame" x="217" y="7" width="150" height="30"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="150" id="UTg-YK-jz7"/>
+                                                    </constraints>
+                                                    <nil key="textColor"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <textInputTraits key="textInputTraits" keyboardType="decimalPad" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
+                                                </textField>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Exchange Value" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ymr-Vd-zPZ">
+                                                    <rect key="frame" x="8" y="11" width="121" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Exchange Value" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="617-tU-bSg">
-                                                    <rect key="frame" x="239" y="11.999999999999998" width="121" height="20.333333333333332"/>
-                                                    <autoresizingMask key="autoresizingMask"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Value" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5QJ-YV-ly6">
+                                                    <rect key="frame" x="325" y="11" width="42" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
+                                            <constraints>
+                                                <constraint firstItem="ymr-Vd-zPZ" firstAttribute="centerY" secondItem="prM-wL-GKb" secondAttribute="centerY" id="0LH-nq-bPr"/>
+                                                <constraint firstAttribute="trailingMargin" secondItem="5QJ-YV-ly6" secondAttribute="trailing" id="3fW-J5-fbN"/>
+                                                <constraint firstItem="ymr-Vd-zPZ" firstAttribute="leading" secondItem="prM-wL-GKb" secondAttribute="leadingMargin" id="9DS-06-z9q"/>
+                                                <constraint firstItem="Anq-eh-CSS" firstAttribute="centerY" secondItem="prM-wL-GKb" secondAttribute="centerY" id="HSB-l1-Q43"/>
+                                                <constraint firstItem="5QJ-YV-ly6" firstAttribute="centerY" secondItem="prM-wL-GKb" secondAttribute="centerY" id="PNH-ui-pt1"/>
+                                                <constraint firstAttribute="trailingMargin" secondItem="Anq-eh-CSS" secondAttribute="trailing" id="xzd-AP-Vfb"/>
+                                            </constraints>
                                         </tableViewCellContentView>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" textLabel="9SN-f6-vp1" detailTextLabel="clm-fa-iaT" style="IBUITableViewCellStyleValue1" id="7uL-mN-Sbn">
@@ -1158,8 +1173,9 @@
                         <outlet property="amountField" destination="mvK-rj-tWD" id="jnR-K0-VGH"/>
                         <outlet property="blockNumberField" destination="RXN-nX-vTn" id="Jji-ox-Xvd"/>
                         <outlet property="dateField" destination="Y3g-4H-sa2" id="1Fk-s3-cgL"/>
-                        <outlet property="exchangeValueField" destination="617-tU-bSg" id="72U-dH-2wv"/>
-                        <outlet property="exchangeValueTypeLabel" destination="PF5-19-7ar" id="mzU-5c-gjJ"/>
+                        <outlet property="exchangeValueField" destination="5QJ-YV-ly6" id="kYj-Qh-fVz"/>
+                        <outlet property="exchangeValueTextField" destination="Anq-eh-CSS" id="87o-dJ-NWu"/>
+                        <outlet property="exchangeValueTypeLabel" destination="ymr-Vd-zPZ" id="Y0A-Sd-uau"/>
                         <outlet property="executedLabel" destination="CDe-so-1qd" id="ftZ-hm-msA"/>
                         <outlet property="feeField" destination="nMv-tg-QVH" id="Qyi-R0-ef7"/>
                         <outlet property="hashNumberField" destination="vbk-t1-fXH" id="zUM-y6-STN"/>
@@ -1173,7 +1189,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="h0G-CS-UcS" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1585" y="976"/>
+            <point key="canvasLocation" x="1584.8" y="975.3694581280788"/>
         </scene>
         <!--Filter-->
         <scene sceneID="tiL-sz-exp">

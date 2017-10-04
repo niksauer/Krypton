@@ -139,31 +139,35 @@ class Transaction: NSManagedObject {
         guard !date.isFuture else {
             return nil
         }
-        
+
         let unitExchangeValue: Double?
-        
+
         if date.isToday {
             unitExchangeValue = TickerWatchlist.getCurrentPrice(for: owner!.tradingPair)
         } else {
             unitExchangeValue = TickerPrice.getTickerPrice(for: owner!.tradingPair, on: date)?.value
         }
-        
+
         guard unitExchangeValue != nil else {
             return nil
         }
-        
-        let requestedAmount: Double
-        
+
         switch type {
         case .normal:
-            requestedAmount = amount
+            if userExchangeValue != -1 {
+                return userExchangeValue
+            } else {
+                return unitExchangeValue! * amount
+            }
         case .fee:
-            requestedAmount = feeAmount
+            return unitExchangeValue! * feeAmount
         case .total:
-            requestedAmount = totalAmount
+            if userExchangeValue != -1 {
+                return userExchangeValue + (unitExchangeValue! * feeAmount)
+            } else {
+                return unitExchangeValue! * totalAmount
+            }
         }
-        
-        return unitExchangeValue! * requestedAmount
     }
 
     /// returns the total absolute profit according to owners trading pair
