@@ -34,21 +34,26 @@
 		2449F4481F6F1D1F006E21C8 /* FiatSelectionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2449F4471F6F1D1F006E21C8 /* FiatSelectionController.swift */; };
 		2449F44A1F6F1F40006E21C8 /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2449F4491F6F1F40006E21C8 /* SettingsController.swift */; };
 		2458132F1F5F503B007795BC /* PortfolioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2458132E1F5F503B007795BC /* PortfolioManager.swift */; };
+		245E10871F86D79F000F6F0A /* SwiftKeccak.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24AF7B301F83130E00400007 /* SwiftKeccak.framework */; };
+		245E10881F86D7A8000F6F0A /* SwiftKeccak.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 24AF7B301F83130E00400007 /* SwiftKeccak.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		246737651F4B9255003277B8 /* TransactionTableController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246737641F4B9255003277B8 /* TransactionTableController.swift */; };
 		246874F61F464B4E009BB60A /* Krypton.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 246874F41F464B4E009BB60A /* Krypton.xcdatamodeld */; };
 		24A007C41F538AD800EC0DCF /* TickerWatchlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A007C31F538AD800EC0DCF /* TickerWatchlist.swift */; };
 		24A226BE1F50ED9300907999 /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A226BD1F50ED9300907999 /* Helper.swift */; };
 		24A3D32F1F7DAF250081BF09 /* BlockExplorerAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A3D32E1F7DAF250081BF09 /* BlockExplorerAPI.swift */; };
 		24A514D41F7DA5300003BD65 /* TransactionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A514D31F7DA5300003BD65 /* TransactionCell.swift */; };
-		24AF7B1E1F830BE700400007 /* CryptoSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24AF7B181F830B6C00400007 /* CryptoSwift.framework */; };
-		24AF7B201F830C6300400007 /* CryptoSwift.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 24AF7B181F830B6C00400007 /* CryptoSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		24AF7B351F83131900400007 /* SwiftKeccak.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24AF7B301F83130E00400007 /* SwiftKeccak.framework */; };
-		24AF7B361F83132000400007 /* SwiftKeccak.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 24AF7B301F83130E00400007 /* SwiftKeccak.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		24BB0DFE1F4E41B40042562C /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BB0DFD1F4E41B40042562C /* Currency.swift */; };
 		24C63DB41F7F15DD0096A807 /* WatchlistController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C63DB31F7F15DD0096A807 /* WatchlistController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		245E10851F86D79B000F6F0A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 24AF7B2A1F83130E00400007 /* SwiftKeccak.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 64BF75311F1FC45C00DBBADF;
+			remoteInfo = SwiftKeccak;
+		};
 		24AF7B171F830B6C00400007 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 24AF7B121F830B6C00400007 /* CryptoSwift.xcodeproj */;
@@ -62,13 +67,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = 754BE46019693E190098E6F3;
 			remoteInfo = Tests;
-		};
-		24AF7B1B1F830BC600400007 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 24AF7B121F830B6C00400007 /* CryptoSwift.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 754BE45419693E190098E6F3;
-			remoteInfo = CryptoSwift;
 		};
 		24AF7B261F83130500400007 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -98,13 +96,6 @@
 			remoteGlobalIDString = 64BF753B1F1FC45D00DBBADF;
 			remoteInfo = SwiftKeccakTests;
 		};
-		24AF7B331F83131600400007 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 24AF7B2A1F83130E00400007 /* SwiftKeccak.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 64BF75311F1FC45C00DBBADF;
-			remoteInfo = SwiftKeccak;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -114,8 +105,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				24AF7B361F83132000400007 /* SwiftKeccak.framework in CopyFiles */,
-				24AF7B201F830C6300400007 /* CryptoSwift.framework in CopyFiles */,
+				245E10881F86D7A8000F6F0A /* SwiftKeccak.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -169,8 +159,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				24AF7B351F83131900400007 /* SwiftKeccak.framework in Frameworks */,
-				24AF7B1E1F830BE700400007 /* CryptoSwift.framework in Frameworks */,
+				245E10871F86D79F000F6F0A /* SwiftKeccak.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -385,8 +374,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				24AF7B341F83131600400007 /* PBXTargetDependency */,
-				24AF7B1C1F830BC600400007 /* PBXTargetDependency */,
+				245E10861F86D79B000F6F0A /* PBXTargetDependency */,
 			);
 			name = Krypton;
 			productName = Krypton;
@@ -544,15 +532,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		24AF7B1C1F830BC600400007 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = CryptoSwift;
-			targetProxy = 24AF7B1B1F830BC600400007 /* PBXContainerItemProxy */;
-		};
-		24AF7B341F83131600400007 /* PBXTargetDependency */ = {
+		245E10861F86D79B000F6F0A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = SwiftKeccak;
-			targetProxy = 24AF7B331F83131600400007 /* PBXContainerItemProxy */;
+			targetProxy = 245E10851F86D79B000F6F0A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import CryptoSwift
 import SwiftKeccak
 
 struct Currency {
