@@ -17,10 +17,10 @@ class TickerPrice: NSManagedObject {
     
     // MARK: - Private Class Methods
     /// returns newest ticker price for specified trading pair
-    private class func getNewestTickerPrice(for tradingPair: Currency.TradingPair) -> TickerPrice? {
+    private class func getNewestTickerPrice(for tradingPair: TradingPair) -> TickerPrice? {
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()
-        request.predicate = NSPredicate(format: "tradingPair = %@", tradingPair.rawValue)
+        request.predicate = NSPredicate(format: "tradingPairRaw = %@", tradingPair.rawValue)
         request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
         request.fetchLimit = 1
         
@@ -40,7 +40,7 @@ class TickerPrice: NSManagedObject {
     /// creates and returns ticker price if non-existent in database, throws otherwise
     class func createTickerPrice(from priceInfo: KrakenAPI.Price, in context: NSManagedObjectContext) throws -> TickerPrice {
         let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()
-        request.predicate = NSPredicate(format: "date = %@ AND tradingPair = %@", priceInfo.date, priceInfo.tradingPair.rawValue)
+        request.predicate = NSPredicate(format: "date = %@ AND tradingPairRaw = %@", priceInfo.date, priceInfo.tradingPair.rawValue)
         
         do {
             let matches = try context.fetch(request)
@@ -54,14 +54,14 @@ class TickerPrice: NSManagedObject {
         
         let price = TickerPrice(context: context)
         price.date = priceInfo.date as Date
-        price.tradingPair = priceInfo.tradingPair.rawValue
+        price.tradingPairRaw = priceInfo.tradingPair.rawValue
         price.value = priceInfo.value
         
         return price
     }
     
     /// returns exchange value for specified trading pair on specified date, nil if date is today or in the future
-    class func getTickerPrice(for tradingPair: Currency.TradingPair, on date: Date) -> TickerPrice? {
+    class func getTickerPrice(for tradingPair: TradingPair, on date: Date) -> TickerPrice? {
         guard !date.isUTCToday, !date.isUTCFuture else {
             return nil
         }
@@ -71,7 +71,7 @@ class TickerPrice: NSManagedObject {
         
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()
-        request.predicate = NSPredicate(format: "tradingPair = %@ AND date >= %@ AND date < %@", tradingPair.rawValue, startDate, endDate)
+        request.predicate = NSPredicate(format: "tradingPairRaws = %@ AND date >= %@ AND date < %@", tradingPair.rawValue, startDate, endDate)
         
         do {
             let matches = try context.fetch(request)
@@ -87,7 +87,7 @@ class TickerPrice: NSManagedObject {
     }
 
     /// fetches and saves price history for specified trading pair starting from specified date, executes completion block if no error is thrown during retrieval and saving
-    class func updatePriceHistory(for tradingPair: Currency.TradingPair, since date: Date, completion: (() -> Void)?) {
+    class func updatePriceHistory(for tradingPair: TradingPair, since date: Date, completion: (() -> Void)?) {
         var startDate: Date!
         
         if TickerPrice.getTickerPrice(for: tradingPair, on: date) == nil {

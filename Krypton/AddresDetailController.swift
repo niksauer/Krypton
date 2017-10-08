@@ -25,9 +25,9 @@ class AddresDetailController: UITableViewController {
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
-        addressField.text = address.address
+        addressField.text = address.identifier
         aliasField.text = address.alias
-        unitLabel.text = address.cryptoCurrency
+        unitLabel.text = address.blockchain.rawValue
         balanceLabel.text = String(address.balance)
     }
     

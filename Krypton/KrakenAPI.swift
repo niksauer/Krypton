@@ -32,7 +32,7 @@ struct KrakenAPI {
         case currentPrice = "Ticker"
     }
     
-    private static let resultForCurrencyPair: [Currency.TradingPair : String] = [
+    private static let resultForCurrencyPair: [TradingPair : String] = [
         .ETHEUR : "XETHZEUR",
         .ETHUSD : "XETHZUSD",
         .XBTEUR : "XXBTZEUR",
@@ -55,7 +55,7 @@ struct KrakenAPI {
     }
     
     // MARK: - Public Methods
-    static func priceHistory(for tradingPair: Currency.TradingPair, fromJSON data: Data) -> PriceHistoryResult {
+    static func priceHistory(for tradingPair: TradingPair, fromJSON data: Data) -> PriceHistoryResult {
         do {
             let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
             
@@ -82,7 +82,7 @@ struct KrakenAPI {
         }
     }
     
-    static func currentPrice(for tradingPair: Currency.TradingPair, fromJSON data: Data) -> CurrentPriceResult {
+    static func currentPrice(for tradingPair: TradingPair, fromJSON data: Data) -> CurrentPriceResult {
         do {
             let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
             
@@ -101,13 +101,13 @@ struct KrakenAPI {
     // MARK: - Public Properties
     struct Price {
         let date: NSDate
-        let tradingPair: Currency.TradingPair
+        let tradingPair: TradingPair
         let value: Double
     }
     
     // https://www.kraken.com/help/api
     // <time>, <"open">, <"high">, <"low">, <"close">, <"vwap">, <"volume">, <count>
-    static func priceHistoryURL(for tradingPair: Currency.TradingPair, since: Date) -> URL {
+    static func priceHistoryURL(for tradingPair: TradingPair, since: Date) -> URL {
         let sinceDate = Calendar.current.date(byAdding: .day, value: -1, to: since)
         return krakenURL(method: .priceHistory, parameters: [
             "pair": tradingPair.rawValue,
@@ -117,7 +117,7 @@ struct KrakenAPI {
     }
     
     // <ask>, <bid>, <last trade>, <volume>, <volume weighted avg price>, <trade count>, <low>, <high>, <open>
-    static func currentPriceURL(for tradingPair: Currency.TradingPair) -> URL {
+    static func currentPriceURL(for tradingPair: TradingPair) -> URL {
         return krakenURL(method: .currentPrice, parameters: [
             "pair": tradingPair.rawValue
         ])

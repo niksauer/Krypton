@@ -29,7 +29,7 @@ struct Format {
     }
     
     /// formats crypto currency values with 2-4 decimal digits
-    static func getCryptoFormatting(for value: NSNumber, cryptoCurrency: Currency.Crypto) -> String {
+    static func getCryptoFormatting(for value: NSNumber, cryptoCurrency: Blockchain) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.minimumFractionDigits = 2
@@ -38,7 +38,7 @@ struct Format {
     }
     
     /// formats fiat currency values according to set base currency
-    static func getFiatFormatting(for value: NSNumber, fiatCurrency: Currency.Fiat) -> String {
+    static func getFiatFormatting(for value: NSNumber, fiatCurrency: Fiat) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
         formatter.currencyCode = fiatCurrency.rawValue

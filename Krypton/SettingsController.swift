@@ -31,7 +31,7 @@ class SettingsController: UITableViewController, FiatSelectionDelegate, Portfoli
     }
     
     // MARK: - FiatCurrency Delegate
-    func didSelectFiatCurrency(selection: Currency.Fiat) {
+    func didSelectFiatCurrency(selection: Fiat) {
         do {
             try PortfolioManager.shared.setBaseCurrency(selection)
         } catch {

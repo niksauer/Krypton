@@ -63,7 +63,7 @@ class Transaction: NSManagedObject {
     // MARK: - Public Properties
     /// checks if transaction is outbound, i.e. owner sent amount and has not received it
     var isOutbound: Bool {
-        return from!.caseInsensitiveCompare(owner!.address!) == ComparisonResult.orderedSame
+        return from!.caseInsensitiveCompare(owner!.identifier!) == ComparisonResult.orderedSame
     }
     
     var totalAmount: Double {

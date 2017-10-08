@@ -12,8 +12,8 @@ class FiatSelectionController: UITableViewController {
 
     // MARK: - Public Properties
     var delegate: FiatSelectionDelegate?
-    var selection: Currency.Fiat = .EUR
-    var fiatCurrencies = Currency.Fiat.allValues
+    var selection: Fiat = .EUR
+    var fiatCurrencies = Fiat.allValues
 
     // MARK: - TableView Data Source
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -46,5 +46,5 @@ class FiatSelectionController: UITableViewController {
 }
 
 protocol FiatSelectionDelegate {
-    func didSelectFiatCurrency(selection: Currency.Fiat)
+    func didSelectFiatCurrency(selection: Fiat)
 }

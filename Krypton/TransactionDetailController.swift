@@ -58,13 +58,13 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
     
     var showsCryptoFees = true {
         didSet {
-            guard let cryptoCurrency = Currency.Crypto(rawValue: transaction!.owner!.cryptoCurrency!), let feeAmount = transaction?.feeAmount, let feeExchangeValue = transaction?.feeExchangeValue else {
+            guard let feeAmount = transaction?.feeAmount, let feeExchangeValue = transaction?.feeExchangeValue else {
                 feeField.text = "???"
                 return
             }
             
             if showsCryptoFees {
-                feeField.text = Format.getCryptoFormatting(for: NSNumber(value: feeAmount), cryptoCurrency: cryptoCurrency)
+                feeField.text = Format.getCryptoFormatting(for: NSNumber(value: feeAmount), cryptoCurrency: transaction!.owner!.blockchain)
             } else {
                 feeField.text = Format.getFiatFormatting(for: NSNumber(value: feeExchangeValue), fiatCurrency: PortfolioManager.shared.baseCurrency)
             }
@@ -104,7 +104,7 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
         
         TickerWatchlist.delegate = self
         
-        let cryptoCurrency = Currency.Crypto(rawValue: tx.owner!.cryptoCurrency!)!
+        let cryptoCurrency = tx.owner!.blockchain
         amountField.text = Format.getCryptoFormatting(for: NSNumber(value: tx.amount), cryptoCurrency: cryptoCurrency)
         
         senderAddressField.text = PortfolioManager.shared.getAlias(for: tx.from!) ?? tx.from
@@ -158,7 +158,7 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
     }
     
     // MARK: - TableView Delegate
-    func didUpdateCurrentPrice(for tradingPair: Currency.TradingPair) {
+    func didUpdateCurrentPrice(for tradingPair: TradingPair) {
         showsExchangeValue = { showsExchangeValue }()
         showsRelativeProfit = { showsRelativeProfit }()
         showsCryptoFees = { showsCryptoFees }()

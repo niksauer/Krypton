@@ -23,7 +23,7 @@ class TransactionCell: UITableViewCell {
             addressLabel.text = transaction.from
         }
         
-        amountLabel.text = Format.getCryptoFormatting(for: NSNumber(value: transaction.amount), cryptoCurrency: Currency.Crypto(rawValue: transaction.owner!.cryptoCurrency!)!)
+        amountLabel.text = Format.getCryptoFormatting(for: NSNumber(value: transaction.amount), cryptoCurrency: transaction.owner!.blockchain)
     }
 
 }
