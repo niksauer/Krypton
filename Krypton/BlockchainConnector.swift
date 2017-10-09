@@ -67,14 +67,14 @@ struct BlockchainConnector {
     
     // MARK: - Public Methods
     static func fetchTransactionHistory(for address: Address, type: TransactionHistoryType, timeframe: TransactionHistoryTimeframe, completion: @escaping (TransactionHistoryResult) -> Void) {
-        let cryptoCurrency = Currency.Crypto(rawValue: address.cryptoCurrency!)!
+        let cryptoCurrency = address.blockchain
         let url: URL
         
         switch cryptoCurrency {
         case .XBT:
-            url = BlockexplorerAPI.transactionHistoryURL(for: address.address!)
+            url = BlockexplorerAPI.transactionHistoryURL(for: address.identifier!)
         case .ETH:
-            url = EtherscanAPI.transactionHistoryURL(for: address.address!, type: type, timeframe: timeframe)
+            url = EtherscanAPI.transactionHistoryURL(for: address.identifier!, type: type, timeframe: timeframe)
         }
         
         let request = URLRequest(url: url)
@@ -106,14 +106,14 @@ struct BlockchainConnector {
     }
     
     static func fetchBalance(for address: Address, completion: @escaping (BalanceResult) -> Void) {
-        let cryptoCurrency = Currency.Crypto(rawValue: address.cryptoCurrency!)!
+        let cryptoCurrency = address.blockchain
         let url: URL
         
         switch cryptoCurrency {
         case .XBT:
-            url = BlockexplorerAPI.balanceURL(for: address.address!)
+            url = BlockexplorerAPI.balanceURL(for: address.identifier!)
         case .ETH:
-            url = EtherscanAPI.balanceURL(for: address.address!)
+            url = EtherscanAPI.balanceURL(for: address.identifier!)
         }
         
         let request = URLRequest(url: url)

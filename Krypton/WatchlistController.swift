@@ -11,7 +11,7 @@ import UIKit
 class WatchlistController: UITableViewController, TickerWatchlistDelegate {
     
     // MARK: - Public Properties
-    var cryptoCurrencies = [Currency.Crypto]()
+    var cryptoCurrencies = [Blockchain]()
     
     // MARK: - Initialization
     override func viewWillAppear(_ animated: Bool) {
@@ -40,7 +40,7 @@ class WatchlistController: UITableViewController, TickerWatchlistDelegate {
         cell.textLabel?.text = cryptoCurrency.rawValue
         
         let baseCurrency = PortfolioManager.shared.baseCurrency
-        let tradingPair = Currency.TradingPair.getTradingPair(cryptoCurrency: cryptoCurrency, fiatCurrency: baseCurrency)!
+        let tradingPair = TradingPair.getTradingPair(a: cryptoCurrency, b: baseCurrency)!
         
         if let currentPrice = TickerWatchlist.getCurrentPrice(for: tradingPair) {
             cell.detailTextLabel?.text = Format.getFiatFormatting(for: NSNumber(value: currentPrice), fiatCurrency: baseCurrency)
@@ -52,7 +52,7 @@ class WatchlistController: UITableViewController, TickerWatchlistDelegate {
     }
     
     // MARK: - TickerWatchlist Delegate
-    func didUpdateCurrentPrice(for tradingPair: Currency.TradingPair) {
+    func didUpdateCurrentPrice(for tradingPair: TradingPair) {
         tableView.reloadData()
     }
 

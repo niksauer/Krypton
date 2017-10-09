@@ -18,7 +18,7 @@ struct TickerConnector {
     }()
     
     // MARK: - Private Methods
-    private static func processPriceHistoryRequest(for tradingPair: Currency.TradingPair, data: Data?, error: Error?) -> PriceHistoryResult {
+    private static func processPriceHistoryRequest(for tradingPair: TradingPair, data: Data?, error: Error?) -> PriceHistoryResult {
         guard let jsonData = data else {
             return .failure(error!)
         }
@@ -26,7 +26,7 @@ struct TickerConnector {
         return KrakenAPI.priceHistory(for: tradingPair, fromJSON: jsonData)
     }
     
-    private static func processCurrentPriceRequest(for tradingPair: Currency.TradingPair, data: Data?, error: Error?) -> CurrentPriceResult {
+    private static func processCurrentPriceRequest(for tradingPair: TradingPair, data: Data?, error: Error?) -> CurrentPriceResult {
         guard let jsonData = data else {
             return .failure(error!)
         }
@@ -35,7 +35,7 @@ struct TickerConnector {
     }
     
     // MARK: - Public Methods
-    static func fetchPriceHistory(for tradingPair: Currency.TradingPair, since: Date, completion: @escaping (PriceHistoryResult) -> Void) {
+    static func fetchPriceHistory(for tradingPair: TradingPair, since: Date, completion: @escaping (PriceHistoryResult) -> Void) {
         let url = KrakenAPI.priceHistoryURL(for: tradingPair, since: since)
         let request = URLRequest(url: url)
         
@@ -50,7 +50,7 @@ struct TickerConnector {
         task.resume()
     }
     
-    static func fetchCurrentPrice(for tradingPair: Currency.TradingPair, completion: @escaping (CurrentPriceResult) -> Void) {
+    static func fetchCurrentPrice(for tradingPair: TradingPair, completion: @escaping (CurrentPriceResult) -> Void) {
         let url = KrakenAPI.currentPriceURL(for: tradingPair)
         let request = URLRequest(url: url)
         

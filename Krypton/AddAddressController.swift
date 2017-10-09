@@ -22,7 +22,7 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
     }
     
     // MARK: - Private Properties
-    private let cryptoData = Currency.Crypto.allValues
+    private let cryptoData = Blockchain.allValues
     private let cryptoFieldIndexPath = IndexPath(row: 0, section: 1)
     private let cryptoPickerIndexPath = IndexPath(row: 1, section: 1)
     private let portfolioIndexPath = IndexPath(row: 0, section: 2)
@@ -71,12 +71,12 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
     }
     
     @IBAction func save(_ sender: UIBarButtonItem) {
-        guard let addressString = addressField.text, !addressString.isEmpty, let selectedUnit = cryptoField.detailTextLabel?.text, let cryptoUnit = Currency.Crypto(rawValue: selectedUnit), selectedPortfolio != nil else {
+        guard let addressString = addressField.text, !addressString.isEmpty, let selectedUnit = cryptoField.detailTextLabel?.text, let cryptoUnit = Blockchain(rawValue: selectedUnit), selectedPortfolio != nil else {
             return
         }
         
         do {
-            try selectedPortfolio?.addAddress(addressString, unit: cryptoUnit, alias: aliasField.text)
+            try selectedPortfolio?.addAddress(addressString, alias: aliasField.text, blockchain: cryptoUnit)
             dismiss(animated: true, completion: nil)
         } catch {
             print("Failed to add address due to error: \(error)")
@@ -85,7 +85,7 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
     
     // MARK: - Public Methods
     func checkSaveButton() {
-        guard let addressString = addressField.text, !addressString.isEmpty, let selectedUnit = cryptoField.detailTextLabel?.text, let _ = Currency.Crypto(rawValue: selectedUnit), selectedPortfolio != nil else {
+        guard let addressString = addressField.text, !addressString.isEmpty, let selectedUnit = cryptoField.detailTextLabel?.text, let _ = Blockchain(rawValue: selectedUnit), selectedPortfolio != nil else {
             saveButton.isEnabled = false
             return
         }
