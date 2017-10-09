@@ -75,7 +75,7 @@ class FilterController: UITableViewController {
         } else {
             let address = portfolios[indexPath.section-filterOptionsCount].storedAddresses[indexPath.row]
             let cell = tableView.dequeueReusableCell(withIdentifier: "addressCell", for: indexPath)
-            cell.textLabel?.text = address.address
+            cell.textLabel?.text = address.identifier
             cell.detailTextLabel?.text = address.alias
         
             if address.isSelected {

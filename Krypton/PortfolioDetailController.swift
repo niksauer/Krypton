@@ -112,7 +112,7 @@ class PortfolioDetailController: UITableViewController {
         if portfolio.storedAddresses.count > 0, indexPath.section == 1 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "addressCell", for: indexPath) as! AddressCell
             let address = portfolio.storedAddresses[indexPath.row]
-            cell.configure(address: address.address!, alias: address.alias)
+            cell.configure(address: address.identifier!, alias: address.alias)
             return cell
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: "deleteCell", for: indexPath)

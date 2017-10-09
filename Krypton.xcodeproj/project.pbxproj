@@ -20,6 +20,7 @@
 		2400D09A1F42511800833958 /* BlockchainConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0991F42511800833958 /* BlockchainConnector.swift */; };
 		240C63B11F47A88300728B8B /* Portfolio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240C63B01F47A88300728B8B /* Portfolio.swift */; };
 		240C63B31F47A88E00728B8B /* Address.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240C63B21F47A88E00728B8B /* Address.swift */; };
+		24150D431F88E3E1003B7091 /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24150D421F88E3E1003B7091 /* Token.swift */; };
 		242729A41F7075CC00E5231D /* AddresDetailController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242729A31F7075CC00E5231D /* AddresDetailController.swift */; };
 		243859941F6BE01F00D67791 /* FilterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243859931F6BE01F00D67791 /* FilterController.swift */; };
 		243859961F6C442300D67791 /* AddAddressController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243859951F6C442300D67791 /* AddAddressController.swift */; };
@@ -127,6 +128,7 @@
 		2400D0991F42511800833958 /* BlockchainConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockchainConnector.swift; sourceTree = "<group>"; };
 		240C63B01F47A88300728B8B /* Portfolio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Portfolio.swift; sourceTree = "<group>"; };
 		240C63B21F47A88E00728B8B /* Address.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Address.swift; sourceTree = "<group>"; };
+		24150D421F88E3E1003B7091 /* Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Token.swift; sourceTree = "<group>"; };
 		242729A31F7075CC00E5231D /* AddresDetailController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddresDetailController.swift; sourceTree = "<group>"; };
 		243859931F6BE01F00D67791 /* FilterController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FilterController.swift; sourceTree = "<group>"; };
 		243859951F6C442300D67791 /* AddAddressController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddAddressController.swift; sourceTree = "<group>"; };
@@ -223,6 +225,7 @@
 				240C63B21F47A88E00728B8B /* Address.swift */,
 				2400D0971F42508100833958 /* Transaction.swift */,
 				2400D0931F40D90900833958 /* TickerPrice.swift */,
+				24150D421F88E3E1003B7091 /* Token.swift */,
 			);
 			name = EntitiesMO;
 			sourceTree = "<group>";
@@ -512,6 +515,7 @@
 				243859941F6BE01F00D67791 /* FilterController.swift in Sources */,
 				24A226BE1F50ED9300907999 /* Helper.swift in Sources */,
 				2449F4481F6F1D1F006E21C8 /* FiatSelectionController.swift in Sources */,
+				24150D431F88E3E1003B7091 /* Token.swift in Sources */,
 				24BB0DFE1F4E41B40042562C /* Currency.swift in Sources */,
 				2449F43A1F6D59F5006E21C8 /* TextFieldCell.swift in Sources */,
 				2400D0921F40D6E700833958 /* TickerConnector.swift in Sources */,

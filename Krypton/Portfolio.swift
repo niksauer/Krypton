@@ -13,9 +13,9 @@ class Portfolio: NSManagedObject, AddressDelegate {
     
     // MARK: - Public Class Methods
     /// creates and returns portfolio with specified base currency
-    class func createPortfolio(baseCurrency: Currency.Fiat, alias: String?, in context: NSManagedObjectContext) -> Portfolio {
+    class func createPortfolio(fiat: Fiat, alias: String?, in context: NSManagedObjectContext) -> Portfolio {
         let portfolio = Portfolio(context: context)
-        portfolio.baseCurrency = baseCurrency.rawValue
+        portfolio.fiat = fiat
         portfolio.alias = alias
         return portfolio
     }
@@ -47,6 +47,15 @@ class Portfolio: NSManagedObject, AddressDelegate {
             }
         }
         return selectedAddresses
+    }
+    
+    var fiat: Fiat {
+        get {
+            return Fiat(rawValue: fiatRaw!)!
+        }
+        set {
+            self.fiatRaw = newValue.rawValue
+        }
     }
     
     // MARK: - Public Methods
@@ -81,9 +90,9 @@ class Portfolio: NSManagedObject, AddressDelegate {
         }
     }
     
-    func setBaseCurrency(_ currency: Currency.Fiat) throws {
+    func setFiat(_ fiat: Fiat) throws {
         do {
-            baseCurrency = currency.rawValue
+            self.fiat = fiat
             try AppDelegate.viewContext.save()
             print("Saved updated base currency for portfolio.")
             delegate?.didUpdateBaseCurrency(for: self)
@@ -105,14 +114,10 @@ class Portfolio: NSManagedObject, AddressDelegate {
     }
     
     /// adds address to portfolio, sets portfolio as its delegate, updates portfolio
-    func addAddress(_ addressString: String, unit: Currency.Crypto, alias: String?) throws {
-        guard Currency.Crypto.isAddress(addressString, cryptoCurrency: unit) else {
-            throw AddressError.invalid
-        }
-        
+    func addAddress(_ addressString: String, alias: String?, blockchain: Blockchain) throws {
         do {
             let context = AppDelegate.viewContext
-            let address = try Address.createAddress(addressString, unit: unit, alias: alias, in: context)
+            let address = try Address.createAddress(addressString, alias: alias, blockchain: blockchain, in: context)
             self.addToAddresses(address)
             try context.save()
             address.delegate = self
@@ -231,7 +236,7 @@ protocol PortfolioDelegate {
     func didUpdateIsDefault(for portfolio: Portfolio)
     func didUpdateBaseCurrency(for portfolio: Portfolio)
     func didAddAddress(to portfolio: Portfolio, address: Address)
-    func didRemoveAddress(from portfolio: Portfolio, tradingPair: Currency.TradingPair)
+    func didRemoveAddress(from portfolio: Portfolio, tradingPair: TradingPair)
     func didUpdateProperty(for address: Address, in portfolio: Portfolio)
 }
 

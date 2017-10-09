@@ -149,7 +149,7 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
     }
     
     // MARK: - TickerWatchlist Delegate
-    func didUpdateCurrentPrice(for tradingPair: Currency.TradingPair) {
+    func didUpdateCurrentPrice(for tradingPair: TradingPair) {
         updateUI()
     }
     

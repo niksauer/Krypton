@@ -16,7 +16,7 @@ final class TickerWatchlist {
     
     // MARK: - Private Properties
     /// dictionary mapping trading pairs to their most current price
-    private static var currentPrice: [Currency.TradingPair : Double] = [:]
+    private static var currentPrice: [TradingPair : Double] = [:]
     
     /// timer used to continioulsy fetch price updates
     private static var updateTimer: Timer?
@@ -25,13 +25,13 @@ final class TickerWatchlist {
     private static var updateIntervall: TimeInterval = 30
     
     /// trading pairs for which continious price updates are retrieved
-    private static var tradingPairs = Set<Currency.TradingPair>()
+    private static var tradingPairs = Set<TradingPair>()
     
-    private static var requestsForTradingPair: [Currency.TradingPair : Int] = [:]
+    private static var requestsForTradingPair: [TradingPair : Int] = [:]
     
     // MARK: - Public Class Methods
     /// adds trading pair and fetches current price if it has not already been added to watchlist, starts update timer
-    class func addTradingPair(_ tradingPair: Currency.TradingPair) {
+    class func addTradingPair(_ tradingPair: TradingPair) {
         if !tradingPairs.contains(tradingPair) {
             tradingPairs.insert(tradingPair)
             updatePrice(for: tradingPair)
@@ -48,7 +48,7 @@ final class TickerWatchlist {
         }
     }
     
-    class func removeTradingPair(_ tradingPair: Currency.TradingPair) {
+    class func removeTradingPair(_ tradingPair: TradingPair) {
         guard let requestCount = requestsForTradingPair[tradingPair], requestCount > 0 else {
             return
         }
@@ -58,13 +58,13 @@ final class TickerWatchlist {
     }
     
     /// returns current price for specified trading pair
-    class func getCurrentPrice(for tradingPair: Currency.TradingPair) -> Double? {
+    class func getCurrentPrice(for tradingPair: TradingPair) -> Double? {
         return currentPrice[tradingPair]
     }
     
     class func reset() {
         stopUpdateTimer()
-        tradingPairs = Set<Currency.TradingPair>()
+        tradingPairs = Set<TradingPair>()
         requestsForTradingPair = [:]
     }
     
@@ -99,7 +99,7 @@ final class TickerWatchlist {
     
     // MARK: - Private Class Methods
     /// updates current price for specified trading pair, notifies delegate of change
-    private class func updatePrice(for tradingPair: Currency.TradingPair) {
+    private class func updatePrice(for tradingPair: TradingPair) {
         TickerConnector.fetchCurrentPrice(for: tradingPair, completion: { result in
             switch result {
             case let .success(currentPrice):
@@ -115,5 +115,5 @@ final class TickerWatchlist {
 }
 
 protocol TickerWatchlistDelegate {
-    func didUpdateCurrentPrice(for tradingPair: Currency.TradingPair)
+    func didUpdateCurrentPrice(for tradingPair: TradingPair)
 }
