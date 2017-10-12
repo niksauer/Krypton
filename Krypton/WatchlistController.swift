@@ -11,18 +11,13 @@ import UIKit
 class WatchlistController: UITableViewController, TickerWatchlistDelegate {
     
     // MARK: - Public Properties
-    var cryptoCurrencies = [Blockchain]()
+    var tradingPairs = [TradingPair]()
     
     // MARK: - Initialization
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         TickerWatchlist.delegate = self
-        
-        if let stored = PortfolioManager.shared.storedCryptoCurrencies {
-            cryptoCurrencies = stored
-        } else {
-            cryptoCurrencies = []
-        }
+        tradingPairs = Array(PortfolioManager.shared.storedTradingPairs)
     }
 
     // MARK: - TableView Delegate
@@ -31,19 +26,18 @@ class WatchlistController: UITableViewController, TickerWatchlistDelegate {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return cryptoCurrencies.count
+        return tradingPairs.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cryptoCurrency = cryptoCurrencies[indexPath.row]
+        let cryptoCurrency = tradingPairs[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: "tickerCell", for: indexPath)
         cell.textLabel?.text = cryptoCurrency.rawValue
-        
-        let baseCurrency = PortfolioManager.shared.baseCurrency
-        let tradingPair = TradingPair.getTradingPair(a: cryptoCurrency, b: baseCurrency)!
+    
+        let tradingPair = tradingPairs[indexPath.row]
         
         if let currentPrice = TickerWatchlist.getCurrentPrice(for: tradingPair) {
-            cell.detailTextLabel?.text = Format.getFiatFormatting(for: NSNumber(value: currentPrice), fiatCurrency: baseCurrency)
+            cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: currentPrice, currency: PortfolioManager.shared.baseCurrency)
         } else {
             cell.detailTextLabel?.text = "???"
         }

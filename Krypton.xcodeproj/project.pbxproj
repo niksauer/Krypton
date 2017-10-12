@@ -25,6 +25,7 @@
 		243859941F6BE01F00D67791 /* FilterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243859931F6BE01F00D67791 /* FilterController.swift */; };
 		243859961F6C442300D67791 /* AddAddressController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243859951F6C442300D67791 /* AddAddressController.swift */; };
 		2438599B1F6C890600D67791 /* PortfolioTableController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2438599A1F6C890500D67791 /* PortfolioTableController.swift */; };
+		2446F5DC1F8EAD1E00DF385B /* TokenAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2446F5DB1F8EAD1E00DF385B /* TokenAddress.swift */; };
 		2449F4351F6CB30D006E21C8 /* TransactionDetailController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2449F4341F6CB30D006E21C8 /* TransactionDetailController.swift */; };
 		2449F4371F6D5711006E21C8 /* PortfolioDetailController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2449F4361F6D5711006E21C8 /* PortfolioDetailController.swift */; };
 		2449F43A1F6D59F5006E21C8 /* TextFieldCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2449F4391F6D59F5006E21C8 /* TextFieldCell.swift */; };
@@ -32,7 +33,7 @@
 		2449F43E1F6D5D6D006E21C8 /* AddressCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2449F43D1F6D5D6D006E21C8 /* AddressCell.swift */; };
 		2449F4401F6D725E006E21C8 /* MessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2449F43F1F6D725E006E21C8 /* MessageCell.swift */; };
 		2449F4441F6F0D3A006E21C8 /* AddPortfolioController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2449F4431F6F0D3A006E21C8 /* AddPortfolioController.swift */; };
-		2449F4481F6F1D1F006E21C8 /* FiatSelectionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2449F4471F6F1D1F006E21C8 /* FiatSelectionController.swift */; };
+		2449F4481F6F1D1F006E21C8 /* CurrencySelectionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2449F4471F6F1D1F006E21C8 /* CurrencySelectionController.swift */; };
 		2449F44A1F6F1F40006E21C8 /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2449F4491F6F1F40006E21C8 /* SettingsController.swift */; };
 		2458132F1F5F503B007795BC /* PortfolioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2458132E1F5F503B007795BC /* PortfolioManager.swift */; };
 		245E10871F86D79F000F6F0A /* SwiftKeccak.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24AF7B301F83130E00400007 /* SwiftKeccak.framework */; };
@@ -40,7 +41,7 @@
 		246737651F4B9255003277B8 /* TransactionTableController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246737641F4B9255003277B8 /* TransactionTableController.swift */; };
 		246874F61F464B4E009BB60A /* Krypton.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 246874F41F464B4E009BB60A /* Krypton.xcdatamodeld */; };
 		24A007C41F538AD800EC0DCF /* TickerWatchlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A007C31F538AD800EC0DCF /* TickerWatchlist.swift */; };
-		24A226BE1F50ED9300907999 /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A226BD1F50ED9300907999 /* Helper.swift */; };
+		24A226BE1F50ED9300907999 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A226BD1F50ED9300907999 /* Globals.swift */; };
 		24A3D32F1F7DAF250081BF09 /* BlockExplorerAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A3D32E1F7DAF250081BF09 /* BlockExplorerAPI.swift */; };
 		24A514D41F7DA5300003BD65 /* TransactionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A514D31F7DA5300003BD65 /* TransactionCell.swift */; };
 		24BB0DFE1F4E41B40042562C /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BB0DFD1F4E41B40042562C /* Currency.swift */; };
@@ -133,6 +134,7 @@
 		243859931F6BE01F00D67791 /* FilterController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FilterController.swift; sourceTree = "<group>"; };
 		243859951F6C442300D67791 /* AddAddressController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddAddressController.swift; sourceTree = "<group>"; };
 		2438599A1F6C890500D67791 /* PortfolioTableController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PortfolioTableController.swift; sourceTree = "<group>"; };
+		2446F5DB1F8EAD1E00DF385B /* TokenAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenAddress.swift; sourceTree = "<group>"; };
 		2449F4341F6CB30D006E21C8 /* TransactionDetailController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionDetailController.swift; sourceTree = "<group>"; };
 		2449F4361F6D5711006E21C8 /* PortfolioDetailController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PortfolioDetailController.swift; sourceTree = "<group>"; };
 		2449F4391F6D59F5006E21C8 /* TextFieldCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextFieldCell.swift; sourceTree = "<group>"; };
@@ -140,13 +142,13 @@
 		2449F43D1F6D5D6D006E21C8 /* AddressCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressCell.swift; sourceTree = "<group>"; };
 		2449F43F1F6D725E006E21C8 /* MessageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageCell.swift; sourceTree = "<group>"; };
 		2449F4431F6F0D3A006E21C8 /* AddPortfolioController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddPortfolioController.swift; sourceTree = "<group>"; };
-		2449F4471F6F1D1F006E21C8 /* FiatSelectionController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FiatSelectionController.swift; sourceTree = "<group>"; };
+		2449F4471F6F1D1F006E21C8 /* CurrencySelectionController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrencySelectionController.swift; sourceTree = "<group>"; };
 		2449F4491F6F1F40006E21C8 /* SettingsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsController.swift; sourceTree = "<group>"; };
 		2458132E1F5F503B007795BC /* PortfolioManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PortfolioManager.swift; sourceTree = "<group>"; };
 		246737641F4B9255003277B8 /* TransactionTableController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionTableController.swift; sourceTree = "<group>"; };
 		246874F51F464B4E009BB60A /* Krypton.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Krypton.xcdatamodel; sourceTree = "<group>"; };
 		24A007C31F538AD800EC0DCF /* TickerWatchlist.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TickerWatchlist.swift; sourceTree = "<group>"; };
-		24A226BD1F50ED9300907999 /* Helper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helper.swift; sourceTree = "<group>"; };
+		24A226BD1F50ED9300907999 /* Globals.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		24A3D32E1F7DAF250081BF09 /* BlockExplorerAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockExplorerAPI.swift; sourceTree = "<group>"; };
 		24A514D31F7DA5300003BD65 /* TransactionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionCell.swift; sourceTree = "<group>"; };
 		24AF7B121F830B6C00400007 /* CryptoSwift.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CryptoSwift.xcodeproj; path = CryptoSwift/CryptoSwift.xcodeproj; sourceTree = "<group>"; };
@@ -223,6 +225,7 @@
 			children = (
 				240C63B01F47A88300728B8B /* Portfolio.swift */,
 				240C63B21F47A88E00728B8B /* Address.swift */,
+				2446F5DB1F8EAD1E00DF385B /* TokenAddress.swift */,
 				2400D0971F42508100833958 /* Transaction.swift */,
 				2400D0931F40D90900833958 /* TickerPrice.swift */,
 				24150D421F88E3E1003B7091 /* Token.swift */,
@@ -253,7 +256,7 @@
 		2438599D1F6CA6BF00D67791 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				2449F4471F6F1D1F006E21C8 /* FiatSelectionController.swift */,
+				2449F4471F6F1D1F006E21C8 /* CurrencySelectionController.swift */,
 				243859931F6BE01F00D67791 /* FilterController.swift */,
 			);
 			name = Shared;
@@ -343,7 +346,7 @@
 				2458132E1F5F503B007795BC /* PortfolioManager.swift */,
 				24BB0DFD1F4E41B40042562C /* Currency.swift */,
 				24A007C31F538AD800EC0DCF /* TickerWatchlist.swift */,
-				24A226BD1F50ED9300907999 /* Helper.swift */,
+				24A226BD1F50ED9300907999 /* Globals.swift */,
 				240C63B61F47A8A800728B8B /* EntitiesMO */,
 			);
 			name = Model;
@@ -513,12 +516,13 @@
 				246737651F4B9255003277B8 /* TransactionTableController.swift in Sources */,
 				2449F43E1F6D5D6D006E21C8 /* AddressCell.swift in Sources */,
 				243859941F6BE01F00D67791 /* FilterController.swift in Sources */,
-				24A226BE1F50ED9300907999 /* Helper.swift in Sources */,
-				2449F4481F6F1D1F006E21C8 /* FiatSelectionController.swift in Sources */,
+				24A226BE1F50ED9300907999 /* Globals.swift in Sources */,
+				2449F4481F6F1D1F006E21C8 /* CurrencySelectionController.swift in Sources */,
 				24150D431F88E3E1003B7091 /* Token.swift in Sources */,
 				24BB0DFE1F4E41B40042562C /* Currency.swift in Sources */,
 				2449F43A1F6D59F5006E21C8 /* TextFieldCell.swift in Sources */,
 				2400D0921F40D6E700833958 /* TickerConnector.swift in Sources */,
+				2446F5DC1F8EAD1E00DF385B /* TokenAddress.swift in Sources */,
 				2449F43C1F6D5AFA006E21C8 /* SwitchCell.swift in Sources */,
 				240C63B31F47A88E00728B8B /* Address.swift in Sources */,
 				246874F61F464B4E009BB60A /* Krypton.xcdatamodeld in Sources */,

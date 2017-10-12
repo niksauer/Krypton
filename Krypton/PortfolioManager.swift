@@ -11,11 +11,14 @@ import CoreData
 
 final class PortfolioManager: PortfolioDelegate {
     
-//    ETH
+//    ETH Wallet
 //    0xAA2F9BFAA9Ec168847216357b0856d776F34881f
 //    0xB15E9Ca894b6134Ac7C22B70b20Fd30De87451B2
 //    0x173BAF5C0f1ff25D18b4448C20ff209adC7cc220
 //    0x1f4aEDc00572634Bc83A9da8B90617a175476690
+    
+//    ETH Ledger
+//    0x273c1144e0531D9c5762f7F1569e600b827Aff4A
     
 //    BTC
 //    1eCjtYU5Fzmjs7P1iHGeYj6Tn86YdEmnY
@@ -27,10 +30,8 @@ final class PortfolioManager: PortfolioDelegate {
     // MARK: - Initialization
     /// loads all available portfolios, sets itself as their delegate,
     /// updates all stored addresses, requests continious ticker price updates for their trading pars
-    private init() {
+    init() {
 //        deletePortfolios()
-//        deleteAddresses()
-//        deleteTransactions()
 //        deletePriceHistory()
         
         do {
@@ -40,7 +41,7 @@ final class PortfolioManager: PortfolioDelegate {
             
             if storedPortfolios.count == 0 {
                 do {
-                    let portfolio = try addPortfolio(baseCurrency: baseCurrency, alias: "Portfolio 1")
+                    let portfolio = try addPortfolio(alias: "Portfolio 1", baseCurrency: baseCurrency)
                     try portfolio.setIsDefault(true)
                     print("Created and saved empty default portfolio.")
                 } catch {
@@ -64,52 +65,51 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
-    // MARK: - Private Properties
-    /// returns all stored portfolios
-    private var storedPortfolios = [Portfolio]()
-
-    /// returns all addresses associated with stored portfolios
-    private var storedAddresses: [Address]? {
-        var storedAddresses = [Address]()
-        for portfolio in storedPortfolios {
-            storedAddresses.append(contentsOf: portfolio.storedAddresses)
-        }
-        return storedAddresses
-    }
-    
     // MARK: - Public Properties
     /// delegate who gets notified of changes in portfolio
     var delegate: PortfolioManagerDelegate?
     
     /// fiat currency used to calculate exchange values of all stored portfolios
-    var baseCurrency = Fiat.EUR
+    private(set) public var baseCurrency: Currency!
+    
+    /// returns all stored portfolios
+    private(set) public var storedPortfolios = [Portfolio]()
     
     /// returns default portfolio used to add addresses
     var defaultPortfolio: Portfolio? {
         return storedPortfolios.first(where: { $0.isDefault })
     }
     
-    /// returns all addresses stored in selected portfolios
-    var selectedAddresses: [Address] {
-        var selectedAddresses = [Address]()
-        for portfolio in storedPortfolios {
-            selectedAddresses.append(contentsOf: portfolio.selectedAddresses)
+    /// returns all addresses associated with stored portfolios
+    var storedAddresses: [Address] {
+        get {
+            var storedAddresses = [Address]()
+            for portfolio in storedPortfolios {
+                storedAddresses.append(contentsOf: portfolio.storedAddresses)
+            }
+            return storedAddresses
         }
-        return selectedAddresses
     }
     
-    var storedCryptoCurrencies: [Blockchain]? {
-        guard storedAddresses != nil else {
-            return nil
+    /// returns all addresses stored in selected portfolios
+    var selectedAddresses: [Address] {
+        get {
+            var selectedAddresses = [Address]()
+            for portfolio in storedPortfolios {
+                selectedAddresses.append(contentsOf: portfolio.selectedAddresses)
+            }
+            return selectedAddresses
         }
-        
-        var cryptoCurrencies = Set<Blockchain>()
-        
-        for address in storedAddresses! {
-            cryptoCurrencies.insert(address.blockchain)
+    }
+    
+    var storedTradingPairs: Set<TradingPair> {
+        get {
+            var storedTradingPairs = Set<TradingPair>()
+            for address in storedAddresses {
+                storedTradingPairs.insert(address.tradingPair)
+            }
+            return storedTradingPairs
         }
-        
-        return Array(cryptoCurrencies)
     }
     
     // MARK: - Private Methods
@@ -125,7 +125,7 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
-    private func loadBaseCurrency() -> Fiat {
+    private func loadBaseCurrency() -> Currency {
         if let storedCurrencyString = UserDefaults.standard.value(forKey: "baseCurrency") as? String, let storedBaseCurrency = Fiat(rawValue: storedCurrencyString) {
             return storedBaseCurrency
         } else {
@@ -139,22 +139,15 @@ final class PortfolioManager: PortfolioDelegate {
     private func prepareTickerWatchlist() {
         TickerWatchlist.reset()
         
-        for portfolio in storedPortfolios {
-            for address in portfolio.storedAddresses {
-                TickerWatchlist.addTradingPair(address.tradingPair)
-            }
+        for tradingPair in storedTradingPairs {
+            TickerWatchlist.addTradingPair(tradingPair)
         }
     }
 
     // MARK: - Public Methods
-    // MARK: Getters
-    func getPortfolios() -> [Portfolio] {
-        return storedPortfolios
-    }
-    
     /// returns alias for specified address string
     func getAlias(for addressString: String) -> String? {
-        if let alias = storedAddresses?.first(where: { $0.identifier == addressString })?.alias, !alias.isEmpty {
+        if let alias = storedAddresses.first(where: { $0.identifier == addressString })?.alias, !alias.isEmpty {
             return alias
         } else {
             return nil
@@ -162,22 +155,23 @@ final class PortfolioManager: PortfolioDelegate {
     }
     
     // MARK: Setters
-    func setBaseCurrency(_ fiat: Fiat) throws {
-        guard fiat != baseCurrency else {
+    func setBaseCurrency(_ currency: Currency) throws {
+        guard currency.code != baseCurrency.code else {
             return
         }
         
         do {
             for portfolio in storedPortfolios {
-                try portfolio.setFiat(fiat)
+                try portfolio.setBaseCurrency(currency)
             }
             
-            baseCurrency = fiat
-            UserDefaults.standard.setValue(fiat.rawValue, forKey: "baseCurrency")
+            UserDefaults.standard.setValue(currency.code, forKey: "baseCurrency")
             UserDefaults.standard.synchronize()
+            baseCurrency = currency
+            print("Updated base currency of PortfolioManager to \(currency.code).")
             
-            updatePortfolios()
             prepareTickerWatchlist()
+            delegate?.didUpdatePortfolioManager()
         } catch {
             throw error
         }
@@ -185,11 +179,11 @@ final class PortfolioManager: PortfolioDelegate {
     
     // MARK: Management
     /// creates, saves and adds portfolio with specified base currency
-    func addPortfolio(baseCurrency: Fiat, alias: String?) throws -> Portfolio {
+    func addPortfolio(alias: String?, baseCurrency: Currency) throws -> Portfolio {
         do {
             let context = AppDelegate.viewContext
-            let portfolio = Portfolio.createPortfolio(fiat: baseCurrency, alias: alias, in: context)
-            let _ = try save()
+            let portfolio = Portfolio.createPortfolio(alias: alias, baseCurrency: baseCurrency, in: context)
+            _ = try save()
             portfolio.delegate = self
             storedPortfolios.append(portfolio)
             delegate?.didUpdatePortfolioManager()

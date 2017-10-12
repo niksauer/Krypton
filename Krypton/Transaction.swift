@@ -14,15 +14,12 @@ enum TransactionError: Error {
 }
 
 enum TransactionType: Int {
-    case all = 0, investment = 1, other = 2
+    case all
+    case investment
+    case other
 }
 
-enum ProfitTimeframe {
-    case allTime
-    case sinceDate(Date)
-}
-
-enum ExchangeValueType {
+enum TransactionValueType {
     case normal
     case fee
     case total
@@ -32,9 +29,9 @@ class Transaction: NSManagedObject {
     
     // MARK: - Public Class Methods
     /// creates and returns transaction if non-existent in database, throws otherwise
-    class func createTransaction(from txInfo: BlockchainConnector.Transaction, in context: NSManagedObjectContext) throws -> Transaction {
+    class func createTransaction(from txInfo: BlockchainConnector.Transaction, owner: Address, in context: NSManagedObjectContext) throws -> Transaction {
         let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
-        request.predicate = NSPredicate(format: "identifier = %@ AND type = %@ AND to = %@", txInfo.identifier, txInfo.type.rawValue, txInfo.to)
+        request.predicate = NSPredicate(format: "identifier = %@ AND type = %@ AND owner = %@", txInfo.identifier, txInfo.type.rawValue, owner)
         
         do {
             let matches = try context.fetch(request)
@@ -56,6 +53,7 @@ class Transaction: NSManagedObject {
         transaction.block = txInfo.block
         transaction.feeAmount = txInfo.feeAmount
         transaction.isError = txInfo.isError
+        transaction.owner = owner
         
         return transaction
     }
@@ -101,7 +99,6 @@ class Transaction: NSManagedObject {
     }
     
     // MARK: - Public Methods
-    // MARK: Setters
     /// replaces exchange value as encountered on execution date by user specified value, notifies owner's delegate if change occurred
     func setUserExchangeValue(value newValue: Double) throws {
         guard newValue != userExchangeValue else {
@@ -135,7 +132,7 @@ class Transaction: NSManagedObject {
     }
     
     // MARK: Finance
-    func getExchangeValue(on date: Date, for type: ExchangeValueType) -> Double? {
+    func getExchangeValue(on date: Date, for type: TransactionValueType) -> Double? {
         guard !date.isFuture else {
             return nil
         }

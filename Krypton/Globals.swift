@@ -1,5 +1,5 @@
 //
-//  Helper.swift
+//  Globals.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 26.08.17.
@@ -8,9 +8,40 @@
 
 import Foundation
 
+enum ProfitTimeframe {
+    case allTime
+    case sinceDate(Date)
+}
+
 struct Format {
     
-    // MARK: - Public Properties
+    // MARK: - Private Static Methods
+    /// formats crypto currency values with 2-4 decimal digits
+    private static func getCryptoFormatting(for value: Double, blockchain: Blockchain) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 8
+        return blockchain.symbol + " " + formatter.string(from: NSNumber(value: value))!
+    }
+    
+    /// formats fiat currency values according to set base currency
+    private static func getFiatFormatting(for value: Double, fiatCurrency: Fiat) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = fiatCurrency.code
+        return formatter.string(from: NSNumber(value: value))!
+    }
+    
+    private static func getTokenFormatting(for value: Double, token: Token) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 8
+        return formatter.string(from: NSNumber(value: value))! + " " + token.code
+    }
+    
+    // MARK: - Public Static Methods
     /// formats numbers with 2 decimal digits    
     static func getNumberFormatting(for value: NSNumber) -> String {
         let formatter = NumberFormatter()
@@ -28,21 +59,16 @@ struct Format {
         return formatter.string(from: date)
     }
     
-    /// formats crypto currency values with 2-4 decimal digits
-    static func getCryptoFormatting(for value: NSNumber, cryptoCurrency: Blockchain) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = 8
-        return cryptoCurrency.symbol + " " + formatter.string(from: value)!
-    }
-    
-    /// formats fiat currency values according to set base currency
-    static func getFiatFormatting(for value: NSNumber, fiatCurrency: Fiat) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = fiatCurrency.rawValue
-        return formatter.string(from: value)!
+    static func getCurrencyFormatting(for value: Double, currency: Currency) -> String? {
+        if let fiatCurrency = Fiat(rawValue: currency.code) {
+            return getFiatFormatting(for: value, fiatCurrency: fiatCurrency)
+        } else if let blockchain = Blockchain(rawValue: currency.code) {
+            return getCryptoFormatting(for: value, blockchain: blockchain)
+        } else if let token = currency as? Token {
+            return getTokenFormatting(for: value, token: token)
+        } else {
+            return nil
+        }
     }
     
     static func getAbsoluteProfit(from: (startValue: Double, endValue: Double)) -> Double {

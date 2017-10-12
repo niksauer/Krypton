@@ -22,6 +22,7 @@ struct EtherscanAPI {
         case txlist
         case txlistinternal
         case balance
+        case tokenbalance
     }
     
     // MARK: - Private Methods
@@ -32,7 +33,7 @@ struct EtherscanAPI {
         let module: String
         
         switch method {
-        case .balance, .txlist, .txlistinternal:
+        case .balance, .txlist, .txlistinternal, .tokenbalance:
             module = "account"
         }
         
@@ -130,6 +131,20 @@ struct EtherscanAPI {
         }
     }
     
+    static func tokenBalance(fromJSON data: Data) -> BalanceResult {
+        do {
+            let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
+            
+            guard let jsonDictionary = jsonObject as? [AnyHashable: Any], let balanceString = jsonDictionary["result"] as? String, let balance = Double(balanceString) else {
+                return .failure(EtherscanError.invalidJSONData)
+            }
+        
+            return .success(balance)
+        } catch {
+            return .failure(error)
+        }
+    }
+    
     // https://etherscan.io/apis
     // <"blockNumber">, <"timeStamp">, <"hash">, <"nonce">, <"blockHash">, <"transactionIndex">, <"from">, <"to">, <"value">, <"gas">, <"gasPrice">, <"isError">, <"input">, <"contractAddress">, <"cumulativeGasUsed">, <"gasUsed">, <"confirmations">
     
@@ -167,4 +182,13 @@ struct EtherscanAPI {
             "tag": "latest",
         ])
     }
+    
+    static func tokenBalanceURL(for address: String, contractAddress: String) -> URL {
+        return etherscanURL(method: .tokenbalance, parameters: [
+            "contractaddress": contractAddress,
+            "address": address,
+            "tag": "latest",
+        ])
+    }
+
 }

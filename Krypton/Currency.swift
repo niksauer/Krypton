@@ -10,7 +10,33 @@ import Foundation
 import SwiftKeccak
 
 protocol Currency {
-    var name: String { get }
+    var code: String { get }
+}
+
+struct CurrencyManager {
+    
+    static func getCurrency(from code: String) -> Currency? {
+        if let fiatCurrency = Fiat(rawValue: code) {
+            return fiatCurrency
+        } else if let cryptoCurrency = Blockchain(rawValue: code) {
+            return cryptoCurrency
+        } else {
+            return nil
+        }
+    }
+    
+    static func getAllCurrencies(for currency: Currency) -> [Currency]? {
+        if Fiat(rawValue: currency.code) != nil {
+            return Fiat.allValues
+        } else if Blockchain(rawValue: currency.code) != nil {
+            return Blockchain.allValues
+        } else if Token.ERC20(rawValue: currency.code) != nil {
+            return Token.ERC20.allValues
+        } else {
+            return nil
+        }
+    }
+    
 }
 
 enum Blockchain: String, Currency {
@@ -36,35 +62,18 @@ enum Blockchain: String, Currency {
     }
     
     /// returns currency name
-    var blockchain: String {
+    var name: String {
         return Blockchain.nameForBlockchain[self]!
     }
 
-    static var allValues = [ETH, XBT]
+    static var allValues = [XBT, ETH]
     
     // MARK: - Currency Protocol
-    var name: String {
+    var code: String {
         return self.rawValue
     }
     
 }
-
-//enum ERC20Token: String, Currency {
-//    case OMG
-//    case REP
-//    case STORJ
-//
-//    private static let nameForToken: [ERC20Token: String] = [
-//        .OMG: "OmiseGo",
-//        .REP: "Augur",
-//        .STORJ: "Storj"
-//    ]
-//
-//    // MARK: - Currency Protocol
-//    var name: String {
-//        return self.rawValue
-//    }
-//}
 
 enum Fiat: String, Currency {
     case EUR
@@ -74,9 +83,10 @@ enum Fiat: String, Currency {
     static var allValues = [EUR, USD]
     
     // MARK: - Currency Protocol
-    var name: String {
+    var code: String {
         return self.rawValue
     }
+    
 }
 
 enum TradingPair: String {
@@ -90,8 +100,9 @@ enum TradingPair: String {
     
     // MARK: - Public Type Methods
     /// returns trading pair constructed from specified crypto and fiat currency
-    static func getTradingPair<A: Currency, B: Currency>(a: A, b: B) -> TradingPair? {
-        let tradingPair = a.name + b.name
+    static func getTradingPair(a: Currency, b: Currency) -> TradingPair? {
+        let tradingPair = a.code + b.code
         return TradingPair(rawValue: tradingPair)
     }
+    
 }

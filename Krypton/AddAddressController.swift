@@ -21,10 +21,16 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
         }
     }
     
+    var selectedBlockchain: Blockchain = .XBT {
+        didSet {
+            blockchainLabel.text = selectedBlockchain.name
+        }
+    }
+    
     // MARK: - Private Properties
-    private let cryptoData = Blockchain.allValues
-    private let cryptoFieldIndexPath = IndexPath(row: 0, section: 1)
-    private let cryptoPickerIndexPath = IndexPath(row: 1, section: 1)
+    private let blockchains = Blockchain.allValues
+    private let blockchainFieldIndexPath = IndexPath(row: 0, section: 1)
+    private let blockchainPickerIndexPath = IndexPath(row: 1, section: 1)
     private let portfolioIndexPath = IndexPath(row: 0, section: 2)
     
     // MARK: - Outlets
@@ -33,8 +39,8 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
     @IBOutlet weak var addressField: UITextField!
     @IBOutlet weak var aliasField: UITextField!
     
-    @IBOutlet weak var cryptoField: UITableViewCell!
-    @IBOutlet weak var cryptoPicker: UIPickerView!
+    @IBOutlet weak var blockchainLabel: UILabel!
+    @IBOutlet weak var blockchainPicker: UIPickerView!
     
     @IBOutlet weak var selectedPortfolioLabel: UILabel!
     
@@ -42,10 +48,10 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        cryptoPicker.delegate = self
-        cryptoPicker.dataSource = self
-        cryptoPicker.selectRow(0, inComponent: 0, animated: true)
-        cryptoPicker.isHidden = true
+        blockchainPicker.delegate = self
+        blockchainPicker.dataSource = self
+        blockchainPicker.selectRow(0, inComponent: 0, animated: true)
+        blockchainPicker.isHidden = true
         
         addressField.delegate = self
         aliasField.delegate = self
@@ -71,12 +77,12 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
     }
     
     @IBAction func save(_ sender: UIBarButtonItem) {
-        guard let addressString = addressField.text, !addressString.isEmpty, let selectedUnit = cryptoField.detailTextLabel?.text, let cryptoUnit = Blockchain(rawValue: selectedUnit), selectedPortfolio != nil else {
+        guard let addressString = addressField.text, !addressString.isEmpty, selectedPortfolio != nil else {
             return
         }
         
         do {
-            try selectedPortfolio?.addAddress(addressString, alias: aliasField.text, blockchain: cryptoUnit)
+            try selectedPortfolio?.addAddress(addressString, alias: aliasField.text, blockchain: selectedBlockchain)
             dismiss(animated: true, completion: nil)
         } catch {
             print("Failed to add address due to error: \(error)")
@@ -85,7 +91,7 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
     
     // MARK: - Public Methods
     func checkSaveButton() {
-        guard let addressString = addressField.text, !addressString.isEmpty, let selectedUnit = cryptoField.detailTextLabel?.text, let _ = Blockchain(rawValue: selectedUnit), selectedPortfolio != nil else {
+        guard let addressString = addressField.text, !addressString.isEmpty, selectedPortfolio != nil else {
             saveButton.isEnabled = false
             return
         }
@@ -95,8 +101,8 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
     
     // MARK: - TableView Delegate
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if indexPath == cryptoPickerIndexPath {
-            if cryptoPicker.isHidden {
+        if indexPath == blockchainPickerIndexPath {
+            if blockchainPicker.isHidden {
                 return 0
             } else {
                 return 220
@@ -107,8 +113,8 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-       if indexPath == cryptoFieldIndexPath {
-            cryptoPicker.isHidden = !cryptoPicker.isHidden
+       if indexPath == blockchainFieldIndexPath {
+            blockchainPicker.isHidden = !blockchainPicker.isHidden
         
             UIView.animate(withDuration: 0.3, animations: { () -> Void in
                 self.tableView.beginUpdates()
@@ -143,15 +149,15 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
     }
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return cryptoData.count
+        return blockchains.count
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return cryptoData[row].blockchain
+        return blockchains[row].name
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        cryptoField.detailTextLabel?.text = cryptoData[row].rawValue
+        selectedBlockchain = blockchains[row]
     }
     
 }
