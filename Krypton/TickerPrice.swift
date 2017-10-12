@@ -40,7 +40,7 @@ class TickerPrice: NSManagedObject {
     /// creates and returns ticker price if non-existent in database, throws otherwise
     class func createTickerPrice(from priceInfo: KrakenAPI.Price, in context: NSManagedObjectContext) throws -> TickerPrice {
         let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()
-        request.predicate = NSPredicate(format: "date = %@ AND tradingPairRaw = %@", priceInfo.date, priceInfo.tradingPair.rawValue)
+        request.predicate = NSPredicate(format: "tradingPairRaw = %@ AND date = %@", priceInfo.tradingPair.rawValue, priceInfo.date)
         
         do {
             let matches = try context.fetch(request)
@@ -52,12 +52,12 @@ class TickerPrice: NSManagedObject {
             throw error
         }
         
-        let price = TickerPrice(context: context)
-        price.date = priceInfo.date as Date
-        price.tradingPairRaw = priceInfo.tradingPair.rawValue
-        price.value = priceInfo.value
+        let tickerPrice = TickerPrice(context: context)
+        tickerPrice.date = priceInfo.date as Date
+        tickerPrice.tradingPairRaw = priceInfo.tradingPair.rawValue
+        tickerPrice.value = priceInfo.value
         
-        return price
+        return tickerPrice
     }
     
     /// returns exchange value for specified trading pair on specified date, nil if date is today or in the future
@@ -118,7 +118,12 @@ class TickerPrice: NSManagedObject {
                             newPriceCount = newPriceCount + 1
                         }
                     } catch {
-                        print("Failed to create tickerPrice \(price.tradingPair, price.date, price.value): \(error)")
+                        switch error {
+                        case TickerPriceError.duplicate:
+                            break
+                        default:
+                            print("Failed to create tickerPrice \(price.tradingPair, price.date, price.value): \(error)")
+                        }
                     }
                 }
                 

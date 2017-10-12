@@ -71,9 +71,9 @@ class Token: NSManagedObject, Currency {
     }
     
     // MARK: - Public Class Methods
-    class func createToken(from tokenInfo: TokenFeatures, balance: Double, owner: TokenAddress, in context: NSManagedObjectContext) throws -> Token {
+    class func createToken(from tokenInfo: TokenFeatures, owner: TokenAddress, in context: NSManagedObjectContext) throws -> Token {
         let request: NSFetchRequest<Token> = Token.fetchRequest()
-        request.predicate = NSPredicate(format: "address = %@ AND owner = %@", tokenInfo.address, owner)
+        request.predicate = NSPredicate(format: "currencyCode = %@ AND owner = %@", tokenInfo.code, owner)
         
         do {
             let matches = try context.fetch(request)
@@ -87,7 +87,6 @@ class Token: NSManagedObject, Currency {
         
         let token = Token(context: context)
         token.address = tokenInfo.address
-        token.balance = balance
         token.name = tokenInfo.name
         token.currencyCode = tokenInfo.code
         token.decimalDigits = Int16(tokenInfo.decimalDigits)
@@ -96,11 +95,9 @@ class Token: NSManagedObject, Currency {
         return token
     }
     
-    // MARK: - Public Properties
+    // MARK: - CurrencyProtocol
     var code: String {
         return currencyCode!
     }
     
 }
-
-

@@ -26,7 +26,7 @@
     </entity>
     <entity name="Token" representedClassName=".Token" syncable="YES" codeGenerationType="category">
         <attribute name="address" attributeType="String" syncable="YES"/>
-        <attribute name="balance" attributeType="Double" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="balance" attributeType="Double" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="currencyCode" attributeType="String" syncable="YES"/>
         <attribute name="decimalDigits" attributeType="Integer 16" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="name" attributeType="String" syncable="YES"/>

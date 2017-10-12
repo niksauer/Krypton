@@ -35,10 +35,13 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
         super.init(entity: entity, insertInto: context)
         
         for address in storedAddresses {
-            if let tokenAddress = address as? TokenAddress {
+            switch address {
+            case let tokenAddress as TokenAddress:
                 tokenAddress.tokenDelegate = self
+                fallthrough
+            default:
+                address.delegate = self
             }
-            address.delegate = self
         }
     }
     
@@ -51,7 +54,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
             return Fiat(rawValue: baseCurrencyCode!)!
         }
         set {
-            self.baseCurrencyCode = newValue.code
+            baseCurrencyCode = newValue.code
         }
     }
     
@@ -61,13 +64,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
     }
     
     var selectedAddresses: [Address] {
-        var selectedAddresses = [Address]()
-        for address in storedAddresses {
-            if address.isSelected {
-                selectedAddresses.append(address)
-            }
-        }
-        return selectedAddresses
+        return storedAddresses.filter({ $0.isSelected })
     }
     
     // MARK: - Public Methods
@@ -92,7 +89,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
         }
         
         do {
-            isDefault = state
+            self.isDefault = state
             try AppDelegate.viewContext.save()
             print("Saved updated is default status for portfolio.")
             delegate?.didUpdateIsDefault(for: self)
@@ -102,15 +99,19 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
     }
 
     func setBaseCurrency(_ currency: Currency) throws {
+        guard self.baseCurrency.code != currency.code else {
+            return
+        }
+        
         do {
             self.baseCurrencyCode = currency.code
             try AppDelegate.viewContext.save()
             
             for address in storedAddresses {
                 try address.setBaseCurrency(currency)
-                address.update(completion: nil)
             }
             
+            self.update()
             print("Saved updated base currency for portfolio.")
             delegate?.didUpdateBaseCurrency(for: self)
         } catch {
@@ -194,18 +195,12 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
         
         var profitHistory: [(Date, Double)] = []
         
-        for (index, address) in storedAddresses.enumerated() {
+        for address in storedAddresses {
             guard let absoluteProfitHistory = address.getAbsoluteProfitHistory(for: type, since: date) else {
                 return nil
             }
             
-            if index == 0 {
-                for (date, absoluteReturn) in absoluteProfitHistory {
-                    profitHistory.append((date, absoluteReturn))
-                }
-            } else {
-                profitHistory = zip(profitHistory, absoluteProfitHistory).map() { ($0.0, $0.1 + $1.1) }
-            }
+            profitHistory = zip(profitHistory, absoluteProfitHistory).map() { ($0.0, $0.1 + $1.1) }
         }
         
         return profitHistory
