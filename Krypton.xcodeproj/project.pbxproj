@@ -359,10 +359,18 @@
 				2438599D1F6CA6BF00D67791 /* Shared */,
 				242729A21F704C4C00E5231D /* Portfolios */,
 				2438599E1F6CA6D500D67791 /* Transactions */,
+				24F2C8361F8FBB130065BDEC /* Settings */,
+			);
+			name = Controller;
+			sourceTree = "<group>";
+		};
+		24F2C8361F8FBB130065BDEC /* Settings */ = {
+			isa = PBXGroup;
+			children = (
 				2449F4491F6F1F40006E21C8 /* SettingsController.swift */,
 				24C63DB31F7F15DD0096A807 /* WatchlistController.swift */,
 			);
-			name = Controller;
+			name = Settings;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

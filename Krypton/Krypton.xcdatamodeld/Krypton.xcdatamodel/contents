@@ -9,7 +9,7 @@
         <attribute name="isSelected" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="lastBlock" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <relationship name="portfolio" maxCount="1" deletionRule="Nullify" destinationEntity="Portfolio" inverseName="addresses" inverseEntity="Portfolio" syncable="YES"/>
-        <relationship name="transactions" optional="YES" toMany="YES" deletionRule="Deny" destinationEntity="Transaction" inverseName="owner" inverseEntity="Transaction" syncable="YES"/>
+        <relationship name="transactions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Transaction" inverseName="owner" inverseEntity="Transaction" syncable="YES"/>
     </entity>
     <entity name="Bitcoin" representedClassName=".Bitcoin" parentEntity="Address" syncable="YES" codeGenerationType="category"/>
     <entity name="Ethereum" representedClassName=".Ethereum" parentEntity="TokenAddress" syncable="YES" codeGenerationType="category"/>

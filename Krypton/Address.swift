@@ -150,6 +150,7 @@ class Address: NSManagedObject {
             case let .success(balance):
                 guard balance != self.balance else {
                     print("Balance for \(self.identifier!) is already up-to-date.")
+                    completion?()
                     return
                 }
                 

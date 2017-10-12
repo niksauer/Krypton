@@ -57,7 +57,7 @@ class AddresDetailController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch address {
-        case let tokenAddress as TokenAddress where section == 2:
+        case let tokenAddress as TokenAddress where (section == 2 && tokenAddress.storedTokens.count > 0):
            return tokenAddress.storedTokens.count
         default:
             if section == 0 || section == 1 {
@@ -73,7 +73,7 @@ class AddresDetailController: UITableViewController {
         let row = indexPath.row
         
         switch address {
-        case let tokenAddress as TokenAddress where indexPath.section == 2:
+        case let tokenAddress as TokenAddress where (section == 2 && tokenAddress.storedTokens.count > 0):
             let cell = tableView.dequeueReusableCell(withIdentifier: "infoCell", for: indexPath)
             let token = tokenAddress.storedTokens[indexPath.row]
             cell.textLabel?.text = token.name
@@ -109,7 +109,7 @@ class AddresDetailController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         switch address {
-        case is TokenAddress where section == 2:
+        case let tokenAddress as TokenAddress where (section == 2 && tokenAddress.storedTokens.count > 0):
             return "Tokens"
         default:
             if section == 0 {

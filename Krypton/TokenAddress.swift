@@ -41,6 +41,18 @@ class TokenAddress: Address {
     }
     
     // MARK: Management
+    override func update(completion: (() -> Void)?) {
+        self.updateTransactionHistory {
+            self.updatePriceHistory {
+                self.updateBalance {
+                    self.updateTokenBalance {
+                        completion?()
+                    }
+                }
+            }
+        }
+    }
+    
     func updateTokenBalance(completion: (() -> Void)?) {
         preconditionFailure("This method must be overridden")
     }
@@ -57,18 +69,6 @@ class Ethereum: TokenAddress {
     
     // MARK: - Public Methods
     // MARK: Management
-    override func update(completion: (() -> Void)?) {
-        self.updateTransactionHistory {
-            self.updatePriceHistory {
-                self.updateBalance {
-                    self.updateTokenBalance {
-                        completion?()
-                    }
-                }
-            }
-        }
-    }
-    
     override func updateTransactionHistory(completion: (() -> Void)?) {
         let timeframe: TransactionHistoryTimeframe
         
@@ -154,25 +154,27 @@ class Ethereum: TokenAddress {
                     if let token = self.getToken(etherToken) {
                         guard balance > 0 else {
                             context.delete(token)
+                            completion?()
                             return
                         }
                         
                         do {
-                            token.balance = balance
-                            
-                            if context.hasChanges {
-                                try context.save()
-                                print("Saved updated balance for token \(etherToken.name).")
-                            } else {
+                            guard token.balance != balance else {
                                 print("Balance for token \(etherToken.name) is already up-to-date.")
+                                completion?()
+                                return
                             }
                             
+                            try context.save()
+                            print("Saved updated balance for token \(etherToken.name).")
+                            self.tokenDelegate?.didUpdateTokenBalance(for: self, token: token)
                             completion?()
                         } catch {
                             print("Failed to save updated token balance for \(etherToken.name): \(error)")
                         }
                     } else {
                         guard balance > 0 else {
+                            completion?()
                             return
                         }
                         

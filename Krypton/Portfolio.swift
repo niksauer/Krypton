@@ -108,6 +108,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
             
             for address in storedAddresses {
                 try address.setBaseCurrency(currency)
+                address.update(completion: nil)
             }
             
             print("Saved updated base currency for portfolio.")
