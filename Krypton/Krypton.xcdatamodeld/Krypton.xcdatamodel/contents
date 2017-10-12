@@ -3,6 +3,7 @@
     <entity name="Address" representedClassName=".Address" isAbstract="YES" syncable="YES" codeGenerationType="category">
         <attribute name="alias" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="balance" optional="YES" attributeType="Double" defaultValueString="-1" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="baseCurrencyCode" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="blockchainRaw" attributeType="String" syncable="YES"/>
         <attribute name="identifier" attributeType="String" syncable="YES"/>
         <attribute name="isSelected" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES" syncable="YES"/>
@@ -11,12 +12,10 @@
         <relationship name="transactions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Transaction" inverseName="owner" inverseEntity="Transaction" syncable="YES"/>
     </entity>
     <entity name="Bitcoin" representedClassName=".Bitcoin" parentEntity="Address" syncable="YES" codeGenerationType="category"/>
-    <entity name="Ethereum" representedClassName=".Ethereum" parentEntity="Address" syncable="YES" codeGenerationType="category">
-        <relationship name="tokens" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Token" inverseName="owners" inverseEntity="Token" syncable="YES"/>
-    </entity>
+    <entity name="Ethereum" representedClassName=".Ethereum" parentEntity="TokenAddress" syncable="YES" codeGenerationType="category"/>
     <entity name="Portfolio" representedClassName=".Portfolio" syncable="YES" codeGenerationType="category">
         <attribute name="alias" attributeType="String" syncable="YES"/>
-        <attribute name="fiatRaw" attributeType="String" syncable="YES"/>
+        <attribute name="baseCurrencyCode" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="isDefault" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES" syncable="YES"/>
         <relationship name="addresses" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Address" inverseName="portfolio" inverseEntity="Address" syncable="YES"/>
     </entity>
@@ -26,7 +25,15 @@
         <attribute name="value" attributeType="Double" usesScalarValueType="YES" syncable="YES"/>
     </entity>
     <entity name="Token" representedClassName=".Token" syncable="YES" codeGenerationType="category">
-        <relationship name="owners" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Ethereum" inverseName="tokens" inverseEntity="Ethereum" syncable="YES"/>
+        <attribute name="address" attributeType="String" syncable="YES"/>
+        <attribute name="balance" attributeType="Double" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="currencyCode" attributeType="String" syncable="YES"/>
+        <attribute name="decimalDigits" attributeType="Integer 16" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="name" attributeType="String" syncable="YES"/>
+        <relationship name="owner" maxCount="1" deletionRule="Nullify" destinationEntity="TokenAddress" inverseName="tokens" inverseEntity="TokenAddress" syncable="YES"/>
+    </entity>
+    <entity name="TokenAddress" representedClassName=".TokenAddress" isAbstract="YES" parentEntity="Address" syncable="YES" codeGenerationType="category">
+        <relationship name="tokens" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Token" inverseName="owner" inverseEntity="Token" syncable="YES"/>
     </entity>
     <entity name="Transaction" representedClassName=".Transaction" syncable="YES" codeGenerationType="category">
         <attribute name="amount" attributeType="Double" usesScalarValueType="YES" syncable="YES"/>
@@ -43,12 +50,13 @@
         <relationship name="owner" maxCount="1" deletionRule="Deny" destinationEntity="Address" inverseName="transactions" inverseEntity="Address" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Address" positionX="-146" positionY="-235" width="128" height="163"/>
-        <element name="Bitcoin" positionX="27" positionY="-117" width="128" height="43"/>
-        <element name="Ethereum" positionX="27" positionY="-229" width="128" height="58"/>
-        <element name="Portfolio" positionX="-396" positionY="-162" width="128" height="103"/>
-        <element name="TickerPrice" positionX="-387" positionY="18" width="128" height="88"/>
-        <element name="Token" positionX="214" positionY="-252" width="128" height="58"/>
-        <element name="Transaction" positionX="-171" positionY="-522" width="128" height="225"/>
+        <element name="Address" positionX="-146" positionY="-235" width="128" height="180"/>
+        <element name="Bitcoin" positionX="43" positionY="-153" width="128" height="43"/>
+        <element name="Ethereum" positionX="216" positionY="-238" width="128" height="43"/>
+        <element name="Portfolio" positionX="-396" positionY="-162" width="128" height="105"/>
+        <element name="TickerPrice" positionX="-146" positionY="56" width="128" height="88"/>
+        <element name="Token" positionX="43" positionY="-493" width="128" height="135"/>
+        <element name="TokenAddress" positionX="36" positionY="-252" width="128" height="58"/>
+        <element name="Transaction" positionX="-164" positionY="-583" width="128" height="223"/>
     </elements>
 </model>

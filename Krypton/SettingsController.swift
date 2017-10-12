@@ -8,40 +8,44 @@
 
 import UIKit
 
-class SettingsController: UITableViewController, FiatSelectionDelegate, PortfolioManagerDelegate {
+class SettingsController: UITableViewController, CurrencySelectionDelegate, PortfolioManagerDelegate {
 
     // MARK: - Outlets
-    @IBOutlet weak var selectedFiatCurrencyLabel: UILabel!
+    @IBOutlet weak var baseCurrencyCodeLabel: UILabel!
     
     // MARK: - Initialization
+    override func viewDidLoad() {
+        baseCurrencyCodeLabel.text = PortfolioManager.shared.baseCurrency.code
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         PortfolioManager.shared.delegate = self
-        selectedFiatCurrencyLabel.text = PortfolioManager.shared.baseCurrency.rawValue
     }
     
     // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         super.prepare(for: segue, sender: sender)
         
-        if let destVC = segue.destination as? FiatSelectionController {
+        if let destVC = segue.destination as? CurrencySelectionController {
             destVC.delegate = self
             destVC.selection = PortfolioManager.shared.baseCurrency
         }
     }
     
-    // MARK: - FiatCurrency Delegate
-    func didSelectFiatCurrency(selection: Fiat) {
+    // MARK: - CurrencySelection Delegate
+    func didSelectCurrency(selection: Currency) {
         do {
             try PortfolioManager.shared.setBaseCurrency(selection)
         } catch {
+            // present error
             print(error)
         }
     }
     
     // MARK: - PortfolioManager Delegate
     func didUpdatePortfolioManager() {
-        selectedFiatCurrencyLabel.text = PortfolioManager.shared.baseCurrency.rawValue
+        baseCurrencyCodeLabel.text = PortfolioManager.shared.baseCurrency.code
     }
     
 }

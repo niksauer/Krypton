@@ -39,7 +39,7 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
             switch portfolioDisplay {
             case .currentExchangeValue:
                 portfolioLabel.text = "Total Portfolio Value"
-                portfolioValueLabel.text = Format.getFiatFormatting(for: NSNumber(value: currentExchangeValue), fiatCurrency: PortfolioManager.shared.baseCurrency)
+                portfolioValueLabel.text = Format.getCurrencyFormatting(for: currentExchangeValue, currency: PortfolioManager.shared.baseCurrency)
             case .relativeProfit:
                 portfolioLabel.text = "Total Relative Profit"
                 let relativeProfit = Format.getRelativeProfit(from: profitStats)
@@ -47,7 +47,7 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
             case .absoluteProfit:
                 portfolioLabel.text = "Total Absolute Profit"
                 let absoluteProfit = Format.getAbsoluteProfit(from: profitStats)
-                portfolioValueLabel.text = Format.getFiatFormatting(for: NSNumber(value: absoluteProfit), fiatCurrency: PortfolioManager.shared.baseCurrency)
+                portfolioValueLabel.text = Format.getCurrencyFormatting(for: absoluteProfit, currency: PortfolioManager.shared.baseCurrency)
             }
         }
     }
@@ -66,7 +66,7 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
                 profitValueLabel.text = Format.getNumberFormatting(for: NSNumber(value: relativeProfit)) + "%"
             } else {
                 let absoluteProfit = Format.getAbsoluteProfit(from: profitStats)
-                profitValueLabel.text = Format.getFiatFormatting(for: NSNumber(value: absoluteProfit), fiatCurrency: PortfolioManager.shared.baseCurrency)
+                profitValueLabel.text = Format.getCurrencyFormatting(for: absoluteProfit, currency: PortfolioManager.shared.baseCurrency)
             }
         }
     }
@@ -121,7 +121,7 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
         showsRelativeProfit = { showsRelativeProfit }()
         
         if let investmentValue = PortfolioManager.shared.getProfitStats(for: transactionFilter, timeframe: .allTime)?.startValue {
-            investmentValueLabel.text = Format.getFiatFormatting(for: NSNumber(value: investmentValue), fiatCurrency: PortfolioManager.shared.baseCurrency)
+            investmentValueLabel.text = Format.getCurrencyFormatting(for: investmentValue, currency: PortfolioManager.shared.baseCurrency)
         } else {
             investmentValueLabel.text = "???"
         }

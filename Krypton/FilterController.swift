@@ -16,7 +16,7 @@ class FilterController: UITableViewController {
     
     // MARK: - Private Properties
     private let filterOptionsCount = 1
-    private let portfolios = PortfolioManager.shared.getPortfolios()
+    private let portfolios = PortfolioManager.shared.storedPortfolios
     private var newTransactionType: TransactionType?
 
     // MARK: - Navigation

@@ -26,13 +26,13 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
             if showsExchangeValue {
                 exchangeValueTypeLabel.text = "Value"
                 if let userExchangeValue = transaction?.userExchangeValue, userExchangeValue != -1 {
-                    exchangeValueField.text = Format.getFiatFormatting(for: NSNumber(value: userExchangeValue), fiatCurrency: PortfolioManager.shared.baseCurrency)
+                    exchangeValueField.text = Format.getCurrencyFormatting(for: userExchangeValue, currency: PortfolioManager.shared.baseCurrency)
                 } else {
-                    exchangeValueField.text = Format.getFiatFormatting(for: NSNumber(value: exchangeValue), fiatCurrency: PortfolioManager.shared.baseCurrency)
+                    exchangeValueField.text = Format.getCurrencyFormatting(for: exchangeValue, currency: PortfolioManager.shared.baseCurrency)
                 }
             } else {
                 exchangeValueTypeLabel.text = "Current Value"
-                exchangeValueField.text = Format.getFiatFormatting(for: NSNumber(value: currentExchangeValue), fiatCurrency: PortfolioManager.shared.baseCurrency)
+                exchangeValueField.text = Format.getCurrencyFormatting(for: currentExchangeValue, currency: PortfolioManager.shared.baseCurrency)
             }
         }
     }
@@ -51,7 +51,7 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
             } else {
                 profitTypeLabel.text = "Absolute Profit"
                 let absoluteProfit = Format.getAbsoluteProfit(from: profitStats)
-                profitField.text = Format.getFiatFormatting(for: NSNumber(value: absoluteProfit), fiatCurrency: PortfolioManager.shared.baseCurrency)
+                profitField.text = Format.getCurrencyFormatting(for: absoluteProfit, currency: PortfolioManager.shared.baseCurrency)
             }
         }
     }
@@ -64,9 +64,9 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
             }
             
             if showsCryptoFees {
-                feeField.text = Format.getCryptoFormatting(for: NSNumber(value: feeAmount), cryptoCurrency: transaction!.owner!.blockchain)
+                feeField.text = Format.getCurrencyFormatting(for: feeAmount, currency: transaction!.owner!.blockchain)
             } else {
-                feeField.text = Format.getFiatFormatting(for: NSNumber(value: feeExchangeValue), fiatCurrency: PortfolioManager.shared.baseCurrency)
+                feeField.text = Format.getCurrencyFormatting(for: feeExchangeValue, currency: PortfolioManager.shared.baseCurrency)
             }
         }
     }
@@ -103,10 +103,8 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
         }
         
         TickerWatchlist.delegate = self
-        
-        let cryptoCurrency = tx.owner!.blockchain
-        amountField.text = Format.getCryptoFormatting(for: NSNumber(value: tx.amount), cryptoCurrency: cryptoCurrency)
-        
+
+        amountField.text = Format.getCurrencyFormatting(for: tx.amount, currency: transaction!.owner!.blockchain)
         senderAddressField.text = PortfolioManager.shared.getAlias(for: tx.from!) ?? tx.from
         receiverAddressField.text = PortfolioManager.shared.getAlias(for: tx.to!) ?? tx.to
         dateField.text = Format.getDateFormatting(for: tx.date! as Date)

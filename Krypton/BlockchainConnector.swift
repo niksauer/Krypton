@@ -28,6 +28,10 @@ enum BalanceResult {
     case failure(Error)
 }
 
+enum BlockchainConnectorError: Error {
+    case invalidBlockchain
+}
+
 struct BlockchainConnector {
     // MARK: - Private Properties
     private static let session: URLSession = {
@@ -48,33 +52,21 @@ struct BlockchainConnector {
         let feeAmount: Double
     }
     
-    // MARK: - Private Methods
-//    private static func processTransactionHistoryRequest(type: TransactionHistoryType, data: Data?, error: Error?) -> TransactionHistoryResult {
-//        guard let jsonData = data else {
-//            return .failure(error!)
-//        }
-//
-//        return EtherscanAPI.transactionHistory(type: type, fromJSON: jsonData)
-//    }
-    
-//    private static func processBalanceRequest(data: Data?, error: Error?) -> BalanceResult {
-//        guard let jsonData = data else {
-//            return .failure(error!)
-//        }
-//
-//        return EtherscanAPI.balance(fromJSON: jsonData)
-//    }
-    
     // MARK: - Public Methods
     static func fetchTransactionHistory(for address: Address, type: TransactionHistoryType, timeframe: TransactionHistoryTimeframe, completion: @escaping (TransactionHistoryResult) -> Void) {
-        let cryptoCurrency = address.blockchain
         let url: URL
         
-        switch cryptoCurrency {
-        case .XBT:
+        switch address {
+        case is Bitcoin:
             url = BlockexplorerAPI.transactionHistoryURL(for: address.identifier!)
-        case .ETH:
+        case is Ethereum:
             url = EtherscanAPI.transactionHistoryURL(for: address.identifier!, type: type, timeframe: timeframe)
+        default:
+            OperationQueue.main.addOperation {
+                completion(.failure(BlockchainConnectorError.invalidBlockchain))
+            }
+            
+            return
         }
         
         let request = URLRequest(url: url)
@@ -83,15 +75,17 @@ struct BlockchainConnector {
             var result: TransactionHistoryResult
             
             if let jsonData = data {
-                switch cryptoCurrency {
-                case .XBT:
+                switch address {
+                case is Bitcoin:
                     result = BlockexplorerAPI.transactionHistory(fromJSON: jsonData, for: address)
                     
                     if case let TransactionHistoryResult.success(transactions) = result, case let TransactionHistoryTimeframe.sinceBlock(blockNumber) = timeframe {
                         result = .success(transactions.filter { $0.block >= blockNumber })
                     }
-                case .ETH:
+                case is Ethereum:
                     result = EtherscanAPI.transactionHistory(type: type, fromJSON: jsonData)
+                default:
+                    return
                 }
             } else {
                 result = .failure(error!)
@@ -106,14 +100,19 @@ struct BlockchainConnector {
     }
     
     static func fetchBalance(for address: Address, completion: @escaping (BalanceResult) -> Void) {
-        let cryptoCurrency = address.blockchain
         let url: URL
         
-        switch cryptoCurrency {
-        case .XBT:
+        switch address {
+        case is Bitcoin:
             url = BlockexplorerAPI.balanceURL(for: address.identifier!)
-        case .ETH:
+        case is Ethereum:
             url = EtherscanAPI.balanceURL(for: address.identifier!)
+        default:
+            OperationQueue.main.addOperation {
+                completion(.failure(BlockchainConnectorError.invalidBlockchain))
+            }
+            
+            return
         }
         
         let request = URLRequest(url: url)
@@ -122,11 +121,13 @@ struct BlockchainConnector {
             let result: BalanceResult
             
             if let jsonData = data {
-                switch cryptoCurrency {
-                case .XBT:
+                switch address {
+                case is Bitcoin:
                     result = BlockexplorerAPI.balance(fromJSON: jsonData)
-                case .ETH:
+                case is Ethereum:
                     result = EtherscanAPI.balance(fromJSON: jsonData)
+                default:
+                    return
                 }
             } else {
                 result = .failure(error!)
@@ -139,4 +140,48 @@ struct BlockchainConnector {
         
         task.resume()
     }
+
+    static func fetchTokenBalance(for address: TokenAddress, token: TokenFeatures, completion: @escaping (BalanceResult) -> Void) {
+        let url: URL
+        
+        switch address {
+        case is Ethereum:
+            url = EtherscanAPI.tokenBalanceURL(for: address.identifier!, contractAddress: token.address)
+        default:
+            OperationQueue.main.addOperation {
+                completion(.failure(BlockchainConnectorError.invalidBlockchain))
+            }
+            
+            return
+        }
+        
+        let request = URLRequest(url: url)
+        
+        let task = session.dataTask(with: request) { (data, response, error) -> Void in
+            let result: BalanceResult
+            
+            if let jsonData = data {
+                switch address {
+                case is Ethereum:
+                    switch EtherscanAPI.tokenBalance(fromJSON: jsonData) {
+                    case let .success(balance):
+                        result = .success(balance * (pow(10, -Double(token.decimalDigits))))
+                    case let .failure(error):
+                        result = .failure(error)
+                    }
+                default:
+                    return
+                }
+            } else {
+                result = .failure(error!)
+            }
+            
+            OperationQueue.main.addOperation {
+                completion(result)
+            }
+        }
+        
+        task.resume()
+    }
+    
 }

@@ -85,13 +85,12 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
     
     @objc private func updateAddresses() {
         for (index, address) in addresses.enumerated() {
-            address.updateTransactionHistory() {
-                address.updatePriceHistory {
-                    address.updateBalance()
-                    if index == self.addresses.count-1 {
-                        self.refreshControl?.endRefreshing()
-                    }
+            if index == self.addresses.count-1 {
+                address.update {
+                    self.refreshControl?.endRefreshing()
                 }
+            } else {
+                address.update(completion: nil)
             }
         }
     }
@@ -114,7 +113,7 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
         let cell = tableView.dequeueReusableCell(withIdentifier: "transactionCell", for: indexPath)
         let transaction = fetchedResultsController!.object(at: indexPath)
         
-        cell.textLabel?.text = Format.getCryptoFormatting(for: NSNumber(value: transaction.amount), cryptoCurrency: transaction.owner!.blockchain)
+        cell.textLabel?.text = Format.getCurrencyFormatting(for: transaction.amount, currency: transaction.owner!.blockchain)
         
         cell.detailTextLabel?.text = Format.getDateFormatting(for: transaction.date! as Date)
         if transaction.isOutbound {

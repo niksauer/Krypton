@@ -14,34 +14,21 @@ class AddresDetailController: UITableViewController {
     var address: Address!
     
     // MARK: - Private Properties
-    let deleteIndexPath = IndexPath(row: 0, section: 2)
-    
-    // MARK: - Outlets
-    @IBOutlet weak var addressField: UITextField!
-    @IBOutlet weak var aliasField: UITextField!
-    @IBOutlet weak var unitLabel: UILabel!
-    @IBOutlet weak var balanceLabel: UILabel!
-    
-    // MARK: - Initialization
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        addressField.text = address.identifier
-        aliasField.text = address.alias
-        unitLabel.text = address.blockchain.rawValue
-        balanceLabel.text = String(address.balance)
-    }
+    private var deleteIndexPath: IndexPath!
     
     // MARK: - Navigation
-    @IBAction func setAlias(_ sender: UITextField) {
-        guard let alias = sender.text, !alias.isEmpty else {
-            return
-        }
-        
-        do {
-            try address.setAlias(alias)
-        } catch {
-            print(error)
-        }
+    // TODO: Fix TextFieldCell
+    func setAlias() {
+//        guard let alias = sender.text, !alias.isEmpty else {
+//            return
+//        }
+//
+//        do {
+//            try address.setAlias()
+//        } catch {
+//            // present error
+//            print(error)
+//        }
     }
     
     func deleteAddress() {
@@ -54,7 +41,86 @@ class AddresDetailController: UITableViewController {
         }
     }
 
-    // MARK: - Table view Delegate
+    // MARK: - TableView Data Source Delegate
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        switch address {
+        case let tokenAddress as TokenAddress:
+            if tokenAddress.storedTokens.count > 0 {
+                return 4
+            } else {
+                return 3
+            }
+        default:
+            return 3
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        switch address {
+        case let tokenAddress as TokenAddress where (section == 2 && tokenAddress.storedTokens.count > 0):
+           return tokenAddress.storedTokens.count
+        default:
+            if section == 0 || section == 1 {
+                return 2
+            } else {
+                return 1
+            }
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let section = indexPath.section
+        let row = indexPath.row
+        
+        switch address {
+        case let tokenAddress as TokenAddress where (section == 2 && tokenAddress.storedTokens.count > 0):
+            let cell = tableView.dequeueReusableCell(withIdentifier: "infoCell", for: indexPath)
+            let token = tokenAddress.storedTokens[indexPath.row]
+            cell.textLabel?.text = token.name
+            cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: token.balance, currency: token)
+            return cell
+        default:
+            if section == 0 {
+                let cell = tableView.dequeueReusableCell(withIdentifier: "textFieldCell", for: indexPath) as! TextFieldCell
+                if row == 0 {
+                    cell.configure(text: address.identifier, placeholder: "Address", completion: nil)
+                } else {
+                    cell.configure(text: address.alias, placeholder: "Alias", completion: nil)
+                    cell.textField.clearButtonMode = .always
+                }
+                return cell
+            } else if section == 1 {
+                let cell = tableView.dequeueReusableCell(withIdentifier: "infoCell", for: indexPath)
+                if row == 0 {
+                    cell.textLabel?.text = "Blockchain"
+                    cell.detailTextLabel?.text = address.blockchain.name
+                } else {
+                    cell.textLabel?.text = "Balance"
+                    cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: address.balance, currency: address.blockchain)
+                }
+                return cell
+            } else {
+                deleteIndexPath = indexPath
+                let cell = tableView.dequeueReusableCell(withIdentifier: "deleteCell", for: indexPath)
+                return cell
+            }
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        switch address {
+        case let tokenAddress as TokenAddress where (section == 2 && tokenAddress.storedTokens.count > 0):
+            return "Tokens"
+        default:
+            if section == 0 {
+                return "Address"
+            } else {
+                return nil
+            }
+        }
+    }
+    
+    // MARK: - TableView Delegate
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath == deleteIndexPath {
             deleteAddress()

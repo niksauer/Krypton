@@ -8,18 +8,26 @@
 
 import Foundation
 import CoreData
-import SwiftKeccak
 
 enum AddressError: Error {
     case duplicate
     case invalid
 }
 
+protocol AddressDelegate {
+    func didUpdateTransactionHistory(for address: Address)
+    func didUpdateBalance(for address: Address)
+    func didUpdateAlias(for address: Address)
+    func didUpdateBaseCurrency(for address: Address)
+    func didUpdateUserExchangeValue(for transaction: Transaction)
+    func didUpdateIsInvestmentStatus(for transaction: Transaction)
+}
+
 class Address: NSManagedObject {
     
     // MARK: - Public Class Methods
     /// creates and returns address if non-existent in database, throws otherwise
-    class func createAddress(_ addressString: String, alias: String?, blockchain: Blockchain, in context: NSManagedObjectContext) throws -> Address {
+    class func createAddress(_ addressString: String, alias: String?, blockchain: Blockchain, baseCurrency: Currency, in context: NSManagedObjectContext) throws -> Address {
         let request: NSFetchRequest<Address> = Address.fetchRequest()
         request.predicate = NSPredicate(format: "identifier = %@", addressString)
         
@@ -49,6 +57,7 @@ class Address: NSManagedObject {
         }
         
         address.alias = alias
+        address.baseCurrencyCode = baseCurrency.code
         
         return address
     }
@@ -61,14 +70,20 @@ class Address: NSManagedObject {
         get {
             return Blockchain(rawValue: blockchainRaw!)!
         }
+    }
+    
+    private(set) public var baseCurrency: Currency {
+        get {
+            return Fiat(rawValue: baseCurrencyCode!)!
+        }
         set {
-            self.blockchainRaw = newValue.rawValue
+            self.baseCurrencyCode = newValue.code
         }
     }
     
     /// returns trading pair constructed from owner's baseCurrency + address' cryptoCurrency
     var tradingPair: TradingPair {
-        return TradingPair.getTradingPair(a: blockchain, b: portfolio!.fiat)!
+        return TradingPair.getTradingPair(a: blockchain, b: baseCurrency)!
     }
     
     /// returns all transaction associated with address
@@ -76,9 +91,9 @@ class Address: NSManagedObject {
         return Array(transactions!) as! [Transaction]
     }
     
-    // MARK: - Private Methods
+    // MARK: - Public Methods
     /// returns the oldest transaction associated with address
-    private func getOldestTransaction() -> Transaction? {
+    func getOldestTransaction() -> Transaction? {
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
         request.predicate = NSPredicate(format: "owner = %@", self)
@@ -97,8 +112,6 @@ class Address: NSManagedObject {
         }
     }
     
-    // MARK: - Public Methods
-    // MARK: Setters
     func setAlias(_ alias: String) throws {
         guard self.alias != alias else {
             return
@@ -114,14 +127,30 @@ class Address: NSManagedObject {
         }
     }
     
+    func setBaseCurrency(_ currency: Currency) throws {
+        do {
+            self.baseCurrencyCode = currency.code
+            try AppDelegate.viewContext.save()
+            print("Saved updated base currency for address \(identifier!).")
+            delegate?.didUpdateBaseCurrency(for: self)
+        } catch {
+            throw error
+        }
+    }
+    
     // MARK: Management
+    func update(completion: (() -> Void)?) {
+        preconditionFailure("This method must be overridden")
+    }
+    
     /// fetches and saves balance if it has changed, notifies delegate
-    func updateBalance() {
+    func updateBalance(completion: (() -> Void)?) {
         BlockchainConnector.fetchBalance(for: self, completion: { result in
             switch result {
             case let .success(balance):
                 guard balance != self.balance else {
                     print("Balance for \(self.identifier!) is already up-to-date.")
+                    completion?()
                     return
                 }
                 
@@ -130,6 +159,7 @@ class Address: NSManagedObject {
                     try AppDelegate.viewContext.save()
                     print("Saved updated balance for \(self.identifier!).")
                     self.delegate?.didUpdateBalance(for: self)
+                    completion?()
                 } catch {
                     print("Failed to save fetched balance for \(self.identifier!): \(error)")
                 }
@@ -284,190 +314,12 @@ class Address: NSManagedObject {
     
 }
 
-// MARK: - Address Delegate Protocol
-protocol AddressDelegate {
-    func didUpdateTransactionHistory(for address: Address)
-    func didUpdateBalance(for address: Address)
-    func didUpdateAlias(for address: Address)
-    func didUpdateUserExchangeValue(for transaction: Transaction)
-    func didUpdateIsInvestmentStatus(for transaction: Transaction)
-}
-
-class Ethereum: Address {
-    
-    // MARK: - Initializers
-    override func awakeFromInsert() {
-        super.awakeFromInsert()
-        blockchainRaw = Blockchain.ETH.rawValue
-    }
-    
-    // MARK: Management
-    override func updateTransactionHistory(completion: (() -> Void)?) {
-        let timeframe: TransactionHistoryTimeframe
-        
-        if lastBlock == 0 {
-            timeframe = .allTime
-        } else {
-            timeframe = .sinceBlock(Int(lastBlock))
-        }
-        
-        BlockchainConnector.fetchTransactionHistory(for: self, type: .normal, timeframe: timeframe) { result in
-            switch result {
-            case let .success(txs):
-                let context = AppDelegate.viewContext
-                
-                for txInfo in txs {
-                    do {
-                        let transaction = try Transaction.createTransaction(from: txInfo, in: context)
-                        self.addToTransactions(transaction)
-                        
-                        if transaction.block > self.lastBlock {
-                            self.lastBlock = transaction.block + 1
-                        }
-                    } catch {
-                        print("Failed to create transaction \(txInfo.identifier): \(error)")
-                    }
-                }
-                
-                do {
-                    if context.hasChanges {
-                        try context.save()
-                        print("Saved updated normal transaction history for \(self.identifier!).")
-                    } else {
-                        print("Normal transaction history for \(self.identifier!) is already up-to-date.")
-                    }
-                    
-                    BlockchainConnector.fetchTransactionHistory(for: self, type: .contract, timeframe: timeframe, completion: { result in
-                        switch result {
-                        case let .success(txs):
-                            for txInfo in txs {
-                                do {
-                                    let transaction = try Transaction.createTransaction(from: txInfo, in: context)
-                                    self.addToTransactions(transaction)
-                                    
-                                    if transaction.block > self.lastBlock {
-                                        self.lastBlock = transaction.block + 1
-                                    }
-                                } catch {
-                                    print("Failed to create transaction \(txInfo.identifier): \(error)")
-                                }
-                            }
-                            
-                            do {
-                                if context.hasChanges {
-                                    try context.save()
-                                    print("Saved updated contract transaction history for \(self.identifier!).")
-                                } else {
-                                    print("Contract transaction history for \(self.identifier!) is already up-to-date.")
-                                }
-                                
-                                self.delegate?.didUpdateTransactionHistory(for: self)
-                                
-                                completion?()
-                            } catch {
-                                print("Failed to save fetched contract transaction history for \(self.identifier!): \(error)")
-                            }
-                        case let .failure(error):
-                            print("Failed to fetch contract transaction history for \(self.identifier!): \(error)")
-                        }
-                    })
-                } catch {
-                    print("Failed to save fetched normal transaction history for \(self.identifier!): \(error)")
-                }
-            case let .failure(error):
-                print("Failed to fetch normal transaction history for \(self.identifier!): \(error)")
-            }
-        }
-    }
-    
-    // MARK: Cryptography
-    override func isValidAddress() -> Bool {
-        let allLowerCapsTest = NSPredicate(format: "SELF MATCHES %@", "(0x)?[0-9a-f]{40}")
-        let allUpperCapsTest = NSPredicate(format: "SELF MATCHES %@", "(0x)?[0-9A-F]{40}")
-        
-        if !allLowerCapsTest.evaluate(with: identifier!.lowercased()) {
-            // basic requirements
-            return false
-        } else if allLowerCapsTest.evaluate(with: identifier!) || allUpperCapsTest.evaluate(with: identifier!) {
-            // either all lower or upper case
-            return true
-        } else {
-            // checksum address
-            let address = identifier!.replacingOccurrences(of: "0x", with: "")
-            let addressHash = keccak256(address.lowercased()).hexEncodedString()
-            
-            for (index, character) in address.enumerated() {
-                guard let hashDigit = Int(String(addressHash[index]), radix: 16) else {
-                    return false
-                }
-                
-                let digit = String(character)
-                let uppercaseDigit = String(digit).uppercased()
-                let lowercaseDigit = String(digit).lowercased()
-                
-                if hashDigit > 7 && uppercaseDigit != digit || hashDigit <= 7 && lowercaseDigit != digit {
-                    return false
-                }
-            }
-            
-            return true
-        }
-    }
-    
-}
-
 class Bitcoin: Address {
 
     // MARK: - Initializers
     override func awakeFromInsert() {
         super.awakeFromInsert()
         blockchainRaw = Blockchain.XBT.rawValue
-    }
-    
-    // MARK: Management
-    override func updateTransactionHistory(completion: (() -> Void)?) {
-        let timeframe: TransactionHistoryTimeframe
-        
-        if lastBlock == 0 {
-            timeframe = .allTime
-        } else {
-            timeframe = .sinceBlock(Int(lastBlock))
-        }
-        
-        BlockchainConnector.fetchTransactionHistory(for: self, type: .normal, timeframe: timeframe) { result in
-            switch result {
-            case let .success(txs):
-                let context = AppDelegate.viewContext
-                
-                for txInfo in txs {
-                    do {
-                        let transaction = try Transaction.createTransaction(from: txInfo, in: context)
-                        self.addToTransactions(transaction)
-                        
-                        if transaction.block > self.lastBlock {
-                            self.lastBlock = transaction.block + 1
-                        }
-                    } catch {
-                        print("Failed to create transaction \(txInfo.identifier): \(error)")
-                    }
-                }
-                
-                do {
-                    if context.hasChanges {
-                        try context.save()
-                        print("Saved updated normal transaction history for \(self.identifier!).")
-                    } else {
-                        print("Normal transaction history for \(self.identifier!) is already up-to-date.")
-                    }
-                    
-                    completion?()
-                } catch {
-                    print("Failed to save fetched normal transaction history for \(self.identifier!): \(error)")
-                }
-            case let .failure(error):
-                print("Failed to fetch normal transaction history for \(self.identifier!): \(error)")
-            }
-        }
     }
     
 }

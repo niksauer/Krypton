@@ -71,7 +71,7 @@ class TickerPrice: NSManagedObject {
         
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()
-        request.predicate = NSPredicate(format: "tradingPairRaws = %@ AND date >= %@ AND date < %@", tradingPair.rawValue, startDate, endDate)
+        request.predicate = NSPredicate(format: "tradingPairRaw = %@ AND date >= %@ AND date < %@", tradingPair.rawValue, startDate, endDate)
         
         do {
             let matches = try context.fetch(request)
