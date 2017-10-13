@@ -46,12 +46,10 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
             
             if showsRelativeProfit {
                 profitTypeLabel.text = "Relative Profit"
-                let relativeProfit = Format.getRelativeProfit(from: profitStats)
-                profitField.text = Format.getNumberFormatting(for: NSNumber(value: relativeProfit)) + "%"
+                profitField.text = Format.getRelativeProfitFormatting(from: profitStats)
             } else {
                 profitTypeLabel.text = "Absolute Profit"
-                let absoluteProfit = Format.getAbsoluteProfit(from: profitStats)
-                profitField.text = Format.getCurrencyFormatting(for: absoluteProfit, currency: PortfolioManager.shared.baseCurrency)
+                profitField.text = Format.getAbsoluteProfitFormatting(from: profitStats, currency: PortfolioManager.shared.baseCurrency)
             }
         }
     }

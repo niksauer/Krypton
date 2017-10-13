@@ -39,7 +39,6 @@ final class PortfolioManager: PortfolioDelegate {
 //        deletePriceHistory()
         
         do {
-            baseCurrency = loadBaseCurrency()
             storedPortfolios = try loadPortfolios()
             print("Loaded \(storedPortfolios.count) portfolio(s) from Core Data.")
             
@@ -74,29 +73,38 @@ final class PortfolioManager: PortfolioDelegate {
     var delegate: PortfolioManagerDelegate?
     
     /// fiat currency used to calculate exchange values of all stored portfolios
-    private(set) public var baseCurrency: Currency!
-    
+    private(set) public var baseCurrency: Currency = {
+        if let storedBaseCurrencyCode = UserDefaults.standard.value(forKey: "baseCurrency") as? String, let storedBaseCurrency = CurrencyManager.getCurrency(from: storedBaseCurrencyCode) {
+            return storedBaseCurrency
+        } else {
+            let standardBaseCurrency = Fiat.EUR
+            UserDefaults.standard.setValue(standardBaseCurrency.rawValue, forKey: "baseCurrency")
+            UserDefaults.standard.synchronize()
+            return standardBaseCurrency
+        }
+    }()
+
     /// returns all stored portfolios
     private(set) public var storedPortfolios = [Portfolio]()
     
     /// returns default portfolio used to add addresses
     var defaultPortfolio: Portfolio? {
-        assert(storedPortfolios.filter({ $0.isDefault }).count > 1, "PortfolioManager.defaultPortfolio -- Database Inconsistency")
-        return storedPortfolios.first(where: { $0.isDefault })
+        assert(storedPortfolios.filter({ $0.isDefault }).count > 0, "PortfolioManager.defaultPortfolio -- Database Inconsistency")
+        return storedPortfolios.first { $0.isDefault }
     }
     
     /// returns all addresses associated with stored portfolios
     var storedAddresses: [Address] {
-        return storedPortfolios.flatMap{ $0.storedAddresses }
+        return storedPortfolios.flatMap { $0.storedAddresses }
     }
     
     /// returns all addresses stored in selected portfolios
     var selectedAddresses: [Address] {
-        return storedAddresses.filter({ $0.isSelected })
+        return storedAddresses.filter { $0.isSelected }
     }
     
     var storedTradingPairs: Set<TradingPair> {
-        return Set(storedAddresses.map({ $0.tradingPair }))
+        return Set(storedAddresses.map { $0.tradingPair })
     }
     
     // MARK: - Private Methods
@@ -109,17 +117,6 @@ final class PortfolioManager: PortfolioDelegate {
             return try context.fetch(request)
         } catch {
             throw error
-        }
-    }
-    
-    private func loadBaseCurrency() -> Currency {
-        if let storedCurrencyString = UserDefaults.standard.value(forKey: "baseCurrency") as? String, let storedBaseCurrency = Fiat(rawValue: storedCurrencyString) {
-            return storedBaseCurrency
-        } else {
-            let standardBaseCurrency = Fiat.EUR
-            UserDefaults.standard.setValue(standardBaseCurrency.rawValue, forKey: "baseCurrency")
-            UserDefaults.standard.synchronize()
-            return standardBaseCurrency
         }
     }
     
@@ -260,7 +257,7 @@ final class PortfolioManager: PortfolioDelegate {
                 return nil
             }
             
-            profitHistory = zip(profitHistory, absoluteProfitHistory).map() { ($0.0, $0.1 + $1.1) }
+            profitHistory = zip(profitHistory, absoluteProfitHistory).map { ($0.0, $0.1 + $1.1) }
         }
         
         return profitHistory

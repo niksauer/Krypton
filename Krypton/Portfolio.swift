@@ -64,7 +64,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
     }
     
     var selectedAddresses: [Address] {
-        return storedAddresses.filter({ $0.isSelected })
+        return storedAddresses.filter { $0.isSelected }
     }
     
     // MARK: - Public Methods
@@ -200,7 +200,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
                 return nil
             }
             
-            profitHistory = zip(profitHistory, absoluteProfitHistory).map() { ($0.0, $0.1 + $1.1) }
+            profitHistory = zip(profitHistory, absoluteProfitHistory).map { ($0.0, $0.1 + $1.1) }
         }
         
         return profitHistory

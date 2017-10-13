@@ -25,6 +25,11 @@ enum TransactionValueType {
     case total
 }
 
+enum ProfitTimeframe {
+    case allTime
+    case sinceDate(Date)
+}
+
 class Transaction: NSManagedObject {
     
     // MARK: - Public Class Methods

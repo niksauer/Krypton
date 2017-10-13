@@ -95,10 +95,10 @@ class Address: NSManagedObject {
     private func getTransactions(of type: TransactionType) -> [Transaction] {
         switch type {
         case .investment:
-            return storedTransactions.filter({ $0.isInvestment })
+            return storedTransactions.filter { $0.isInvestment }
         case .other:
-            return storedTransactions.filter({ !$0.isInvestment })
-        default:
+            return storedTransactions.filter { !$0.isInvestment }
+        case .all:
             return storedTransactions
         }
     }
@@ -167,7 +167,7 @@ class Address: NSManagedObject {
     
     /// fetches and saves balance if it has changed, notifies delegate
     func updateBalance(completion: (() -> Void)?) {
-        BlockchainConnector.fetchBalance(for: self, completion: { result in
+        BlockchainConnector.fetchBalance(for: self) { result in
             switch result {
             case .success(let balance):
                 guard balance != self.balance else {
@@ -188,7 +188,7 @@ class Address: NSManagedObject {
             case .failure(let error):
                 print("Failed to fetch balance for \(self.identifier!): \(error)")
             }
-        })
+        }
     }
     
     /// fetches and saves transaction history since last retrieved block, executes completion block if no error is thrown during retrieval and saving
@@ -279,7 +279,7 @@ class Address: NSManagedObject {
                 return nil
             }
             
-            profitHistory = zip(profitHistory, absoluteReturnHistory).map() { ($0.0, $0.1 + $1.1) }
+            profitHistory = zip(profitHistory, absoluteReturnHistory).map { ($0.0, $0.1 + $1.1) }
         }
         
         return profitHistory

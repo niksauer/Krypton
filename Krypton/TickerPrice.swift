@@ -102,11 +102,12 @@ class TickerPrice: NSManagedObject {
             return
         }
         
-        TickerConnector.fetchPriceHistory(for: tradingPair, since: startDate, completion: { result in
+        TickerConnector.fetchPriceHistory(for: tradingPair, since: startDate) { result in
             switch result {
             case let .success(priceHistory):
                 let context = AppDelegate.viewContext
                 var newPriceCount = 0
+                var duplicateCount = 0
                 
                 for price in priceHistory {
                     do {
@@ -120,7 +121,7 @@ class TickerPrice: NSManagedObject {
                     } catch {
                         switch error {
                         case TickerPriceError.duplicate:
-                            break
+                            duplicateCount = duplicateCount + 1
                         default:
                             print("Failed to create tickerPrice \(price.tradingPair, price.date, price.value): \(error)")
                         }
@@ -140,7 +141,7 @@ class TickerPrice: NSManagedObject {
             case let .failure(error):
                 print("Failed to fetch price history for \(tradingPair.rawValue): \(error)")
             }
-        })
+        }
     }
     
 }

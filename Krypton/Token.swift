@@ -95,7 +95,7 @@ class Token: NSManagedObject, Currency {
         return token
     }
     
-    // MARK: - CurrencyProtocol
+    // MARK: - Currency Protocol
     var code: String {
         return currencyCode!
     }

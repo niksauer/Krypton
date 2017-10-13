@@ -1,5 +1,5 @@
 //
-//  Globals.swift
+//  Helpers.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 26.08.17.
@@ -8,49 +8,54 @@
 
 import Foundation
 
-enum ProfitTimeframe {
-    case allTime
-    case sinceDate(Date)
-}
-
 struct Format {
     
     // MARK: - Private Static Methods
     /// formats crypto currency values with 2-4 decimal digits
-    private static func getCryptoFormatting(for value: Double, blockchain: Blockchain) -> String {
+    private static func getCryptoFormatting(for value: Double, blockchain: Blockchain) -> String? {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.minimumFractionDigits = 2
         formatter.maximumFractionDigits = 8
-        return blockchain.symbol + " " + formatter.string(from: NSNumber(value: value))!
+        
+        if let formattedString = formatter.string(from: NSNumber(value: value)) {
+            return "\(blockchain.symbol) \(formattedString)"
+        } else {
+            return nil
+        }
     }
     
     /// formats fiat currency values according to set base currency
-    private static func getFiatFormatting(for value: Double, fiatCurrency: Fiat) -> String {
+    private static func getFiatFormatting(for value: Double, fiatCurrency: Fiat) -> String? {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
         formatter.currencyCode = fiatCurrency.code
-        return formatter.string(from: NSNumber(value: value))!
+        return formatter.string(from: NSNumber(value: value))
     }
     
-    private static func getTokenFormatting(for value: Double, token: Token) -> String {
+    private static func getTokenFormatting(for value: Double, token: Token) -> String? {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.minimumFractionDigits = 2
         formatter.maximumFractionDigits = 8
-        return formatter.string(from: NSNumber(value: value))! + " " + token.code
+        
+        if let formattedString = formatter.string(from: NSNumber(value: value)) {
+            return "\(formattedString) \(token.code)"
+        } else {
+            return nil
+        }
     }
     
-    // MARK: - Public Static Methods
-    /// formats numbers with 2 decimal digits    
-    static func getNumberFormatting(for value: NSNumber) -> String {
+    /// formats numbers with 2 decimal digits
+    private static func getNumberFormatting(for value: Double) -> String? {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.minimumFractionDigits = 2
         formatter.maximumFractionDigits = 2
-        return formatter.string(from: value)!
+        return formatter.string(from: NSNumber(value: value))
     }
     
+    // MARK: - Public Static Methods
     /// formats dates locally without time
     static func getDateFormatting(for date: Date) -> String {
         let formatter = DateFormatter()
@@ -60,23 +65,24 @@ struct Format {
     }
     
     static func getCurrencyFormatting(for value: Double, currency: Currency) -> String? {
-        if let fiatCurrency = Fiat(rawValue: currency.code) {
+        switch currency {
+        case let fiatCurrency as Fiat:
             return getFiatFormatting(for: value, fiatCurrency: fiatCurrency)
-        } else if let blockchain = Blockchain(rawValue: currency.code) {
+        case let blockchain as Blockchain:
             return getCryptoFormatting(for: value, blockchain: blockchain)
-        } else if let token = currency as? Token {
+        case let token as Token:
             return getTokenFormatting(for: value, token: token)
-        } else {
+        default:
             return nil
         }
     }
     
-    static func getAbsoluteProfit(from: (startValue: Double, endValue: Double)) -> Double {
-        return from.endValue - from.startValue
+    static func getAbsoluteProfitFormatting(from: (startValue: Double, endValue: Double), currency: Currency) -> String? {
+        return getCurrencyFormatting(for: (from.endValue - from.startValue), currency: currency)
     }
     
-    static func getRelativeProfit(from: (startValue: Double, endValue: Double)) -> Double {
-        return (from.endValue - from.startValue) / from.startValue * 100
+    static func getRelativeProfitFormatting(from: (startValue: Double, endValue: Double)) -> String? {
+        return getNumberFormatting(for: ((from.endValue - from.startValue) / from.startValue * 100))
     }
     
 }
@@ -139,12 +145,15 @@ extension NotificationCenter {
 }
 
 extension Data {
+    
     func hexEncodedString() -> String {
         return map { String(format: "%02hhx", $0) }.joined()
     }
+    
 }
 
 extension String {
+    
     subscript (i: Int) -> Character {
         return self[index(startIndex, offsetBy: i)]
     }
@@ -152,4 +161,5 @@ extension String {
     subscript (i: Int) -> String {
         return String(self[i] as Character)
     }
+
 }

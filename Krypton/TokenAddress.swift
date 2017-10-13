@@ -99,7 +99,7 @@ class Ethereum: TokenAddress {
                         print("Normal transaction history for \(self.identifier!) is already up-to-date.")
                     }
                     
-                    BlockchainConnector.fetchTransactionHistory(for: self, type: .contract, timeframe: timeframe, completion: { result in
+                    BlockchainConnector.fetchTransactionHistory(for: self, type: .contract, timeframe: timeframe) { result in
                         switch result {
                         case .success(let txs):
                             for txInfo in txs {
@@ -130,7 +130,7 @@ class Ethereum: TokenAddress {
                         case .failure(let error):
                             print("Failed to fetch contract transaction history for \(self.identifier!): \(error)")
                         }
-                    })
+                    }
                 } catch {
                     print("Failed to save fetched normal transaction history for \(self.identifier!): \(error)")
                 }
@@ -142,7 +142,7 @@ class Ethereum: TokenAddress {
     
     override func updateTokenBalance(completion: (() -> Void)?) {
         for etherToken in Token.ERC20.allValues {
-            BlockchainConnector.fetchTokenBalance(for: self, token: etherToken, completion: { result in
+            BlockchainConnector.fetchTokenBalance(for: self, token: etherToken) { result in
                 switch result {
                 case .success(let balance):
                     let context = AppDelegate.viewContext
@@ -187,7 +187,7 @@ class Ethereum: TokenAddress {
                 case .failure(let error):
                     print("Failed to fetch token balance for \(etherToken.name): \(error)")
                 }
-            })
+            }
         }
     }
     

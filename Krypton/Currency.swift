@@ -26,13 +26,14 @@ struct CurrencyManager {
     }
     
     static func getAllCurrencies(for currency: Currency) -> [Currency]? {
-        if Fiat(rawValue: currency.code) != nil {
+        switch currency {
+        case is Fiat:
             return Fiat.allValues
-        } else if Blockchain(rawValue: currency.code) != nil {
+        case is Blockchain:
             return Blockchain.allValues
-        } else if Token.ERC20(rawValue: currency.code) != nil {
+        case is Token.ERC20:
             return Token.ERC20.allValues
-        } else {
+        default:
             return nil
         }
     }
@@ -66,7 +67,7 @@ enum Blockchain: String, Currency {
         return Blockchain.nameForBlockchain[self]!
     }
 
-    static var allValues = [XBT, ETH]
+    static var allValues = [ETH]
     
     // MARK: - Currency Protocol
     var code: String {
@@ -101,8 +102,8 @@ enum TradingPair: String {
     // MARK: - Public Type Methods
     /// returns trading pair constructed from specified crypto and fiat currency
     static func getTradingPair(a: Currency, b: Currency) -> TradingPair? {
-        let tradingPair = a.code + b.code
-        return TradingPair(rawValue: tradingPair)
+        let tradingPairRaw = a.code + b.code
+        return TradingPair(rawValue: tradingPairRaw)
     }
     
 }

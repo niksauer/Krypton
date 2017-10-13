@@ -42,12 +42,10 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
                 portfolioValueLabel.text = Format.getCurrencyFormatting(for: currentExchangeValue, currency: PortfolioManager.shared.baseCurrency)
             case .relativeProfit:
                 portfolioLabel.text = "Total Relative Profit"
-                let relativeProfit = Format.getRelativeProfit(from: profitStats)
-                portfolioValueLabel.text = Format.getNumberFormatting(for: NSNumber(value: relativeProfit)) + "%"
+                portfolioValueLabel.text = Format.getRelativeProfitFormatting(from: profitStats)
             case .absoluteProfit:
                 portfolioLabel.text = "Total Absolute Profit"
-                let absoluteProfit = Format.getAbsoluteProfit(from: profitStats)
-                portfolioValueLabel.text = Format.getCurrencyFormatting(for: absoluteProfit, currency: PortfolioManager.shared.baseCurrency)
+                portfolioValueLabel.text = Format.getAbsoluteProfitFormatting(from: profitStats, currency: PortfolioManager.shared.baseCurrency)
             }
         }
     }
@@ -62,11 +60,9 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
             profitLabel.text = "Since Yesterday"
             
             if showsRelativeProfit {
-                let relativeProfit = Format.getRelativeProfit(from: profitStats)
-                profitValueLabel.text = Format.getNumberFormatting(for: NSNumber(value: relativeProfit)) + "%"
+                profitValueLabel.text = Format.getRelativeProfitFormatting(from: profitStats)
             } else {
-                let absoluteProfit = Format.getAbsoluteProfit(from: profitStats)
-                profitValueLabel.text = Format.getCurrencyFormatting(for: absoluteProfit, currency: PortfolioManager.shared.baseCurrency)
+                profitValueLabel.text = Format.getAbsoluteProfitFormatting(from: profitStats, currency: PortfolioManager.shared.baseCurrency)
             }
         }
     }
