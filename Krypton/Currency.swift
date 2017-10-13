@@ -11,6 +11,7 @@ import SwiftKeccak
 
 protocol Currency {
     var code: String { get }
+    var decimalDigits: Int { get }
 }
 
 struct CurrencyManager {
@@ -46,7 +47,7 @@ enum Blockchain: String, Currency {
     
     // MARK: - Private Properties
     /// dictionary mapping crypto currencies to their respective currency symbol
-    private static let symbolForBlockchain: [Blockchain : String] = [
+    private static let symbolForBlockchain: [Blockchain: String] = [
         .ETH : "Ξ",
         .XBT : "Ƀ"
     ]
@@ -54,6 +55,11 @@ enum Blockchain: String, Currency {
     private static let nameForBlockchain: [Blockchain: String] = [
         .ETH: "Ethereum",
         .XBT: "Bitcoin"
+    ]
+    
+    private static let decimalDigitsForBlockchain: [Blockchain: Int] = [
+        .ETH: 18,
+        .XBT: 8
     ]
     
     // MARK: - Public Properties
@@ -74,6 +80,10 @@ enum Blockchain: String, Currency {
         return self.rawValue
     }
     
+    var decimalDigits: Int {
+        return Blockchain.decimalDigitsForBlockchain[self]!
+    }
+    
 }
 
 enum Fiat: String, Currency {
@@ -86,6 +96,10 @@ enum Fiat: String, Currency {
     // MARK: - Currency Protocol
     var code: String {
         return self.rawValue
+    }
+    
+    var decimalDigits: Int {
+        return 2
     }
     
 }

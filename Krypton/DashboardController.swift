@@ -17,7 +17,7 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
         case absoluteProfit
     }
 
-    private var comparisonDate = Calendar.current.date(byAdding: .day, value: -1, to: Date())! {
+    private var comparisonDate: Date = Calendar.current.date(byAdding: .day, value: -1, to: Date())! {
         didSet {
             updateUI()
         }
@@ -50,7 +50,7 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
         }
     }
     
-    private var showsRelativeProfit = true {
+    private var showsRelativeProfit: Bool = true {
         didSet {
             guard let profitStats = PortfolioManager.shared.getProfitStats(for: transactionFilter, timeframe: .sinceDate(comparisonDate)) else {
                 profitValueLabel.text = "???"
@@ -70,16 +70,16 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
     // Mark: - Outlets
     @IBOutlet weak var portfolioValueLabel: UILabel!
     @IBOutlet weak var portfolioLabel: UILabel!
-    
     @IBOutlet weak var profitValueLabel: UILabel!
     @IBOutlet weak var profitLabel: UILabel!
-    
     @IBOutlet weak var investmentValueLabel: UILabel!
     @IBOutlet weak var investmentLabel: UILabel!
     
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        investmentLabel.text = "Total Investment"
         
         portfolioValueLabel.tag = 0
         portfolioValueLabel.isUserInteractionEnabled = true
@@ -90,8 +90,6 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
         profitValueLabel.isUserInteractionEnabled = true
         let profitValueTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(toggleProfitType))
         profitValueLabel.addGestureRecognizer(profitValueTapRecognizer)
-        
-        investmentLabel.text = "Total Investment"
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -107,7 +105,7 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
         
         if let destNavVC = segue.destination as? UINavigationController, let destVC = destNavVC.topViewController as? FilterController {
             destVC.delegate = self
-            destVC.transactionType = transactionFilter
+            destVC.selectedTransactionType = transactionFilter
         }
     }
 

@@ -17,7 +17,6 @@ enum TokenError: Error {
 protocol TokenFeatures: Currency {
     var name: String { get }
     var address: String { get }
-    var decimalDigits: Int { get }
 }
 
 class Token: NSManagedObject, Currency {
@@ -59,13 +58,13 @@ class Token: NSManagedObject, Currency {
             return ERC20.addressForToken[self]!
         }
         
-        var decimalDigits: Int {
-            return ERC20.decimalDigitsForToken[self]!
-        }
-        
         // MARK: - Currency Protocol
         var code: String {
             return self.rawValue
+        }
+        
+        var decimalDigits: Int {
+            return ERC20.decimalDigitsForToken[self]!
         }
         
     }
@@ -89,7 +88,7 @@ class Token: NSManagedObject, Currency {
         token.address = tokenInfo.address
         token.name = tokenInfo.name
         token.currencyCode = tokenInfo.code
-        token.decimalDigits = Int16(tokenInfo.decimalDigits)
+        token.currencyDecimalDigits = Int16(tokenInfo.decimalDigits)
         token.owner = owner
         
         return token
@@ -100,4 +99,8 @@ class Token: NSManagedObject, Currency {
         return currencyCode!
     }
     
+    var decimalDigits: Int {
+        return Int(currencyDecimalDigits)
+    }
+
 }

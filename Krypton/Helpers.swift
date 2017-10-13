@@ -16,7 +16,7 @@ struct Format {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = 8
+        formatter.maximumFractionDigits = blockchain.decimalDigits
         
         if let formattedString = formatter.string(from: NSNumber(value: value)) {
             return "\(blockchain.symbol) \(formattedString)"
@@ -37,7 +37,7 @@ struct Format {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = 8
+        formatter.maximumFractionDigits = token.decimalDigits
         
         if let formattedString = formatter.string(from: NSNumber(value: value)) {
             return "\(formattedString) \(token.code)"
@@ -82,7 +82,11 @@ struct Format {
     }
     
     static func getRelativeProfitFormatting(from: (startValue: Double, endValue: Double)) -> String? {
-        return getNumberFormatting(for: ((from.endValue - from.startValue) / from.startValue * 100))
+        if let percentage = getNumberFormatting(for: ((from.endValue - from.startValue) / from.startValue * 100)) {
+            return percentage + "%"
+        } else {
+            return nil
+        }
     }
     
 }

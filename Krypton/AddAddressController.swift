@@ -13,17 +13,13 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
     // MARK: - Public Properties
     var selectedPortfolio: Portfolio? {
         didSet {
-            if selectedPortfolio == nil {
-                selectedPortfolioLabel.text = "None"
-            } else {
-                selectedPortfolioLabel.text = selectedPortfolio?.alias ?? "???"
-            }
+            selectedPortfolioLabel.text = selectedPortfolio != nil ? selectedPortfolio?.alias : "None"
         }
     }
     
-    var selectedBlockchain: Blockchain = .XBT {
+    var selectedBlockchain: Blockchain? {
         didSet {
-            blockchainLabel.text = selectedBlockchain.name
+            selectedBlockchainLabel.text = selectedBlockchain?.name
         }
     }
     
@@ -35,18 +31,18 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
     
     // MARK: - Outlets
     @IBOutlet weak var saveButton: UIBarButtonItem!
-    
     @IBOutlet weak var addressField: UITextField!
     @IBOutlet weak var aliasField: UITextField!
-    
-    @IBOutlet weak var blockchainLabel: UILabel!
+    @IBOutlet weak var selectedBlockchainLabel: UILabel!
     @IBOutlet weak var blockchainPicker: UIPickerView!
-    
     @IBOutlet weak var selectedPortfolioLabel: UILabel!
     
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        selectedPortfolio = PortfolioManager.shared.defaultPortfolio
+        selectedBlockchain = blockchains.first
         
         blockchainPicker.delegate = self
         blockchainPicker.dataSource = self
@@ -56,8 +52,6 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
         addressField.delegate = self
         aliasField.delegate = self
         
-        selectedPortfolio = PortfolioManager.shared.defaultPortfolio
-        
         checkSaveButton()
     }
     
@@ -66,8 +60,8 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
         super.prepare(for: segue, sender: sender)
         
         if let destVC = segue.destination as? PortfolioTableController {
-            destVC.isSelector = true
             destVC.delegate = self
+            destVC.isSelector = true
             destVC.selectedPortfolio = selectedPortfolio
         }
     }
@@ -77,21 +71,24 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
     }
     
     @IBAction func save(_ sender: UIBarButtonItem) {
-        guard let addressString = addressField.text, !addressString.isEmpty, selectedPortfolio != nil else {
+        guard let addressString = addressField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !addressString.isEmpty, selectedPortfolio != nil, selectedBlockchain != nil else {
             return
         }
         
+        let alias = aliasField.text?.trimmingCharacters(in: .whitespacesAndNewlines)
+        
         do {
-            try selectedPortfolio?.addAddress(addressString, alias: aliasField.text, blockchain: selectedBlockchain)
+            try selectedPortfolio!.addAddress(addressString, alias: alias, blockchain: selectedBlockchain!)
             dismiss(animated: true, completion: nil)
         } catch {
+            // present error
             print("Failed to add address due to error: \(error)")
         }
     }
     
     // MARK: - Public Methods
     func checkSaveButton() {
-        guard let addressString = addressField.text, !addressString.isEmpty, selectedPortfolio != nil else {
+        guard let addressString = addressField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !addressString.isEmpty, selectedPortfolio != nil, selectedBlockchain != nil else {
             saveButton.isEnabled = false
             return
         }
@@ -99,36 +96,40 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
         saveButton.isEnabled = true
     }
     
+    // MARK: - PortfolioSelector Delegate
+    func didChangeSelection(selection: Portfolio?) {
+        selectedPortfolio = selection
+        checkSaveButton()
+    }
+    
     // MARK: - TableView Delegate
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if indexPath == blockchainPickerIndexPath {
+        switch indexPath {
+        case _ where indexPath == blockchainPickerIndexPath:
             if blockchainPicker.isHidden {
                 return 0
             } else {
                 return 220
             }
+        default:
+            return super.tableView(tableView, heightForRowAt: indexPath)
         }
-        
-        return super.tableView(tableView, heightForRowAt: indexPath)
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-       if indexPath == blockchainFieldIndexPath {
+        switch indexPath {
+        case _ where indexPath == blockchainFieldIndexPath:
             blockchainPicker.isHidden = !blockchainPicker.isHidden
-        
+            
             UIView.animate(withDuration: 0.3, animations: { () -> Void in
                 self.tableView.beginUpdates()
                 // apple bug fix - some TV lines hide after animation
                 self.tableView.deselectRow(at: indexPath, animated: true)
                 self.tableView.endUpdates()
             })
+        default:
+            return
         }
-    }
-    
-    // MARK: - PortfolioSelector Delegate
-    func didChangeSelection(selection: Portfolio?) {
-        selectedPortfolio = selection
-        checkSaveButton()
     }
     
     // MARK: - TextField Delegate
@@ -143,7 +144,7 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
         return false
     }
     
-    // MARK: - PickerView Delegate
+    // MARK: - PickerView Data Source
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }
@@ -156,8 +157,10 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
         return blockchains[row].name
     }
     
+    // MARK: - PickerView Delegate
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         selectedBlockchain = blockchains[row]
+        checkSaveButton()
     }
     
 }

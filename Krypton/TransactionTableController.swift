@@ -53,7 +53,7 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
         
         if let destNavVC = segue.destination as? UINavigationController, let destVC = destNavVC.topViewController as? FilterController {
             destVC.delegate = self
-            destVC.transactionType = transactionFilter
+            destVC.selectedTransactionType = transactionFilter
         }
     }
     

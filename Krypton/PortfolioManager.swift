@@ -89,7 +89,6 @@ final class PortfolioManager: PortfolioDelegate {
     
     /// returns default portfolio used to add addresses
     var defaultPortfolio: Portfolio? {
-        assert(storedPortfolios.filter({ $0.isDefault }).count > 0, "PortfolioManager.defaultPortfolio -- Database Inconsistency")
         return storedPortfolios.first { $0.isDefault }
     }
     

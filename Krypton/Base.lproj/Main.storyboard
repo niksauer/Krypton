@@ -226,8 +226,8 @@
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Bitcoin" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="tK7-NV-g8y">
-                                                    <rect key="frame" x="307.5" y="12" width="52.5" height="20.5"/>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Ethereum" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="tK7-NV-g8y">
+                                                    <rect key="frame" x="286" y="12" width="74" height="20.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
@@ -272,8 +272,8 @@
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Default" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="ksA-ub-Alf">
-                                                    <rect key="frame" x="285" y="12" width="55" height="20.5"/>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="None" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="ksA-ub-Alf">
+                                                    <rect key="frame" x="299" y="12" width="41" height="20.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
@@ -308,9 +308,9 @@
                     <connections>
                         <outlet property="addressField" destination="iiP-I6-QS7" id="Z5K-L4-zcx"/>
                         <outlet property="aliasField" destination="5m2-st-Ydr" id="SUj-Rl-FUt"/>
-                        <outlet property="blockchainLabel" destination="tK7-NV-g8y" id="OEu-C1-U6g"/>
                         <outlet property="blockchainPicker" destination="9pZ-yG-3Fu" id="fhz-kq-mmH"/>
                         <outlet property="saveButton" destination="Dop-1E-obI" id="oNp-y9-sVK"/>
+                        <outlet property="selectedBlockchainLabel" destination="tK7-NV-g8y" id="1d0-aG-cwj"/>
                         <outlet property="selectedPortfolioLabel" destination="ksA-ub-Alf" id="4Ju-eJ-ILO"/>
                         <segue destination="V4A-Cs-7w5" kind="unwind" identifier="unwindToDashboard" unwindAction="unwindToDashboardWithSegue:" id="WYD-Ar-mkz"/>
                     </connections>
@@ -1471,6 +1471,6 @@
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="uMi-Fk-bj8"/>
-        <segue reference="meL-5p-cad"/>
+        <segue reference="yhp-Rv-bo3"/>
     </inferredMetricsTieBreakers>
 </document>

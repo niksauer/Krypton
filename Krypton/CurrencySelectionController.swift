@@ -14,12 +14,14 @@ protocol CurrencySelectionDelegate {
 
 class CurrencySelectionController: UITableViewController {
 
+    // MARK: - Private Properties
+    private var currencies: [Currency]!
+    
     // MARK: - Public Properties
     var delegate: CurrencySelectionDelegate?
     var selection: Currency!
-    var currencies: [Currency]!
     
-    // MARK: - Initilization
+    // MARK: - Initialization
     override func viewDidLoad() {
         currencies = CurrencyManager.getAllCurrencies(for: selection)
     }
