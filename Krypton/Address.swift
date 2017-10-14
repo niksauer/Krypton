@@ -74,7 +74,7 @@ class Address: NSManagedObject {
     
     private(set) public var baseCurrency: Currency {
         get {
-            return Fiat(rawValue: baseCurrencyCode!)!
+            return CurrencyManager.getCurrency(from: baseCurrencyCode!)!
         }
         set {
             baseCurrencyCode = newValue.code

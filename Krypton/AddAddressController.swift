@@ -10,10 +10,16 @@ import UIKit
 
 class AddAddressController: UITableViewController, UITextFieldDelegate, UIPickerViewDataSource, UIPickerViewDelegate, PortfolioSelectorDelegate {
     
+    // MARK: - Private Properties
+    private let blockchains = Blockchain.allValues
+    private let blockchainFieldIndexPath = IndexPath(row: 0, section: 1)
+    private let blockchainPickerIndexPath = IndexPath(row: 1, section: 1)
+    private let portfolioIndexPath = IndexPath(row: 0, section: 2)
+    
     // MARK: - Public Properties
     var selectedPortfolio: Portfolio? {
         didSet {
-            selectedPortfolioLabel.text = selectedPortfolio != nil ? selectedPortfolio?.alias : "None"
+            selectedPortfolioLabel.text = selectedPortfolio?.alias ?? "None"
         }
     }
     
@@ -22,12 +28,6 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
             selectedBlockchainLabel.text = selectedBlockchain?.name
         }
     }
-    
-    // MARK: - Private Properties
-    private let blockchains = Blockchain.allValues
-    private let blockchainFieldIndexPath = IndexPath(row: 0, section: 1)
-    private let blockchainPickerIndexPath = IndexPath(row: 1, section: 1)
-    private let portfolioIndexPath = IndexPath(row: 0, section: 2)
     
     // MARK: - Outlets
     @IBOutlet weak var saveButton: UIBarButtonItem!
@@ -40,7 +40,6 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         selectedPortfolio = PortfolioManager.shared.defaultPortfolio
         selectedBlockchain = blockchains.first
         

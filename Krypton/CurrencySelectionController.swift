@@ -23,6 +23,7 @@ class CurrencySelectionController: UITableViewController {
     
     // MARK: - Initialization
     override func viewDidLoad() {
+        super.viewDidLoad()
         currencies = CurrencyManager.getAllCurrencies(for: selection)
     }
 

@@ -78,7 +78,6 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         investmentLabel.text = "Total Investment"
         
         portfolioValueLabel.tag = 0
@@ -109,8 +108,8 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
         }
     }
 
-    // MARK: - Private Methods
-    private func updateUI() {
+    // MARK: - Public Methods
+    func updateUI() {
         portfolioDisplay = { portfolioDisplay }()
         showsRelativeProfit = { showsRelativeProfit }()
         
@@ -121,7 +120,6 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
         }
     }
     
-    // MARK: - Public Methods
     @objc func toggleProfitType(sender: UITapGestureRecognizer) {
         showsRelativeProfit = !showsRelativeProfit
     }

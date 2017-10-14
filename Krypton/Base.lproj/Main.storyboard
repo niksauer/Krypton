@@ -1109,20 +1109,22 @@
                     <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="Gai-4n-ePU"/>
                     <connections>
                         <outlet property="amountField" destination="mvK-rj-tWD" id="jnR-K0-VGH"/>
-                        <outlet property="blockNumberField" destination="RXN-nX-vTn" id="Jji-ox-Xvd"/>
+                        <outlet property="amountLabel" destination="mvK-rj-tWD" id="H8C-DJ-SE2"/>
+                        <outlet property="blockNumberLabel" destination="RXN-nX-vTn" id="mVu-mC-51M"/>
                         <outlet property="dateField" destination="Y3g-4H-sa2" id="1Fk-s3-cgL"/>
-                        <outlet property="exchangeValueField" destination="5QJ-YV-ly6" id="kYj-Qh-fVz"/>
-                        <outlet property="exchangeValueTextField" destination="Anq-eh-CSS" id="87o-dJ-NWu"/>
+                        <outlet property="dateLabel" destination="Y3g-4H-sa2" id="8Dy-SP-La7"/>
+                        <outlet property="exchangeValueField" destination="Anq-eh-CSS" id="hz3-Cb-nyb"/>
+                        <outlet property="exchangeValueLabel" destination="5QJ-YV-ly6" id="12w-MS-Dbg"/>
                         <outlet property="exchangeValueTypeLabel" destination="ymr-Vd-zPZ" id="Y0A-Sd-uau"/>
-                        <outlet property="executedLabel" destination="CDe-so-1qd" id="ftZ-hm-msA"/>
-                        <outlet property="feeField" destination="nMv-tg-QVH" id="Qyi-R0-ef7"/>
-                        <outlet property="hashNumberField" destination="vbk-t1-fXH" id="zUM-y6-STN"/>
+                        <outlet property="executedLabel" destination="CDe-so-1qd" id="QgW-aW-zh9"/>
+                        <outlet property="feeLabel" destination="nMv-tg-QVH" id="6M3-eH-W7R"/>
+                        <outlet property="identifierLabel" destination="vbk-t1-fXH" id="kvM-QC-iGm"/>
                         <outlet property="isInvestmentSwitch" destination="hjz-iY-ygj" id="Bdn-rl-4HN"/>
-                        <outlet property="profitField" destination="clm-fa-iaT" id="9jj-uy-KNG"/>
+                        <outlet property="profitLabel" destination="clm-fa-iaT" id="9a9-HT-YMp"/>
                         <outlet property="profitTypeLabel" destination="9SN-f6-vp1" id="OgA-aQ-yLY"/>
-                        <outlet property="receiverAddressField" destination="72i-NG-B9d" id="bPb-bB-Kuk"/>
-                        <outlet property="senderAddressField" destination="waC-kC-IGh" id="sI8-ir-bEn"/>
-                        <outlet property="typeField" destination="D5Y-F1-LVd" id="Z8j-se-mhm"/>
+                        <outlet property="receiverAddressLabel" destination="72i-NG-B9d" id="XYm-a8-Nk0"/>
+                        <outlet property="senderAddressLabel" destination="waC-kC-IGh" id="5Nm-zf-bjK"/>
+                        <outlet property="typeLabel" destination="D5Y-F1-LVd" id="Bex-3H-3vQ"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="h0G-CS-UcS" userLabel="First Responder" sceneMemberID="firstResponder"/>

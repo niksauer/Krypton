@@ -8,15 +8,19 @@
 
 import UIKit
 
+protocol PortfolioCreatorDelegate {
+    func shouldCreatePortfolio(alias: String, isDefault: Bool)
+}
+
 class AddPortfolioController: UITableViewController, UITextFieldDelegate {
 
+    // MARK: - Public Properties
+    var delegate: PortfolioCreatorDelegate?
+    
     // MARK: - Outlets
     @IBOutlet weak var aliasField: UITextField!
     @IBOutlet weak var isDefaultSwitch: UISwitch!
     @IBOutlet weak var saveButton: UIBarButtonItem!
-    
-    // MARK: - Properties
-    var delegate: PortfolioCreatorDelegate?
     
     // MARK: - Initialization
     override func viewDidLoad() {
@@ -34,7 +38,7 @@ class AddPortfolioController: UITableViewController, UITextFieldDelegate {
     }
     
     @IBAction func save(_ sender: UIBarButtonItem) {
-        guard let aliasString = aliasField.text, !aliasString.isEmpty else {
+        guard let aliasString = aliasField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !aliasString.isEmpty else {
             return
         }
         
@@ -44,7 +48,7 @@ class AddPortfolioController: UITableViewController, UITextFieldDelegate {
     
     // MARK: - Public Methods
     func checkSaveButton() {
-        guard let aliasString = aliasField.text, !aliasString.isEmpty else {
+        guard let aliasString = aliasField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !aliasString.isEmpty else {
             saveButton.isEnabled = false
             return
         }
@@ -59,8 +63,4 @@ class AddPortfolioController: UITableViewController, UITextFieldDelegate {
         return false
     }
 
-}
-
-protocol PortfolioCreatorDelegate {
-    func shouldCreatePortfolio(alias: String, isDefault: Bool)
 }

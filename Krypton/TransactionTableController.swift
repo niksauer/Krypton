@@ -11,11 +11,9 @@ import CoreData
 
 class TransactionTableController: FetchedResultsTableViewController, FilterDelegate {
     
-    // MARK: - Public Properties
-    var fetchedResultsController: NSFetchedResultsController<Transaction>?
-    
     // MARK: - Private Properties
     private var database = AppDelegate.persistentContainer
+    private var fetchedResultsController: NSFetchedResultsController<Transaction>?
     private var selectedTransaction: Transaction?
     
     private var addresses = [Address]() {
@@ -39,7 +37,6 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        addresses = PortfolioManager.shared.selectedAddresses
         updateUI()
     }
     
@@ -59,6 +56,8 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
     
     // MARK: - Private Methods
     private func updateUI() {
+        addresses = PortfolioManager.shared.selectedAddresses
+        
         let context = database.viewContext
         let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
@@ -78,6 +77,7 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
             sectionNameKeyPath: nil,
             cacheName: nil
         )
+        
         fetchedResultsController?.delegate = self
         try? fetchedResultsController?.performFetch()
         tableView.reloadData()
@@ -126,16 +126,6 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
         return cell
     }
     
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        selectedTransaction = fetchedResultsController!.object(at: indexPath)
-        performSegue(withIdentifier: "showTransaction", sender: self)
-    }
-    
-}
-
-// MARK: - TableView Data Source
-extension TransactionTableController {
-   
     override func numberOfSections(in tableView: UITableView) -> Int {
         return fetchedResultsController?.sections?.count ?? 1
     }
@@ -163,9 +153,16 @@ extension TransactionTableController {
     override func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
         return fetchedResultsController?.section(forSectionIndexTitle: title, at: index) ?? 0
     }
+    
+    // MARK: - TableView Delegate
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        selectedTransaction = fetchedResultsController!.object(at: indexPath)
+        performSegue(withIdentifier: "showTransaction", sender: self)
+    }
+ 
 }
 
-// MARK: - NSFetchedResultsControllerDelegate
+// MARK: - NSFetchedResultsController Delegate
 class FetchedResultsTableViewController: UITableViewController, NSFetchedResultsControllerDelegate {
     
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {

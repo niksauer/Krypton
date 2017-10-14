@@ -15,15 +15,15 @@ protocol FilterDelegate {
 
 class FilterController: UITableViewController {
     
-    // MARK: - Public Properties
-    var delegate: FilterDelegate?
-    var selectedTransactionType: TransactionType?
-    
     // MARK: - Private Properties
     private let portfolios = PortfolioManager.shared.storedPortfolios.filter { $0.storedAddresses.count > 0 }
     private let filterSectionsCount = 1
     private let transactionTypeIndexPath = IndexPath(row: 0, section: 0)
     private var newSelectedTransactionType: TransactionType?
+    
+    // MARK: - Public Properties
+    var delegate: FilterDelegate?
+    var selectedTransactionType: TransactionType?
 
     // MARK: - Navigation
     @IBAction func cancel(_ sender: UIBarButtonItem) {
@@ -127,5 +127,3 @@ class FilterController: UITableViewController {
     }
     
 }
-
-

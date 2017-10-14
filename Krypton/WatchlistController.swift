@@ -20,7 +20,7 @@ class WatchlistController: UITableViewController, TickerWatchlistDelegate {
         tradingPairs = Array(PortfolioManager.shared.storedTradingPairs)
     }
 
-    // MARK: - TableView Delegate
+    // MARK: - TableView Data Source
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }

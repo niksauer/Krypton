@@ -17,13 +17,7 @@ protocol Currency {
 struct CurrencyManager {
     
     static func getCurrency(from code: String) -> Currency? {
-        if let fiatCurrency = Fiat(rawValue: code) {
-            return fiatCurrency
-        } else if let cryptoCurrency = Blockchain(rawValue: code) {
-            return cryptoCurrency
-        } else {
-            return nil
-        }
+        return Fiat(rawValue: code) ?? Blockchain(rawValue: code) ?? Token.ERC20(rawValue: code)
     }
     
     static func getAllCurrencies(for currency: Currency) -> [Currency]? {
