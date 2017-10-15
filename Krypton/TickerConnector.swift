@@ -9,6 +9,16 @@
 import Foundation
 import CoreData
 
+enum PriceHistoryResult {
+    case success([TickerConnector.Price])
+    case failure(Error)
+}
+
+enum CurrentPriceResult {
+    case success(TickerConnector.Price)
+    case failure(Error)
+}
+
 struct TickerConnector {
     
     // MARK: - Private Properties
@@ -16,6 +26,13 @@ struct TickerConnector {
         let config = URLSessionConfiguration.default
         return URLSession(configuration: config)
     }()
+    
+    // MARK: - Public Properties
+    struct Price {
+        let date: Date
+        let tradingPair: TradingPair
+        let value: Double
+    }
     
     // MARK: - Private Methods
     private static func processPriceHistoryRequest(for tradingPair: TradingPair, data: Data?, error: Error?) -> PriceHistoryResult {

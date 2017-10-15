@@ -12,16 +12,6 @@ enum KrakenError: Error {
     case invalidJSONData
 }
 
-enum PriceHistoryResult {
-    case success([KrakenAPI.Price])
-    case failure(Error)
-}
-
-enum CurrentPriceResult {
-    case success(KrakenAPI.Price)
-    case failure(Error)
-}
-
 struct KrakenAPI {
     
     // MARK: - Private Properties
@@ -32,11 +22,19 @@ struct KrakenAPI {
         case currentPrice = "Ticker"
     }
     
-    private static let resultForCurrencyPair: [TradingPair : String] = [
-        .ETHEUR : "XETHZEUR",
-        .ETHUSD : "XETHZUSD",
-        .XBTEUR : "XXBTZEUR",
-        .XBTUSD : "XXBTZUSD"
+    private enum Interval {
+        case day
+    }
+    
+    private static let resultForCurrencyPair: [TradingPair: String] = [
+        .ETHEUR: "XETHZEUR",
+        .ETHUSD: "XETHZUSD",
+        .XBTEUR: "XXBTZEUR",
+        .XBTUSD: "XXBTZUSD"
+    ]
+    
+    private static let minutesForInterval: [Interval: Int] = [
+        .day: 1440
     ]
     
     // MARK: - Private Methods
@@ -63,11 +61,11 @@ struct KrakenAPI {
                 return .failure(KrakenError.invalidJSONData)
             }
             
-            var priceHistory = [Price]()
+            var priceHistory = [TickerConnector.Price]()
             
             for priceJSON in pricesArray {
                 if let time = priceJSON[0] as? Double, let valueString = priceJSON[4] as? String, let value = Double(valueString) {
-                    let price = Price(date: NSDate(timeIntervalSince1970: time), tradingPair: tradingPair, value: value)
+                    let price = TickerConnector.Price(date: Date(timeIntervalSince1970: time), tradingPair: tradingPair, value: value)
                     priceHistory.append(price)
                 }
             }
@@ -77,7 +75,7 @@ struct KrakenAPI {
             }
             
             return .success(priceHistory)
-        } catch let error {
+        } catch {
             return .failure(error)
         }
     }
@@ -86,32 +84,25 @@ struct KrakenAPI {
         do {
             let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
             
-            guard let jsonDictionary = jsonObject as? [AnyHashable: Any], let result = jsonDictionary["result"] as? [String: Any], let resultName = resultForCurrencyPair[tradingPair], let tickerData = result[resultName] as? [String: Any], let lastClosedArray = tickerData["c"] as? [String], let lastClosedValue = Double(lastClosedArray[0])  else {
+            guard let jsonDictionary = jsonObject as? [AnyHashable: Any], let result = jsonDictionary["result"] as? [String: Any], let resultName = resultForCurrencyPair[tradingPair], let tickerData = result[resultName] as? [String: Any], let lastClosedArray = tickerData["c"] as? [String], let lastClosedValue = Double(lastClosedArray[0]) else {
                 return .failure(KrakenError.invalidJSONData)
             }
             
-            let currentPrice = Price(date: NSDate(), tradingPair: tradingPair, value: lastClosedValue)
+            let currentPrice = TickerConnector.Price(date: Date(), tradingPair: tradingPair, value: lastClosedValue)
             
             return .success(currentPrice)
-        } catch let error {
+        } catch {
             return .failure(error)
         }
     }
-    
-    // MARK: - Public Properties
-    struct Price {
-        let date: NSDate
-        let tradingPair: TradingPair
-        let value: Double
-    }
-    
+
     // https://www.kraken.com/help/api
     // <time>, <"open">, <"high">, <"low">, <"close">, <"vwap">, <"volume">, <count>
     static func priceHistoryURL(for tradingPair: TradingPair, since: Date) -> URL {
         let sinceDate = Calendar.current.date(byAdding: .day, value: -1, to: since)
         return krakenURL(method: .priceHistory, parameters: [
             "pair": tradingPair.rawValue,
-            "interval": "1440",
+            "interval": String(minutesForInterval[Interval.day]!),
             "since": String(Int(round(sinceDate!.timeIntervalSince1970)))
         ])
     }

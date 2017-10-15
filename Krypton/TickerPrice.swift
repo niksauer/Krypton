@@ -38,9 +38,9 @@ class TickerPrice: NSManagedObject {
     
     // MARK: - Public Class Methods
     /// creates and returns ticker price if non-existent in database, throws otherwise
-    class func createTickerPrice(from priceInfo: KrakenAPI.Price, in context: NSManagedObjectContext) throws -> TickerPrice {
+    class func createTickerPrice(from priceInfo: TickerConnector.Price, in context: NSManagedObjectContext) throws -> TickerPrice {
         let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()
-        request.predicate = NSPredicate(format: "tradingPairRaw = %@ AND date = %@", priceInfo.tradingPair.rawValue, priceInfo.date)
+        request.predicate = NSPredicate(format: "tradingPairRaw = %@ AND date = %@", priceInfo.tradingPair.rawValue, priceInfo.date as NSDate)
         
         do {
             let matches = try context.fetch(request)
@@ -53,7 +53,7 @@ class TickerPrice: NSManagedObject {
         }
         
         let tickerPrice = TickerPrice(context: context)
-        tickerPrice.date = priceInfo.date as Date
+        tickerPrice.date = priceInfo.date
         tickerPrice.tradingPairRaw = priceInfo.tradingPair.rawValue
         tickerPrice.value = priceInfo.value
         
