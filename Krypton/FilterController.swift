@@ -48,8 +48,8 @@ class FilterController: UITableViewController {
     }
     
     // MARK: - Public Methods
-    @IBAction func setTransactionType(_ sender: UISegmentedControl) {
-        newSelectedTransactionType = TransactionType(rawValue: sender.selectedSegmentIndex)!
+    func setTransactionType(_ rawValue: Int) {
+        newSelectedTransactionType = TransactionType(rawValue: rawValue)
     }
     
     // MARK: - TableView Data Source
@@ -69,15 +69,8 @@ class FilterController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch indexPath {
         case _ where indexPath == transactionTypeIndexPath:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "transactionTypeCell", for: indexPath)
-            let transactionTypeSwitch = cell.contentView.subviews.first as! UISegmentedControl
-            
-            if selectedTransactionType != nil {
-                transactionTypeSwitch.selectedSegmentIndex = selectedTransactionType!.rawValue
-            } else {
-                transactionTypeSwitch.selectedSegmentIndex = TransactionType.all.rawValue
-            }
-            
+            let cell = tableView.dequeueReusableCell(withIdentifier: "segmentedControlCell", for: indexPath) as! SegmentedControlCell
+            cell.configure(segments: ["All", "Investment", "Other"], selectedSegment: selectedTransactionType?.rawValue ?? TransactionType.all.rawValue, completion: setTransactionType)
             return cell
         default:
             let address = portfolios[indexPath.section-filterSectionsCount].storedAddresses[indexPath.row]

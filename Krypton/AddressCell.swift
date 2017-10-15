@@ -10,9 +10,11 @@ import UIKit
 
 class AddressCell: UITableViewCell {
 
+    // MARK: - Outlets
     @IBOutlet weak var addressField: UILabel!
     @IBOutlet weak var aliasField: UILabel!
-    
+
+    // MARK: - Public Methods
     func configure(address: String, alias: String?) {
         addressField.text = address
         aliasField.text = alias

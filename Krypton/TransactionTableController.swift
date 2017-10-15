@@ -37,6 +37,7 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        addresses = PortfolioManager.shared.selectedAddresses
         updateUI()
     }
     
@@ -56,8 +57,6 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
     
     // MARK: - Private Methods
     private func updateUI() {
-        addresses = PortfolioManager.shared.selectedAddresses
-        
         let context = database.viewContext
         let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
@@ -106,10 +105,6 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
     
     // MARK: - TableView Data Source
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        let cell = tableView.dequeueReusableCell(withIdentifier: "txCell", for: indexPath) as! TransactionCell
-//        cell.configure(transaction: fetchedResultsController!.object(at: indexPath))
-//        return cell
-        
         let cell = tableView.dequeueReusableCell(withIdentifier: "transactionCell", for: indexPath)
         let transaction = fetchedResultsController!.object(at: indexPath)
         

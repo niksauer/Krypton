@@ -83,6 +83,7 @@ class AddresDetailController: UITableViewController {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "textFieldCell", for: indexPath) as! TextFieldCell
                 if row == 0 {
                     cell.configure(text: address.identifier, placeholder: "Address", completion: nil)
+                    cell.textField.isEnabled = false
                 } else {
                     cell.configure(text: address.alias, placeholder: "Alias", completion: setAlias)
                     cell.textField.clearButtonMode = .always
@@ -100,7 +101,8 @@ class AddresDetailController: UITableViewController {
                 return cell
             } else {
                 deleteIndexPath = indexPath
-                let cell = tableView.dequeueReusableCell(withIdentifier: "deleteCell", for: indexPath)
+                let cell = tableView.dequeueReusableCell(withIdentifier: "deleteCell", for: indexPath) as! DeleteCell
+                cell.configure(actionText: "Delete Address")
                 return cell
             }
         }

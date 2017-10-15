@@ -68,9 +68,7 @@ class PortfolioDetailController: UITableViewController {
         }
     }
     
-    func setIsDefault() {
-        let state = (tableView.cellForRow(at: isDefaultIndexPath) as! SwitchCell).toggleSwitch.isOn
-        
+    func setIsDefault(_ state: Bool) {
         do {
             try portfolio.setIsDefault(state)
         } catch {
@@ -108,7 +106,7 @@ class PortfolioDetailController: UITableViewController {
             return cell
         case _ where indexPath == isDefaultIndexPath:
             let cell = tableView.dequeueReusableCell(withIdentifier: "switchCell", for: indexPath) as! SwitchCell
-            cell.configure(name: "Default", state: portfolio.isDefault, completion: setIsDefault)
+            cell.configure(name: "Default", isOn: portfolio.isDefault, completion: setIsDefault)
             return cell
         case _ where indexPath.section == 1 && portfolio.storedAddresses.count > 0:
             let cell = tableView.dequeueReusableCell(withIdentifier: "addressCell", for: indexPath) as! AddressCell
@@ -117,7 +115,8 @@ class PortfolioDetailController: UITableViewController {
             return cell
         default:
             deleteIndexPath = indexPath
-            let cell = tableView.dequeueReusableCell(withIdentifier: "deleteCell", for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: "deleteCell", for: indexPath) as! DeleteCell
+            cell.configure(actionText: "Delete Portfolio")
             return cell
         }
     }

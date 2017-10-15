@@ -10,8 +10,8 @@ import UIKit
 
 class TextFieldCell: UITableViewCell, UITextFieldDelegate {
     
-    // MARK: - Public Properties
-    var completion: ((String?) -> Void)?
+    // MARK: - Private Properties
+    private var completion: ((String?) -> Void)?
     
     // MARK: - Outlets
     @IBOutlet weak var textField: UITextField!

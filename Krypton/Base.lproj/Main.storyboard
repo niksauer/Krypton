@@ -547,7 +547,7 @@
                                     <outlet property="aliasField" destination="3M8-Fg-dWd" id="qRl-D7-IDR"/>
                                 </connections>
                             </tableViewCell>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="deleteCell" id="6wv-Ry-6uz">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="deleteCell" id="6wv-Ry-6uz" customClass="DeleteCell" customModule="Krypton" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="187.5" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="6wv-Ry-6uz" id="JwX-41-3uK">
@@ -566,6 +566,9 @@
                                         <constraint firstItem="rUA-OR-mFa" firstAttribute="centerY" secondItem="JwX-41-3uK" secondAttribute="centerY" id="gIY-lt-xIt"/>
                                     </constraints>
                                 </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="actionLabel" destination="rUA-OR-mFa" id="oOt-nt-hsW"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <sections/>
@@ -592,32 +595,8 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="textFieldCell" id="aQ5-FC-R4U" customClass="TextFieldCell" customModule="Krypton" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="55.5" width="375" height="44"/>
-                                <autoresizingMask key="autoresizingMask"/>
-                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="aQ5-FC-R4U" id="7II-BE-xwS">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                    <subviews>
-                                        <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Address" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="pjT-R5-sx5">
-                                            <rect key="frame" x="8" y="12.5" width="359" height="19"/>
-                                            <nil key="textColor"/>
-                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                            <textInputTraits key="textInputTraits"/>
-                                        </textField>
-                                    </subviews>
-                                    <constraints>
-                                        <constraint firstAttribute="trailingMargin" secondItem="pjT-R5-sx5" secondAttribute="trailing" id="3dP-UP-bCu"/>
-                                        <constraint firstItem="pjT-R5-sx5" firstAttribute="leading" secondItem="7II-BE-xwS" secondAttribute="leadingMargin" id="bMW-Wi-NZO"/>
-                                        <constraint firstItem="pjT-R5-sx5" firstAttribute="centerY" secondItem="7II-BE-xwS" secondAttribute="centerY" id="c6G-0C-Den"/>
-                                    </constraints>
-                                </tableViewCellContentView>
-                                <connections>
-                                    <outlet property="textField" destination="pjT-R5-sx5" id="dmh-v2-58c"/>
-                                </connections>
-                            </tableViewCell>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="infoCell" textLabel="wG0-ws-PYj" detailTextLabel="aJl-ok-pl9" style="IBUITableViewCellStyleValue1" id="Yae-Dg-BPP">
-                                <rect key="frame" x="0.0" y="99.5" width="375" height="44"/>
+                                <rect key="frame" x="0.0" y="55.5" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Yae-Dg-BPP" id="YhD-LL-65w">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
@@ -640,8 +619,8 @@
                                     </subviews>
                                 </tableViewCellContentView>
                             </tableViewCell>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="deleteCell" id="YIC-Co-R1X">
-                                <rect key="frame" x="0.0" y="143.5" width="375" height="44"/>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="deleteCell" id="YIC-Co-R1X" customClass="DeleteCell" customModule="Krypton" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="99.5" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="YIC-Co-R1X" id="Hgc-8X-nhr">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
@@ -659,6 +638,33 @@
                                         <constraint firstItem="nnC-rw-aZF" firstAttribute="centerX" secondItem="Hgc-8X-nhr" secondAttribute="centerX" id="hXN-sA-1KJ"/>
                                     </constraints>
                                 </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="actionLabel" destination="nnC-rw-aZF" id="3Ts-d3-Gfw"/>
+                                </connections>
+                            </tableViewCell>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="textFieldCell" id="QaM-bC-P5x" customClass="TextFieldCell" customModule="Krypton" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="143.5" width="375" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="QaM-bC-P5x" id="X1R-62-YhH">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Alias" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="bez-nk-z0P">
+                                            <rect key="frame" x="8" y="12.5" width="359" height="19"/>
+                                            <nil key="textColor"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                            <textInputTraits key="textInputTraits"/>
+                                        </textField>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="bez-nk-z0P" firstAttribute="leading" secondItem="X1R-62-YhH" secondAttribute="leadingMargin" id="JHg-u8-DzB"/>
+                                        <constraint firstAttribute="trailingMargin" secondItem="bez-nk-z0P" secondAttribute="trailing" id="Ujj-YN-Bo9"/>
+                                        <constraint firstItem="bez-nk-z0P" firstAttribute="centerY" secondItem="X1R-62-YhH" secondAttribute="centerY" id="WD8-0W-Yqs"/>
+                                    </constraints>
+                                </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="textField" destination="bez-nk-z0P" id="z0W-fe-jtx"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <sections/>
@@ -1108,10 +1114,8 @@
                     </tableView>
                     <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="Gai-4n-ePU"/>
                     <connections>
-                        <outlet property="amountField" destination="mvK-rj-tWD" id="jnR-K0-VGH"/>
                         <outlet property="amountLabel" destination="mvK-rj-tWD" id="H8C-DJ-SE2"/>
                         <outlet property="blockNumberLabel" destination="RXN-nX-vTn" id="mVu-mC-51M"/>
-                        <outlet property="dateField" destination="Y3g-4H-sa2" id="1Fk-s3-cgL"/>
                         <outlet property="dateLabel" destination="Y3g-4H-sa2" id="8Dy-SP-La7"/>
                         <outlet property="exchangeValueField" destination="Anq-eh-CSS" id="hz3-Cb-nyb"/>
                         <outlet property="exchangeValueLabel" destination="5QJ-YV-ly6" id="12w-MS-Dbg"/>
@@ -1164,7 +1168,7 @@
                                     </subviews>
                                 </tableViewCellContentView>
                             </tableViewCell>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="transactionTypeCell" id="HYe-OZ-WKS">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="segmentedControlCell" id="HYe-OZ-WKS" customClass="SegmentedControlCell" customModule="Krypton" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="99.5" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="HYe-OZ-WKS" id="3F8-vA-uGb">
@@ -1179,7 +1183,7 @@
                                                 <segment title="Other"/>
                                             </segments>
                                             <connections>
-                                                <action selector="setTransactionType:" destination="74m-fl-QD2" eventType="valueChanged" id="fUI-Hr-zU2"/>
+                                                <action selector="selectedSegment:" destination="HYe-OZ-WKS" eventType="valueChanged" id="bhD-bn-PsY"/>
                                             </connections>
                                         </segmentedControl>
                                     </subviews>
@@ -1190,6 +1194,9 @@
                                     </constraints>
                                 </tableViewCellContentView>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                <connections>
+                                    <outlet property="segmentedControl" destination="4CS-LM-Wxg" id="jKs-er-l7m"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>

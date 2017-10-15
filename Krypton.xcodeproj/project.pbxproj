@@ -22,6 +22,8 @@
 		240C63B31F47A88E00728B8B /* Address.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240C63B21F47A88E00728B8B /* Address.swift */; };
 		24150D431F88E3E1003B7091 /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24150D421F88E3E1003B7091 /* Token.swift */; };
 		242729A41F7075CC00E5231D /* AddresDetailController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242729A31F7075CC00E5231D /* AddresDetailController.swift */; };
+		242E1D531F9395F700BB95E3 /* SegmentedControlCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242E1D521F9395F700BB95E3 /* SegmentedControlCell.swift */; };
+		242E1D551F939C4500BB95E3 /* DeleteCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242E1D541F939C4500BB95E3 /* DeleteCell.swift */; };
 		243859941F6BE01F00D67791 /* FilterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243859931F6BE01F00D67791 /* FilterController.swift */; };
 		243859961F6C442300D67791 /* AddAddressController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243859951F6C442300D67791 /* AddAddressController.swift */; };
 		2438599B1F6C890600D67791 /* PortfolioTableController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2438599A1F6C890500D67791 /* PortfolioTableController.swift */; };
@@ -31,7 +33,6 @@
 		2449F43A1F6D59F5006E21C8 /* TextFieldCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2449F4391F6D59F5006E21C8 /* TextFieldCell.swift */; };
 		2449F43C1F6D5AFA006E21C8 /* SwitchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2449F43B1F6D5AFA006E21C8 /* SwitchCell.swift */; };
 		2449F43E1F6D5D6D006E21C8 /* AddressCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2449F43D1F6D5D6D006E21C8 /* AddressCell.swift */; };
-		2449F4401F6D725E006E21C8 /* MessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2449F43F1F6D725E006E21C8 /* MessageCell.swift */; };
 		2449F4441F6F0D3A006E21C8 /* AddPortfolioController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2449F4431F6F0D3A006E21C8 /* AddPortfolioController.swift */; };
 		2449F4481F6F1D1F006E21C8 /* CurrencySelectionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2449F4471F6F1D1F006E21C8 /* CurrencySelectionController.swift */; };
 		2449F44A1F6F1F40006E21C8 /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2449F4491F6F1F40006E21C8 /* SettingsController.swift */; };
@@ -131,6 +132,8 @@
 		240C63B21F47A88E00728B8B /* Address.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Address.swift; sourceTree = "<group>"; };
 		24150D421F88E3E1003B7091 /* Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Token.swift; sourceTree = "<group>"; };
 		242729A31F7075CC00E5231D /* AddresDetailController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddresDetailController.swift; sourceTree = "<group>"; };
+		242E1D521F9395F700BB95E3 /* SegmentedControlCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedControlCell.swift; sourceTree = "<group>"; };
+		242E1D541F939C4500BB95E3 /* DeleteCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteCell.swift; sourceTree = "<group>"; };
 		243859931F6BE01F00D67791 /* FilterController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FilterController.swift; sourceTree = "<group>"; };
 		243859951F6C442300D67791 /* AddAddressController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddAddressController.swift; sourceTree = "<group>"; };
 		2438599A1F6C890500D67791 /* PortfolioTableController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PortfolioTableController.swift; sourceTree = "<group>"; };
@@ -140,7 +143,6 @@
 		2449F4391F6D59F5006E21C8 /* TextFieldCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextFieldCell.swift; sourceTree = "<group>"; };
 		2449F43B1F6D5AFA006E21C8 /* SwitchCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwitchCell.swift; sourceTree = "<group>"; };
 		2449F43D1F6D5D6D006E21C8 /* AddressCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressCell.swift; sourceTree = "<group>"; };
-		2449F43F1F6D725E006E21C8 /* MessageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageCell.swift; sourceTree = "<group>"; };
 		2449F4431F6F0D3A006E21C8 /* AddPortfolioController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddPortfolioController.swift; sourceTree = "<group>"; };
 		2449F4471F6F1D1F006E21C8 /* CurrencySelectionController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrencySelectionController.swift; sourceTree = "<group>"; };
 		2449F4491F6F1F40006E21C8 /* SettingsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsController.swift; sourceTree = "<group>"; };
@@ -195,7 +197,7 @@
 				24B859AC1F47C90800969049 /* Controller */,
 				24B859AB1F47C8E400969049 /* Model */,
 				24B859AA1F47C8D500969049 /* Backend */,
-				2449F4381F6D59CC006E21C8 /* Views */,
+				2449F4381F6D59CC006E21C8 /* Custom Views */,
 				24B859A91F47C89A00969049 /* Supporting Files */,
 			);
 			path = Krypton;
@@ -271,16 +273,17 @@
 			name = Transactions;
 			sourceTree = "<group>";
 		};
-		2449F4381F6D59CC006E21C8 /* Views */ = {
+		2449F4381F6D59CC006E21C8 /* Custom Views */ = {
 			isa = PBXGroup;
 			children = (
-				2449F43F1F6D725E006E21C8 /* MessageCell.swift */,
 				2449F4391F6D59F5006E21C8 /* TextFieldCell.swift */,
 				2449F43B1F6D5AFA006E21C8 /* SwitchCell.swift */,
+				242E1D521F9395F700BB95E3 /* SegmentedControlCell.swift */,
+				242E1D541F939C4500BB95E3 /* DeleteCell.swift */,
 				2449F43D1F6D5D6D006E21C8 /* AddressCell.swift */,
 				24A514D31F7DA5300003BD65 /* TransactionCell.swift */,
 			);
-			name = Views;
+			name = "Custom Views";
 			sourceTree = "<group>";
 		};
 		24AF7B131F830B6C00400007 /* Products */ = {
@@ -510,7 +513,6 @@
 			files = (
 				2400D0961F424B5600833958 /* EtherscanAPI.swift in Sources */,
 				2458132F1F5F503B007795BC /* PortfolioManager.swift in Sources */,
-				2449F4401F6D725E006E21C8 /* MessageCell.swift in Sources */,
 				24A007C41F538AD800EC0DCF /* TickerWatchlist.swift in Sources */,
 				24A3D32F1F7DAF250081BF09 /* BlockExplorerAPI.swift in Sources */,
 				2400D0901F40720500833958 /* KrakenAPI.swift in Sources */,
@@ -518,6 +520,7 @@
 				2400D0981F42508100833958 /* Transaction.swift in Sources */,
 				240C63B11F47A88300728B8B /* Portfolio.swift in Sources */,
 				24A514D41F7DA5300003BD65 /* TransactionCell.swift in Sources */,
+				242E1D551F939C4500BB95E3 /* DeleteCell.swift in Sources */,
 				2400D09A1F42511800833958 /* BlockchainConnector.swift in Sources */,
 				24C63DB41F7F15DD0096A807 /* WatchlistController.swift in Sources */,
 				2449F4351F6CB30D006E21C8 /* TransactionDetailController.swift in Sources */,
@@ -533,6 +536,7 @@
 				2446F5DC1F8EAD1E00DF385B /* TokenAddress.swift in Sources */,
 				2449F43C1F6D5AFA006E21C8 /* SwitchCell.swift in Sources */,
 				240C63B31F47A88E00728B8B /* Address.swift in Sources */,
+				242E1D531F9395F700BB95E3 /* SegmentedControlCell.swift in Sources */,
 				246874F61F464B4E009BB60A /* Krypton.xcdatamodeld in Sources */,
 				2449F4441F6F0D3A006E21C8 /* AddPortfolioController.swift in Sources */,
 				2400D07C1F40715900833958 /* AppDelegate.swift in Sources */,

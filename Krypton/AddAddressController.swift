@@ -14,7 +14,6 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
     private let blockchains = Blockchain.allValues
     private let blockchainFieldIndexPath = IndexPath(row: 0, section: 1)
     private let blockchainPickerIndexPath = IndexPath(row: 1, section: 1)
-    private let portfolioIndexPath = IndexPath(row: 0, section: 2)
     
     // MARK: - Public Properties
     var selectedPortfolio: Portfolio? {

@@ -53,6 +53,7 @@ class Address: NSManagedObject {
         address.identifier = addressString
         
         guard address.isValidAddress() else {
+            context.delete(address)
             throw AddressError.invalid
         }
         

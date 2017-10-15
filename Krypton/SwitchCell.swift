@@ -10,22 +10,22 @@ import UIKit
 
 class SwitchCell: UITableViewCell {
     
-    // MARK: - Public Properties
-    var completion: (() -> Void)!
+    // MARK: - Private Properties
+    private var completion: ((Bool) -> Void)?
     
     // MARK: - Outlets
     @IBOutlet weak var toggleLabel: UILabel!
     @IBOutlet weak var toggleSwitch: UISwitch!
     
-    // MARK: - Navigatiom
+    // MARK: - Navigation
     @IBAction func toggledSwitch(_ sender: UISwitch) {
-        completion()
+        completion?(sender.isOn)
     }
     
     // MARK: - Public Methods
-    func configure(name: String, state: Bool, completion: @escaping () -> Void) {
+    func configure(name: String, isOn: Bool, completion: ((Bool) -> Void)?) {
         toggleLabel.text = name
-        toggleSwitch.isOn = state
+        toggleSwitch.isOn = isOn
         self.completion = completion
     }
     
