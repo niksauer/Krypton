@@ -9,6 +9,10 @@
 import Foundation
 import CoreData
 
+protocol PortfolioManagerDelegate {
+    func didUpdatePortfolioManager()
+}
+
 final class PortfolioManager: PortfolioDelegate {
     
 //    ETH Wallet
@@ -35,7 +39,6 @@ final class PortfolioManager: PortfolioDelegate {
 //        deletePriceHistory()
         
         do {
-            baseCurrency = loadBaseCurrency()
             storedPortfolios = try loadPortfolios()
             print("Loaded \(storedPortfolios.count) portfolio(s) from Core Data.")
             
@@ -70,46 +73,37 @@ final class PortfolioManager: PortfolioDelegate {
     var delegate: PortfolioManagerDelegate?
     
     /// fiat currency used to calculate exchange values of all stored portfolios
-    private(set) public var baseCurrency: Currency!
-    
+    private(set) public var baseCurrency: Currency = {
+        if let storedBaseCurrencyCode = UserDefaults.standard.value(forKey: "baseCurrency") as? String, let storedBaseCurrency = CurrencyManager.getCurrency(from: storedBaseCurrencyCode) {
+            return storedBaseCurrency
+        } else {
+            let standardBaseCurrency = Fiat.EUR
+            UserDefaults.standard.setValue(standardBaseCurrency.rawValue, forKey: "baseCurrency")
+            UserDefaults.standard.synchronize()
+            return standardBaseCurrency
+        }
+    }()
+
     /// returns all stored portfolios
     private(set) public var storedPortfolios = [Portfolio]()
     
     /// returns default portfolio used to add addresses
     var defaultPortfolio: Portfolio? {
-        return storedPortfolios.first(where: { $0.isDefault })
+        return storedPortfolios.first { $0.isDefault }
     }
     
     /// returns all addresses associated with stored portfolios
     var storedAddresses: [Address] {
-        get {
-            var storedAddresses = [Address]()
-            for portfolio in storedPortfolios {
-                storedAddresses.append(contentsOf: portfolio.storedAddresses)
-            }
-            return storedAddresses
-        }
+        return storedPortfolios.flatMap { $0.storedAddresses }
     }
     
     /// returns all addresses stored in selected portfolios
     var selectedAddresses: [Address] {
-        get {
-            var selectedAddresses = [Address]()
-            for portfolio in storedPortfolios {
-                selectedAddresses.append(contentsOf: portfolio.selectedAddresses)
-            }
-            return selectedAddresses
-        }
+        return storedAddresses.filter { $0.isSelected }
     }
     
     var storedTradingPairs: Set<TradingPair> {
-        get {
-            var storedTradingPairs = Set<TradingPair>()
-            for address in storedAddresses {
-                storedTradingPairs.insert(address.tradingPair)
-            }
-            return storedTradingPairs
-        }
+        return Set(storedAddresses.map { $0.tradingPair })
     }
     
     // MARK: - Private Methods
@@ -122,17 +116,6 @@ final class PortfolioManager: PortfolioDelegate {
             return try context.fetch(request)
         } catch {
             throw error
-        }
-    }
-    
-    private func loadBaseCurrency() -> Currency {
-        if let storedCurrencyString = UserDefaults.standard.value(forKey: "baseCurrency") as? String, let storedBaseCurrency = Fiat(rawValue: storedCurrencyString) {
-            return storedBaseCurrency
-        } else {
-            let standardBaseCurrency = Fiat.EUR
-            UserDefaults.standard.setValue(standardBaseCurrency.rawValue, forKey: "baseCurrency")
-            UserDefaults.standard.synchronize()
-            return standardBaseCurrency
         }
     }
     
@@ -154,7 +137,6 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
-    // MARK: Setters
     func setBaseCurrency(_ currency: Currency) throws {
         guard currency.code != baseCurrency.code else {
             return
@@ -183,7 +165,7 @@ final class PortfolioManager: PortfolioDelegate {
         do {
             let context = AppDelegate.viewContext
             let portfolio = Portfolio.createPortfolio(alias: alias, baseCurrency: baseCurrency, in: context)
-            _ = try save()
+            try context.save()
             portfolio.delegate = self
             storedPortfolios.append(portfolio)
             delegate?.didUpdatePortfolioManager()
@@ -198,7 +180,7 @@ final class PortfolioManager: PortfolioDelegate {
             storedPortfolios.remove(at: storedPortfolios.index(of: portfolio)!)
             let context = AppDelegate.viewContext
             context.delete(portfolio)
-            let _ = try save()
+            try context.save()
             print("Removed portfolio from Core Data.")
             
             prepareTickerWatchlist()
@@ -269,18 +251,12 @@ final class PortfolioManager: PortfolioDelegate {
         
         var profitHistory: [(Date, Double)] = []
         
-        for (index, address) in selectedAddresses.enumerated() {
+        for address in selectedAddresses {
             guard let absoluteProfitHistory = address.getAbsoluteProfitHistory(for: type, since: date) else {
                 return nil
             }
             
-            if index == 0 {
-                for (date, absoluteProfit) in absoluteProfitHistory {
-                    profitHistory.append((date, absoluteProfit))
-                }
-            } else {
-                profitHistory = zip(profitHistory, absoluteProfitHistory).map() { ($0.0, $0.1 + $1.1) }
-            }
+            profitHistory = zip(profitHistory, absoluteProfitHistory).map { ($0.0, $0.1 + $1.1) }
         }
         
         return profitHistory
@@ -299,7 +275,7 @@ final class PortfolioManager: PortfolioDelegate {
         }
         
         do {
-            let _ = try save()
+            try AppDelegate.viewContext.save()
             delegate?.didUpdatePortfolioManager()
         } catch {
             do {
@@ -385,9 +361,4 @@ final class PortfolioManager: PortfolioDelegate {
         try? context.save()
     }
 
-}
-
-// MARK: - Portfolio Manager Delegate Protocol
-protocol PortfolioManagerDelegate {
-    func didUpdatePortfolioManager()
 }

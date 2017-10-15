@@ -15,6 +15,7 @@ class SettingsController: UITableViewController, CurrencySelectionDelegate, Port
     
     // MARK: - Initialization
     override func viewDidLoad() {
+        super.viewDidLoad()
         baseCurrencyCodeLabel.text = PortfolioManager.shared.baseCurrency.code
     }
     

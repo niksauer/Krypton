@@ -8,6 +8,10 @@
 
 import Foundation
 
+enum BlockchainConnectorError: Error {
+    case invalidBlockchain
+}
+
 enum TransactionHistoryType: String {
     case normal
     case contract
@@ -28,11 +32,8 @@ enum BalanceResult {
     case failure(Error)
 }
 
-enum BlockchainConnectorError: Error {
-    case invalidBlockchain
-}
-
 struct BlockchainConnector {
+    
     // MARK: - Private Properties
     private static let session: URLSession = {
         let config = URLSessionConfiguration.default
@@ -42,12 +43,12 @@ struct BlockchainConnector {
     // MARK: - Public Properties
     struct Transaction {
         let identifier: String
-        let date: NSDate
+        let date: Date
         let amount: Double
         let from: String
         let to: String
         let type: TransactionHistoryType
-        let block: Int32
+        let block: Int
         let isError: Bool
         let feeAmount: Double
     }
@@ -58,7 +59,7 @@ struct BlockchainConnector {
         
         switch address {
         case is Bitcoin:
-            url = BlockexplorerAPI.transactionHistoryURL(for: address.identifier!)
+            url = BlockExplorerAPI.transactionHistoryURL(for: address.identifier!)
         case is Ethereum:
             url = EtherscanAPI.transactionHistoryURL(for: address.identifier!, type: type, timeframe: timeframe)
         default:
@@ -77,9 +78,9 @@ struct BlockchainConnector {
             if let jsonData = data {
                 switch address {
                 case is Bitcoin:
-                    result = BlockexplorerAPI.transactionHistory(fromJSON: jsonData, for: address)
-                    
-                    if case let TransactionHistoryResult.success(transactions) = result, case let TransactionHistoryTimeframe.sinceBlock(blockNumber) = timeframe {
+                    result = BlockExplorerAPI.transactionHistory(fromJSON: jsonData, for: address)
+
+                    if case TransactionHistoryResult.success(let transactions) = result, case TransactionHistoryTimeframe.sinceBlock(let blockNumber) = timeframe {
                         result = .success(transactions.filter { $0.block >= blockNumber })
                     }
                 case is Ethereum:
@@ -104,7 +105,7 @@ struct BlockchainConnector {
         
         switch address {
         case is Bitcoin:
-            url = BlockexplorerAPI.balanceURL(for: address.identifier!)
+            url = BlockExplorerAPI.balanceURL(for: address.identifier!)
         case is Ethereum:
             url = EtherscanAPI.balanceURL(for: address.identifier!)
         default:
@@ -123,7 +124,7 @@ struct BlockchainConnector {
             if let jsonData = data {
                 switch address {
                 case is Bitcoin:
-                    result = BlockexplorerAPI.balance(fromJSON: jsonData)
+                    result = BlockExplorerAPI.balance(fromJSON: jsonData)
                 case is Ethereum:
                     result = EtherscanAPI.balance(fromJSON: jsonData)
                 default:

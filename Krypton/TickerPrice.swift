@@ -38,9 +38,9 @@ class TickerPrice: NSManagedObject {
     
     // MARK: - Public Class Methods
     /// creates and returns ticker price if non-existent in database, throws otherwise
-    class func createTickerPrice(from priceInfo: KrakenAPI.Price, in context: NSManagedObjectContext) throws -> TickerPrice {
+    class func createTickerPrice(from priceInfo: TickerConnector.Price, in context: NSManagedObjectContext) throws -> TickerPrice {
         let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()
-        request.predicate = NSPredicate(format: "date = %@ AND tradingPairRaw = %@", priceInfo.date, priceInfo.tradingPair.rawValue)
+        request.predicate = NSPredicate(format: "tradingPairRaw = %@ AND date = %@", priceInfo.tradingPair.rawValue, priceInfo.date as NSDate)
         
         do {
             let matches = try context.fetch(request)
@@ -52,12 +52,12 @@ class TickerPrice: NSManagedObject {
             throw error
         }
         
-        let price = TickerPrice(context: context)
-        price.date = priceInfo.date as Date
-        price.tradingPairRaw = priceInfo.tradingPair.rawValue
-        price.value = priceInfo.value
+        let tickerPrice = TickerPrice(context: context)
+        tickerPrice.date = priceInfo.date
+        tickerPrice.tradingPairRaw = priceInfo.tradingPair.rawValue
+        tickerPrice.value = priceInfo.value
         
-        return price
+        return tickerPrice
     }
     
     /// returns exchange value for specified trading pair on specified date, nil if date is today or in the future
@@ -102,11 +102,12 @@ class TickerPrice: NSManagedObject {
             return
         }
         
-        TickerConnector.fetchPriceHistory(for: tradingPair, since: startDate, completion: { result in
+        TickerConnector.fetchPriceHistory(for: tradingPair, since: startDate) { result in
             switch result {
             case let .success(priceHistory):
                 let context = AppDelegate.viewContext
                 var newPriceCount = 0
+                var duplicateCount = 0
                 
                 for price in priceHistory {
                     do {
@@ -118,7 +119,12 @@ class TickerPrice: NSManagedObject {
                             newPriceCount = newPriceCount + 1
                         }
                     } catch {
-                        print("Failed to create tickerPrice \(price.tradingPair, price.date, price.value): \(error)")
+                        switch error {
+                        case TickerPriceError.duplicate:
+                            duplicateCount = duplicateCount + 1
+                        default:
+                            print("Failed to create tickerPrice \(price.tradingPair, price.date, price.value): \(error)")
+                        }
                     }
                 }
                 
@@ -135,7 +141,7 @@ class TickerPrice: NSManagedObject {
             case let .failure(error):
                 print("Failed to fetch price history for \(tradingPair.rawValue): \(error)")
             }
-        })
+        }
     }
     
 }

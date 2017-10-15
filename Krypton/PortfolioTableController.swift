@@ -8,26 +8,31 @@
 
 import UIKit
 
+protocol PortfolioSelectorDelegate {
+    func didChangeSelection(selection: Portfolio?)
+}
+
 class PortfolioTableController: UITableViewController, PortfolioManagerDelegate, PortfolioCreatorDelegate  {
+    
+    // MARK: - Private Properties
+    private var portfolios = [Portfolio]()
     
     // MARK: - Public Properties
     var isSelector = false
     var delegate: PortfolioSelectorDelegate?
     var selectedPortfolio: Portfolio?
     
-    // MARK: - Private Properties
-    private var portfolios = [Portfolio]()
-    
     // MARK: - Initialization
     override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         PortfolioManager.shared.delegate = self
-        didUpdatePortfolioManager()
+        updateUI()
     }
 
     // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         super.prepare(for: segue, sender: sender)
-        
+    
         if let destVC = segue.destination as? PortfolioDetailController {
             destVC.portfolio = selectedPortfolio
         }
@@ -39,6 +44,8 @@ class PortfolioTableController: UITableViewController, PortfolioManagerDelegate,
     
     // MARK: - Public Methods
     func updateUI() {
+        portfolios = PortfolioManager.shared.storedPortfolios
+        
         if portfolios.count == 0 {
             delegate?.didChangeSelection(selection: nil)
             let noPortfoliosLabel = UILabel()
@@ -80,6 +87,7 @@ class PortfolioTableController: UITableViewController, PortfolioManagerDelegate,
         return cell
     }
     
+    // MARK: - TableView Delegate
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         selectedPortfolio = portfolios[indexPath.row]
         
@@ -101,26 +109,21 @@ class PortfolioTableController: UITableViewController, PortfolioManagerDelegate,
     
     // MARK: - PortfolioManager Delegate
     func didUpdatePortfolioManager() {
-        portfolios = PortfolioManager.shared.storedPortfolios
         updateUI()
     }
 
-    // MARK: - Portfolio Creator Delegate
+    // MARK: - PortfolioCreator Delegate
     func shouldCreatePortfolio(alias: String, isDefault: Bool) {
         do {
             let portfolio = try PortfolioManager.shared.addPortfolio(alias: alias, baseCurrency: PortfolioManager.shared.baseCurrency)
             try portfolio.setIsDefault(isDefault)
-            portfolios = PortfolioManager.shared.storedPortfolios
             selectedPortfolio = portfolio
             delegate?.didChangeSelection(selection: portfolio)
             updateUI()
         } catch {
+            // present error
             print(error)
         }
     }
     
-}
-
-protocol PortfolioSelectorDelegate {
-    func didChangeSelection(selection: Portfolio?)
 }

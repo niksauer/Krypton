@@ -17,18 +17,17 @@ class AddresDetailController: UITableViewController {
     private var deleteIndexPath: IndexPath!
     
     // MARK: - Navigation
-    // TODO: Fix TextFieldCell
-    func setAlias() {
-//        guard let alias = sender.text, !alias.isEmpty else {
-//            return
-//        }
-//
-//        do {
-//            try address.setAlias()
-//        } catch {
-//            // present error
-//            print(error)
-//        }
+    func setAlias(_ alias: String?) {
+        guard let alias = alias?.trimmingCharacters(in: .whitespacesAndNewlines), !alias.isEmpty else {
+            return
+        }
+
+        do {
+            try address.setAlias(alias)
+        } catch {
+            // present error
+            print(error)
+        }
     }
     
     func deleteAddress() {
@@ -41,7 +40,7 @@ class AddresDetailController: UITableViewController {
         }
     }
 
-    // MARK: - TableView Data Source Delegate
+    // MARK: - TableView Data Source
     override func numberOfSections(in tableView: UITableView) -> Int {
         switch address {
         case let tokenAddress as TokenAddress:
@@ -84,8 +83,9 @@ class AddresDetailController: UITableViewController {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "textFieldCell", for: indexPath) as! TextFieldCell
                 if row == 0 {
                     cell.configure(text: address.identifier, placeholder: "Address", completion: nil)
+                    cell.textField.isEnabled = false
                 } else {
-                    cell.configure(text: address.alias, placeholder: "Alias", completion: nil)
+                    cell.configure(text: address.alias, placeholder: "Alias", completion: setAlias)
                     cell.textField.clearButtonMode = .always
                 }
                 return cell
@@ -101,7 +101,8 @@ class AddresDetailController: UITableViewController {
                 return cell
             } else {
                 deleteIndexPath = indexPath
-                let cell = tableView.dequeueReusableCell(withIdentifier: "deleteCell", for: indexPath)
+                let cell = tableView.dequeueReusableCell(withIdentifier: "deleteCell", for: indexPath) as! DeleteCell
+                cell.configure(actionText: "Delete Address")
                 return cell
             }
         }

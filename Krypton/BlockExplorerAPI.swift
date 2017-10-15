@@ -1,5 +1,5 @@
 //
-//  BlockchainAPI.swift
+//  BlockExplorerAPI.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 29.09.17.
@@ -8,11 +8,11 @@
 
 import Foundation
 
-enum BlockexplorerError: Error {
+enum BlockExplorerError: Error {
     case invalidJSONData
 }
 
-struct BlockexplorerAPI {
+struct BlockExplorerAPI {
     
     // MARK: - Private Properties
     private static let baseURL = "https://blockexplorer.com"
@@ -38,7 +38,7 @@ struct BlockexplorerAPI {
     }
     
     private static func transaction(fromJSON json: [String: Any], for address: Address) -> [BlockchainConnector.Transaction]? {
-        guard let hash = json["txid"] as? String, let time = json["time"] as? Double, let block = json["blockheight"] as? Int32, let vin = json["vin"] as? [[String: Any]], let firstSender = vin.first?["addr"] as? String, let vout = json["vout"] as? [[String: Any]] else {
+        guard let hash = json["txid"] as? String, let time = json["time"] as? Double, let block = json["blockheight"] as? Int, let vin = json["vin"] as? [[String: Any]], let firstSender = vin.first?["addr"] as? String, let vout = json["vout"] as? [[String: Any]] else {
             return nil
         }
         
@@ -53,7 +53,7 @@ struct BlockexplorerAPI {
 //                continue
 //            }
             
-            let transaction = BlockchainConnector.Transaction(identifier: hash, date: NSDate(timeIntervalSince1970: time), amount: amount, from: firstSender, to: firstReceiver, type: .normal, block: block, isError: false, feeAmount: 0)
+            let transaction = BlockchainConnector.Transaction(identifier: hash, date: Date(timeIntervalSince1970: time), amount: amount, from: firstSender, to: firstReceiver, type: .normal, block: block, isError: false, feeAmount: 0)
             transactions.append(transaction)
         }
         
@@ -66,7 +66,7 @@ struct BlockexplorerAPI {
             let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
             
             guard let jsonDictionary = jsonObject as? [AnyHashable: Any], let transactionsArray = jsonDictionary["txs"] as? [[String: Any]] else {
-                return .failure(BlockexplorerError.invalidJSONData)
+                return .failure(BlockExplorerError.invalidJSONData)
             }
             
             var transactionHistory = [BlockchainConnector.Transaction]()
@@ -85,7 +85,7 @@ struct BlockexplorerAPI {
     
     static func balance(fromJSON data: Data) -> BalanceResult {
         guard let balanceString = String(data: data, encoding: .ascii), let balance = Double(balanceString) else {
-            return .failure(BlockexplorerError.invalidJSONData)
+            return .failure(BlockExplorerError.invalidJSONData)
         }
         
         return .success(balance)

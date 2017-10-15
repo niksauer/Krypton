@@ -10,8 +10,8 @@ import UIKit
 
 class TextFieldCell: UITableViewCell, UITextFieldDelegate {
     
-    // MARK: - Public Properties
-    var completion: (() -> Void)?
+    // MARK: - Private Properties
+    private var completion: ((String?) -> Void)?
     
     // MARK: - Outlets
     @IBOutlet weak var textField: UITextField!
@@ -23,7 +23,7 @@ class TextFieldCell: UITableViewCell, UITextFieldDelegate {
     }
     
     // MARK: - Public Methods
-    func configure(text: String?, placeholder: String?, completion: (() -> Void)?) {
+    func configure(text: String?, placeholder: String?, completion: ((String?) -> Void)?) {
         textField.text = text
         textField.placeholder = placeholder
         self.completion = completion
@@ -31,7 +31,7 @@ class TextFieldCell: UITableViewCell, UITextFieldDelegate {
     
     // MARK: - TextField Delegate
     func textFieldDidEndEditing(_ textField: UITextField) {
-        completion?()
+        completion?(textField.text)
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {

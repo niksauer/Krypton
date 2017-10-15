@@ -10,11 +10,13 @@ import UIKit
 
 class TransactionDetailController: UITableViewController, TickerWatchlistDelegate, UITextFieldDelegate {
 
-    // MARK: - Public Properties
-    var transaction: Transaction?
+    // MARK: - Private Properties
     let exchangeValueIndexPath = IndexPath(row: 0, section: 2)
     let profitIndexPath = IndexPath(row: 1, section: 2)
     let feeIndexPath = IndexPath(row: 0, section: 3)
+    
+    // MARK: - Public Properties
+    var transaction: Transaction!
     
     var showsExchangeValue = false {
         didSet {
@@ -25,14 +27,10 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
             
             if showsExchangeValue {
                 exchangeValueTypeLabel.text = "Value"
-                if let userExchangeValue = transaction?.userExchangeValue, userExchangeValue != -1 {
-                    exchangeValueField.text = Format.getCurrencyFormatting(for: userExchangeValue, currency: PortfolioManager.shared.baseCurrency)
-                } else {
-                    exchangeValueField.text = Format.getCurrencyFormatting(for: exchangeValue, currency: PortfolioManager.shared.baseCurrency)
-                }
+                exchangeValueField.text = Format.getCurrencyFormatting(for: exchangeValue, currency: transaction.owner!.baseCurrency)
             } else {
                 exchangeValueTypeLabel.text = "Current Value"
-                exchangeValueField.text = Format.getCurrencyFormatting(for: currentExchangeValue, currency: PortfolioManager.shared.baseCurrency)
+                exchangeValueField.text = Format.getCurrencyFormatting(for: currentExchangeValue, currency: transaction.owner!.baseCurrency)
             }
         }
     }
@@ -40,18 +38,16 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
     var showsRelativeProfit = true {
         didSet {
             guard let profitStats = transaction?.getProfitStats(timeframe: .allTime) else {
-                profitField.text = "???"
+                profitLabel.text = "???"
                 return
             }
             
             if showsRelativeProfit {
                 profitTypeLabel.text = "Relative Profit"
-                let relativeProfit = Format.getRelativeProfit(from: profitStats)
-                profitField.text = Format.getNumberFormatting(for: NSNumber(value: relativeProfit)) + "%"
+                profitLabel.text = Format.getRelativeProfitFormatting(from: profitStats)
             } else {
                 profitTypeLabel.text = "Absolute Profit"
-                let absoluteProfit = Format.getAbsoluteProfit(from: profitStats)
-                profitField.text = Format.getCurrencyFormatting(for: absoluteProfit, currency: PortfolioManager.shared.baseCurrency)
+                profitLabel.text = Format.getAbsoluteProfitFormatting(from: profitStats, currency: transaction.owner!.baseCurrency)
             }
         }
     }
@@ -59,43 +55,42 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
     var showsCryptoFees = true {
         didSet {
             guard let feeAmount = transaction?.feeAmount, let feeExchangeValue = transaction?.feeExchangeValue else {
-                feeField.text = "???"
+                feeLabel.text = "???"
                 return
             }
             
             if showsCryptoFees {
-                feeField.text = Format.getCurrencyFormatting(for: feeAmount, currency: transaction!.owner!.blockchain)
+                feeLabel.text = Format.getCurrencyFormatting(for: feeAmount, currency: transaction.owner!.baseCurrency)
             } else {
-                feeField.text = Format.getCurrencyFormatting(for: feeExchangeValue, currency: PortfolioManager.shared.baseCurrency)
+                feeLabel.text = Format.getCurrencyFormatting(for: feeExchangeValue, currency: transaction.owner!.baseCurrency)
             }
         }
     }
     
     // MARK: - Outlets
-    @IBOutlet weak var amountField: UILabel!
-    @IBOutlet weak var dateField: UILabel!
-    
-    @IBOutlet weak var senderAddressField: UILabel!
-    @IBOutlet weak var receiverAddressField: UILabel!
-    @IBOutlet weak var typeField: UILabel!
+    @IBOutlet weak var amountLabel: UILabel!
+    @IBOutlet weak var dateLabel: UILabel!
+    @IBOutlet weak var senderAddressLabel: UILabel!
+    @IBOutlet weak var receiverAddressLabel: UILabel!
+    @IBOutlet weak var typeLabel: UILabel!
     
     @IBOutlet weak var exchangeValueTypeLabel: UILabel!
-    @IBOutlet weak var exchangeValueField: UILabel!
-    @IBOutlet weak var exchangeValueTextField: UITextField!
+    @IBOutlet weak var exchangeValueLabel: UILabel!
+    @IBOutlet weak var exchangeValueField: UITextField!
     @IBOutlet weak var profitTypeLabel: UILabel!
-    @IBOutlet weak var profitField: UILabel!
+    @IBOutlet weak var profitLabel: UILabel!
     @IBOutlet weak var isInvestmentSwitch: UISwitch!
     
-    @IBOutlet weak var feeField: UILabel!
+    @IBOutlet weak var feeLabel: UILabel!
     @IBOutlet weak var executedLabel: UILabel!
-    @IBOutlet weak var blockNumberField: UILabel!
-    @IBOutlet weak var hashNumberField: UILabel!
+    @IBOutlet weak var blockNumberLabel: UILabel!
+    @IBOutlet weak var identifierLabel: UILabel!
     
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        exchangeValueTextField.delegate = self
+        exchangeValueField.delegate = self
         self.navigationItem.rightBarButtonItem = self.editButtonItem
         
         guard let tx = transaction else {
@@ -104,20 +99,19 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
         
         TickerWatchlist.delegate = self
 
-        amountField.text = Format.getCurrencyFormatting(for: tx.amount, currency: transaction!.owner!.blockchain)
-        senderAddressField.text = PortfolioManager.shared.getAlias(for: tx.from!) ?? tx.from
-        receiverAddressField.text = PortfolioManager.shared.getAlias(for: tx.to!) ?? tx.to
-        dateField.text = Format.getDateFormatting(for: tx.date! as Date)
-        typeField.text = tx.type
+        amountLabel.text = Format.getCurrencyFormatting(for: tx.amount, currency: transaction!.owner!.blockchain)
+        senderAddressLabel.text = PortfolioManager.shared.getAlias(for: tx.from!) ?? tx.from
+        receiverAddressLabel.text = PortfolioManager.shared.getAlias(for: tx.to!) ?? tx.to
+        dateLabel.text = Format.getDateFormatting(for: tx.date! as Date)
+        typeLabel.text = tx.type
         
-        showsExchangeValue = true
-        showsRelativeProfit = true
         isInvestmentSwitch.isOn = tx.isInvestment
-        
-        showsCryptoFees = true
+    
         executedLabel.text = String(tx.isError)
-        blockNumberField.text = String(tx.block)
-        hashNumberField.text = tx.identifier
+        blockNumberLabel.text = String(tx.block)
+        identifierLabel.text = tx.identifier
+        
+        updateUI()
     }
 
     // MARK: - Navigation
@@ -125,7 +119,8 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
         do {
             try transaction?.setIsInvestment(state: sender.isOn)
         } catch {
-            print("Failed to save updated investment status.")
+            // present error
+            print(error)
         }
     }
     
@@ -137,43 +132,48 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
         if editing {
             showsExchangeValue = true
             exchangeValueField.isHidden = true
-            exchangeValueTextField.text = exchangeValueField.text
-            exchangeValueTextField.isHidden = false
+            exchangeValueField.text = exchangeValueField.text
+            exchangeValueField.isHidden = false
         } else {
-            if let newValueString = exchangeValueTextField.text, let newValue = Double(newValueString) {
+            if let newValueString = exchangeValueField.text?.trimmingCharacters(in: .whitespacesAndNewlines), let newValue = Double(newValueString) {
                 do {
                     try transaction?.setUserExchangeValue(value: newValue)
                 } catch {
+                    // present error
                     print(error)
                 }
             }
             
             showsExchangeValue = { showsExchangeValue }()
-            exchangeValueTextField.isHidden = true
-            exchangeValueTextField.resignFirstResponder()
+            exchangeValueField.isHidden = true
+            exchangeValueField.resignFirstResponder()
             exchangeValueField.isHidden = false
         }
     }
     
-    // MARK: - TableView Delegate
-    func didUpdateCurrentPrice(for tradingPair: TradingPair) {
+    // MARK: - Public Methods
+    func updateUI() {
         showsExchangeValue = { showsExchangeValue }()
         showsRelativeProfit = { showsRelativeProfit }()
         showsCryptoFees = { showsCryptoFees }()
     }
     
     // MARK: - TableView Delegate
+    func didUpdateCurrentPrice(for tradingPair: TradingPair) {
+        updateUI()
+    }
+    
+    // MARK: - TableView Delegate
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if indexPath == exchangeValueIndexPath {
+        switch indexPath {
+        case _ where indexPath == exchangeValueIndexPath:
             showsExchangeValue = !showsExchangeValue
-        }
-        
-        if indexPath == profitIndexPath {
+        case _ where indexPath == profitIndexPath:
             showsRelativeProfit = !showsRelativeProfit
-        }
-        
-        if indexPath == feeIndexPath {
+        case _ where indexPath == feeIndexPath:
             showsCryptoFees = !showsCryptoFees
+        default:
+            break
         }
     }
     

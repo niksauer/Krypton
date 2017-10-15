@@ -8,6 +8,10 @@
 
 import Foundation
 
+protocol TickerWatchlistDelegate {
+    func didUpdateCurrentPrice(for tradingPair: TradingPair)
+}
+
 final class TickerWatchlist {
     
     // MARK: - Public Properties
@@ -16,7 +20,7 @@ final class TickerWatchlist {
     
     // MARK: - Private Properties
     /// dictionary mapping trading pairs to their most current price
-    private static var currentPrice: [TradingPair : Double] = [:]
+    private static var currentPriceForTradingPair = [TradingPair : Double]()
     
     /// timer used to continioulsy fetch price updates
     private static var updateTimer: Timer?
@@ -27,7 +31,7 @@ final class TickerWatchlist {
     /// trading pairs for which continious price updates are retrieved
     private static var tradingPairs = Set<TradingPair>()
     
-    private static var requestsForTradingPair: [TradingPair : Int] = [:]
+    private static var requestsForTradingPair = [TradingPair : Int]()
     
     // MARK: - Public Class Methods
     /// adds trading pair and fetches current price if it has not already been added to watchlist, starts update timer
@@ -59,13 +63,13 @@ final class TickerWatchlist {
     
     /// returns current price for specified trading pair
     class func getCurrentPrice(for tradingPair: TradingPair) -> Double? {
-        return currentPrice[tradingPair]
+        return currentPriceForTradingPair[tradingPair]
     }
     
     class func reset() {
         stopUpdateTimer()
         tradingPairs = Set<TradingPair>()
-        requestsForTradingPair = [:]
+        requestsForTradingPair = [TradingPair : Int]()
     }
     
     /// starts unique timer to update current price in specified interval for all stored trading pairs
@@ -103,7 +107,7 @@ final class TickerWatchlist {
         TickerConnector.fetchCurrentPrice(for: tradingPair, completion: { result in
             switch result {
             case let .success(currentPrice):
-                self.currentPrice[tradingPair] = currentPrice.value
+                self.currentPriceForTradingPair[tradingPair] = currentPrice.value
                 print("Updated current price for trading pair \(tradingPair.rawValue): \(currentPrice.value)")
                 delegate?.didUpdateCurrentPrice(for: tradingPair)
             case let .failure(error):
@@ -112,8 +116,4 @@ final class TickerWatchlist {
         })
     }
     
-}
-
-protocol TickerWatchlistDelegate {
-    func didUpdateCurrentPrice(for tradingPair: TradingPair)
 }

@@ -17,7 +17,6 @@ enum TokenError: Error {
 protocol TokenFeatures: Currency {
     var name: String { get }
     var address: String { get }
-    var decimalDigits: Int { get }
 }
 
 class Token: NSManagedObject, Currency {
@@ -59,21 +58,21 @@ class Token: NSManagedObject, Currency {
             return ERC20.addressForToken[self]!
         }
         
-        var decimalDigits: Int {
-            return ERC20.decimalDigitsForToken[self]!
-        }
-        
         // MARK: - Currency Protocol
         var code: String {
             return self.rawValue
         }
         
+        var decimalDigits: Int {
+            return ERC20.decimalDigitsForToken[self]!
+        }
+        
     }
     
     // MARK: - Public Class Methods
-    class func createToken(from tokenInfo: TokenFeatures, balance: Double, owner: TokenAddress, in context: NSManagedObjectContext) throws -> Token {
+    class func createToken(from tokenInfo: TokenFeatures, owner: TokenAddress, in context: NSManagedObjectContext) throws -> Token {
         let request: NSFetchRequest<Token> = Token.fetchRequest()
-        request.predicate = NSPredicate(format: "address = %@ AND owner = %@", tokenInfo.address, owner)
+        request.predicate = NSPredicate(format: "currencyCode = %@ AND owner = %@", tokenInfo.code, owner)
         
         do {
             let matches = try context.fetch(request)
@@ -87,20 +86,21 @@ class Token: NSManagedObject, Currency {
         
         let token = Token(context: context)
         token.address = tokenInfo.address
-        token.balance = balance
         token.name = tokenInfo.name
         token.currencyCode = tokenInfo.code
-        token.decimalDigits = Int16(tokenInfo.decimalDigits)
+        token.currencyDecimalDigits = Int16(tokenInfo.decimalDigits)
         token.owner = owner
         
         return token
     }
     
-    // MARK: - Public Properties
+    // MARK: - Currency Protocol
     var code: String {
         return currencyCode!
     }
     
+    var decimalDigits: Int {
+        return Int(currencyDecimalDigits)
+    }
+
 }
-
-

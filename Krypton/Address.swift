@@ -53,6 +53,7 @@ class Address: NSManagedObject {
         address.identifier = addressString
         
         guard address.isValidAddress() else {
+            context.delete(address)
             throw AddressError.invalid
         }
         
@@ -74,10 +75,10 @@ class Address: NSManagedObject {
     
     private(set) public var baseCurrency: Currency {
         get {
-            return Fiat(rawValue: baseCurrencyCode!)!
+            return CurrencyManager.getCurrency(from: baseCurrencyCode!)!
         }
         set {
-            self.baseCurrencyCode = newValue.code
+            baseCurrencyCode = newValue.code
         }
     }
     
@@ -89,6 +90,18 @@ class Address: NSManagedObject {
     /// returns all transaction associated with address
     var storedTransactions: [Transaction] {
         return Array(transactions!) as! [Transaction]
+    }
+    
+    // MARK: - Private Methods
+    private func getTransactions(of type: TransactionType) -> [Transaction] {
+        switch type {
+        case .investment:
+            return storedTransactions.filter { $0.isInvestment }
+        case .other:
+            return storedTransactions.filter { !$0.isInvestment }
+        case .all:
+            return storedTransactions
+        }
     }
     
     // MARK: - Public Methods
@@ -128,6 +141,10 @@ class Address: NSManagedObject {
     }
     
     func setBaseCurrency(_ currency: Currency) throws {
+        guard self.baseCurrency.code != currency.code else {
+            return
+        }
+        
         do {
             self.baseCurrencyCode = currency.code
             try AppDelegate.viewContext.save()
@@ -140,14 +157,20 @@ class Address: NSManagedObject {
     
     // MARK: Management
     func update(completion: (() -> Void)?) {
-        preconditionFailure("This method must be overridden")
+        self.updateTransactionHistory {
+            self.updatePriceHistory {
+                self.updateBalance {
+                    completion?()
+                }
+            }
+        }
     }
     
     /// fetches and saves balance if it has changed, notifies delegate
     func updateBalance(completion: (() -> Void)?) {
-        BlockchainConnector.fetchBalance(for: self, completion: { result in
+        BlockchainConnector.fetchBalance(for: self) { result in
             switch result {
-            case let .success(balance):
+            case .success(let balance):
                 guard balance != self.balance else {
                     print("Balance for \(self.identifier!) is already up-to-date.")
                     completion?()
@@ -163,10 +186,10 @@ class Address: NSManagedObject {
                 } catch {
                     print("Failed to save fetched balance for \(self.identifier!): \(error)")
                 }
-            case let .failure(error):
+            case .failure(let error):
                 print("Failed to fetch balance for \(self.identifier!): \(error)")
             }
-        })
+        }
     }
     
     /// fetches and saves transaction history since last retrieved block, executes completion block if no error is thrown during retrieval and saving
@@ -178,6 +201,8 @@ class Address: NSManagedObject {
     func updatePriceHistory(completion: (() -> Void)?) {
         if let firstTransaction = getOldestTransaction() {
             TickerPrice.updatePriceHistory(for: tradingPair, since: firstTransaction.date! as Date, completion: completion)
+        } else {
+            completion?()
         }
     }
     
@@ -188,26 +213,10 @@ class Address: NSManagedObject {
             return 0.0
         }
         
+        let transactions = getTransactions(of: type).filter { $0.date! <= date }
         var balance = 0.0
-        
-        for transaction in storedTransactions {
-            guard !(transaction.date! as Date > date) else {
-                continue
-            }
-            
-            switch type {
-            case .investment:
-                guard transaction.isInvestment else {
-                    continue
-                }
-            case .other:
-                guard !transaction.isInvestment else {
-                    continue
-                }
-            case .all:
-                break
-            }
-            
+    
+        for transaction in transactions {
             if transaction.isOutbound {
                 balance = balance - transaction.totalAmount
             } else {
@@ -243,21 +252,9 @@ class Address: NSManagedObject {
     func getProfitStats(for type: TransactionType, timeframe: ProfitTimeframe) -> (startValue: Double, endValue: Double)? {
         var startValue = 0.0
         var endValue = 0.0
+        let transactions = getTransactions(of: type)
         
-        for transaction in storedTransactions {
-            switch type {
-            case .investment:
-                guard transaction.isInvestment else {
-                    continue
-                }
-            case .other:
-                guard !transaction.isInvestment else {
-                    continue
-                }
-            case .all:
-                break
-            }
-            
+        for transaction in transactions {
             if let profitStats = transaction.getProfitStats(timeframe: timeframe) {
                 startValue = startValue + profitStats.startValue
                 endValue = endValue + profitStats.endValue
@@ -275,33 +272,15 @@ class Address: NSManagedObject {
             return nil
         }
         
+        let transactions = getTransactions(of: type)
         var profitHistory: [(Date, Double)] = []
         
-        for (index, tx) in storedTransactions.enumerated() {
-            switch type {
-            case .investment:
-                guard tx.isInvestment else {
-                    continue
-                }
-            case .other:
-                guard !tx.isInvestment else {
-                    continue
-                }
-            case .all:
-                break
-            }
-            
-            guard let absoluteReturnHistory = tx.getAbsoluteProfitHistory(since: date) else {
+        for transaction in transactions {
+            guard let absoluteReturnHistory = transaction.getAbsoluteProfitHistory(since: date) else {
                 return nil
             }
             
-            if index == 0 {
-                for (date, absoluteReturn) in absoluteReturnHistory {
-                    profitHistory.append((date, absoluteReturn))
-                }
-            } else {
-                profitHistory = zip(profitHistory, absoluteReturnHistory).map() { ($0.0, $0.1 + $1.1) }
-            }
+            profitHistory = zip(profitHistory, absoluteReturnHistory).map { ($0.0, $0.1 + $1.1) }
         }
         
         return profitHistory

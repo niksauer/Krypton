@@ -10,17 +10,18 @@ import UIKit
 
 class PortfolioDetailController: UITableViewController {
     
+    // MARK: - Private Properties
+    private let aliasIndexPath = IndexPath(row: 0, section: 0)
+    private let isDefaultIndexPath = IndexPath(row: 1, section: 0)
+    private var deleteIndexPath: IndexPath!
+    private var selectedAddress: Address?
+    
     // MARK: - Public Properties
     var portfolio: Portfolio!
     
-    // MARK: - Public Properties
-    let aliasIndexPath = IndexPath(row: 0, section: 0)
-    let isDefaultIndexPath = IndexPath(row: 1, section: 0)
-    
-    var selectedAddress: Address?
-    
-    // MARK: - Initilization
+    // MARK: - Initialization
     override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         tableView.reloadData()
     }
     
@@ -54,20 +55,20 @@ class PortfolioDetailController: UITableViewController {
         }
     }
     
-    func setAlias() {
-        if let newAlias = (tableView.cellForRow(at: aliasIndexPath) as! TextFieldCell).textField.text, !newAlias.isEmpty {
-            do {
-                try portfolio.setAlias(newAlias)
-            } catch {
-                // present error
-                print(error)
-            }
+    func setAlias(_ alias: String?) {
+        guard let alias = alias?.trimmingCharacters(in: .whitespacesAndNewlines), !alias.isEmpty else {
+            return
+        }
+        
+        do {
+            try portfolio.setAlias(alias)
+        } catch {
+            // present error
+            print(error)
         }
     }
     
-    func setIsDefault() {
-        let state = (tableView.cellForRow(at: isDefaultIndexPath) as! SwitchCell).toggleSwitch.isOn
-        
+    func setIsDefault(_ state: Bool) {
         do {
             try portfolio.setIsDefault(state)
         } catch {
@@ -84,52 +85,54 @@ class PortfolioDetailController: UITableViewController {
             return 2
         }
     }
-
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if section == 0 {
+        switch section {
+        case _ where section == 0:
             return 2
-        } else if portfolio.storedAddresses.count > 0, section == 1 {
+        case _ where section == 1 && portfolio.storedAddresses.count > 0:
             return portfolio.storedAddresses.count
-        } else {
+        default:
             return 1
         }
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if indexPath == aliasIndexPath {
+        switch indexPath {
+        case _ where indexPath == aliasIndexPath:
             let cell = tableView.dequeueReusableCell(withIdentifier: "textFieldCell", for: indexPath) as! TextFieldCell
             cell.configure(text: portfolio?.alias, placeholder: "Alias", completion: setAlias)
             cell.textField.clearButtonMode = .always
             return cell
-        }
-        
-        if indexPath == isDefaultIndexPath {
+        case _ where indexPath == isDefaultIndexPath:
             let cell = tableView.dequeueReusableCell(withIdentifier: "switchCell", for: indexPath) as! SwitchCell
-            cell.configure(name: "Default", state: portfolio.isDefault, completion: setIsDefault)
+            cell.configure(name: "Default", isOn: portfolio.isDefault, completion: setIsDefault)
             return cell
-        }
-        
-        if portfolio.storedAddresses.count > 0, indexPath.section == 1 {
+        case _ where indexPath.section == 1 && portfolio.storedAddresses.count > 0:
             let cell = tableView.dequeueReusableCell(withIdentifier: "addressCell", for: indexPath) as! AddressCell
             let address = portfolio.storedAddresses[indexPath.row]
             cell.configure(address: address.identifier!, alias: address.alias)
             return cell
-        } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "deleteCell", for: indexPath)
+        default:
+            deleteIndexPath = indexPath
+            let cell = tableView.dequeueReusableCell(withIdentifier: "deleteCell", for: indexPath) as! DeleteCell
+            cell.configure(actionText: "Delete Portfolio")
             return cell
         }
     }
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        if section == 0 {
+        switch section {
+        case _ where section == 0:
             return "Portfolio"
-        } else if portfolio.storedAddresses.count > 0, section == 1 {
+        case _ where section == 1 && portfolio.storedAddresses.count > 0:
             return "Addresses"
-        } else {
+        default:
             return nil
         }
     }
     
+    // MARK: - TableView Delegate
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         if portfolio.storedAddresses.count > 0, indexPath.section == 1 {
             return true
@@ -150,7 +153,7 @@ class PortfolioDetailController: UITableViewController {
             return
         }
         
-        if portfolio.storedAddresses.count > 0 && indexPath.section == 2 || portfolio.storedAddresses.count == 0 && indexPath.section == 1 {
+        if indexPath == deleteIndexPath {
             deletePortfolio()
         } else {
             selectedAddress = portfolio.storedAddresses[indexPath.row]

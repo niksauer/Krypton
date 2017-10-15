@@ -25,6 +25,11 @@ enum TransactionValueType {
     case total
 }
 
+enum ProfitTimeframe {
+    case allTime
+    case sinceDate(Date)
+}
+
 class Transaction: NSManagedObject {
     
     // MARK: - Public Class Methods
@@ -50,7 +55,7 @@ class Transaction: NSManagedObject {
         transaction.to = txInfo.to
         transaction.from = txInfo.from
         transaction.identifier = txInfo.identifier
-        transaction.block = txInfo.block
+        transaction.block = Int32(txInfo.block)
         transaction.feeAmount = txInfo.feeAmount
         transaction.isError = txInfo.isError
         transaction.owner = owner

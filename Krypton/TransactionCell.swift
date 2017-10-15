@@ -10,10 +10,12 @@ import UIKit
 
 class TransactionCell: UITableViewCell {
 
+    // MARK: - Outlets
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var addressLabel: UILabel!
     @IBOutlet weak var amountLabel: UILabel!
     
+    // MARK: - Public Methods
     func configure(transaction: Transaction) {
         dateLabel.text = Format.getDateFormatting(for: transaction.date!)
         

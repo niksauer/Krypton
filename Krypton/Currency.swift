@@ -11,28 +11,24 @@ import SwiftKeccak
 
 protocol Currency {
     var code: String { get }
+    var decimalDigits: Int { get }
 }
 
 struct CurrencyManager {
     
     static func getCurrency(from code: String) -> Currency? {
-        if let fiatCurrency = Fiat(rawValue: code) {
-            return fiatCurrency
-        } else if let cryptoCurrency = Blockchain(rawValue: code) {
-            return cryptoCurrency
-        } else {
-            return nil
-        }
+        return Fiat(rawValue: code) ?? Blockchain(rawValue: code) ?? Token.ERC20(rawValue: code)
     }
     
     static func getAllCurrencies(for currency: Currency) -> [Currency]? {
-        if Fiat(rawValue: currency.code) != nil {
+        switch currency {
+        case is Fiat:
             return Fiat.allValues
-        } else if Blockchain(rawValue: currency.code) != nil {
+        case is Blockchain:
             return Blockchain.allValues
-        } else if Token.ERC20(rawValue: currency.code) != nil {
+        case is Token.ERC20:
             return Token.ERC20.allValues
-        } else {
+        default:
             return nil
         }
     }
@@ -45,7 +41,7 @@ enum Blockchain: String, Currency {
     
     // MARK: - Private Properties
     /// dictionary mapping crypto currencies to their respective currency symbol
-    private static let symbolForBlockchain: [Blockchain : String] = [
+    private static let symbolForBlockchain: [Blockchain: String] = [
         .ETH : "Ξ",
         .XBT : "Ƀ"
     ]
@@ -53,6 +49,11 @@ enum Blockchain: String, Currency {
     private static let nameForBlockchain: [Blockchain: String] = [
         .ETH: "Ethereum",
         .XBT: "Bitcoin"
+    ]
+    
+    private static let decimalDigitsForBlockchain: [Blockchain: Int] = [
+        .ETH: 18,
+        .XBT: 8
     ]
     
     // MARK: - Public Properties
@@ -66,11 +67,15 @@ enum Blockchain: String, Currency {
         return Blockchain.nameForBlockchain[self]!
     }
 
-    static var allValues = [XBT, ETH]
+    static var allValues = [ETH]
     
     // MARK: - Currency Protocol
     var code: String {
         return self.rawValue
+    }
+    
+    var decimalDigits: Int {
+        return Blockchain.decimalDigitsForBlockchain[self]!
     }
     
 }
@@ -87,6 +92,10 @@ enum Fiat: String, Currency {
         return self.rawValue
     }
     
+    var decimalDigits: Int {
+        return 2
+    }
+    
 }
 
 enum TradingPair: String {
@@ -101,8 +110,8 @@ enum TradingPair: String {
     // MARK: - Public Type Methods
     /// returns trading pair constructed from specified crypto and fiat currency
     static func getTradingPair(a: Currency, b: Currency) -> TradingPair? {
-        let tradingPair = a.code + b.code
-        return TradingPair(rawValue: tradingPair)
+        let tradingPairRaw = a.code + b.code
+        return TradingPair(rawValue: tradingPairRaw)
     }
     
 }

@@ -8,16 +8,22 @@
 
 import UIKit
 
+protocol FilterDelegate {
+    func didChangeSelectedAddresses()
+    func didChangeTransactionType(to type: TransactionType)
+}
+
 class FilterController: UITableViewController {
+    
+    // MARK: - Private Properties
+    private let portfolios = PortfolioManager.shared.storedPortfolios.filter { $0.storedAddresses.count > 0 }
+    private let filterSectionsCount = 1
+    private let transactionTypeIndexPath = IndexPath(row: 0, section: 0)
+    private var newSelectedTransactionType: TransactionType?
     
     // MARK: - Public Properties
     var delegate: FilterDelegate?
-    var transactionType: TransactionType?
-    
-    // MARK: - Private Properties
-    private let filterOptionsCount = 1
-    private let portfolios = PortfolioManager.shared.storedPortfolios
-    private var newTransactionType: TransactionType?
+    var selectedTransactionType: TransactionType?
 
     // MARK: - Navigation
     @IBAction func cancel(_ sender: UIBarButtonItem) {
@@ -25,8 +31,8 @@ class FilterController: UITableViewController {
     }
     
     @IBAction func apply(_ sender: UIBarButtonItem) {
-        if newTransactionType != nil, newTransactionType != transactionType {
-            delegate?.didChangeTransactionType(to: newTransactionType!)
+        if newSelectedTransactionType != nil, newSelectedTransactionType != selectedTransactionType {
+            delegate?.didChangeTransactionType(to: newSelectedTransactionType!)
         }
         
         do {
@@ -34,6 +40,7 @@ class FilterController: UITableViewController {
                 delegate?.didChangeSelectedAddresses()
             }
         } catch {
+            // present error
             print(error)
         }
         
@@ -41,43 +48,36 @@ class FilterController: UITableViewController {
     }
     
     // MARK: - Public Methods
-    @IBAction func setTransactionType(_ sender: UISegmentedControl) {
-        newTransactionType = TransactionType(rawValue: sender.selectedSegmentIndex)!
+    func setTransactionType(_ rawValue: Int) {
+        newSelectedTransactionType = TransactionType(rawValue: rawValue)
     }
     
     // MARK: - TableView Data Source
     override func numberOfSections(in tableView: UITableView) -> Int {
-        var sectionCount = filterOptionsCount
-        
-        for portfolio in portfolios {
-            if portfolio.storedAddresses.count > 0 {
-                sectionCount = sectionCount + 1
-            }
-        }
-        
-        return sectionCount
+        return filterSectionsCount + portfolios.count
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if section == 0 {
+        switch section {
+        case _ where section == transactionTypeIndexPath.section:
             return 1
-        } else {
-            return portfolios[section-filterOptionsCount].storedAddresses.count
+        default:
+            return portfolios[section-filterSectionsCount].storedAddresses.count
         }
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if indexPath.section == 0 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "transactionTypeCell", for: indexPath)
-            let transactionTypeSwitch = cell.contentView.subviews.first as! UISegmentedControl
-            transactionTypeSwitch.selectedSegmentIndex = transactionType?.rawValue ?? 0
+        switch indexPath {
+        case _ where indexPath == transactionTypeIndexPath:
+            let cell = tableView.dequeueReusableCell(withIdentifier: "segmentedControlCell", for: indexPath) as! SegmentedControlCell
+            cell.configure(segments: ["All", "Investment", "Other"], selectedSegment: selectedTransactionType?.rawValue ?? TransactionType.all.rawValue, completion: setTransactionType)
             return cell
-        } else {
-            let address = portfolios[indexPath.section-filterOptionsCount].storedAddresses[indexPath.row]
+        default:
+            let address = portfolios[indexPath.section-filterSectionsCount].storedAddresses[indexPath.row]
             let cell = tableView.dequeueReusableCell(withIdentifier: "addressCell", for: indexPath)
             cell.textLabel?.text = address.identifier
             cell.detailTextLabel?.text = address.alias
-        
+            
             if address.isSelected {
                 cell.accessoryType = .checkmark
             }
@@ -86,8 +86,19 @@ class FilterController: UITableViewController {
         }
     }
     
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        switch section {
+        case _ where section == transactionTypeIndexPath.section:
+            return "Transaction Type"
+        default:
+            let portfolio = portfolios[section-filterSectionsCount]
+            return portfolio.alias!
+        }
+    }
+    
+    // MARK: - TableView Delegate
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard indexPath.section != 0 else {
+        guard indexPath.section > filterSectionsCount-1 else {
             return
         }
         
@@ -97,7 +108,7 @@ class FilterController: UITableViewController {
             return
         }
         
-        let address = portfolios[indexPath.section-filterOptionsCount].storedAddresses[indexPath.row]
+        let address = portfolios[indexPath.section-filterSectionsCount].storedAddresses[indexPath.row]
         
         if cell.accessoryType == .checkmark {
             cell.accessoryType = .none
@@ -108,24 +119,4 @@ class FilterController: UITableViewController {
         }
     }
     
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        guard section != 0 else {
-            return "Transaction Type"
-        }
-        
-        let portfolio = portfolios[section-filterOptionsCount]
-        
-        if let portfolioAlias = portfolio.alias {
-            return portfolioAlias
-        } else {
-            return "Portfolio \(section-filterOptionsCount + 1)"
-        }
-    }
-
-}
-
-// MARK: - Filter Delegate Protocol
-protocol FilterDelegate {
-    func didChangeSelectedAddresses()
-    func didChangeTransactionType(to type: TransactionType)
 }

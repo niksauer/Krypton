@@ -226,8 +226,8 @@
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Bitcoin" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="tK7-NV-g8y">
-                                                    <rect key="frame" x="307.5" y="12" width="52.5" height="20.5"/>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Ethereum" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="tK7-NV-g8y">
+                                                    <rect key="frame" x="286" y="12" width="74" height="20.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
@@ -272,8 +272,8 @@
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Default" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="ksA-ub-Alf">
-                                                    <rect key="frame" x="285" y="12" width="55" height="20.5"/>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="None" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="ksA-ub-Alf">
+                                                    <rect key="frame" x="299" y="12" width="41" height="20.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
@@ -308,9 +308,9 @@
                     <connections>
                         <outlet property="addressField" destination="iiP-I6-QS7" id="Z5K-L4-zcx"/>
                         <outlet property="aliasField" destination="5m2-st-Ydr" id="SUj-Rl-FUt"/>
-                        <outlet property="blockchainLabel" destination="tK7-NV-g8y" id="OEu-C1-U6g"/>
                         <outlet property="blockchainPicker" destination="9pZ-yG-3Fu" id="fhz-kq-mmH"/>
                         <outlet property="saveButton" destination="Dop-1E-obI" id="oNp-y9-sVK"/>
+                        <outlet property="selectedBlockchainLabel" destination="tK7-NV-g8y" id="1d0-aG-cwj"/>
                         <outlet property="selectedPortfolioLabel" destination="ksA-ub-Alf" id="4Ju-eJ-ILO"/>
                         <segue destination="V4A-Cs-7w5" kind="unwind" identifier="unwindToDashboard" unwindAction="unwindToDashboardWithSegue:" id="WYD-Ar-mkz"/>
                     </connections>
@@ -547,7 +547,7 @@
                                     <outlet property="aliasField" destination="3M8-Fg-dWd" id="qRl-D7-IDR"/>
                                 </connections>
                             </tableViewCell>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="deleteCell" id="6wv-Ry-6uz">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="deleteCell" id="6wv-Ry-6uz" customClass="DeleteCell" customModule="Krypton" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="187.5" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="6wv-Ry-6uz" id="JwX-41-3uK">
@@ -566,6 +566,9 @@
                                         <constraint firstItem="rUA-OR-mFa" firstAttribute="centerY" secondItem="JwX-41-3uK" secondAttribute="centerY" id="gIY-lt-xIt"/>
                                     </constraints>
                                 </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="actionLabel" destination="rUA-OR-mFa" id="oOt-nt-hsW"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <sections/>
@@ -592,32 +595,8 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="textFieldCell" id="aQ5-FC-R4U" customClass="TextFieldCell" customModule="Krypton" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="55.5" width="375" height="44"/>
-                                <autoresizingMask key="autoresizingMask"/>
-                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="aQ5-FC-R4U" id="7II-BE-xwS">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                    <subviews>
-                                        <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Address" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="pjT-R5-sx5">
-                                            <rect key="frame" x="8" y="12.5" width="359" height="19"/>
-                                            <nil key="textColor"/>
-                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                            <textInputTraits key="textInputTraits"/>
-                                        </textField>
-                                    </subviews>
-                                    <constraints>
-                                        <constraint firstAttribute="trailingMargin" secondItem="pjT-R5-sx5" secondAttribute="trailing" id="3dP-UP-bCu"/>
-                                        <constraint firstItem="pjT-R5-sx5" firstAttribute="leading" secondItem="7II-BE-xwS" secondAttribute="leadingMargin" id="bMW-Wi-NZO"/>
-                                        <constraint firstItem="pjT-R5-sx5" firstAttribute="centerY" secondItem="7II-BE-xwS" secondAttribute="centerY" id="c6G-0C-Den"/>
-                                    </constraints>
-                                </tableViewCellContentView>
-                                <connections>
-                                    <outlet property="textField" destination="pjT-R5-sx5" id="dmh-v2-58c"/>
-                                </connections>
-                            </tableViewCell>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="infoCell" textLabel="wG0-ws-PYj" detailTextLabel="aJl-ok-pl9" style="IBUITableViewCellStyleValue1" id="Yae-Dg-BPP">
-                                <rect key="frame" x="0.0" y="99.5" width="375" height="44"/>
+                                <rect key="frame" x="0.0" y="55.5" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Yae-Dg-BPP" id="YhD-LL-65w">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
@@ -640,8 +619,8 @@
                                     </subviews>
                                 </tableViewCellContentView>
                             </tableViewCell>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="deleteCell" id="YIC-Co-R1X">
-                                <rect key="frame" x="0.0" y="143.5" width="375" height="44"/>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="deleteCell" id="YIC-Co-R1X" customClass="DeleteCell" customModule="Krypton" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="99.5" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="YIC-Co-R1X" id="Hgc-8X-nhr">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
@@ -659,6 +638,33 @@
                                         <constraint firstItem="nnC-rw-aZF" firstAttribute="centerX" secondItem="Hgc-8X-nhr" secondAttribute="centerX" id="hXN-sA-1KJ"/>
                                     </constraints>
                                 </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="actionLabel" destination="nnC-rw-aZF" id="3Ts-d3-Gfw"/>
+                                </connections>
+                            </tableViewCell>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="textFieldCell" id="QaM-bC-P5x" customClass="TextFieldCell" customModule="Krypton" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="143.5" width="375" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="QaM-bC-P5x" id="X1R-62-YhH">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Alias" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="bez-nk-z0P">
+                                            <rect key="frame" x="8" y="12.5" width="359" height="19"/>
+                                            <nil key="textColor"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                            <textInputTraits key="textInputTraits"/>
+                                        </textField>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="bez-nk-z0P" firstAttribute="leading" secondItem="X1R-62-YhH" secondAttribute="leadingMargin" id="JHg-u8-DzB"/>
+                                        <constraint firstAttribute="trailingMargin" secondItem="bez-nk-z0P" secondAttribute="trailing" id="Ujj-YN-Bo9"/>
+                                        <constraint firstItem="bez-nk-z0P" firstAttribute="centerY" secondItem="X1R-62-YhH" secondAttribute="centerY" id="WD8-0W-Yqs"/>
+                                    </constraints>
+                                </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="textField" destination="bez-nk-z0P" id="z0W-fe-jtx"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <sections/>
@@ -1108,21 +1114,21 @@
                     </tableView>
                     <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="Gai-4n-ePU"/>
                     <connections>
-                        <outlet property="amountField" destination="mvK-rj-tWD" id="jnR-K0-VGH"/>
-                        <outlet property="blockNumberField" destination="RXN-nX-vTn" id="Jji-ox-Xvd"/>
-                        <outlet property="dateField" destination="Y3g-4H-sa2" id="1Fk-s3-cgL"/>
-                        <outlet property="exchangeValueField" destination="5QJ-YV-ly6" id="kYj-Qh-fVz"/>
-                        <outlet property="exchangeValueTextField" destination="Anq-eh-CSS" id="87o-dJ-NWu"/>
+                        <outlet property="amountLabel" destination="mvK-rj-tWD" id="H8C-DJ-SE2"/>
+                        <outlet property="blockNumberLabel" destination="RXN-nX-vTn" id="mVu-mC-51M"/>
+                        <outlet property="dateLabel" destination="Y3g-4H-sa2" id="8Dy-SP-La7"/>
+                        <outlet property="exchangeValueField" destination="Anq-eh-CSS" id="hz3-Cb-nyb"/>
+                        <outlet property="exchangeValueLabel" destination="5QJ-YV-ly6" id="12w-MS-Dbg"/>
                         <outlet property="exchangeValueTypeLabel" destination="ymr-Vd-zPZ" id="Y0A-Sd-uau"/>
-                        <outlet property="executedLabel" destination="CDe-so-1qd" id="ftZ-hm-msA"/>
-                        <outlet property="feeField" destination="nMv-tg-QVH" id="Qyi-R0-ef7"/>
-                        <outlet property="hashNumberField" destination="vbk-t1-fXH" id="zUM-y6-STN"/>
+                        <outlet property="executedLabel" destination="CDe-so-1qd" id="QgW-aW-zh9"/>
+                        <outlet property="feeLabel" destination="nMv-tg-QVH" id="6M3-eH-W7R"/>
+                        <outlet property="identifierLabel" destination="vbk-t1-fXH" id="kvM-QC-iGm"/>
                         <outlet property="isInvestmentSwitch" destination="hjz-iY-ygj" id="Bdn-rl-4HN"/>
-                        <outlet property="profitField" destination="clm-fa-iaT" id="9jj-uy-KNG"/>
+                        <outlet property="profitLabel" destination="clm-fa-iaT" id="9a9-HT-YMp"/>
                         <outlet property="profitTypeLabel" destination="9SN-f6-vp1" id="OgA-aQ-yLY"/>
-                        <outlet property="receiverAddressField" destination="72i-NG-B9d" id="bPb-bB-Kuk"/>
-                        <outlet property="senderAddressField" destination="waC-kC-IGh" id="sI8-ir-bEn"/>
-                        <outlet property="typeField" destination="D5Y-F1-LVd" id="Z8j-se-mhm"/>
+                        <outlet property="receiverAddressLabel" destination="72i-NG-B9d" id="XYm-a8-Nk0"/>
+                        <outlet property="senderAddressLabel" destination="waC-kC-IGh" id="5Nm-zf-bjK"/>
+                        <outlet property="typeLabel" destination="D5Y-F1-LVd" id="Bex-3H-3vQ"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="h0G-CS-UcS" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1162,7 +1168,7 @@
                                     </subviews>
                                 </tableViewCellContentView>
                             </tableViewCell>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="transactionTypeCell" id="HYe-OZ-WKS">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="segmentedControlCell" id="HYe-OZ-WKS" customClass="SegmentedControlCell" customModule="Krypton" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="99.5" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="HYe-OZ-WKS" id="3F8-vA-uGb">
@@ -1177,7 +1183,7 @@
                                                 <segment title="Other"/>
                                             </segments>
                                             <connections>
-                                                <action selector="setTransactionType:" destination="74m-fl-QD2" eventType="valueChanged" id="fUI-Hr-zU2"/>
+                                                <action selector="selectedSegment:" destination="HYe-OZ-WKS" eventType="valueChanged" id="bhD-bn-PsY"/>
                                             </connections>
                                         </segmentedControl>
                                     </subviews>
@@ -1188,6 +1194,9 @@
                                     </constraints>
                                 </tableViewCellContentView>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                <connections>
+                                    <outlet property="segmentedControl" destination="4CS-LM-Wxg" id="jKs-er-l7m"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>
@@ -1471,6 +1480,6 @@
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="uMi-Fk-bj8"/>
-        <segue reference="meL-5p-cad"/>
+        <segue reference="yhp-Rv-bo3"/>
     </inferredMetricsTieBreakers>
 </document>

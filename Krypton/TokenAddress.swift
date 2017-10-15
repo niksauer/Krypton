@@ -26,7 +26,7 @@ class TokenAddress: Address {
     // MARK: - Public Methods
     func getToken(_ token: TokenFeatures) -> Token? {
         let request: NSFetchRequest<Token> = Token.fetchRequest()
-        request.predicate = NSPredicate(format: "address = %@ AND owner = %@", token.address, self)
+        request.predicate = NSPredicate(format: "currencyCode = %@ AND owner = %@", token.code, self)
         
         do {
             let matches = try AppDelegate.viewContext.fetch(request)
@@ -42,13 +42,9 @@ class TokenAddress: Address {
     
     // MARK: Management
     override func update(completion: (() -> Void)?) {
-        self.updateTransactionHistory {
-            self.updatePriceHistory {
-                self.updateBalance {
-                    self.updateTokenBalance {
-                        completion?()
-                    }
-                }
+        super.update {
+            self.updateTokenBalance {
+                completion?()
             }
         }
     }
@@ -80,7 +76,7 @@ class Ethereum: TokenAddress {
         
         BlockchainConnector.fetchTransactionHistory(for: self, type: .normal, timeframe: timeframe) { result in
             switch result {
-            case let .success(txs):
+            case .success(let txs):
                 let context = AppDelegate.viewContext
                 
                 for txInfo in txs {
@@ -103,9 +99,9 @@ class Ethereum: TokenAddress {
                         print("Normal transaction history for \(self.identifier!) is already up-to-date.")
                     }
                     
-                    BlockchainConnector.fetchTransactionHistory(for: self, type: .contract, timeframe: timeframe, completion: { result in
+                    BlockchainConnector.fetchTransactionHistory(for: self, type: .contract, timeframe: timeframe) { result in
                         switch result {
-                        case let .success(txs):
+                        case .success(let txs):
                             for txInfo in txs {
                                 do {
                                     let transaction = try Transaction.createTransaction(from: txInfo, owner: self, in: context)
@@ -131,14 +127,14 @@ class Ethereum: TokenAddress {
                             } catch {
                                 print("Failed to save fetched contract transaction history for \(self.identifier!): \(error)")
                             }
-                        case let .failure(error):
+                        case .failure(let error):
                             print("Failed to fetch contract transaction history for \(self.identifier!): \(error)")
                         }
-                    })
+                    }
                 } catch {
                     print("Failed to save fetched normal transaction history for \(self.identifier!): \(error)")
                 }
-            case let .failure(error):
+            case .failure(let error):
                 print("Failed to fetch normal transaction history for \(self.identifier!): \(error)")
             }
         }
@@ -146,18 +142,20 @@ class Ethereum: TokenAddress {
     
     override func updateTokenBalance(completion: (() -> Void)?) {
         for etherToken in Token.ERC20.allValues {
-            BlockchainConnector.fetchTokenBalance(for: self, token: etherToken, completion: { result in
+            BlockchainConnector.fetchTokenBalance(for: self, token: etherToken) { result in
                 switch result {
-                case let .success(balance):
+                case .success(let balance):
                     let context = AppDelegate.viewContext
                     
-                    if let token = self.getToken(etherToken) {
-                        guard balance > 0 else {
+                    guard balance > 0 else {
+                        if let token = self.getToken(etherToken) {
                             context.delete(token)
-                            completion?()
-                            return
                         }
-                        
+                        completion?()
+                        return
+                    }
+                    
+                    if let token = self.getToken(etherToken) {
                         do {
                             guard token.balance != balance else {
                                 print("Balance for token \(etherToken.name) is already up-to-date.")
@@ -165,6 +163,8 @@ class Ethereum: TokenAddress {
                                 return
                             }
                             
+                            token.address = etherToken.address
+                            token.balance = balance
                             try context.save()
                             print("Saved updated balance for token \(etherToken.name).")
                             self.tokenDelegate?.didUpdateTokenBalance(for: self, token: token)
@@ -173,13 +173,9 @@ class Ethereum: TokenAddress {
                             print("Failed to save updated token balance for \(etherToken.name): \(error)")
                         }
                     } else {
-                        guard balance > 0 else {
-                            completion?()
-                            return
-                        }
-                        
                         do {
-                            let token = try Token.createToken(from: etherToken, balance: balance, owner: self, in: context)
+                            let token = try Token.createToken(from: etherToken, owner: self, in: context)
+                            token.balance = balance
                             try context.save()
                             print("Created token \(etherToken.name) for \(self.identifier!) with balance: \(balance).")
                             self.tokenDelegate?.didUpdateTokenBalance(for: self, token: token)
@@ -188,10 +184,10 @@ class Ethereum: TokenAddress {
                             print("Failed to create token \(etherToken.name): \(error)")
                         }
                     }
-                case let .failure(error):
+                case .failure(let error):
                     print("Failed to fetch token balance for \(etherToken.name): \(error)")
                 }
-            })
+            }
         }
     }
     
