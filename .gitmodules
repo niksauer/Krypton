@@ -4,3 +4,6 @@
 [submodule "SwiftKeccak"]
 	path = SwiftKeccak
 	url = git@github.com:uport-project/SwiftKeccak.git
+[submodule "SwiftyBeaver"]
+	path = SwiftyBeaver
+	url = git@github.com:SwiftyBeaver/SwiftyBeaver.git

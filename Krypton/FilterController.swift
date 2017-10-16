@@ -41,7 +41,6 @@ class FilterController: UITableViewController {
             }
         } catch {
             // present error
-            print(error)
         }
         
         dismiss(animated: true, completion: nil)

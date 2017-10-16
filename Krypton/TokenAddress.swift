@@ -78,64 +78,71 @@ class Ethereum: TokenAddress {
             switch result {
             case .success(let txs):
                 let context = AppDelegate.viewContext
+                var newNormalTxCount = 0
                 
                 for txInfo in txs {
                     do {
                         let transaction = try Transaction.createTransaction(from: txInfo, owner: self, in: context)
+                        newNormalTxCount = newNormalTxCount + 1
                         
                         if transaction.block > self.lastBlock {
                             self.lastBlock = transaction.block + 1
                         }
                     } catch {
-                        print("Failed to create transaction \(txInfo.identifier): \(error)")
+                        log.error("Failed to create transaction '\(txInfo.identifier)' for address '\(self.logDescription)': \(error)")
                     }
                 }
                 
                 do {
                     if context.hasChanges {
                         try context.save()
-                        print("Saved updated normal transaction history for \(self.identifier!).")
+                        let multipleNormalTx = newNormalTxCount >= 2 || newNormalTxCount == 0
+                        log.debug("Updated normal transaction history for address '\(self.logDescription)' with \(newNormalTxCount) new transaction\(multipleNormalTx ? "s" : "").")
                     } else {
-                        print("Normal transaction history for \(self.identifier!) is already up-to-date.")
+                        log.verbose("Normal transaction history for address '\(self.logDescription)' is already up-to-date.")
                     }
                     
-                    BlockchainConnector.fetchTransactionHistory(for: self, type: .contract, timeframe: timeframe) { result in
+                    BlockchainConnector.fetchTransactionHistory(for: self, type: .`internal`, timeframe: timeframe) { result in
                         switch result {
                         case .success(let txs):
+                            var newInternalTxCount = 0
+                            
                             for txInfo in txs {
                                 do {
                                     let transaction = try Transaction.createTransaction(from: txInfo, owner: self, in: context)
+                                    newInternalTxCount = newInternalTxCount + 1
                                     
                                     if transaction.block > self.lastBlock {
                                         self.lastBlock = transaction.block + 1
                                     }
                                 } catch {
-                                    print("Failed to create transaction \(txInfo.identifier): \(error)")
+                                    log.error("Failed to create transaction '\(txInfo.identifier)' for address '\(self.logDescription)': \(error)")
                                 }
                             }
                             
                             do {
                                 if context.hasChanges {
                                     try context.save()
-                                    print("Saved updated contract transaction history for \(self.identifier!).")
+                                    let multipleInternalTx = newInternalTxCount >= 2 || newInternalTxCount == 0
+                                    log.debug("Updated internal transaction history for address '\(self.logDescription)' with \(newInternalTxCount) new transaction\(multipleInternalTx ? "s" : "").")
                                 } else {
-                                    print("Contract transaction history for \(self.identifier!) is already up-to-date.")
+                                    log.verbose("Internal transaction history for address '\(self.logDescription)' is already up-to-date.")
                                 }
                                 
                                 self.delegate?.didUpdateTransactionHistory(for: self)
                                 completion?()
                             } catch {
-                                print("Failed to save fetched contract transaction history for \(self.identifier!): \(error)")
+                                log.error("Failed to save fetched internal transaction history for address '\(self.logDescription)': \(error)")
                             }
                         case .failure(let error):
-                            print("Failed to fetch contract transaction history for \(self.identifier!): \(error)")
+                            log.error("Failed to fetch internal transaction history for address '\(self.logDescription)': \(error)")
                         }
                     }
                 } catch {
-                    print("Failed to save fetched normal transaction history for \(self.identifier!): \(error)")
+                    log.error("Failed to save fetched normal transaction history for address '\(self.logDescription)': \(error)")
                 }
             case .failure(let error):
-                print("Failed to fetch normal transaction history for \(self.identifier!): \(error)")
+                log.error("Failed to fetch normal transaction history for address '\(self.logDescription)': \(error)")
             }
         }
     }
@@ -158,7 +165,7 @@ class Ethereum: TokenAddress {
                     if let token = self.getToken(etherToken) {
                         do {
                             guard token.balance != balance else {
-                                print("Balance for token \(etherToken.name) is already up-to-date.")
+                                log.verbose("Balance of token '\(etherToken.name)' is already up-to-date.")
                                 completion?()
                                 return
                             }
@@ -166,26 +173,26 @@ class Ethereum: TokenAddress {
                             token.address = etherToken.address
                             token.balance = balance
                             try context.save()
-                            print("Saved updated balance for token \(etherToken.name).")
+                            log.debug("Updated balance (\(balance) \(etherToken.code) of token '\(etherToken.name)' for address '\(self.logDescription)'.")
                             self.tokenDelegate?.didUpdateTokenBalance(for: self, token: token)
                             completion?()
                         } catch {
-                            print("Failed to save updated token balance for \(etherToken.name): \(error)")
+                            log.error("Failed to save fetched balance of token '\(etherToken.name)' for address '\(self.logDescription)': \(error)")
                         }
                     } else {
                         do {
                             let token = try Token.createToken(from: etherToken, owner: self, in: context)
                             token.balance = balance
                             try context.save()
-                            print("Created token \(etherToken.name) for \(self.identifier!) with balance: \(balance).")
+                            log.info("Created token '\(etherToken.name)' for address '\(self.logDescription)' with balance: \(balance) \(etherToken.code)")
                             self.tokenDelegate?.didUpdateTokenBalance(for: self, token: token)
                             completion?()
                         } catch {
-                            print("Failed to create token \(etherToken.name): \(error)")
+                            log.error("Failed to create token '\(etherToken.name)' for address '\(self.logDescription)': \(error)")
                         }
                     }
                 case .failure(let error):
-                    print("Failed to fetch token balance for \(etherToken.name): \(error)")
+                    log.error("Failed to fetch balance of token '\(etherToken.name)' for address '\(self.logDescription)': \(error)")
                 }
             }
         }

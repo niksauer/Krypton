@@ -80,7 +80,6 @@ class AddAddressController: UITableViewController, UITextFieldDelegate, UIPicker
             dismiss(animated: true, completion: nil)
         } catch {
             // present error
-            print("Failed to add address due to error: \(error)")
         }
     }
     

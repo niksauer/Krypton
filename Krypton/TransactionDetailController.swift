@@ -11,159 +11,233 @@ import UIKit
 class TransactionDetailController: UITableViewController, TickerWatchlistDelegate, UITextFieldDelegate {
 
     // MARK: - Private Properties
-    let exchangeValueIndexPath = IndexPath(row: 0, section: 2)
-    let profitIndexPath = IndexPath(row: 1, section: 2)
-    let feeIndexPath = IndexPath(row: 0, section: 3)
+    private var exchangeValueIndexPath: IndexPath!
+    private var profitIndexPath: IndexPath!
+    private var feeIndexPath: IndexPath!
     
     // MARK: - Public Properties
     var transaction: Transaction!
-    
-    var showsExchangeValue = false {
-        didSet {
-            guard let currentExchangeValue = transaction?.currentExchangeValue, let exchangeValue = transaction?.exchangeValue else {
-                exchangeValueField.text = "???"
-                return
-            }
-            
-            if showsExchangeValue {
-                exchangeValueTypeLabel.text = "Value"
-                exchangeValueField.text = Format.getCurrencyFormatting(for: exchangeValue, currency: transaction.owner!.baseCurrency)
-            } else {
-                exchangeValueTypeLabel.text = "Current Value"
-                exchangeValueField.text = Format.getCurrencyFormatting(for: currentExchangeValue, currency: transaction.owner!.baseCurrency)
-            }
-        }
-    }
-    
-    var showsRelativeProfit = true {
-        didSet {
-            guard let profitStats = transaction?.getProfitStats(timeframe: .allTime) else {
-                profitLabel.text = "???"
-                return
-            }
-            
-            if showsRelativeProfit {
-                profitTypeLabel.text = "Relative Profit"
-                profitLabel.text = Format.getRelativeProfitFormatting(from: profitStats)
-            } else {
-                profitTypeLabel.text = "Absolute Profit"
-                profitLabel.text = Format.getAbsoluteProfitFormatting(from: profitStats, currency: transaction.owner!.baseCurrency)
-            }
-        }
-    }
-    
-    var showsCryptoFees = true {
-        didSet {
-            guard let feeAmount = transaction?.feeAmount, let feeExchangeValue = transaction?.feeExchangeValue else {
-                feeLabel.text = "???"
-                return
-            }
-            
-            if showsCryptoFees {
-                feeLabel.text = Format.getCurrencyFormatting(for: feeAmount, currency: transaction.owner!.baseCurrency)
-            } else {
-                feeLabel.text = Format.getCurrencyFormatting(for: feeExchangeValue, currency: transaction.owner!.baseCurrency)
-            }
-        }
-    }
-    
-    // MARK: - Outlets
-    @IBOutlet weak var amountLabel: UILabel!
-    @IBOutlet weak var dateLabel: UILabel!
-    @IBOutlet weak var senderAddressLabel: UILabel!
-    @IBOutlet weak var receiverAddressLabel: UILabel!
-    @IBOutlet weak var typeLabel: UILabel!
-    
-    @IBOutlet weak var exchangeValueTypeLabel: UILabel!
-    @IBOutlet weak var exchangeValueLabel: UILabel!
-    @IBOutlet weak var exchangeValueField: UITextField!
-    @IBOutlet weak var profitTypeLabel: UILabel!
-    @IBOutlet weak var profitLabel: UILabel!
-    @IBOutlet weak var isInvestmentSwitch: UISwitch!
-    
-    @IBOutlet weak var feeLabel: UILabel!
-    @IBOutlet weak var executedLabel: UILabel!
-    @IBOutlet weak var blockNumberLabel: UILabel!
-    @IBOutlet weak var identifierLabel: UILabel!
+    var showsExchangeValue = true
+    var showsRelativeProfit = true
+    var showsCryptoFees = true
     
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        exchangeValueField.delegate = self
-        self.navigationItem.rightBarButtonItem = self.editButtonItem
-        
-        guard let tx = transaction else {
-            return
-        }
-        
         TickerWatchlist.delegate = self
-
-        amountLabel.text = Format.getCurrencyFormatting(for: tx.amount, currency: transaction!.owner!.blockchain)
-        senderAddressLabel.text = PortfolioManager.shared.getAlias(for: tx.from!) ?? tx.from
-        receiverAddressLabel.text = PortfolioManager.shared.getAlias(for: tx.to!) ?? tx.to
-        dateLabel.text = Format.getDateFormatting(for: tx.date! as Date)
-        typeLabel.text = tx.type
         
-        isInvestmentSwitch.isOn = tx.isInvestment
-    
-        executedLabel.text = String(tx.isError)
-        blockNumberLabel.text = String(tx.block)
-        identifierLabel.text = tx.identifier
-        
-        updateUI()
+//        exchangeValueField.delegate = self
+//        self.navigationItem.rightBarButtonItem = self.editButtonItem
+//
+//        amountLabel.text = Format.getCurrencyFormatting(for: tx.amount, currency: transaction!.owner!.blockchain)
+//        senderAddressLabel.text = PortfolioManager.shared.getAlias(for: tx.from!) ?? tx.from
+//        receiverAddressLabel.text = PortfolioManager.shared.getAlias(for: tx.to!) ?? tx.to
+//        dateLabel.text = Format.getDateFormatting(for: tx.date! as Date)
+//        typeLabel.text = tx.type
+//
+//        isInvestmentSwitch.isOn = tx.isInvestment
+//
+//        executedLabel.text = String(tx.isError)
+//        blockNumberLabel.text = String(tx.block)
+//        identifierLabel.text = tx.identifier
+//
+//        updateUI()
     }
 
     // MARK: - Navigation
-    @IBAction func toggleIsInvestment(_ sender: UISwitch) {
+    @IBAction func toggleIsInvestment(_ state: Bool) {
         do {
-            try transaction?.setIsInvestment(state: sender.isOn)
+            try transaction?.setIsInvestment(state: state)
         } catch {
             // present error
-            print(error)
         }
     }
     
-    override func setEditing(_ editing: Bool, animated: Bool) {
-        super.setEditing(editing, animated: animated)
-        
-        navigationItem.hidesBackButton = !navigationItem.hidesBackButton
-        
-        if editing {
-            showsExchangeValue = true
-            exchangeValueField.isHidden = true
-            exchangeValueField.text = exchangeValueField.text
-            exchangeValueField.isHidden = false
-        } else {
-            if let newValueString = exchangeValueField.text?.trimmingCharacters(in: .whitespacesAndNewlines), let newValue = Double(newValueString) {
-                do {
-                    try transaction?.setUserExchangeValue(value: newValue)
-                } catch {
-                    // present error
-                    print(error)
-                }
-            }
-            
-            showsExchangeValue = { showsExchangeValue }()
-            exchangeValueField.isHidden = true
-            exchangeValueField.resignFirstResponder()
-            exchangeValueField.isHidden = false
-        }
-    }
+//    override func setEditing(_ editing: Bool, animated: Bool) {
+//        super.setEditing(editing, animated: animated)
+//
+//        navigationItem.hidesBackButton = !navigationItem.hidesBackButton
+//
+//        if editing {
+//            showsExchangeValue = true
+//            exchangeValueField.isHidden = true
+//            exchangeValueField.text = exchangeValueField.text
+//            exchangeValueField.isHidden = false
+//        } else {
+//            if let newValueString = exchangeValueField.text?.trimmingCharacters(in: .whitespacesAndNewlines), let newValue = Double(newValueString) {
+//                do {
+//                    try transaction?.setUserExchangeValue(value: newValue)
+//                } catch {
+//                    // present error
+//                }
+//            }
+//
+//            showsExchangeValue = { showsExchangeValue }()
+//            exchangeValueField.isHidden = true
+//            exchangeValueField.resignFirstResponder()
+//            exchangeValueField.isHidden = false
+//        }
+//    }
     
     // MARK: - Public Methods
     func updateUI() {
-        showsExchangeValue = { showsExchangeValue }()
-        showsRelativeProfit = { showsRelativeProfit }()
-        showsCryptoFees = { showsCryptoFees }()
+        tableView.reloadData()
     }
     
-    // MARK: - TableView Delegate
+    // MARK: - TickerWatchlist Delegate
     func didUpdateCurrentPrice(for tradingPair: TradingPair) {
         updateUI()
     }
     
+    // MARK: - TableView Data Source
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return 4
+    }
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        switch section {
+        case _ where section == 0:
+            return 1
+        case _ where section == 1:
+            switch transaction.owner! {
+            case is TokenAddress:
+                return 3
+            default:
+                return 2
+            }
+        case _ where section == 2:
+            return 3
+        case _ where section == 3:
+            return 4
+        default:
+            return 0
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let section = indexPath.section
+        let row = indexPath.row
+        
+        switch section {
+        case _ where section == 0:
+            let cell = tableView.dequeueReusableCell(withIdentifier: "transactionHeaderCell", for: indexPath) as! TransactionHeaderCell
+            cell.configure(amount: transaction.amount, currency: transaction.owner!.blockchain, date: transaction.date!)
+            return cell
+        case _ where section == 1:
+            let cell = tableView.dequeueReusableCell(withIdentifier: "infoCell", for: indexPath)
+            
+            switch row {
+            case _ where row == 0:
+                cell.textLabel?.text = "Sender"
+                cell.detailTextLabel?.text = transaction.from
+            case _ where row == 1:
+                cell.textLabel?.text = "Receiver"
+                cell.detailTextLabel?.text = transaction.to
+            case _ where row == 2 && transaction.owner! is TokenAddress:
+                cell.textLabel?.text = "Type"
+                cell.detailTextLabel?.text = transaction.type
+            default:
+                break
+            }
+            
+            return cell
+        case _ where section == 2:
+            switch row {
+            case _ where row == 0:
+                exchangeValueIndexPath = indexPath
+                let cell = tableView.dequeueReusableCell(withIdentifier: "infoCell", for: indexPath)
+                
+                guard let exchangeValue = transaction.exchangeValue, let currentExchangeValue = transaction.currentExchangeValue else {
+                    cell.textLabel?.text = "Value"
+                    cell.detailTextLabel?.text = "???"
+                    return cell
+                }
+                
+                if showsExchangeValue {
+                    cell.textLabel?.text = "Value"
+                    cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: exchangeValue, currency: transaction.owner!.baseCurrency)
+                } else {
+                    cell.textLabel?.text = "Current Value"
+                    cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: currentExchangeValue, currency: transaction.owner!.baseCurrency)
+                }
+                
+                return cell
+            case _ where row == 1:
+                profitIndexPath = indexPath
+                let cell = tableView.dequeueReusableCell(withIdentifier: "infoCell", for: indexPath)
+                
+                guard let profitStats = transaction.getProfitStats(timeframe: .allTime) else {
+                    cell.textLabel?.text = "Profit"
+                    cell.detailTextLabel?.text = "???"
+                    return cell
+                }
+                
+                if showsRelativeProfit {
+                    cell.textLabel?.text = "Relative Profit"
+                    cell.detailTextLabel?.text = Format.getRelativeProfitFormatting(from: profitStats)
+                } else {
+                    cell.textLabel?.text = "Absolute Profit"
+                    cell.detailTextLabel?.text = Format.getAbsoluteProfitFormatting(from: profitStats, currency: transaction.owner!.baseCurrency)
+                }
+                
+                return cell
+            case _ where row == 2:
+                let cell = tableView.dequeueReusableCell(withIdentifier: "switchCell", for: indexPath) as! SwitchCell
+                cell.configure(name: "Investment", isOn: transaction.isInvestment, completion: toggleIsInvestment)
+                return cell
+            default:
+                // not valid
+                return UITableViewCell()
+            }
+        case _ where section == 3:
+            let cell = tableView.dequeueReusableCell(withIdentifier: "infoCell", for: indexPath)
+            
+            switch row {
+            case _ where row == 0:
+                cell.textLabel?.text = "Fee"
+                
+                guard let feeExchangeValue = transaction.feeExchangeValue else {
+                    cell.detailTextLabel?.text = "???"
+                    break
+                }
+                
+                if showsCryptoFees {
+                    cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: transaction.feeAmount, currency: transaction.owner!.blockchain)
+                } else {
+                    cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: feeExchangeValue, currency: transaction.owner!.baseCurrency)
+                }
+                
+                feeIndexPath = indexPath
+            case _ where row == 1:
+                cell.textLabel?.text = "Executed"
+                cell.detailTextLabel?.text = String(!transaction.isError)
+            case _ where row == 2:
+                cell.textLabel?.text = "Block"
+                cell.detailTextLabel?.text = String(transaction.block)
+            case _ where row == 3:
+                cell.textLabel?.text = "Hash"
+                cell.detailTextLabel?.text = transaction.identifier
+            default:
+                // not valid
+                return UITableViewCell()
+            }
+    
+            return cell
+        default:
+            // not valid
+            return UITableViewCell()
+        }
+    }
+    
     // MARK: - TableView Delegate
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        guard indexPath == IndexPath(row: 0, section: 0) else {
+            return super.tableView(tableView, heightForRowAt: indexPath)
+        }
+        
+        return 70
+    }
+    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch indexPath {
         case _ where indexPath == exchangeValueIndexPath:
@@ -175,34 +249,36 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
         default:
             break
         }
+        
+        updateUI()
     }
     
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return false
-    }
+//    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+//        return false
+//    }
     
     // MARK: - TextField Delegate
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        let decimalSeperator = NumberFormatter().decimalSeparator!
-        
-        if string.characters.count == 1 {
-            if string == decimalSeperator && (textField.text?.range(of: decimalSeperator) != nil) {
-                return false
-            } else {
-                return true
-            }
-        } else {
-            let char = string.cString(using: String.Encoding.utf8)!
-            let isBackSpace = strcmp(char, "\\b")
-            
-            if (isBackSpace == -92) {
-                // backspace pressed
-                return true
-            } else {
-                // pasted text
-                return false
-            }
-        }
-    }
+//    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+//        let decimalSeperator = NumberFormatter().decimalSeparator!
+//
+//        if string.characters.count == 1 {
+//            if string == decimalSeperator && (textField.text?.range(of: decimalSeperator) != nil) {
+//                return false
+//            } else {
+//                return true
+//            }
+//        } else {
+//            let char = string.cString(using: String.Encoding.utf8)!
+//            let isBackSpace = strcmp(char, "\\b")
+//
+//            if (isBackSpace == -92) {
+//                // backspace pressed
+//                return true
+//            } else {
+//                // pasted text
+//                return false
+//            }
+//        }
+//    }
     
 }

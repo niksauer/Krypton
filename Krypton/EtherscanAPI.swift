@@ -155,7 +155,7 @@ struct EtherscanAPI {
         switch type {
         case .normal:
             method = .txlist
-        case .contract:
+        case .`internal`:
             method = .txlistinternal
         }
         

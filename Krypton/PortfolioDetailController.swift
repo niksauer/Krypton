@@ -41,7 +41,6 @@ class PortfolioDetailController: UITableViewController {
             tableView.reloadData()
         } catch {
             // present error
-            print(error)
         }
     }
     
@@ -51,7 +50,6 @@ class PortfolioDetailController: UITableViewController {
             self.navigationController?.popViewController(animated: true)
         } catch {
             // present error
-            print(error)
         }
     }
     
@@ -64,7 +62,6 @@ class PortfolioDetailController: UITableViewController {
             try portfolio.setAlias(alias)
         } catch {
             // present error
-            print(error)
         }
     }
     
@@ -73,7 +70,6 @@ class PortfolioDetailController: UITableViewController {
             try portfolio.setIsDefault(state)
         } catch {
             // present error
-            print(error)
         }
     }
     

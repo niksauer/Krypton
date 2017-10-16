@@ -38,9 +38,11 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
             switch address {
             case let tokenAddress as TokenAddress:
                 tokenAddress.tokenDelegate = self
+                log.debug("Set portfolio '\(alias!)' as token delegate of address '\(address.identifier!)'.")
                 fallthrough
             default:
                 address.delegate = self
+                log.debug("Set portfolio '\(alias!)' as delegate of address '\(address.identifier!)'.")
             }
         }
     }
@@ -74,11 +76,13 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
         }
         
         do {
+            let oldAlias = self.alias!
             self.alias = alias
             try AppDelegate.viewContext.save()
-            print("Saved updated alias for portfolio.")
+            log.debug("Updated alias (\(alias)) for portfolio '\(oldAlias)'.")
             delegate?.didUpdateAlias(for: self)
         } catch {
+            log.error("Failed to update alias for portfolio '\(self.alias!)': \(error)")
             throw error
         }
     }
@@ -91,9 +95,10 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
         do {
             self.isDefault = state
             try AppDelegate.viewContext.save()
-            print("Saved updated is default status for portfolio.")
+            log.debug("Updated isDefault status (\(state)) for portfolio '\(alias!)'.")
             delegate?.didUpdateIsDefault(for: self)
         } catch {
+            log.error("Failed to update isDefault status for portfolio '\(alias!)'.")
             throw error
         }
     }
@@ -112,9 +117,10 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
             }
             
             self.update()
-            print("Saved updated base currency for portfolio.")
+            log.debug("Updated base currency (\(currency.code)) for portfolio '\(alias!)'.")
             delegate?.didUpdateBaseCurrency(for: self)
         } catch {
+            log.error("Failed to update base currency for portfolio '\(alias!).")
             throw error
         }
     }
@@ -135,21 +141,26 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
             self.addToAddresses(address)
             try context.save()
             address.delegate = self
+            log.info("Created and added address '\(address.logDescription)' to portfolio '\(self.alias!)'.")
             delegate?.didAddAddress(to: self, address: address)
             address.update(completion: nil)
         } catch {
+            log.error("Failed to create address '\(addressString)': \(error)")
             throw error
         }
     }
     
     func removeAddress(address: Address) throws {
         do {
+            let addressIdentifier = address.identifier!
             let context = AppDelegate.viewContext
             let tradingPair = address.tradingPair
             context.delete(address)
             try context.save()
+            log.info("Removed address '\(addressIdentifier)' from portfolio '\(self.alias!)'.")
             delegate?.didRemoveAddress(from: self, tradingPair: tradingPair)
         } catch {
+            log.error("Failed to remove address '\(address.identifier!)' from from portfolio '\(self.alias!)': \(error)")
             throw error
         }
     }
