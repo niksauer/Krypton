@@ -14,7 +14,7 @@ enum BlockchainConnectorError: Error {
 
 enum TransactionHistoryType: String {
     case normal
-    case contract
+    case `internal`
 }
 
 enum TransactionHistoryTimeframe {

@@ -8,6 +8,9 @@
 
 import UIKit
 import CoreData
+import SwiftyBeaver
+
+let log = SwiftyBeaver.self
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -30,9 +33,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        return backgroundContext
 //    }
     
-    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        let console = ConsoleDestination()
+        console.format = "$DHH:mm:ss$d $N.$F - $C$L$c: $M"
+        console.minLevel = .verbose
+        log.addDestination(console)
+        
         return true
     }
 

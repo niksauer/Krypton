@@ -39,6 +39,7 @@ final class TickerWatchlist {
         if !tradingPairs.contains(tradingPair) {
             tradingPairs.insert(tradingPair)
             updatePrice(for: tradingPair)
+            log.debug("Added tradingPair '\(tradingPair.rawValue)' to TickerWatchlist.")
         }
         
         if tradingPairs.count == 1 {
@@ -46,6 +47,7 @@ final class TickerWatchlist {
         }
         
         if let requestCount = requestsForTradingPair[tradingPair] {
+            log.debug("Updated requests \(requestCount) for tradingPair '\(tradingPair.rawValue)'.")
             requestsForTradingPair[tradingPair] = requestCount + 1
         } else {
             requestsForTradingPair[tradingPair] = 1
@@ -59,6 +61,7 @@ final class TickerWatchlist {
         
         tradingPairs.remove(tradingPair)
         requestsForTradingPair[tradingPair] = requestCount - 1
+        log.debug("Removed tradingPair '\(tradingPair.rawValue)' from TickerWatchlist.")
     }
     
     /// returns current price for specified trading pair
@@ -70,6 +73,7 @@ final class TickerWatchlist {
         stopUpdateTimer()
         tradingPairs = Set<TradingPair>()
         requestsForTradingPair = [TradingPair : Int]()
+        log.debug("Reset TickerWatchlist.")
     }
     
     /// starts unique timer to update current price in specified interval for all stored trading pairs
@@ -89,6 +93,7 @@ final class TickerWatchlist {
         let notificationCenter = NotificationCenter.default
         notificationCenter.setObserver(self, selector: #selector(stopUpdateTimer), name: Notification.Name.UIApplicationDidEnterBackground, object: nil)
         notificationCenter.setObserver(self, selector: #selector(startUpdateTimer), name: Notification.Name.UIApplicationDidBecomeActive, object: nil)
+        log.debug("Started updateTimer for TickerWatchlist with interval \(updateIntervall) seconds.")
     }
     
     @objc class func stopUpdateTimer() {
@@ -99,6 +104,7 @@ final class TickerWatchlist {
         
         updateTimer?.invalidate()
         updateTimer = nil
+        log.debug("Stopped updateTimer for TickerWatchlist.")
     }
     
     // MARK: - Private Class Methods
@@ -108,10 +114,10 @@ final class TickerWatchlist {
             switch result {
             case let .success(currentPrice):
                 self.currentPriceForTradingPair[tradingPair] = currentPrice.value
-                print("Updated current price for trading pair \(tradingPair.rawValue): \(currentPrice.value)")
+                log.verbose("Updated current price for tradingPair '\(tradingPair.rawValue)': \(currentPrice.value)")
                 delegate?.didUpdateCurrentPrice(for: tradingPair)
             case let .failure(error):
-                print("Failed to fetch current price for trading pair \(tradingPair.rawValue): \(error)")
+                log.error("Failed to fetch current price for tradingPair '\(tradingPair.rawValue)': \(error)")
             }
         })
     }

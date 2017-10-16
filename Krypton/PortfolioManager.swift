@@ -35,36 +35,41 @@ final class PortfolioManager: PortfolioDelegate {
     /// loads all available portfolios, sets itself as their delegate,
     /// updates all stored addresses, requests continious ticker price updates for their trading pars
     init() {
-//        deletePortfolios()
-//        deletePriceHistory()
+        deletePortfolios()
+        deletePriceHistory()
         
         do {
-            storedPortfolios = try loadPortfolios()
-            print("Loaded \(storedPortfolios.count) portfolio(s) from Core Data.")
-            
+            do {
+                storedPortfolios = try loadPortfolios()
+                log.info("Loaded \(storedPortfolios.count) portfolio\(storedPortfolios.count >= 2 || storedPortfolios.count == 0 ? "s" : "") from Core Data.")
+            } catch {
+                log.error("Failed to load portfolios from Core Data: \(error)")
+                throw error
+            }
+
             if storedPortfolios.count == 0 {
                 do {
                     let portfolio = try addPortfolio(alias: "Portfolio 1", baseCurrency: baseCurrency)
                     try portfolio.setIsDefault(true)
-                    print("Created and saved empty default portfolio.")
+                    log.info("Created empty default portfolio '\(portfolio.alias!)'.")
                 } catch {
-                    print("Failed to create default portfolio.")
+                    log.error("Failed to create default portfolio.")
                     throw error
                 }
             }
-            
+
             for portfolio in storedPortfolios {
                 portfolio.delegate = self
-                
+
                 for address in portfolio.storedAddresses {
-                    print("\(address.identifier!): \(address.balance), \(address.transactions!.count) transaction(s)")
+                    log.verbose("\(address.identifier!): \(address.balance) \(address.blockchain.code), \(address.storedTransactions.count) transaction\(address.storedTransactions.count >= 2 || address.storedTransactions.count == 0 ? "s" : "").")
                 }
             }
-            
+
             prepareTickerWatchlist()
             updatePortfolios()
         } catch {
-            print("Failed to initialize portfolio manager: \(error)")
+            log.error("Failed to initialize PortfolioManager singleton: \(error)")
         }
     }
     
@@ -75,11 +80,13 @@ final class PortfolioManager: PortfolioDelegate {
     /// fiat currency used to calculate exchange values of all stored portfolios
     private(set) public var baseCurrency: Currency = {
         if let storedBaseCurrencyCode = UserDefaults.standard.value(forKey: "baseCurrency") as? String, let storedBaseCurrency = CurrencyManager.getCurrency(from: storedBaseCurrencyCode) {
+            log.debug("Loaded base currency '\(storedBaseCurrency)' from UserDefaults.")
             return storedBaseCurrency
         } else {
             let standardBaseCurrency = Fiat.EUR
             UserDefaults.standard.setValue(standardBaseCurrency.rawValue, forKey: "baseCurrency")
             UserDefaults.standard.synchronize()
+            log.debug("Could not load base currency from UserDefaults. Set '\(standardBaseCurrency)' as default.")
             return standardBaseCurrency
         }
     }()
@@ -150,42 +157,45 @@ final class PortfolioManager: PortfolioDelegate {
             UserDefaults.standard.setValue(currency.code, forKey: "baseCurrency")
             UserDefaults.standard.synchronize()
             baseCurrency = currency
-            print("Updated base currency of PortfolioManager to \(currency.code).")
-            
+            log.debug("Updated base currency (\(currency.code)) of PortfolioManager.")
             prepareTickerWatchlist()
             delegate?.didUpdatePortfolioManager()
         } catch {
+            log.error("Failed to update base currency of PortfolioManager: \(error)")
             throw error
         }
     }
     
     // MARK: Management
     /// creates, saves and adds portfolio with specified base currency
-    func addPortfolio(alias: String?, baseCurrency: Currency) throws -> Portfolio {
+    func addPortfolio(alias: String, baseCurrency: Currency) throws -> Portfolio {
         do {
             let context = AppDelegate.viewContext
             let portfolio = Portfolio.createPortfolio(alias: alias, baseCurrency: baseCurrency, in: context)
             try context.save()
             portfolio.delegate = self
             storedPortfolios.append(portfolio)
+            log.info("Created portfolio '\(alias)' with base currency '\(baseCurrency)'.")
             delegate?.didUpdatePortfolioManager()
             return portfolio
         } catch {
+            log.error("Failed to create portfolio: \(error)")
             throw error
         }
     }
     
     func removePortfolio(_ portfolio: Portfolio) throws {
         do {
+            let alias = portfolio.alias!
             storedPortfolios.remove(at: storedPortfolios.index(of: portfolio)!)
             let context = AppDelegate.viewContext
             context.delete(portfolio)
             try context.save()
-            print("Removed portfolio from Core Data.")
-            
+            log.info("Deleted portfolio '\(alias)'.")
             prepareTickerWatchlist()
             delegate?.didUpdatePortfolioManager()
         } catch {
+            log.error("Failed to delete portfolio: \(error)")
             throw error
         }
     }
@@ -201,8 +211,10 @@ final class PortfolioManager: PortfolioDelegate {
         if context.hasChanges {
             do {
                 try context.save()
+                log.debug("Saved changes made to Core Data.")
                 return true
             } catch {
+                log.debug("Failed to save changes made to Core Data.")
                 throw error
             }
         } else {
@@ -268,20 +280,30 @@ final class PortfolioManager: PortfolioDelegate {
             return
         }
         
+        var defaultPortfoliosCount = 0
+        
         for storedPortfolio in storedPortfolios {
             if storedPortfolio != portfolio, storedPortfolio.isDefault {
                 storedPortfolio.isDefault = false
+                defaultPortfoliosCount = defaultPortfoliosCount + 1
             }
         }
         
         do {
             try AppDelegate.viewContext.save()
+            
+            if defaultPortfoliosCount > 0 {
+                log.debug("Unset \(defaultPortfoliosCount) previous default portfolio\(defaultPortfoliosCount >= 2 ? "s" : "").")
+            }
+            
             delegate?.didUpdatePortfolioManager()
         } catch {
+            log.error("Failed to unset previous default portfolio: \(error)")
+            
             do {
                 try portfolio.setIsDefault(false)
             } catch {
-                print("Failed to reverse new default portfolio.")
+                log.error("Failed to reverse new default portfolio: \(error)")
             }
         }
     }

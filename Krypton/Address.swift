@@ -131,11 +131,13 @@ class Address: NSManagedObject {
         }
         
         do {
+            let oldAlias = self.alias
             self.alias = alias
             try AppDelegate.viewContext.save()
-            print("Saved updated alias for address: \(identifier!)")
+            log.debug("Updated alias \(alias) for address '\(self.identifier!), \(oldAlias ?? "")'.")
             delegate?.didUpdateAlias(for: self)
         } catch {
+            log.error("Failed to update alias for address '\(self.identifier!), \(self.alias ?? "")': \(error)")
             throw error
         }
     }
@@ -148,9 +150,10 @@ class Address: NSManagedObject {
         do {
             self.baseCurrencyCode = currency.code
             try AppDelegate.viewContext.save()
-            print("Saved updated base currency for address \(identifier!).")
+            log.debug("Updated base currency (\(currency.code)) for address '\(self.identifier!), \(self.alias ?? "")'.")
             delegate?.didUpdateBaseCurrency(for: self)
         } catch {
+            log.error("Failed to update base currency for address '\(self.identifier!), \(self.alias ?? "")': \(error)")
             throw error
         }
     }
@@ -172,7 +175,7 @@ class Address: NSManagedObject {
             switch result {
             case .success(let balance):
                 guard balance != self.balance else {
-                    print("Balance for \(self.identifier!) is already up-to-date.")
+                    log.verbose("Balance for address '\(self.identifier!), \(self.alias ?? "")' is already-up-to-date.")
                     completion?()
                     return
                 }
@@ -180,14 +183,14 @@ class Address: NSManagedObject {
                 do {
                     self.balance = balance
                     try AppDelegate.viewContext.save()
-                    print("Saved updated balance for \(self.identifier!).")
+                    log.debug("Updated balance (\(balance)) for address '\(self.identifier!), \(self.alias ?? "")'.")
                     self.delegate?.didUpdateBalance(for: self)
                     completion?()
                 } catch {
-                    print("Failed to save fetched balance for \(self.identifier!): \(error)")
+                    log.error("Failed to save fetched balance for address '\(self.identifier!), \(self.alias ?? "")': \(error).")
                 }
             case .failure(let error):
-                print("Failed to fetch balance for \(self.identifier!): \(error)")
+                log.error("Failed to fetch balance for address '\(self.identifier!), \(self.alias ?? "")': \(error)")
             }
         }
     }

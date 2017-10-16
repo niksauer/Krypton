@@ -97,7 +97,7 @@ class TickerPrice: NSManagedObject {
         }
         
         guard !startDate.isUTCToday, !startDate.isUTCFuture else {
-            print("Price history for trading pair \(tradingPair) is already up-to-date.")
+            log.verbose("Price history for tradingPair '\(tradingPair)' is already up-to-date.")
             completion?()
             return
         }
@@ -123,7 +123,7 @@ class TickerPrice: NSManagedObject {
                         case TickerPriceError.duplicate:
                             duplicateCount = duplicateCount + 1
                         default:
-                            print("Failed to create tickerPrice \(price.tradingPair, price.date, price.value): \(error)")
+                            log.error("Failed to create tickerPrice for tradingPair '\(price.tradingPair.rawValue)': \(error)")
                         }
                     }
                 }
@@ -131,15 +131,15 @@ class TickerPrice: NSManagedObject {
                 do {
                     if context.hasChanges {
                         try context.save()
-                        print("Saved price history for \(tradingPair.rawValue) with \(newPriceCount) new prices since \(startDate!).")
+                        log.info("Saved price history for tradingPair '\(tradingPair.rawValue)' with \(newPriceCount) new price\(newPriceCount >= 2 || newPriceCount == 0 ? "s" : "") since \(startDate!).")
                     }
                     
                     completion?()
                 } catch {
-                    print("Failed to save fetched price history for \(tradingPair.rawValue): \(error)")
+                    log.error("Failed to save fetched price history for tradingPair '\(tradingPair.rawValue)': \(error)")
                 }
-            case let .failure(error):
-                print("Failed to fetch price history for \(tradingPair.rawValue): \(error)")
+            case .failure(let error):
+                log.error("Failed to fetch price history for tradingPair '\(tradingPair.rawValue)': \(error)")
             }
         }
     }

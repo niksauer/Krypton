@@ -113,9 +113,10 @@ class Transaction: NSManagedObject {
         do {
             userExchangeValue = newValue
             try AppDelegate.viewContext.save()
-            print("Saved updated user exchange value for transacion: \(identifier!)")
+            log.debug("Updated user exchange value (\(newValue) of transaction '\(identifier!), owner: \(owner!.identifier!)'.")
             self.owner!.delegate?.didUpdateUserExchangeValue(for: self)
         } catch {
+            log.error("Failed to update user exchange value of transaction '\(identifier!), owner: \(owner!.identifier!)': \(error)")
             throw error
         }
     }
@@ -129,9 +130,10 @@ class Transaction: NSManagedObject {
         do {
             isInvestment = newValue
             try AppDelegate.viewContext.save()
-            print("Saved updated investment status for transacion: \(identifier!)")
+            log.debug("Updated isInvestment status (\(newValue) of transaction '\(identifier!), owner: \(owner!.identifier!)'.")
             self.owner!.delegate?.didUpdateIsInvestmentStatus(for: self)
         } catch {
+            log.error("Failed to update isInvestment status of transaction '\(identifier!), owner: \(owner!.identifier!)': \(error)")
             throw error
         }
     }
