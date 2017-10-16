@@ -92,6 +92,10 @@ class Address: NSManagedObject {
         return Array(transactions!) as! [Transaction]
     }
     
+    var logDescription: String {
+        return "\(self.identifier!), alias: \(self.alias ?? "None")"
+    }
+    
     // MARK: - Private Methods
     private func getTransactions(of type: TransactionType) -> [Transaction] {
         switch type {
@@ -131,13 +135,12 @@ class Address: NSManagedObject {
         }
         
         do {
-            let oldAlias = self.alias
             self.alias = alias
             try AppDelegate.viewContext.save()
-            log.debug("Updated alias \(alias) for address '\(self.identifier!), \(oldAlias ?? "")'.")
+            log.debug("Updated alias \(alias) for address '\(logDescription)'.")
             delegate?.didUpdateAlias(for: self)
         } catch {
-            log.error("Failed to update alias for address '\(self.identifier!), \(self.alias ?? "")': \(error)")
+            log.error("Failed to update alias for address '\(logDescription)': \(error)")
             throw error
         }
     }
@@ -150,10 +153,10 @@ class Address: NSManagedObject {
         do {
             self.baseCurrencyCode = currency.code
             try AppDelegate.viewContext.save()
-            log.debug("Updated base currency (\(currency.code)) for address '\(self.identifier!), \(self.alias ?? "")'.")
+            log.debug("Updated base currency (\(currency.code)) for address '\(logDescription)'.")
             delegate?.didUpdateBaseCurrency(for: self)
         } catch {
-            log.error("Failed to update base currency for address '\(self.identifier!), \(self.alias ?? "")': \(error)")
+            log.error("Failed to update base currency for address '\(logDescription)': \(error)")
             throw error
         }
     }
@@ -175,7 +178,7 @@ class Address: NSManagedObject {
             switch result {
             case .success(let balance):
                 guard balance != self.balance else {
-                    log.verbose("Balance for address '\(self.identifier!), \(self.alias ?? "")' is already-up-to-date.")
+                    log.verbose("Balance for address '\(self.logDescription)' is already-up-to-date.")
                     completion?()
                     return
                 }
@@ -183,14 +186,14 @@ class Address: NSManagedObject {
                 do {
                     self.balance = balance
                     try AppDelegate.viewContext.save()
-                    log.debug("Updated balance (\(balance)) for address '\(self.identifier!), \(self.alias ?? "")'.")
+                    log.debug("Updated balance (\(balance) \(self.blockchain.code)) for address '\(self.logDescription)'.")
                     self.delegate?.didUpdateBalance(for: self)
                     completion?()
                 } catch {
-                    log.error("Failed to save fetched balance for address '\(self.identifier!), \(self.alias ?? "")': \(error).")
+                    log.error("Failed to save fetched balance for address '\(self.logDescription)': \(error).")
                 }
             case .failure(let error):
-                log.error("Failed to fetch balance for address '\(self.identifier!), \(self.alias ?? "")': \(error)")
+                log.error("Failed to fetch balance for address '\(self.logDescription)': \(error)")
             }
         }
     }

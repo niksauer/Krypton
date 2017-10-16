@@ -103,6 +103,10 @@ class Transaction: NSManagedObject {
         return getExchangeValue(on: Date(), for: .fee)
     }
     
+    var logDescription: String {
+        return "\(self.identifier!), owner: \(self.owner!.logDescription)"
+    }
+    
     // MARK: - Public Methods
     /// replaces exchange value as encountered on execution date by user specified value, notifies owner's delegate if change occurred
     func setUserExchangeValue(value newValue: Double) throws {
@@ -113,10 +117,10 @@ class Transaction: NSManagedObject {
         do {
             userExchangeValue = newValue
             try AppDelegate.viewContext.save()
-            log.debug("Updated user exchange value (\(newValue) of transaction '\(identifier!), owner: \(owner!.identifier!)'.")
+            log.debug("Updated user exchange value (\(newValue) for transaction '\(self.logDescription)'.")
             self.owner!.delegate?.didUpdateUserExchangeValue(for: self)
         } catch {
-            log.error("Failed to update user exchange value of transaction '\(identifier!), owner: \(owner!.identifier!)': \(error)")
+            log.error("Failed to update user exchange value for transaction '\(self.logDescription)': \(error)")
             throw error
         }
     }
@@ -130,10 +134,10 @@ class Transaction: NSManagedObject {
         do {
             isInvestment = newValue
             try AppDelegate.viewContext.save()
-            log.debug("Updated isInvestment status (\(newValue) of transaction '\(identifier!), owner: \(owner!.identifier!)'.")
+            log.debug("Updated isInvestment status (\(newValue)) for transaction '\(self.logDescription)'.")
             self.owner!.delegate?.didUpdateIsInvestmentStatus(for: self)
         } catch {
-            log.error("Failed to update isInvestment status of transaction '\(identifier!), owner: \(owner!.identifier!)': \(error)")
+            log.error("Failed to update isInvestment status for transaction '\(self.logDescription)': \(error)")
             throw error
         }
     }

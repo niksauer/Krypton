@@ -141,7 +141,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
             self.addToAddresses(address)
             try context.save()
             address.delegate = self
-            log.info("Created and added address '\(address.identifier!), \(address.alias ?? "")' to portfolio '\(self.alias!)'.")
+            log.info("Created and added address '\(address.logDescription)' to portfolio '\(self.alias!)'.")
             delegate?.didAddAddress(to: self, address: address)
             address.update(completion: nil)
         } catch {

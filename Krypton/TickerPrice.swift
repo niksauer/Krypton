@@ -131,7 +131,8 @@ class TickerPrice: NSManagedObject {
                 do {
                     if context.hasChanges {
                         try context.save()
-                        log.info("Saved price history for tradingPair '\(tradingPair.rawValue)' with \(newPriceCount) new price\(newPriceCount >= 2 || newPriceCount == 0 ? "s" : "") since \(startDate!).")
+                        let multiplePrices = newPriceCount >= 2 || newPriceCount == 0
+                        log.debug("Saved price history for tradingPair '\(tradingPair.rawValue)' with \(newPriceCount) new price\(multiplePrices ? "s" : "") since \(Format.getDateFormatting(for: startDate)).")
                     }
                     
                     completion?()

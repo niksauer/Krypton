@@ -35,8 +35,8 @@ final class PortfolioManager: PortfolioDelegate {
     /// loads all available portfolios, sets itself as their delegate,
     /// updates all stored addresses, requests continious ticker price updates for their trading pars
     init() {
-        deletePortfolios()
-        deletePriceHistory()
+//        deletePortfolios()
+//        deletePriceHistory()
         
         do {
             do {
@@ -341,33 +341,12 @@ final class PortfolioManager: PortfolioDelegate {
             }
         }
 
-        try? context.save()
-    }
-    
-    private func deleteAddresses() {
-        let context = AppDelegate.viewContext
-        let request: NSFetchRequest<Address> = Address.fetchRequest()
-        
-        if let addresses = try? context.fetch(request) {
-            for address in addresses {
-                context.delete(address)
-            }
+        do {
+            try context.save()
+            log.info("Deleted all portfolios, addresses and transactions from Core Data.")
+        } catch {
+            log.error("Failed to delete all portfolios from Core Data: \(error)")
         }
-        
-        try? context.save()
-    }
-    
-    private func deleteTransactions() {
-        let context = AppDelegate.viewContext
-        let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
-        
-        if let transactions = try? context.fetch(request) {
-            for tx in transactions {
-                context.delete(tx)
-            }
-        }
-        
-        try? context.save()
     }
     
     private func deletePriceHistory() {
@@ -380,7 +359,13 @@ final class PortfolioManager: PortfolioDelegate {
             }
         }
         
-        try? context.save()
+        do {
+            try context.save()
+            log.info("Deleted all tickerPrices from Core Data.")
+        } catch {
+            log.error("Failed to delete all tickerPrices from Core Data: \(error)")
+        }
+        
     }
 
 }
