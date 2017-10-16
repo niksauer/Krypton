@@ -104,6 +104,18 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
     }
     
     // MARK: - TableView Data Source
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return fetchedResultsController?.sections?.count ?? 1
+    }
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if let sections = fetchedResultsController?.sections, sections.count > 0 {
+            return sections[section].numberOfObjects
+        } else {
+            return 0
+        }
+    }
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "transactionCell", for: indexPath)
         let transaction = fetchedResultsController!.object(at: indexPath)
@@ -116,21 +128,9 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
         } else {
             cell.textLabel?.textColor = UIColor.green
         }
-    
+        
         
         return cell
-    }
-    
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return fetchedResultsController?.sections?.count ?? 1
-    }
-    
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if let sections = fetchedResultsController?.sections, sections.count > 0 {
-            return sections[section].numberOfObjects
-        } else {
-            return 0
-        }
     }
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
