@@ -8,7 +8,7 @@
 
 import UIKit
 
-class WatchlistController: UITableViewController, TickerWatchlistDelegate {
+class WatchlistController: UITableViewController, TickerWatchlistDelegate, CurrencySelectionDelegate {
     
     // MARK: - Public Properties
     var tradingPairs = [TradingPair]()
@@ -20,6 +20,19 @@ class WatchlistController: UITableViewController, TickerWatchlistDelegate {
         tradingPairs = Array(PortfolioManager.shared.storedTradingPairs)
     }
 
+    // MARK: - Navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        super.prepare(for: segue, sender: sender)
+        
+        if let destVC = segue.destination as? CurrencySelectionController {
+            destVC.delegate = self
+            destVC.selection = PortfolioManager.shared.baseCurrency
+            destVC.type = .crypto
+            destVC.title = "Crypto Currency"
+            destVC.exceptions = PortfolioManager.shared.storedCryptoCurrencies
+        }
+    }
+    
     // MARK: - TableView Data Source
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
@@ -50,4 +63,8 @@ class WatchlistController: UITableViewController, TickerWatchlistDelegate {
         tableView.reloadData()
     }
 
+    // MARK: - CurrencySelector Delegate
+    func didSelectCurrency(selection: Currency) {
+        
+    }
 }

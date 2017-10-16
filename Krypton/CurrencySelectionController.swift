@@ -19,12 +19,16 @@ class CurrencySelectionController: UITableViewController {
     
     // MARK: - Public Properties
     var delegate: CurrencySelectionDelegate?
-    var selection: Currency!
+    var selection: Currency?
+    var type: CurrencyType!
+    var exceptions = [Currency]()
     
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
-        currencies = CurrencyManager.getAllCurrencies(for: selection)
+        currencies = CurrencyManager.getAllValues(for: type)
+        
+        
     }
 
     // MARK: - TableView Data Source
@@ -41,7 +45,7 @@ class CurrencySelectionController: UITableViewController {
         let currency = currencies[indexPath.row]
         cell.textLabel?.text = currency.code
         
-        if currency.code == selection.code {
+        if currency.code == selection?.code {
             cell.accessoryType = .checkmark
         }
         
@@ -51,8 +55,7 @@ class CurrencySelectionController: UITableViewController {
     // MARK: - TableView Delegate
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let currency = currencies[indexPath.row]
-        selection = currency
-        delegate?.didSelectCurrency(selection: selection)
+        delegate?.didSelectCurrency(selection: currency)
         self.navigationController?.popViewController(animated: true)
     }
     

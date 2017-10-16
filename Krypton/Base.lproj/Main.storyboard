@@ -405,7 +405,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NZV-yJ-7ol" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4702" y="-1515"/>
+            <point key="canvasLocation" x="4702" y="-1352"/>
         </scene>
         <!--Portfolios-->
         <scene sceneID="Di5-5a-bB3">
@@ -1105,7 +1105,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NcR-GT-49y" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="777" y="-1657"/>
+            <point key="canvasLocation" x="777" y="-1352"/>
         </scene>
         <!--Watchlist-->
         <scene sceneID="s8c-WM-m7g">
@@ -1146,10 +1146,17 @@
                             <outlet property="delegate" destination="esH-yR-p3l" id="Eop-a0-9Eg"/>
                         </connections>
                     </tableView>
+                    <navigationItem key="navigationItem" title="Watchlist" id="A1P-BK-UWJ">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="z8v-Ry-TGr">
+                            <connections>
+                                <segue destination="663-R7-AOq" kind="show" identifier="selectCryptoCurrency" id="7Lz-Hl-IxV"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="m3R-JK-VDz" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1585" y="-1243"/>
+            <point key="canvasLocation" x="2420" y="-1352"/>
         </scene>
         <!--Base Currency-->
         <scene sceneID="5t9-ww-4B6">
@@ -1186,7 +1193,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="jGY-uw-gTX" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1585" y="-2023"/>
+            <point key="canvasLocation" x="2420" y="-2070"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="DOL-HP-dVw">
@@ -1222,7 +1229,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="wQH-op-bOA" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4009" y="-1515"/>
+            <point key="canvasLocation" x="4009" y="-1352"/>
         </scene>
         <!--Settings-->
         <scene sceneID="YuJ-Su-76l">
@@ -1240,7 +1247,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="o6V-ZR-KVG" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="17" y="-1657"/>
+            <point key="canvasLocation" x="17" y="-1352"/>
         </scene>
     </scenes>
     <resources>
@@ -1248,7 +1255,8 @@
         <image name="second" width="30" height="30"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="uMi-Fk-bj8"/>
-        <segue reference="yhp-Rv-bo3"/>
+        <segue reference="7Lz-Hl-IxV"/>
+        <segue reference="vTd-z3-oD0"/>
+        <segue reference="meL-5p-cad"/>
     </inferredMetricsTieBreakers>
 </document>
