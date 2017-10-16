@@ -130,17 +130,17 @@ class Ethereum: TokenAddress {
                                 self.delegate?.didUpdateTransactionHistory(for: self)
                                 completion?()
                             } catch {
-                                print("Failed to save fetched internal transaction history for address '\(self.identifier!), \(self.alias ?? "")': \(error)")
+                                log.error("Failed to save fetched internal transaction history for address '\(self.identifier!), \(self.alias ?? "")': \(error)")
                             }
                         case .failure(let error):
-                            print("Failed to fetch internal transaction history for address '\(self.identifier!), \(self.alias ?? "")': \(error)")
+                            log.error("Failed to fetch internal transaction history for address '\(self.identifier!), \(self.alias ?? "")': \(error)")
                         }
                     }
                 } catch {
-                    print("Failed to save fetched normal transaction history for address '\(self.identifier!), \(self.alias ?? "")': \(error)")
+                    log.error("Failed to save fetched normal transaction history for address '\(self.identifier!), \(self.alias ?? "")': \(error)")
                 }
             case .failure(let error):
-                print("Failed to fetch normal transaction history for address '\(self.identifier!), \(self.alias ?? "")': \(error)")
+                log.error("Failed to fetch normal transaction history for address '\(self.identifier!), \(self.alias ?? "")': \(error)")
             }
         }
     }
@@ -190,7 +190,7 @@ class Ethereum: TokenAddress {
                         }
                     }
                 case .failure(let error):
-                    print("Failed to fetch balance of token '\(etherToken.name)' for address '\(self.identifier!), \(self.alias ?? "")': \(error)")
+                    log.error("Failed to fetch balance of token '\(etherToken.name)' for address '\(self.identifier!), \(self.alias ?? "")': \(error)")
                 }
             }
         }

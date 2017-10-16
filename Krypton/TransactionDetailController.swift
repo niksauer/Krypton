@@ -120,7 +120,6 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
             try transaction?.setIsInvestment(state: sender.isOn)
         } catch {
             // present error
-            print(error)
         }
     }
     
@@ -140,7 +139,6 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
                     try transaction?.setUserExchangeValue(value: newValue)
                 } catch {
                     // present error
-                    print(error)
                 }
             }
             

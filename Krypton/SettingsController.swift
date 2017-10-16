@@ -40,7 +40,6 @@ class SettingsController: UITableViewController, CurrencySelectionDelegate, Port
             try PortfolioManager.shared.setBaseCurrency(selection)
         } catch {
             // present error
-            print(error)
         }
     }
     

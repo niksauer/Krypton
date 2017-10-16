@@ -26,7 +26,6 @@ class AddresDetailController: UITableViewController {
             try address.setAlias(alias)
         } catch {
             // present error
-            print(error)
         }
     }
     
@@ -36,7 +35,6 @@ class AddresDetailController: UITableViewController {
             self.navigationController?.popViewController(animated: true)
         } catch {
             // present error
-            print(error)
         }
     }
 

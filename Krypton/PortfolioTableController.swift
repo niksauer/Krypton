@@ -122,7 +122,6 @@ class PortfolioTableController: UITableViewController, PortfolioManagerDelegate,
             updateUI()
         } catch {
             // present error
-            print(error)
         }
     }
     
