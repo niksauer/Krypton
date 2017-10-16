@@ -12,6 +12,12 @@ import SwiftKeccak
 protocol Currency {
     var code: String { get }
     var decimalDigits: Int { get }
+    var type: CurrencyType { get }
+}
+
+enum CurrencyType {
+    case fiat
+    case crypto
 }
 
 struct CurrencyManager {
@@ -30,6 +36,15 @@ struct CurrencyManager {
             return Token.ERC20.allValues
         default:
             return nil
+        }
+    }
+    
+    static func getAllValues(for currencyType: CurrencyType) -> [Currency] {
+        switch currencyType {
+        case .fiat:
+            return Fiat.allValues
+        case .crypto:
+            return Blockchain.allValues as [Currency] + Token.ERC20.allValues as [Currency]
         }
     }
     
@@ -78,6 +93,10 @@ enum Blockchain: String, Currency {
         return Blockchain.decimalDigitsForBlockchain[self]!
     }
     
+    var type: CurrencyType {
+        return .crypto
+    }
+    
 }
 
 enum Fiat: String, Currency {
@@ -94,6 +113,10 @@ enum Fiat: String, Currency {
     
     var decimalDigits: Int {
         return 2
+    }
+    
+    var type: CurrencyType {
+        return .fiat
     }
     
 }

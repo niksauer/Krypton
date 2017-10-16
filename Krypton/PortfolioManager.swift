@@ -113,6 +113,25 @@ final class PortfolioManager: PortfolioDelegate {
         return Set(storedAddresses.map { $0.tradingPair })
     }
     
+    var storedCryptoCurrencies: [Currency] {
+        var storedBlockchains = Set<Blockchain>()
+        var storedTokens = Set<Token>()
+        
+        for address in storedAddresses {
+            switch address {
+            case let tokenAddress as TokenAddress:
+                for token in tokenAddress.storedTokens {
+                    storedTokens.insert(token)
+                }
+                fallthrough
+            default:
+                storedBlockchains.insert(address.blockchain)
+            }
+        }
+        
+        return Array(storedBlockchains) as [Currency] + Array(storedTokens) as [Currency]
+    }
+    
     // MARK: - Private Methods
     /// loads and returns all addresses stored in Core Data
     private func loadPortfolios() throws -> [Portfolio] {
@@ -137,11 +156,7 @@ final class PortfolioManager: PortfolioDelegate {
     // MARK: - Public Methods
     /// returns alias for specified address string
     func getAlias(for addressString: String) -> String? {
-        if let alias = storedAddresses.first(where: { $0.identifier == addressString })?.alias, !alias.isEmpty {
-            return alias
-        } else {
-            return nil
-        }
+        return storedAddresses.first(where: { $0.identifier?.lowercased() == addressString.lowercased() })?.alias
     }
     
     func setBaseCurrency(_ currency: Currency) throws {

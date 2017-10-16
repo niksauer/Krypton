@@ -31,6 +31,8 @@ class SettingsController: UITableViewController, CurrencySelectionDelegate, Port
         if let destVC = segue.destination as? CurrencySelectionController {
             destVC.delegate = self
             destVC.selection = PortfolioManager.shared.baseCurrency
+            destVC.type = .fiat
+            destVC.title = "Base Currency"
         }
     }
     

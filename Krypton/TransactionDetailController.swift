@@ -25,23 +25,10 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
     override func viewDidLoad() {
         super.viewDidLoad()
         TickerWatchlist.delegate = self
-        
+    
 //        exchangeValueField.delegate = self
 //        self.navigationItem.rightBarButtonItem = self.editButtonItem
-//
-//        amountLabel.text = Format.getCurrencyFormatting(for: tx.amount, currency: transaction!.owner!.blockchain)
-//        senderAddressLabel.text = PortfolioManager.shared.getAlias(for: tx.from!) ?? tx.from
-//        receiverAddressLabel.text = PortfolioManager.shared.getAlias(for: tx.to!) ?? tx.to
-//        dateLabel.text = Format.getDateFormatting(for: tx.date! as Date)
-//        typeLabel.text = tx.type
-//
-//        isInvestmentSwitch.isOn = tx.isInvestment
-//
-//        executedLabel.text = String(tx.isError)
-//        blockNumberLabel.text = String(tx.block)
-//        identifierLabel.text = tx.identifier
-//
-//        updateUI()
+
     }
 
     // MARK: - Navigation
@@ -129,10 +116,10 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
             switch row {
             case _ where row == 0:
                 cell.textLabel?.text = "Sender"
-                cell.detailTextLabel?.text = transaction.from
+                cell.detailTextLabel?.text = PortfolioManager.shared.getAlias(for: transaction.from!) ?? transaction.from
             case _ where row == 1:
                 cell.textLabel?.text = "Receiver"
-                cell.detailTextLabel?.text = transaction.to
+                cell.detailTextLabel?.text = PortfolioManager.shared.getAlias(for: transaction.to!) ?? transaction.to
             case _ where row == 2 && transaction.owner! is TokenAddress:
                 cell.textLabel?.text = "Type"
                 cell.detailTextLabel?.text = transaction.type

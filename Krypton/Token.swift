@@ -67,6 +67,10 @@ class Token: NSManagedObject, Currency {
             return ERC20.decimalDigitsForToken[self]!
         }
         
+        var type: CurrencyType {
+            return .crypto
+        }
+        
     }
     
     // MARK: - Public Class Methods
@@ -101,6 +105,10 @@ class Token: NSManagedObject, Currency {
     
     var decimalDigits: Int {
         return Int(currencyDecimalDigits)
+    }
+    
+    var type: CurrencyType {
+        return .crypto
     }
 
 }
