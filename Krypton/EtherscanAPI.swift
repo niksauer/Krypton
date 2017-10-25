@@ -29,13 +29,14 @@ struct EtherscanAPI {
     struct Transaction: EthereumTransactionPrototype {
         var identifier: String
         var date: Date
-        var amount: Double
+        var totalAmount: Double
         var feeAmount: Double
         var block: Int
         var from: [String]
         var to: [String]
-        var isError: Bool
         var isOutbound: Bool
+        
+        var isError: Bool
         var type: EthereumTransactionHistoryType
     }
     
@@ -81,6 +82,7 @@ struct EtherscanAPI {
         let isOutbound = (fromString.lowercased() == address.lowercased())
         
         var feeAmount = 0.0
+        var totalAmount = amount
         
         if type == .normal {
             guard let gasUsedString = json["gasUsed"] as? String, let gasUsed = Double(gasUsedString), let gasPriceString = json["gasPrice"] as? String, let gasPrice = ether(from: gasPriceString) else {
@@ -88,9 +90,13 @@ struct EtherscanAPI {
             }
             
             feeAmount = gasPrice * gasUsed
+            
+            if isOutbound {
+                totalAmount = totalAmount + feeAmount
+            }
         }
         
-        return Transaction(identifier: hashString, date: Date(timeIntervalSince1970: time), amount: amount, feeAmount: feeAmount, block: block, from: [fromString], to: [toString], isError: isError, isOutbound: isOutbound, type: type)
+        return Transaction(identifier: hashString, date: Date(timeIntervalSince1970: time), totalAmount: amount, feeAmount: feeAmount, block: block, from: [fromString], to: [toString], isOutbound: isOutbound, isError: isError, type: type)
     }
     
     private static func ether(from weiString: String) -> Double? {

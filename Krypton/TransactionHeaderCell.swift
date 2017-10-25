@@ -15,8 +15,15 @@ class TransactionHeaderCell: UITableViewCell {
     @IBOutlet weak var dateLabel: UILabel!
     
     // MARK: - Public Methods
-    func configure(amount: Double, currency: Currency, date: Date) {
+    func configure(amount: Double, currency: Currency, date: Date, isOutbound: Bool) {
         amountLabel.text = Format.getCurrencyFormatting(for: amount, currency: currency)
+        
+        if isOutbound {
+            amountLabel.textColor = UIColor.red
+        } else {
+            amountLabel.textColor = UIColor.green
+        }
+        
         dateLabel.text = Format.getDateFormatting(for: date)
     }
 

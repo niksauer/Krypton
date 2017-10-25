@@ -18,8 +18,6 @@ final class PortfolioManager: PortfolioDelegate {
 //    ETH Wallet
 //    0xAA2F9BFAA9Ec168847216357b0856d776F34881f
 //    0xB15E9Ca894b6134Ac7C22B70b20Fd30De87451B2
-//    0x173BAF5C0f1ff25D18b4448C20ff209adC7cc220
-//    0x1f4aEDc00572634Bc83A9da8B90617a175476690
     
 //    ETH Ledger
 //    0x273c1144e0531D9c5762f7F1569e600b827Aff4A
@@ -155,8 +153,12 @@ final class PortfolioManager: PortfolioDelegate {
 
     // MARK: - Public Methods
     /// returns alias for specified address string
-    func getAlias(for addressString: String) -> String? {
-        return storedAddresses.first(where: { $0.identifier?.lowercased() == addressString.lowercased() })?.alias
+    func getAlias(for addressString: String) -> String {
+        if let alias = storedAddresses.first(where: { $0.identifier?.lowercased() == addressString.lowercased() })?.alias, !alias.isEmpty {
+            return alias
+        } else {
+            return addressString
+        }
     }
     
     func setBaseCurrency(_ currency: Currency) throws {

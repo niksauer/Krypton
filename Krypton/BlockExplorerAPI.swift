@@ -23,16 +23,18 @@ struct BlockExplorerAPI {
     }
     
     // MARK: - Public Properties
-    struct Transaction: TransactionPrototype {
+    struct Transaction: BitcoinTransactionPrototype {
         var identifier: String
         var date: Date
-        var amount: Double
+        var totalAmount: Double
         var feeAmount: Double
         var block: Int
         var from: [String]
         var to: [String]
-        var isError: Bool
         var isOutbound: Bool
+        
+        var amountFromSender: [String : Double]
+        var amountForReceiver: [String : Double]
     }
     
     // MARK: - Private Methods
@@ -61,17 +63,21 @@ struct BlockExplorerAPI {
         var isOutbound = false
         var amount = 0.0
         
+        var amountFromSender = [String: Double]()
+        var amountForReceiver = [String: Double]()
+        
         for input in vin {
             guard let sender = input["addr"] as? String, let inputAmount = input["value"] as? Double else {
                 return nil
             }
             
+            senders.append(sender)
+            amountFromSender[sender] = inputAmount
+            
             if sender.lowercased() == address.lowercased() {
                 isOutbound = true
                 amount = inputAmount
             }
-            
-            senders.append(sender)
         }
         
         for output in vout {
@@ -79,19 +85,22 @@ struct BlockExplorerAPI {
                 return nil
             }
             
-            if isOutbound {
-                receivers.append(contentsOf: amountReceivers)
-            } else {
-                guard amountReceivers.contains(where: { $0.lowercased() == address.lowercased() }) else {
-                    continue
+            receivers.append(contentsOf: amountReceivers)
+            
+            for receiver in amountReceivers {
+                if receiver.lowercased() == address.lowercased() {
+                    amount = amount + outputAmount
                 }
                 
-                receivers = [address]
-                amount = amount + outputAmount
+                if let receiverAmount = amountForReceiver[receiver] {
+                    amountForReceiver[receiver] = receiverAmount + outputAmount
+                } else {
+                    amountForReceiver[receiver] = outputAmount
+                }
             }
         }
         
-        return Transaction(identifier: hash, date: Date(timeIntervalSince1970: time), amount: amount, feeAmount: feeAmount, block: block, from: senders, to: receivers, isError: false, isOutbound: isOutbound)
+        return Transaction(identifier: hash, date: Date(timeIntervalSince1970: time), totalAmount: amount, feeAmount: feeAmount, block: block, from: senders, to: receivers, isOutbound: isOutbound, amountFromSender: amountFromSender, amountForReceiver: amountForReceiver)
     }
     
     // MARK: - Public Methods

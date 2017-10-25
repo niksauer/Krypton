@@ -18,7 +18,7 @@ class AddresDetailController: UITableViewController {
     
     // MARK: - Navigation
     func setAlias(_ alias: String?) {
-        guard let alias = alias?.trimmingCharacters(in: .whitespacesAndNewlines), !alias.isEmpty else {
+        guard let alias = alias?.trimmingCharacters(in: .whitespacesAndNewlines) else {
             return
         }
 

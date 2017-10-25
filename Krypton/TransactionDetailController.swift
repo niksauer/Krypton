@@ -11,6 +11,8 @@ import UIKit
 class TransactionDetailController: UITableViewController, TickerWatchlistDelegate, UITextFieldDelegate {
 
     // MARK: - Private Properties
+    private var sendersIndexPath: IndexPath!
+    private var receiversIndexPath: IndexPath!
     private var exchangeValueIndexPath: IndexPath!
     private var profitIndexPath: IndexPath!
     private var feeIndexPath: IndexPath!
@@ -32,6 +34,31 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
     }
 
     // MARK: - Navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        super.prepare(for: segue, sender: sender)
+        
+        guard let transaction = transaction as? BitcoinTransaction else {
+            return
+        }
+
+        if let destVC = segue.destination as? AmountForAddressController {
+            destVC.currency = transaction.owner?.blockchain
+            
+            switch segue.identifier! {
+            case "showAmountFromSenders":
+                destVC.title = "Senders"
+                destVC.addresses = transaction.senders
+                destVC.amountForAddress = transaction.amountFromSender as! [String: Double]
+            case "showAmountForReceivers":
+                destVC.title = "Receivers"
+                destVC.addresses = transaction.receivers
+                destVC.amountForAddress = transaction.amountForReceiver as! [String: Double]
+            default:
+                break
+            }
+        }
+    }
+    
     @IBAction func toggleIsInvestment(_ state: Bool) {
         do {
             try transaction?.setIsInvestment(state: state)
@@ -113,18 +140,34 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
         switch section {
         case _ where section == 0:
             let cell = tableView.dequeueReusableCell(withIdentifier: "transactionHeaderCell", for: indexPath) as! TransactionHeaderCell
-            cell.configure(amount: transaction.amount, currency: transaction.owner!.blockchain, date: transaction.date!)
+            cell.configure(amount: transaction.totalAmount, currency: transaction.owner!.blockchain, date: transaction.date!, isOutbound: transaction.isOutbound)
             return cell
         case _ where section == 1:
             let cell = tableView.dequeueReusableCell(withIdentifier: "infoCell", for: indexPath)
             
             switch row {
             case _ where row == 0:
-                cell.textLabel?.text = "Sender"
-//                cell.detailTextLabel?.text = PortfolioManager.shared.getAlias(for: transaction.primarySender) ?? transaction.primarySender
+                sendersIndexPath = indexPath
+                cell.accessoryType = .disclosureIndicator
+                
+                if transaction.senders.count > 1 {
+                    cell.textLabel?.text = "Senders"
+                    cell.detailTextLabel?.text = String(transaction.senders.count)
+                } else {
+                    cell.textLabel?.text = "Sender"
+                    cell.detailTextLabel?.text = PortfolioManager.shared.getAlias(for: transaction.primarySender)
+                }
             case _ where row == 1:
-                cell.textLabel?.text = "Receiver"
-//                cell.detailTextLabel?.text = PortfolioManager.shared.getAlias(for: transaction.primaryReceiver) ?? transaction.primaryReceiver
+                receiversIndexPath = indexPath
+                cell.accessoryType = .disclosureIndicator
+                
+                if transaction.receivers.count > 1 {
+                    cell.textLabel?.text = "Receivers"
+                    cell.detailTextLabel?.text = String(transaction.receivers.count)
+                } else {
+                    cell.textLabel?.text = "Receiver"
+                    cell.detailTextLabel?.text = PortfolioManager.shared.getAlias(for: transaction.primaryReceiver)
+                }
             case _ where row == 2 && transaction is EthereumTransaction:
                 cell.textLabel?.text = "Type"
                 cell.detailTextLabel?.text = (transaction as! EthereumTransaction).type
@@ -188,6 +231,11 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
             case _ where row == 0:
                 cell.textLabel?.text = "Fee"
                 
+                if transaction.isOutbound && transaction.senders.count > 1 {
+                    // fee was payed by muliple addresses
+                    cell.accessoryType = .detailButton
+                }
+                
                 guard let feeExchangeValue = transaction.feeExchangeValue else {
                     cell.detailTextLabel?.text = "???"
                     break
@@ -232,6 +280,10 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch indexPath {
+        case _ where indexPath == sendersIndexPath:
+            performSegue(withIdentifier: "showAmountFromSenders", sender: self)
+        case _ where indexPath == receiversIndexPath:
+            performSegue(withIdentifier: "showAmountForReceivers", sender: self)
         case _ where indexPath == exchangeValueIndexPath:
             showsExchangeValue = !showsExchangeValue
         case _ where indexPath == profitIndexPath:

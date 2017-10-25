@@ -30,7 +30,7 @@ enum BalanceResult {
 protocol TransactionPrototype {
     var identifier: String { get }
     var date: Date { get }
-    var amount: Double { get }
+    var totalAmount: Double { get }
     var feeAmount: Double { get }
     var block: Int { get }
     var from: [String] { get }
@@ -41,6 +41,11 @@ protocol TransactionPrototype {
 protocol EthereumTransactionPrototype: TransactionPrototype {
     var type: EthereumTransactionHistoryType { get }
     var isError: Bool { get }
+}
+
+protocol BitcoinTransactionPrototype: TransactionPrototype {
+    var amountFromSender: [String: Double] { get }
+    var amountForReceiver: [String: Double] { get }
 }
 
 enum EthereumTransactionHistoryType: String {

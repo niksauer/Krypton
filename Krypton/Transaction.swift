@@ -21,7 +21,6 @@ enum TransactionType: Int {
 }
 
 enum TransactionValueType {
-    case normal
     case fee
     case total
 }
@@ -35,18 +34,22 @@ class Transaction: NSManagedObject {
     
     // MARK: - Public Class Methods
     /// creates and returns transaction if non-existent in database, throws otherwise
-    class func createTransaction(from txInfo: TransactionPrototype, owner: Address, in context: NSManagedObjectContext) throws -> Transaction {
+    class func createTransaction(from prototype: TransactionPrototype, owner: Address, in context: NSManagedObjectContext) throws -> Transaction {
+        guard prototype.from.count >= 1, prototype.to.count >= 1 else {
+            throw TransactionError.invalidPrototype
+        }
+        
         let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
         
         switch owner {
         case is Ethereum:
-            guard let etherTxInfo = txInfo as? EthereumTransactionPrototype else {
+            guard let prototype = prototype as? EthereumTransactionPrototype else {
                 throw TransactionError.invalidPrototype
             }
             
-            request.predicate = NSPredicate(format: "identifier = %@ AND owner = %@ AND type = %@ ", txInfo.identifier, owner, etherTxInfo.type.rawValue)
+            request.predicate = NSPredicate(format: "identifier = %@ AND owner = %@ AND type = %@ ", prototype.identifier, owner, prototype.type.rawValue)
         default:
-            request.predicate = NSPredicate(format: "identifier = %@ AND owner = %@", txInfo.identifier, owner)
+            request.predicate = NSPredicate(format: "identifier = %@ AND owner = %@", prototype.identifier, owner)
         }
     
         do {
@@ -63,53 +66,67 @@ class Transaction: NSManagedObject {
         
         switch owner {
         case is Ethereum:
-            guard let etherTxInfo = txInfo as? EthereumTransactionPrototype else {
+            guard let prototype = prototype as? EthereumTransactionPrototype, prototype.from.count == 1, prototype.to.count == 1 else {
                 throw TransactionError.invalidPrototype
             }
             
-            let etherTx = EthereumTransaction(context: context)
-            etherTx.type = etherTxInfo.type.rawValue
-            etherTx.isError = etherTxInfo.isError
+            let ethereumTransaction = EthereumTransaction(context: context)
+            ethereumTransaction.type = prototype.type.rawValue
+            ethereumTransaction.isError = prototype.isError
             
-            transaction = etherTx
+            transaction = ethereumTransaction
+        case is Bitcoin:
+            guard let prototype = prototype as? BitcoinTransactionPrototype else {
+                throw TransactionError.invalidPrototype
+            }
+            
+            let bitcoinTransaction = BitcoinTransaction(context: context)
+            bitcoinTransaction.amountFromSender = NSDictionary(dictionary: prototype.amountFromSender)
+            bitcoinTransaction.amountForReceiver = NSDictionary(dictionary: prototype.amountForReceiver)
+            
+            transaction = bitcoinTransaction
         default:
             transaction = Transaction(context: context)
         }
         
-        transaction.identifier = txInfo.identifier
-        transaction.date = txInfo.date as Date
-        transaction.amount = txInfo.amount
-        transaction.feeAmount = txInfo.feeAmount
-        transaction.block = Int32(txInfo.block)
-        transaction.to = txInfo.to as NSObject
-        transaction.from = txInfo.from as NSObject
-        transaction.isOutbound = txInfo.isOutbound
+        transaction.identifier = prototype.identifier
+        transaction.date = prototype.date
+        transaction.totalAmount = prototype.totalAmount
+        transaction.feeAmount = prototype.feeAmount
+        transaction.block = Int32(prototype.block)
+        transaction.to = prototype.to as NSObject
+        transaction.from = prototype.from as NSObject
+        transaction.isOutbound = prototype.isOutbound
         transaction.owner = owner
         
         return transaction
     }
     
     // MARK: - Public Properties
-    var totalAmount: Double {
-        let totalAmount: Double
-        
-        if isOutbound {
-            totalAmount = amount + feeAmount
-        } else {
-            totalAmount = amount
-        }
-        
-        return totalAmount
+    var senders: [String] {
+        return from as! [String]
+    }
+    
+    var primarySender: String {
+        return senders.contains(self.owner!.identifier!) ? self.owner!.identifier! : senders.first!
+    }
+    
+    var receivers: [String] {
+        return to as! [String]
+    }
+    
+    var primaryReceiver: String {
+        return receivers.contains(self.owner!.identifier!) ? self.owner!.identifier! : receivers.first!
     }
     
     /// returns exchange value as encountered on execution date according to owners trading pair
     var exchangeValue: Double? {
-        return getExchangeValue(on: date! as Date, for: .normal)
+        return getExchangeValue(on: date! as Date, for: .total)
     }
     
     /// returns the current exchange value according to owners trading pair
     var currentExchangeValue: Double? {
-        return getExchangeValue(on: Date(), for: .normal)
+        return getExchangeValue(on: Date(), for: .total)
     }
     
     var feeExchangeValue: Double? {
@@ -179,17 +196,11 @@ class Transaction: NSManagedObject {
         }
 
         switch type {
-        case .normal:
-            if userExchangeValue != -1 {
-                return userExchangeValue
-            } else {
-                return unitExchangeValue! * amount
-            }
         case .fee:
             return unitExchangeValue! * feeAmount
         case .total:
             if userExchangeValue != -1 {
-                return userExchangeValue + (unitExchangeValue! * feeAmount)
+                return userExchangeValue
             } else {
                 return unitExchangeValue! * totalAmount
             }
@@ -296,21 +307,8 @@ class Transaction: NSManagedObject {
 
 class EthereumTransaction: Transaction {
     
-    // MARK: - Public Properties
-    override var totalAmount: Double {
-        let totalAmount: Double
-        
-        if !isError {
-            if isOutbound {
-                totalAmount = amount + feeAmount
-            } else {
-                totalAmount = amount
-            }
-        } else {
-            totalAmount = feeAmount
-        }
-        
-        return totalAmount
-    }
+}
+
+class BitcoinTransaction: Transaction {
     
 }

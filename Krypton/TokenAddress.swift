@@ -83,7 +83,7 @@ class Ethereum: TokenAddress {
                     if let token = self.getToken(etherToken) {
                         do {
                             guard token.balance != balance else {
-                                log.verbose("Balance of token '\(etherToken.name)' is already up-to-date.")
+                                log.verbose("Balance of token '\(etherToken.name)' for address '\(self.logDescription)' is already up-to-date.")
                                 completion?()
                                 return
                             }
