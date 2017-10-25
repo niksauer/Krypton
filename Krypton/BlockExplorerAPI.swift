@@ -22,6 +22,19 @@ struct BlockExplorerAPI {
         case balance
     }
     
+    // MARK: - Public Properties
+    struct Transaction: TransactionPrototype {
+        var identifier: String
+        var date: Date
+        var amount: Double
+        var feeAmount: Double
+        var block: Int
+        var from: [String]
+        var to: [String]
+        var isError: Bool
+        var isOutbound: Bool
+    }
+    
     // MARK: - Private Methods
     private static func blockexplorerURL(method: Method, address: String) -> URL {
         var components = URLComponents(string: baseURL)!
@@ -37,31 +50,53 @@ struct BlockExplorerAPI {
         return components.url!
     }
     
-    private static func transaction(fromJSON json: [String: Any], for address: Address) -> [BlockchainConnector.Transaction]? {
-        guard let hash = json["txid"] as? String, let time = json["time"] as? Double, let block = json["blockheight"] as? Int, let vin = json["vin"] as? [[String: Any]], let firstSender = vin.first?["addr"] as? String, let vout = json["vout"] as? [[String: Any]] else {
+    private static func transaction(fromJSON json: [String: Any], for address: String) -> Transaction? {
+        guard let hash = json["txid"] as? String, let time = json["time"] as? Double, let block = json["blockheight"] as? Int, let vin = json["vin"] as? [[String: Any]], let vout = json["vout"] as? [[String: Any]], let feeAmount = json["fees"] as? Double else {
             return nil
         }
         
-        var transactions = [BlockchainConnector.Transaction]()
+        var senders = [String]()
+        var receivers = [String]()
         
-        for out in vout {
-            guard let script = out["scriptPubKey"] as? [String: Any], let addresses = script["addresses"] as? [String], let firstReceiver = addresses.first, let amountString = out["value"] as? String, let amount = Double(amountString) else {
-                continue
+        var isOutbound = false
+        var amount = 0.0
+        
+        for input in vin {
+            guard let sender = input["addr"] as? String, let inputAmount = input["value"] as? Double else {
+                return nil
             }
             
-//            guard firstSender == address.address! || firstReceiver == address.address! else {
-//                continue
-//            }
+            if sender.lowercased() == address.lowercased() {
+                isOutbound = true
+                amount = inputAmount
+            }
             
-            let transaction = BlockchainConnector.Transaction(identifier: hash, date: Date(timeIntervalSince1970: time), amount: amount, from: firstSender, to: firstReceiver, type: .normal, block: block, isError: false, feeAmount: 0)
-            transactions.append(transaction)
+            senders.append(sender)
         }
         
-        return transactions
+        for output in vout {
+            guard let script = output["scriptPubKey"] as? [String: Any], let amountReceivers = script["addresses"] as? [String], let amountString = output["value"] as? String, let outputAmount = Double(amountString) else {
+                return nil
+            }
+            
+            if isOutbound {
+                receivers.append(contentsOf: amountReceivers)
+            } else {
+                guard amountReceivers.contains(where: { $0.lowercased() == address.lowercased() }) else {
+                    continue
+                }
+                
+                receivers = [address]
+                amount = amount + outputAmount
+            }
+        }
+        
+        return Transaction(identifier: hash, date: Date(timeIntervalSince1970: time), amount: amount, feeAmount: feeAmount, block: block, from: senders, to: receivers, isError: false, isOutbound: isOutbound)
     }
     
     // MARK: - Public Methods
-    static func transactionHistory(fromJSON data: Data, for address: Address) -> TransactionHistoryResult {
+    // MARK: Result Processing
+    static func transactionHistory(fromJSON data: Data, for address: String) -> TransactionHistoryResult {
         do {
             let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
             
@@ -69,11 +104,11 @@ struct BlockExplorerAPI {
                 return .failure(BlockExplorerError.invalidJSONData)
             }
             
-            var transactionHistory = [BlockchainConnector.Transaction]()
+            var transactionHistory = [Transaction]()
     
             for transactionJSON in transactionsArray {
-                if let transactions = transaction(fromJSON: transactionJSON, for: address) {
-                    transactionHistory.append(contentsOf: transactions)
+                if let transaction = transaction(fromJSON: transactionJSON, for: address) {
+                    transactionHistory.append(transaction)
                 }
             }
             
@@ -91,7 +126,7 @@ struct BlockExplorerAPI {
         return .success(balance)
     }
     
-    // MARK: - Private Methods
+    // MARK: URL Builder
     static func transactionHistoryURL(for address: String) -> URL {
         return blockexplorerURL(method: .txlist, address: address)
     }

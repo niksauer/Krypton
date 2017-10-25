@@ -20,9 +20,9 @@ class TransactionCell: UITableViewCell {
         dateLabel.text = Format.getDateFormatting(for: transaction.date!)
         
         if transaction.isOutbound {
-            addressLabel.text = transaction.to
+//            addressLabel.text = transaction.to as? String
         } else {
-            addressLabel.text = transaction.from
+//            addressLabel.text = transaction.from
         }
         
         amountLabel.text = Format.getCurrencyFormatting(for: transaction.amount, currency: transaction.owner!.blockchain)

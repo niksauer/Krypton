@@ -11,6 +11,7 @@ import CoreData
 
 enum TransactionError: Error {
     case duplicate
+    case invalidPrototype
 }
 
 enum TransactionType: Int {
@@ -34,10 +35,20 @@ class Transaction: NSManagedObject {
     
     // MARK: - Public Class Methods
     /// creates and returns transaction if non-existent in database, throws otherwise
-    class func createTransaction(from txInfo: BlockchainConnector.Transaction, owner: Address, in context: NSManagedObjectContext) throws -> Transaction {
+    class func createTransaction(from txInfo: TransactionPrototype, owner: Address, in context: NSManagedObjectContext) throws -> Transaction {
         let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
-        request.predicate = NSPredicate(format: "identifier = %@ AND type = %@ AND owner = %@", txInfo.identifier, txInfo.type.rawValue, owner)
         
+        switch owner {
+        case is Ethereum:
+            guard let etherTxInfo = txInfo as? EthereumTransactionPrototype else {
+                throw TransactionError.invalidPrototype
+            }
+            
+            request.predicate = NSPredicate(format: "identifier = %@ AND owner = %@ AND type = %@ ", txInfo.identifier, owner, etherTxInfo.type.rawValue)
+        default:
+            request.predicate = NSPredicate(format: "identifier = %@ AND owner = %@", txInfo.identifier, owner)
+        }
+    
         do {
             let matches = try context.fetch(request)
             if matches.count > 0 {
@@ -48,38 +59,44 @@ class Transaction: NSManagedObject {
             throw error
         }
         
-        let transaction = Transaction(context: context)
+        let transaction: Transaction
+        
+        switch owner {
+        case is Ethereum:
+            guard let etherTxInfo = txInfo as? EthereumTransactionPrototype else {
+                throw TransactionError.invalidPrototype
+            }
+            
+            let etherTx = EthereumTransaction(context: context)
+            etherTx.type = etherTxInfo.type.rawValue
+            etherTx.isError = etherTxInfo.isError
+            
+            transaction = etherTx
+        default:
+            transaction = Transaction(context: context)
+        }
+        
+        transaction.identifier = txInfo.identifier
         transaction.date = txInfo.date as Date
         transaction.amount = txInfo.amount
-        transaction.type = txInfo.type.rawValue
-        transaction.to = txInfo.to
-        transaction.from = txInfo.from
-        transaction.identifier = txInfo.identifier
-        transaction.block = Int32(txInfo.block)
         transaction.feeAmount = txInfo.feeAmount
-        transaction.isError = txInfo.isError
+        transaction.block = Int32(txInfo.block)
+        transaction.to = txInfo.to as NSObject
+        transaction.from = txInfo.from as NSObject
+        transaction.isOutbound = txInfo.isOutbound
         transaction.owner = owner
         
         return transaction
     }
     
     // MARK: - Public Properties
-    /// checks if transaction is outbound, i.e. owner sent amount and has not received it
-    var isOutbound: Bool {
-        return from!.caseInsensitiveCompare(owner!.identifier!) == ComparisonResult.orderedSame
-    }
-    
     var totalAmount: Double {
         let totalAmount: Double
         
-        if !isError {
-            if isOutbound {
-                totalAmount = amount + feeAmount
-            } else {
-                totalAmount = amount
-            }
+        if isOutbound {
+            totalAmount = amount + feeAmount
         } else {
-            totalAmount = feeAmount
+            totalAmount = amount
         }
         
         return totalAmount
@@ -157,6 +174,7 @@ class Transaction: NSManagedObject {
         }
 
         guard unitExchangeValue != nil else {
+            log.warning("Failed to get exchange value for transaction '\(self.logDescription)'.")
             return nil
         }
 
@@ -276,4 +294,23 @@ class Transaction: NSManagedObject {
     
 }
 
-
+class EthereumTransaction: Transaction {
+    
+    // MARK: - Public Properties
+    override var totalAmount: Double {
+        let totalAmount: Double
+        
+        if !isError {
+            if isOutbound {
+                totalAmount = amount + feeAmount
+            } else {
+                totalAmount = amount
+            }
+        } else {
+            totalAmount = feeAmount
+        }
+        
+        return totalAmount
+    }
+    
+}

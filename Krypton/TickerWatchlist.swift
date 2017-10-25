@@ -47,7 +47,7 @@ final class TickerWatchlist {
         }
         
         if let requestCount = requestsForTradingPair[tradingPair] {
-            log.debug("Updated requests \(requestCount) for tradingPair '\(tradingPair.rawValue)'.")
+            log.debug("Updated requests (\(requestCount)) for tradingPair '\(tradingPair.rawValue)'.")
             requestsForTradingPair[tradingPair] = requestCount + 1
         } else {
             requestsForTradingPair[tradingPair] = 1

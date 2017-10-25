@@ -82,7 +82,7 @@ enum Blockchain: String, Currency {
         return Blockchain.nameForBlockchain[self]!
     }
 
-    static var allValues = [ETH]
+    static var allValues = [ETH, XBT]
     
     // MARK: - Currency Protocol
     var code: String {

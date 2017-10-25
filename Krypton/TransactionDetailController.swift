@@ -87,7 +87,7 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
             return 1
         case _ where section == 1:
             switch transaction.owner! {
-            case is TokenAddress:
+            case is Ethereum:
                 return 3
             default:
                 return 2
@@ -95,7 +95,12 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
         case _ where section == 2:
             return 3
         case _ where section == 3:
-            return 4
+            switch transaction.owner! {
+            case is Ethereum:
+                return 4
+            default:
+                return 3
+            }
         default:
             return 0
         }
@@ -116,13 +121,13 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
             switch row {
             case _ where row == 0:
                 cell.textLabel?.text = "Sender"
-                cell.detailTextLabel?.text = PortfolioManager.shared.getAlias(for: transaction.from!) ?? transaction.from
+//                cell.detailTextLabel?.text = PortfolioManager.shared.getAlias(for: transaction.primarySender) ?? transaction.primarySender
             case _ where row == 1:
                 cell.textLabel?.text = "Receiver"
-                cell.detailTextLabel?.text = PortfolioManager.shared.getAlias(for: transaction.to!) ?? transaction.to
-            case _ where row == 2 && transaction.owner! is TokenAddress:
+//                cell.detailTextLabel?.text = PortfolioManager.shared.getAlias(for: transaction.primaryReceiver) ?? transaction.primaryReceiver
+            case _ where row == 2 && transaction is EthereumTransaction:
                 cell.textLabel?.text = "Type"
-                cell.detailTextLabel?.text = transaction.type
+                cell.detailTextLabel?.text = (transaction as! EthereumTransaction).type
             default:
                 break
             }
@@ -196,14 +201,14 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
                 
                 feeIndexPath = indexPath
             case _ where row == 1:
-                cell.textLabel?.text = "Executed"
-                cell.detailTextLabel?.text = String(!transaction.isError)
-            case _ where row == 2:
                 cell.textLabel?.text = "Block"
                 cell.detailTextLabel?.text = String(transaction.block)
-            case _ where row == 3:
+            case _ where row == 2:
                 cell.textLabel?.text = "Hash"
                 cell.detailTextLabel?.text = transaction.identifier
+            case _ where row == 3 && transaction.owner is Ethereum:
+                cell.textLabel?.text = "Executed"
+                cell.detailTextLabel?.text = String(!(transaction as! EthereumTransaction).isError)
             default:
                 // not valid
                 return UITableViewCell()
