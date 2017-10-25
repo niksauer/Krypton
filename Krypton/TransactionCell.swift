@@ -18,14 +18,15 @@ class TransactionCell: UITableViewCell {
     // MARK: - Public Methods
     func configure(transaction: Transaction) {
         dateLabel.text = Format.getDateFormatting(for: transaction.date!)
+        amountLabel.text = Format.getCurrencyFormatting(for: transaction.totalAmount, currency: transaction.owner!.blockchain)
         
         if transaction.isOutbound {
-            addressLabel.text = transaction.to
+            addressLabel.text = transaction.primaryReceiver
+            amountLabel.textColor = UIColor.red
         } else {
-            addressLabel.text = transaction.from
+            addressLabel.text = transaction.primarySender
+            amountLabel.textColor = UIColor.green
         }
-        
-        amountLabel.text = Format.getCurrencyFormatting(for: transaction.amount, currency: transaction.owner!.blockchain)
     }
 
 }

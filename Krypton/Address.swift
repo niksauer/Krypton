@@ -137,7 +137,7 @@ class Address: NSManagedObject {
         do {
             self.alias = alias
             try AppDelegate.viewContext.save()
-            log.debug("Updated alias \(alias) for address '\(logDescription)'.")
+            log.debug("Updated alias for address '\(logDescription)'.")
             delegate?.didUpdateAlias(for: self)
         } catch {
             log.error("Failed to update alias for address '\(logDescription)': \(error)")
@@ -200,7 +200,51 @@ class Address: NSManagedObject {
     
     /// fetches and saves transaction history since last retrieved block, executes completion block if no error is thrown during retrieval and saving
     func updateTransactionHistory(completion: (() -> Void)?) {
-        preconditionFailure("This method must be overridden")
+        let timeframe: TransactionHistoryTimeframe
+        
+        if lastBlock == 0 {
+            timeframe = .allTime
+        } else {
+            timeframe = .sinceBlock(Int(lastBlock))
+        }
+        
+        BlockchainConnector.fetchTransactionHistory(for: self, timeframe: timeframe) { result in
+            switch result {
+            case .success(let txs):
+                let context = AppDelegate.viewContext
+                var newTxCount = 0
+                
+                for txInfo in txs {
+                    do {
+                        let transaction = try Transaction.createTransaction(from: txInfo, owner: self, in: context)
+                        newTxCount = newTxCount + 1
+                        
+                        if transaction.block > self.lastBlock {
+                            self.lastBlock = transaction.block + 1
+                        }
+                    } catch {
+                        log.error("Failed to create transaction '\(txInfo.identifier)' for address '\(self.logDescription)': \(error)")
+                    }
+                }
+                
+                do {
+                    if context.hasChanges {
+                        try context.save()
+                        let multipleTx = newTxCount >= 2 || newTxCount == 0
+                        log.debug("Updated transaction history for address '\(self.logDescription)' with \(newTxCount) new transaction\(multipleTx ? "s" : "").")
+                    } else {
+                        log.verbose("Transaction history for address '\(self.logDescription)' is already up-to-date.")
+                    }
+                    
+                    self.delegate?.didUpdateTransactionHistory(for: self)
+                    completion?()
+                } catch {
+                    log.error("Failed to save fetched transaction history for address '\(self.logDescription)': \(error)")
+                }
+            case .failure(let error):
+                log.error("Failed to fetch transaction history for address '\(self.logDescription)': \(error)")
+            }
+        }
     }
     
     /// asks tickerPrice to update price history for set trading pair starting from oldest transaction date encountered, passes completion block to retrieval
@@ -307,4 +351,11 @@ class Bitcoin: Address {
         blockchainRaw = Blockchain.XBT.rawValue
     }
     
+    // MARK: - Public Methods    
+    // MARK: Cryptography
+    override func isValidAddress() -> Bool {
+        let regex = NSPredicate(format: "SELF MATCHES %@", "^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$")
+        return regex.evaluate(with: identifier!)
+    }
+
 }

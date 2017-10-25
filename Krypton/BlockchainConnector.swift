@@ -12,24 +12,45 @@ enum BlockchainConnectorError: Error {
     case invalidBlockchain
 }
 
-enum TransactionHistoryType: String {
-    case normal
-    case `internal`
-}
-
 enum TransactionHistoryTimeframe {
     case allTime
     case sinceBlock(Int)
 }
 
 enum TransactionHistoryResult {
-    case success([BlockchainConnector.Transaction])
+    case success([TransactionPrototype])
     case failure(Error)
 }
 
 enum BalanceResult {
     case success(Double)
     case failure(Error)
+}
+
+protocol TransactionPrototype {
+    var identifier: String { get }
+    var date: Date { get }
+    var totalAmount: Double { get }
+    var feeAmount: Double { get }
+    var block: Int { get }
+    var from: [String] { get }
+    var to: [String] { get }
+    var isOutbound: Bool { get }
+}
+
+protocol EthereumTransactionPrototype: TransactionPrototype {
+    var type: EthereumTransactionHistoryType { get }
+    var isError: Bool { get }
+}
+
+protocol BitcoinTransactionPrototype: TransactionPrototype {
+    var amountFromSender: [String: Double] { get }
+    var amountForReceiver: [String: Double] { get }
+}
+
+enum EthereumTransactionHistoryType: String {
+    case normal
+    case `internal`
 }
 
 struct BlockchainConnector {
@@ -40,60 +61,75 @@ struct BlockchainConnector {
         return URLSession(configuration: config)
     }()
     
-    // MARK: - Public Properties
-    struct Transaction {
-        let identifier: String
-        let date: Date
-        let amount: Double
-        let from: String
-        let to: String
-        let type: TransactionHistoryType
-        let block: Int
-        let isError: Bool
-        let feeAmount: Double
-    }
-    
     // MARK: - Public Methods
-    static func fetchTransactionHistory(for address: Address, type: TransactionHistoryType, timeframe: TransactionHistoryTimeframe, completion: @escaping (TransactionHistoryResult) -> Void) {
+    static func fetchTransactionHistory(for address: Address, timeframe: TransactionHistoryTimeframe, completion: @escaping (TransactionHistoryResult) -> Void) {
         let url: URL
         
         switch address {
         case is Bitcoin:
             url = BlockExplorerAPI.transactionHistoryURL(for: address.identifier!)
         case is Ethereum:
-            url = EtherscanAPI.transactionHistoryURL(for: address.identifier!, type: type, timeframe: timeframe)
+            url = EtherscanAPI.transactionHistoryURL(for: address.identifier!, type: .normal, timeframe: timeframe)
         default:
-            OperationQueue.main.addOperation {
-                completion(.failure(BlockchainConnectorError.invalidBlockchain))
-            }
-            
+            completion(.failure(BlockchainConnectorError.invalidBlockchain))
             return
         }
         
         let request = URLRequest(url: url)
 
-        let task = session.dataTask(with: request) { (data, response, error) -> Void in
+        let task = session.dataTask(with: request) { (data, response, error) in
             var result: TransactionHistoryResult
             
-            if let jsonData = data {
-                switch address {
-                case is Bitcoin:
-                    result = BlockExplorerAPI.transactionHistory(fromJSON: jsonData, for: address)
-
-                    if case TransactionHistoryResult.success(let transactions) = result, case TransactionHistoryTimeframe.sinceBlock(let blockNumber) = timeframe {
-                        result = .success(transactions.filter { $0.block >= blockNumber })
-                    }
-                case is Ethereum:
-                    result = EtherscanAPI.transactionHistory(type: type, fromJSON: jsonData)
-                default:
-                    return
+            guard let jsonData = data else {
+                OperationQueue.main.addOperation {
+                    completion(.failure(error!))
                 }
-            } else {
-                result = .failure(error!)
+                return
             }
             
-            OperationQueue.main.addOperation {
-                completion(result)
+            switch address {
+            case is Bitcoin:
+                result = BlockExplorerAPI.transactionHistory(fromJSON: jsonData, for: address.identifier!)
+                
+                if case TransactionHistoryResult.success(let transactions) = result, case TransactionHistoryTimeframe.sinceBlock(let blockNumber) = timeframe {
+                    result = .success(transactions.filter { $0.block >= blockNumber })
+                }
+                
+                OperationQueue.main.addOperation {
+                    completion(result)
+                }
+            case is Ethereum:
+                result = EtherscanAPI.transactionHistory(fromJSON: jsonData, for: address.identifier!, type: .normal)
+                
+                switch result {
+                case .success(let normalTransactions):
+                    let url = EtherscanAPI.transactionHistoryURL(for: address.identifier!, type: .internal, timeframe: timeframe)
+                    let request = URLRequest(url: url)
+                    
+                    let task = session.dataTask(with: request) { (data, response, error) in
+                        if let jsonData = data {
+                            result = EtherscanAPI.transactionHistory(fromJSON: jsonData, for: address.identifier!, type: .internal)
+                            
+                            if case TransactionHistoryResult.success(let internalTransactions) = result {
+                                result = .success(normalTransactions + internalTransactions)
+                            }
+                        } else {
+                            result = .failure(error!)
+                        }
+                        
+                        OperationQueue.main.addOperation {
+                            completion(result)
+                        }
+                    }
+                    
+                    task.resume()
+                case .failure(let error):
+                    OperationQueue.main.addOperation {
+                        completion(.failure(error))
+                    }
+                }
+            default:
+                return
             }
         }
         

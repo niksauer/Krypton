@@ -117,19 +117,20 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "transactionCell", for: indexPath)
+//        let cell = tableView.dequeueReusableCell(withIdentifier: "transactionCell", for: indexPath) as! TransactionCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "txCell", for: indexPath)
         let transaction = fetchedResultsController!.object(at: indexPath)
+//        cell.configure(transaction: transaction)
         
-        cell.textLabel?.text = Format.getCurrencyFormatting(for: transaction.amount, currency: transaction.owner!.blockchain)
-        
+        cell.textLabel?.text = Format.getCurrencyFormatting(for: transaction.totalAmount, currency: transaction.owner!.blockchain)
         cell.detailTextLabel?.text = Format.getDateFormatting(for: transaction.date! as Date)
+
         if transaction.isOutbound {
             cell.textLabel?.textColor = UIColor.red
         } else {
             cell.textLabel?.textColor = UIColor.green
         }
-        
-        
+    
         return cell
     }
     

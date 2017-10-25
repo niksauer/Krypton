@@ -25,6 +25,21 @@ struct EtherscanAPI {
         case tokenbalance
     }
     
+    // MARK: - Public Properties
+    struct Transaction: EthereumTransactionPrototype {
+        var identifier: String
+        var date: Date
+        var totalAmount: Double
+        var feeAmount: Double
+        var block: Int
+        var from: [String]
+        var to: [String]
+        var isOutbound: Bool
+        
+        var isError: Bool
+        var type: EthereumTransactionHistoryType
+    }
+    
     // MARK: - Private Methods
     private static func etherscanURL(method: Method, parameters: [String: String]) -> URL {
         var components = URLComponents(string:  baseURL)!
@@ -58,13 +73,16 @@ struct EtherscanAPI {
         return components.url!
     }
     
-    private static func transaction(type: TransactionHistoryType, fromJSON json: [String: Any]) -> BlockchainConnector.Transaction? {
+    private static func transaction(fromJSON json: [String: Any], for address: String, type: EthereumTransactionHistoryType) -> Transaction? {
         guard let isErrorString = json["isError"] as? String, let hashString = json["hash"] as? String, let timeString = json["timeStamp"] as? String, let time = Double(timeString), let weiString = json["value"] as? String, let amount = ether(from: weiString), let fromString = json["from"] as? String, let toString = json["to"] as? String, let blockString = json["blockNumber"] as? String, let block = Int(blockString) else {
             return nil
         }
         
-        let isError = (isErrorString == "1") ? true : false
+        let isError = (isErrorString == "1")
+        let isOutbound = (fromString.lowercased() == address.lowercased())
+        
         var feeAmount = 0.0
+        var totalAmount = amount
         
         if type == .normal {
             guard let gasUsedString = json["gasUsed"] as? String, let gasUsed = Double(gasUsedString), let gasPriceString = json["gasPrice"] as? String, let gasPrice = ether(from: gasPriceString) else {
@@ -72,9 +90,13 @@ struct EtherscanAPI {
             }
             
             feeAmount = gasPrice * gasUsed
+            
+            if isOutbound {
+                totalAmount = totalAmount + feeAmount
+            }
         }
         
-        return BlockchainConnector.Transaction(identifier: hashString, date: Date(timeIntervalSince1970: time), amount: amount, from: fromString, to: toString, type: type, block: block, isError: isError, feeAmount: feeAmount)
+        return Transaction(identifier: hashString, date: Date(timeIntervalSince1970: time), totalAmount: amount, feeAmount: feeAmount, block: block, from: [fromString], to: [toString], isOutbound: isOutbound, isError: isError, type: type)
     }
     
     private static func ether(from weiString: String) -> Double? {
@@ -91,7 +113,8 @@ struct EtherscanAPI {
     }
     
     // MARK: - Public Methods
-    static func transactionHistory(type: TransactionHistoryType, fromJSON data: Data) -> TransactionHistoryResult {
+    // MARK: Result Processing
+    static func transactionHistory(fromJSON data: Data, for address: String, type: EthereumTransactionHistoryType) -> TransactionHistoryResult {
         do {
             let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
             
@@ -99,10 +122,10 @@ struct EtherscanAPI {
                 return .failure(EtherscanError.invalidJSONData)
             }
 
-            var transactionHistory = [BlockchainConnector.Transaction]()
+            var transactionHistory = [Transaction]()
             
             for transactionJSON in transactionsArray {
-                if let transaction = transaction(type: type, fromJSON: transactionJSON) {
+                if let transaction = transaction(fromJSON: transactionJSON, for: address, type: type) {
                     transactionHistory.append(transaction)
                 }
             }
@@ -145,11 +168,8 @@ struct EtherscanAPI {
         }
     }
     
-    // https://etherscan.io/apis
-    // <"blockNumber">, <"timeStamp">, <"hash">, <"nonce">, <"blockHash">, <"transactionIndex">, <"from">, <"to">, <"value">, <"gas">, <"gasPrice">, <"isError">, <"input">, <"contractAddress">, <"cumulativeGasUsed">, <"gasUsed">, <"confirmations">
-    
-    // <"blockNumber">, <"value">, <"isError">, <"ierrCode">, <"timeStamp">, <"contractAddress">, <"input">, <"hash">, <"type">, <"from">, <"to">, <"traceId">, <"to">, <"gasUsed">, <"gas">,
-    static func transactionHistoryURL(for address: String, type: TransactionHistoryType, timeframe: TransactionHistoryTimeframe) -> URL {
+    // MARK: URL Builder
+    static func transactionHistoryURL(for address: String, type: EthereumTransactionHistoryType, timeframe: TransactionHistoryTimeframe) -> URL {
         let method: Method
         
         switch type {
