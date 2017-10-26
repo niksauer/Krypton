@@ -27,6 +27,11 @@ enum BalanceResult {
     case failure(Error)
 }
 
+enum BlockCountResult {
+    case success(UInt64)
+    case failure(Error)
+}
+
 protocol TransactionPrototype {
     var identifier: String { get }
     var date: Date { get }
@@ -145,10 +150,7 @@ struct BlockchainConnector {
         case is Ethereum:
             url = EtherscanAPI.balanceURL(for: address.identifier!)
         default:
-            OperationQueue.main.addOperation {
-                completion(.failure(BlockchainConnectorError.invalidBlockchain))
-            }
-            
+            completion(.failure(BlockchainConnectorError.invalidBlockchain))
             return
         }
         
@@ -208,6 +210,40 @@ struct BlockchainConnector {
                     }
                 default:
                     return
+                }
+            } else {
+                result = .failure(error!)
+            }
+            
+            OperationQueue.main.addOperation {
+                completion(result)
+            }
+        }
+        
+        task.resume()
+    }
+    
+    static func fetchBlockCount(for blockchain: Blockchain, completion: @escaping (BlockCountResult) -> Void) {
+        let url: URL
+        
+        switch blockchain {
+        case .XBT:
+            url = BlockExplorerAPI.blockCountURL()
+        case .ETH:
+            url = EtherscanAPI.blockCountURL()
+        }
+        
+        let request = URLRequest(url: url)
+        
+        let task = session.dataTask(with: request) { (data, response, error) -> Void in
+            let result: BlockCountResult
+            
+            if let jsonData = data {
+                switch blockchain {
+                case .XBT:
+                    result = BlockExplorerAPI.blockCount(fromJSON: jsonData)
+                case .ETH:
+                    result = EtherscanAPI.blockCount(fromJSON: jsonData)
                 }
             } else {
                 result = .failure(error!)

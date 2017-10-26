@@ -19,9 +19,6 @@ final class TickerWatchlist {
     static var delegate: TickerWatchlistDelegate?
     
     // MARK: - Private Properties
-    /// dictionary mapping trading pairs to their most current price
-    private static var currentPriceForTradingPair = [TradingPair : Double]()
-    
     /// timer used to continioulsy fetch price updates
     private static var updateTimer: Timer?
     
@@ -31,7 +28,10 @@ final class TickerWatchlist {
     /// trading pairs for which continious price updates are retrieved
     private static var tradingPairs = Set<TradingPair>()
     
-    private static var requestsForTradingPair = [TradingPair : Int]()
+    /// dictionary mapping trading pairs to their most current price
+    private static var currentPriceForTradingPair = [TradingPair: Double]()
+    
+    private static var requestsForTradingPair = [TradingPair: Int]()
     
     // MARK: - Public Class Methods
     /// adds trading pair and fetches current price if it has not already been added to watchlist, starts update timer
@@ -72,7 +72,7 @@ final class TickerWatchlist {
     class func reset() {
         stopUpdateTimer()
         tradingPairs = Set<TradingPair>()
-        requestsForTradingPair = [TradingPair : Int]()
+        requestsForTradingPair = [TradingPair: Int]()
         log.debug("Reset TickerWatchlist.")
     }
     

@@ -16,12 +16,14 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
     private var exchangeValueIndexPath: IndexPath!
     private var profitIndexPath: IndexPath!
     private var feeIndexPath: IndexPath!
+    private var blockIndexPath: IndexPath!
     
     // MARK: - Public Properties
     var transaction: Transaction!
     var showsExchangeValue = true
     var showsRelativeProfit = true
     var showsCryptoFees = true
+    var showsBlockNumber = true
     
     // MARK: - Initialization
     override func viewDidLoad() {
@@ -229,6 +231,7 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
             
             switch row {
             case _ where row == 0:
+                feeIndexPath = indexPath
                 cell.textLabel?.text = "Fee"
                 
                 if transaction.isOutbound && transaction.senders.count > 1 {
@@ -246,11 +249,21 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
                 } else {
                     cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: feeExchangeValue, currency: transaction.owner!.baseCurrency)
                 }
-                
-                feeIndexPath = indexPath
             case _ where row == 1:
-                cell.textLabel?.text = "Block"
-                cell.detailTextLabel?.text = String(transaction.block)
+                blockIndexPath = indexPath
+                
+                guard let blockCount = BlockchainWatchlist.getBlockCount(for: transaction.owner!.blockchain) else {
+                    cell.detailTextLabel?.text = "???"
+                    break
+                }
+                
+                if showsBlockNumber {
+                    cell.textLabel?.text = "Block"
+                    cell.detailTextLabel?.text = String(transaction.block)
+                } else {
+                    cell.textLabel?.text = "Confirmations"
+                    cell.detailTextLabel?.text = String(blockCount-UInt64(transaction.block))
+                }
             case _ where row == 2:
                 cell.textLabel?.text = "Hash"
                 cell.detailTextLabel?.text = transaction.identifier
@@ -290,6 +303,8 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
             showsRelativeProfit = !showsRelativeProfit
         case _ where indexPath == feeIndexPath:
             showsCryptoFees = !showsCryptoFees
+        case _ where indexPath == blockIndexPath:
+            showsBlockNumber = !showsBlockNumber
         default:
             break
         }
