@@ -21,6 +21,7 @@
 		240C63B11F47A88300728B8B /* Portfolio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240C63B01F47A88300728B8B /* Portfolio.swift */; };
 		240C63B31F47A88E00728B8B /* Address.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240C63B21F47A88E00728B8B /* Address.swift */; };
 		24150D431F88E3E1003B7091 /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24150D421F88E3E1003B7091 /* Token.swift */; };
+		242016C11FA1F90E00A7FA17 /* BlockchainWatchlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242016C01FA1F90E00A7FA17 /* BlockchainWatchlist.swift */; };
 		242729A41F7075CC00E5231D /* AddresDetailController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242729A31F7075CC00E5231D /* AddresDetailController.swift */; };
 		242E1D531F9395F700BB95E3 /* SegmentedControlCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242E1D521F9395F700BB95E3 /* SegmentedControlCell.swift */; };
 		242E1D551F939C4500BB95E3 /* DeleteCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242E1D541F939C4500BB95E3 /* DeleteCell.swift */; };
@@ -177,6 +178,7 @@
 		240C63B01F47A88300728B8B /* Portfolio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Portfolio.swift; sourceTree = "<group>"; };
 		240C63B21F47A88E00728B8B /* Address.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Address.swift; sourceTree = "<group>"; };
 		24150D421F88E3E1003B7091 /* Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Token.swift; sourceTree = "<group>"; };
+		242016C01FA1F90E00A7FA17 /* BlockchainWatchlist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainWatchlist.swift; sourceTree = "<group>"; };
 		242729A31F7075CC00E5231D /* AddresDetailController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddresDetailController.swift; sourceTree = "<group>"; };
 		242E1D521F9395F700BB95E3 /* SegmentedControlCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedControlCell.swift; sourceTree = "<group>"; };
 		242E1D541F939C4500BB95E3 /* DeleteCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteCell.swift; sourceTree = "<group>"; };
@@ -413,6 +415,7 @@
 				2458132E1F5F503B007795BC /* PortfolioManager.swift */,
 				24BB0DFD1F4E41B40042562C /* Currency.swift */,
 				24A007C31F538AD800EC0DCF /* TickerWatchlist.swift */,
+				242016C01FA1F90E00A7FA17 /* BlockchainWatchlist.swift */,
 				24A226BD1F50ED9300907999 /* Helpers.swift */,
 				240C63B61F47A8A800728B8B /* EntitiesMO */,
 			);
@@ -624,6 +627,7 @@
 				2400D0981F42508100833958 /* Transaction.swift in Sources */,
 				240C63B11F47A88300728B8B /* Portfolio.swift in Sources */,
 				24A514D41F7DA5300003BD65 /* TransactionCell.swift in Sources */,
+				242016C11FA1F90E00A7FA17 /* BlockchainWatchlist.swift in Sources */,
 				247665521F94CFB8000857B2 /* TransactionHeaderCell.swift in Sources */,
 				242E1D551F939C4500BB95E3 /* DeleteCell.swift in Sources */,
 				2400D09A1F42511800833958 /* BlockchainConnector.swift in Sources */,

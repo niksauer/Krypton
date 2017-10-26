@@ -23,6 +23,7 @@ struct EtherscanAPI {
         case txlistinternal
         case balance
         case tokenbalance
+        case eth_blockNumber
     }
     
     // MARK: - Public Properties
@@ -50,6 +51,8 @@ struct EtherscanAPI {
         switch method {
         case .balance, .txlist, .txlistinternal, .tokenbalance:
             module = "account"
+        case .eth_blockNumber:
+            module = "proxy"
         }
         
         let baseParams = [
@@ -168,6 +171,20 @@ struct EtherscanAPI {
         }
     }
     
+    static func blockCount(fromJSON data: Data) -> BlockCountResult {
+        do {
+            let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
+        
+            guard let jsonDictionary = jsonObject as? [AnyHashable: Any], let blockCountString = jsonDictionary["result"] as? String, let blockCount = UInt64(blockCountString.replacingOccurrences(of: "0x", with: ""), radix: 16) else {
+                return .failure(BlockExplorerError.invalidJSONData)
+            }
+            
+            return .success(blockCount)
+        } catch {
+            return .failure(error)
+        }
+    }
+    
     // MARK: URL Builder
     static func transactionHistoryURL(for address: String, type: EthereumTransactionHistoryType, timeframe: TransactionHistoryTimeframe) -> URL {
         let method: Method
@@ -209,6 +226,10 @@ struct EtherscanAPI {
             "address": address,
             "tag": "latest",
         ])
+    }
+
+    static func blockCountURL() -> URL {
+        return etherscanURL(method: .eth_blockNumber, parameters: [:])
     }
 
 }

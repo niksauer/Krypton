@@ -29,7 +29,7 @@ class WatchlistController: UITableViewController, TickerWatchlistDelegate, Curre
             destVC.selection = PortfolioManager.shared.baseCurrency
             destVC.type = .crypto
             destVC.title = "Crypto Currency"
-            destVC.exceptions = PortfolioManager.shared.storedCryptoCurrencies
+//            destVC.exceptions = PortfolioManager.shared.storedCryptoCurrencies
         }
     }
     

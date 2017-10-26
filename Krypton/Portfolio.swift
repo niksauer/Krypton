@@ -14,7 +14,7 @@ protocol PortfolioDelegate {
     func didUpdateIsDefault(for portfolio: Portfolio)
     func didUpdateBaseCurrency(for portfolio: Portfolio)
     func didAddAddress(to portfolio: Portfolio, address: Address)
-    func didRemoveAddress(from portfolio: Portfolio, tradingPair: TradingPair)
+    func didRemoveAddress(from portfolio: Portfolio, tradingPair: TradingPair, blockchain: Blockchain)
     func didUpdateProperty(for address: Address, in portfolio: Portfolio)
 }
 
@@ -155,10 +155,11 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
             let addressIdentifier = address.identifier!
             let context = AppDelegate.viewContext
             let tradingPair = address.tradingPair
+            let blockchain = address.blockchain
             context.delete(address)
             try context.save()
             log.info("Removed address '\(addressIdentifier)' from portfolio '\(self.alias!)'.")
-            delegate?.didRemoveAddress(from: self, tradingPair: tradingPair)
+            delegate?.didRemoveAddress(from: self, tradingPair: tradingPair, blockchain: blockchain)
         } catch {
             log.error("Failed to remove address '\(address.identifier!)' from from portfolio '\(self.alias!)': \(error)")
             throw error

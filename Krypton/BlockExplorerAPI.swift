@@ -20,6 +20,7 @@ struct BlockExplorerAPI {
     private enum Method: String {
         case txlist
         case balance
+        case blockCount
     }
     
     // MARK: - Public Properties
@@ -47,6 +48,9 @@ struct BlockExplorerAPI {
         case .txlist:
             components.path = "/api/txs/"
             components.queryItems = [URLQueryItem(name: "address", value: address)]
+        case .blockCount:
+            components.path = "/api/status"
+            components.queryItems = [URLQueryItem(name: "q", value: "getBlockCount")]
         }
         
         return components.url!
@@ -135,6 +139,20 @@ struct BlockExplorerAPI {
         return .success(balance)
     }
     
+    static func blockCount(fromJSON data: Data) -> BlockCountResult {
+        do {
+            let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
+            
+            guard let jsonDictionary = jsonObject as? [AnyHashable: Any], let blockCount = jsonDictionary["blockcount"] as? UInt64 else {
+                return .failure(BlockExplorerError.invalidJSONData)
+            }
+            
+            return .success(blockCount)
+        } catch {
+            return .failure(error)
+        }
+    }
+    
     // MARK: URL Builder
     static func transactionHistoryURL(for address: String) -> URL {
         return blockexplorerURL(method: .txlist, address: address)
@@ -142,6 +160,10 @@ struct BlockExplorerAPI {
     
     static func balanceURL(for address: String) -> URL {
         return blockexplorerURL(method: .balance, address: address)
+    }
+    
+    static func blockCountURL() -> URL {
+        return blockexplorerURL(method: .blockCount, address: "")
     }
     
 }

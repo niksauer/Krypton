@@ -64,7 +64,7 @@ final class PortfolioManager: PortfolioDelegate {
                 }
             }
 
-            prepareTickerWatchlist()
+            prepareWatchlists()
             updatePortfolios()
         } catch {
             log.error("Failed to initialize PortfolioManager singleton: \(error)")
@@ -111,24 +111,28 @@ final class PortfolioManager: PortfolioDelegate {
         return Set(storedAddresses.map { $0.tradingPair })
     }
     
-    var storedCryptoCurrencies: [Currency] {
-        var storedBlockchains = Set<Blockchain>()
-        var storedTokens = Set<Token>()
-        
-        for address in storedAddresses {
-            switch address {
-            case let tokenAddress as TokenAddress:
-                for token in tokenAddress.storedTokens {
-                    storedTokens.insert(token)
-                }
-                fallthrough
-            default:
-                storedBlockchains.insert(address.blockchain)
-            }
-        }
-        
-        return Array(storedBlockchains) as [Currency] + Array(storedTokens) as [Currency]
+    var storedBlockchains: Set<Blockchain> {
+        return Set(storedAddresses.map { $0.blockchain })
     }
+    
+//    var storedCryptoCurrencies: [Currency] {
+//        var storedBlockchains = Set<Blockchain>()
+//        var storedTokens = Set<Token>()
+//        
+//        for address in storedAddresses {
+//            switch address {
+//            case let tokenAddress as TokenAddress:
+//                for token in tokenAddress.storedTokens {
+//                    storedTokens.insert(token)
+//                }
+//                fallthrough
+//            default:
+//                storedBlockchains.insert(address.blockchain)
+//            }
+//        }
+//        
+//        return Array(storedBlockchains) as [Currency] + Array(storedTokens) as [Currency]
+//    }
     
     // MARK: - Private Methods
     /// loads and returns all addresses stored in Core Data
@@ -143,11 +147,16 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
-    private func prepareTickerWatchlist() {
+    private func prepareWatchlists() {
         TickerWatchlist.reset()
+        BlockchainWatchlist.reset()
         
         for tradingPair in storedTradingPairs {
             TickerWatchlist.addTradingPair(tradingPair)
+        }
+        
+        for blockchain in storedBlockchains {
+            BlockchainWatchlist.addBlockchain(blockchain)
         }
     }
 
@@ -175,7 +184,13 @@ final class PortfolioManager: PortfolioDelegate {
             UserDefaults.standard.synchronize()
             baseCurrency = currency
             log.debug("Updated base currency (\(currency.code)) of PortfolioManager.")
-            prepareTickerWatchlist()
+            
+            TickerWatchlist.reset()
+            
+            for tradingPair in storedTradingPairs {
+                TickerWatchlist.addTradingPair(tradingPair)
+            }
+            
             delegate?.didUpdatePortfolioManager()
         } catch {
             log.error("Failed to update base currency of PortfolioManager: \(error)")
@@ -209,7 +224,7 @@ final class PortfolioManager: PortfolioDelegate {
             context.delete(portfolio)
             try context.save()
             log.info("Deleted portfolio '\(alias)'.")
-            prepareTickerWatchlist()
+            prepareWatchlists()
             delegate?.didUpdatePortfolioManager()
         } catch {
             log.error("Failed to delete portfolio: \(error)")
@@ -335,11 +350,13 @@ final class PortfolioManager: PortfolioDelegate {
     
     func didAddAddress(to portfolio: Portfolio, address: Address) {
         TickerWatchlist.addTradingPair(address.tradingPair)
+        BlockchainWatchlist.addBlockchain(address.blockchain)
         delegate?.didUpdatePortfolioManager()
     }
     
-    func didRemoveAddress(from portfolio: Portfolio, tradingPair: TradingPair) {
+    func didRemoveAddress(from portfolio: Portfolio, tradingPair: TradingPair, blockchain: Blockchain) {
         TickerWatchlist.removeTradingPair(tradingPair)
+        BlockchainWatchlist.removeBlockchain(blockchain)
         delegate?.didUpdatePortfolioManager()
     }
     
