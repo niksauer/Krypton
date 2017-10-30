@@ -38,11 +38,11 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
             switch address {
             case let tokenAddress as TokenAddress:
                 tokenAddress.tokenDelegate = self
-                log.debug("Set portfolio '\(alias!)' as token delegate of address '\(address.identifier!)'.")
+                log.debug("Set portfolio '\(self.logDescription)' as token delegate of address '\(address.identifier!)'.")
                 fallthrough
             default:
                 address.delegate = self
-                log.debug("Set portfolio '\(alias!)' as delegate of address '\(address.identifier!)'.")
+                log.debug("Set portfolio '\(self.logDescription)' as delegate of address '\(address.identifier!)'.")
             }
         }
     }
@@ -69,6 +69,10 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
         return storedAddresses.filter { $0.isSelected }
     }
     
+    var logDescription: String {
+        return "\(self.alias!), baseCurrency: \(self.baseCurrency.code)"
+    }
+    
     // MARK: - Public Methods
     func setAlias(_ alias: String) throws {
         guard self.alias != alias else {
@@ -76,13 +80,12 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
         }
         
         do {
-            let oldAlias = self.alias!
             self.alias = alias
             try AppDelegate.viewContext.save()
-            log.debug("Updated alias (\(alias)) for portfolio '\(oldAlias)'.")
+            log.debug("Updated alias (\(alias)) for portfolio '\(self.logDescription)'.")
             delegate?.didUpdateAlias(for: self)
         } catch {
-            log.error("Failed to update alias for portfolio '\(self.alias!)': \(error)")
+            log.error("Failed to update alias for portfolio '\(self.logDescription)': \(error)")
             throw error
         }
     }
@@ -95,10 +98,10 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
         do {
             self.isDefault = state
             try AppDelegate.viewContext.save()
-            log.debug("Updated isDefault status (\(state)) for portfolio '\(alias!)'.")
+            log.debug("Updated isDefault status (\(state)) for portfolio '\(self.logDescription)'.")
             delegate?.didUpdateIsDefault(for: self)
         } catch {
-            log.error("Failed to update isDefault status for portfolio '\(alias!)'.")
+            log.error("Failed to update isDefault status for portfolio '\(self.logDescription)'.")
             throw error
         }
     }
@@ -117,10 +120,10 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
             }
             
             self.update()
-            log.debug("Updated base currency (\(currency.code)) for portfolio '\(alias!)'.")
+            log.debug("Updated base currency (\(currency.code)) for portfolio '\(self.logDescription)'.")
             delegate?.didUpdateBaseCurrency(for: self)
         } catch {
-            log.error("Failed to update base currency for portfolio '\(alias!).")
+            log.error("Failed to update base currency for portfolio '\(self.logDescription).")
             throw error
         }
     }
@@ -141,7 +144,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
             self.addToAddresses(address)
             try context.save()
             address.delegate = self
-            log.info("Created and added address '\(address.logDescription)' to portfolio '\(self.alias!)'.")
+            log.info("Created and added address '\(address.logDescription)' to portfolio '\(self.logDescription)'.")
             delegate?.didAddAddress(to: self, address: address)
             address.update(completion: nil)
         } catch {
@@ -158,10 +161,10 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
             let blockchain = address.blockchain
             context.delete(address)
             try context.save()
-            log.info("Removed address '\(addressIdentifier)' from portfolio '\(self.alias!)'.")
+            log.info("Removed address '\(addressIdentifier)' from portfolio '\(self.logDescription)'.")
             delegate?.didRemoveAddress(from: self, tradingPair: tradingPair, blockchain: blockchain)
         } catch {
-            log.error("Failed to remove address '\(address.identifier!)' from from portfolio '\(self.alias!)': \(error)")
+            log.error("Failed to remove address '\(address.identifier!)' from from portfolio '\(self.logDescription)': \(error)")
             throw error
         }
     }
