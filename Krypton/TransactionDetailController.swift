@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TransactionDetailController: UITableViewController, TickerWatchlistDelegate, UITextFieldDelegate {
+class TransactionDetailController: UITableViewController, UITextFieldDelegate, TickerWatchlistDelegate, BlockchainWatchlistDelegate {
 
     // MARK: - Private Properties
     private var sendersIndexPath: IndexPath!
@@ -28,8 +28,10 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         TickerWatchlist.delegate = self
-    
+        BlockchainWatchlist.delegate = self
+        
 //        exchangeValueField.delegate = self
 //        self.navigationItem.rightBarButtonItem = self.editButtonItem
 
@@ -102,6 +104,11 @@ class TransactionDetailController: UITableViewController, TickerWatchlistDelegat
     
     // MARK: - TickerWatchlist Delegate
     func didUpdateCurrentPrice(for tradingPair: TradingPair) {
+        updateUI()
+    }
+    
+    // MARK: - BlockchainWatchlist Delegate
+    func didUpdateBlockCount(for blockchain: Blockchain) {
         updateUI()
     }
     

@@ -232,6 +232,17 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
+    func moveAddress(_ address: Address, to portfolio: Portfolio) throws {
+        do {
+            try address.setBaseCurrency(portfolio.baseCurrency)
+            address.portfolio = portfolio
+            try AppDelegate.viewContext.save()
+            log.info("Moved address '\(address.logDescription)' to portfolio '\(portfolio.logDescription)'.")
+        } catch {
+            log.error("Failed to move address '\(address.logDescription)': \(error)")
+        }
+    }
+    
     func updatePortfolios() {
         for portfolio in storedPortfolios {
             portfolio.update()

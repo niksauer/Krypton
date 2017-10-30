@@ -41,27 +41,36 @@ final class TickerWatchlist {
             updatePrice(for: tradingPair)
             log.debug("Added tradingPair '\(tradingPair.rawValue)' to TickerWatchlist.")
         }
+    
+        if let requestCount = requestsForTradingPair[tradingPair] {
+            requestsForTradingPair[tradingPair] = requestCount + 1
+            log.debug("Updated requests (\(requestCount + 1)) for tradingPair '\(tradingPair.rawValue)'.")
+        } else {
+            requestsForTradingPair[tradingPair] = 1
+        }
         
         if tradingPairs.count == 1 {
             startUpdateTimer()
         }
-        
-        if let requestCount = requestsForTradingPair[tradingPair] {
-            log.debug("Updated requests (\(requestCount)) for tradingPair '\(tradingPair.rawValue)'.")
-            requestsForTradingPair[tradingPair] = requestCount + 1
-        } else {
-            requestsForTradingPair[tradingPair] = 1
-        }
     }
     
     class func removeTradingPair(_ tradingPair: TradingPair) {
-        guard let requestCount = requestsForTradingPair[tradingPair], requestCount > 0 else {
+        guard let requestCount = requestsForTradingPair[tradingPair] else {
             return
         }
         
-        tradingPairs.remove(tradingPair)
-        requestsForTradingPair[tradingPair] = requestCount - 1
-        log.debug("Removed tradingPair '\(tradingPair.rawValue)' from TickerWatchlist.")
+        if requestCount == 1 {
+            tradingPairs.remove(tradingPair)
+            requestsForTradingPair.removeValue(forKey: tradingPair)
+            log.debug("Removed tradingPair '\(tradingPair.rawValue)' from TickerWatchlist.")
+        } else {
+            requestsForTradingPair[tradingPair] = requestCount - 1
+            log.debug("Updated requests (\(requestCount - 1)) for tradingPair '\(tradingPair.rawValue)'.")
+        }
+        
+        if tradingPairs.count == 0 {
+            stopUpdateTimer()
+        }
     }
     
     /// returns current price for specified trading pair
@@ -93,7 +102,7 @@ final class TickerWatchlist {
         let notificationCenter = NotificationCenter.default
         notificationCenter.setObserver(self, selector: #selector(stopUpdateTimer), name: Notification.Name.UIApplicationDidEnterBackground, object: nil)
         notificationCenter.setObserver(self, selector: #selector(startUpdateTimer), name: Notification.Name.UIApplicationDidBecomeActive, object: nil)
-        log.debug("Started updateTimer for TickerWatchlist with interval \(updateIntervall) seconds.")
+        log.debug("Started updateTimer for TickerWatchlist with \(updateIntervall) second intervall.")
     }
     
     @objc class func stopUpdateTimer() {
@@ -112,11 +121,11 @@ final class TickerWatchlist {
     private class func updatePrice(for tradingPair: TradingPair) {
         TickerConnector.fetchCurrentPrice(for: tradingPair, completion: { result in
             switch result {
-            case let .success(currentPrice):
+            case .success(let currentPrice):
                 self.currentPriceForTradingPair[tradingPair] = currentPrice.value
                 log.verbose("Updated current price for tradingPair '\(tradingPair.rawValue)': \(currentPrice.value)")
                 delegate?.didUpdateCurrentPrice(for: tradingPair)
-            case let .failure(error):
+            case .failure(let error):
                 log.error("Failed to fetch current price for tradingPair '\(tradingPair.rawValue)': \(error)")
             }
         })
