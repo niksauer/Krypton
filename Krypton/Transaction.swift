@@ -14,7 +14,7 @@ enum TransactionError: Error {
     case invalidPrototype
 }
 
-enum TransactionType: Int {
+@objc enum TransactionType: Int {
     case all
     case investment
     case other
@@ -141,6 +141,10 @@ class Transaction: NSManagedObject {
         return "\(self.identifier!), owner: \(self.owner!.logDescription)"
     }
     
+    var hasUserExchangeValue: Bool {
+        return userExchangeValue != -1
+    }
+    
     // MARK: - Public Methods
     /// replaces exchange value as encountered on execution date by user specified value, notifies owner's delegate if change occurred
     func setUserExchangeValue(value newValue: Double) throws {
@@ -151,7 +155,7 @@ class Transaction: NSManagedObject {
         do {
             userExchangeValue = newValue
             try AppDelegate.viewContext.save()
-            log.debug("Updated user exchange value (\(newValue) for transaction '\(self.logDescription)'.")
+            log.debug("Updated user exchange value (\(newValue)) for transaction '\(self.logDescription)'.")
             self.owner!.delegate?.didUpdateUserExchangeValue(for: self)
         } catch {
             log.error("Failed to update user exchange value for transaction '\(self.logDescription)': \(error)")
@@ -172,6 +176,33 @@ class Transaction: NSManagedObject {
             self.owner!.delegate?.didUpdateIsInvestmentStatus(for: self)
         } catch {
             log.error("Failed to update isInvestment status for transaction '\(self.logDescription)': \(error)")
+            throw error
+        }
+    }
+    
+    func setIsUnread(state newValue: Bool) throws {
+        guard newValue != isUnread else {
+            return
+        }
+        
+        do {
+            isUnread = newValue
+            try AppDelegate.viewContext.save()
+            log.debug("Updated isUnread status (\(newValue)) for transaction '\(self.logDescription)'.")
+        } catch {
+            log.error("Failed to update isUnread status for transaction '\(self.logDescription)': \(error)")
+            throw error
+        }
+    }
+    
+    func resetUserExchangeValue() throws {
+        do {
+            userExchangeValue = -1
+            try AppDelegate.viewContext.save()
+            log.debug("Reset user exchange value for transaction '\(self.logDescription)'.")
+            self.owner!.delegate?.didUpdateUserExchangeValue(for: self)
+        } catch {
+            log.error("Failed to reset user exchange value for transaction '\(self.logDescription)': \(error)")
             throw error
         }
     }
@@ -199,7 +230,7 @@ class Transaction: NSManagedObject {
         case .fee:
             return unitExchangeValue! * feeAmount
         case .total:
-            if userExchangeValue != -1 {
+            if hasUserExchangeValue {
                 return userExchangeValue
             } else {
                 return unitExchangeValue! * totalAmount

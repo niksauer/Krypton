@@ -16,6 +16,14 @@ class AddresDetailController: UITableViewController {
     // MARK: - Private Properties
     private var deleteIndexPath: IndexPath!
     
+    override func viewDidLoad() {
+        let flexibleSpacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let folderButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_folder"), style: .plain, target: self, action: nil)
+        let deleteButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_trash"), style: .plain, target: self, action: nil)
+        self.toolbarItems = [deleteButton, flexibleSpacer, folderButton]
+        navigationController?.setToolbarHidden(false, animated: false)
+    }
+    
     // MARK: - Navigation
     func setAlias(_ alias: String?) {
         guard let alias = alias?.trimmingCharacters(in: .whitespacesAndNewlines) else {

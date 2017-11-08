@@ -9,38 +9,93 @@
 import UIKit
 import CoreData
 
-class TransactionTableController: FetchedResultsTableViewController, FilterDelegate {
+class TransactionTableController: FetchedResultsTableViewController, UITextFieldDelegate, FilterDelegate {
     
     // MARK: - Private Properties
     private var database = AppDelegate.persistentContainer
     private var fetchedResultsController: NSFetchedResultsController<Transaction>?
     private var selectedTransaction: Transaction?
+    private var valueSaveAction: UIAlertAction!
     
-    private var addresses = [Address]() {
+    private var isUpdating = false {
+        didSet {
+            updateToolbar()
+        }
+    }
+    
+    private var selectedTransactions: [Transaction]? {
+        guard let selectedIndexPaths = self.tableView.indexPathsForSelectedRows else {
+            return nil
+        }
+        
+        var selectedTransactions = [Transaction]()
+        
+        for indexPath in selectedIndexPaths {
+            let transaction = self.fetchedResultsController!.object(at: indexPath)
+            selectedTransactions.append(transaction)
+        }
+        
+        return selectedTransactions
+    }
+    
+    private var hasAppliedFilter: Bool {
+        return transactionType != .all || isUnread || isError || hasUserExchangeValue
+    }
+    
+    private var appliedFiltersDescription: String {
+        return "Unread"
+    }
+    
+    // MARK: - Public Properties
+    var addresses: [Address]! {
         didSet {
             updateUI()
         }
     }
     
-    private var transactionFilter: TransactionType = .all {
+    var transactionType: TransactionType = .all {
         didSet {
             updateUI()
         }
     }
-
+    
+    var isError = false {
+        didSet {
+            updateUI()
+        }
+    }
+    
+    var isUnread = false {
+        didSet {
+            updateUI()
+        }
+    }
+    
+    var hasUserExchangeValue = false {
+        didSet {
+            updateUI()
+        }
+    }
+    
+    var showsExchangeValue = false {
+        didSet {
+            updateUI()
+        }
+    }
+    
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(updateAddresses), for: UIControlEvents.valueChanged)
+        self.navigationItem.rightBarButtonItem = self.editButtonItem
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        addresses = PortfolioManager.shared.selectedAddresses
         updateUI()
     }
-    
+
     // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         super.prepare(for: segue, sender: sender)
@@ -51,24 +106,62 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
         
         if let destNavVC = segue.destination as? UINavigationController, let destVC = destNavVC.topViewController as? FilterController {
             destVC.delegate = self
-            destVC.selectedTransactionType = transactionFilter
+            destVC.transactionType = transactionType
+            destVC.isUnread = isUnread
+            destVC.isError = isError
+            destVC.hasUserExchangeValue = hasUserExchangeValue
         }
+    }
+    
+    override func setEditing(_ editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: animated)
+        updateToolbar()
     }
     
     // MARK: - Private Methods
     private func updateUI() {
+        updateData()
+        updateToolbar()
+    }
+    
+    private func updateData() {
         let context = database.viewContext
         let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
         
-        switch transactionFilter {
+        // mandadory predicates
+        let ownerPredicate = NSPredicate(format: "owner IN %@", addresses)
+        
+        // optional predicates
+        var transactionTypePredicate: NSPredicate?
+        var isUnreadPredicate: NSPredicate?
+        var isErrorPredicate: NSPredicate?
+        var hasUserExchangeValuePredicate: NSPredicate?
+        
+        switch transactionType {
         case .investment:
-            request.predicate = NSPredicate(format: "owner IN %@ AND isInvestment = YES", addresses)
+            transactionTypePredicate = NSPredicate(format: "isInvestment = YES", addresses)
         case .other:
-            request.predicate = NSPredicate(format: "owner IN %@ AND isInvestment = NO", addresses)
-        case .all:
-            request.predicate = NSPredicate(format: "owner IN %@", addresses)
+            transactionTypePredicate = NSPredicate(format: "isInvestment = NO", addresses)
+        default:
+            break
         }
+        
+        if isError {
+            isErrorPredicate = NSPredicate(format: "isError = YES")
+        }
+        
+        if isUnread {
+            isUnreadPredicate = NSPredicate(format: "isUnread = YES")
+        }
+        
+        if hasUserExchangeValue {
+            hasUserExchangeValuePredicate = NSPredicate(format: "userExchangeValue != -1")
+        }
+        
+        // final predicates
+        let applicablePredicates = [ownerPredicate, transactionTypePredicate, isUnreadPredicate, isErrorPredicate, hasUserExchangeValuePredicate].flatMap { $0 }
+        request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: applicablePredicates)
         
         fetchedResultsController = NSFetchedResultsController<Transaction>(
             fetchRequest: request,
@@ -82,11 +175,129 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
         tableView.reloadData()
     }
     
+    private func updateToolbar() {
+        let flexibleSpacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        
+        if isEditing {
+            let tagButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_tags"), style: .plain, target: self, action: #selector(showTagActionSheet))
+            
+            if let selectedTransactions = tableView.indexPathsForSelectedRows, selectedTransactions.count > 0 {
+                tagButton.isEnabled = true
+            } else {
+                tagButton.isEnabled = false
+            }
+            
+            self.toolbarItems = [flexibleSpacer, tagButton]
+        } else {
+            let filterButton: UIBarButtonItem
+            
+            if hasAppliedFilter {
+                filterButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_mail-filter-filled"), style: .plain, target: self, action: #selector(toggleIsUnread))
+            } else {
+                filterButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_mail-filter"), style: .plain, target: self, action: #selector(toggleIsUnread))
+            }
+            
+            let messageItem = getToolbarItem()
+            
+            let valueButton: UIBarButtonItem
+            
+            if showsExchangeValue {
+                switch PortfolioManager.shared.baseCurrency.code {
+                case Fiat.EUR.code:
+                    valueButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_euro-filled"), style: .plain, target: self, action: #selector(toggleShowsExchangeValue))
+                default:
+                    valueButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_us-dollar-filled"), style: .plain, target: self, action: #selector(toggleShowsExchangeValue))
+                }
+            } else {
+                switch PortfolioManager.shared.baseCurrency.code {
+                case Fiat.EUR.code:
+                    valueButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_euro"), style: .plain, target: self, action: #selector(toggleShowsExchangeValue))
+                default:
+                    valueButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_us-dollar"), style: .plain, target: self, action: #selector(toggleShowsExchangeValue))
+                }
+            }
+            
+            self.toolbarItems = [filterButton, flexibleSpacer, messageItem, flexibleSpacer, valueButton].flatMap { $0 }
+        }
+        
+        navigationController?.setToolbarHidden(false, animated: true)
+    }
+    
+    private func getToolbarItem() -> UIBarButtonItem? {
+        if hasAppliedFilter {
+            let filterButton = UIButton()
+            filterButton.titleLabel?.numberOfLines = 0
+            filterButton.titleLabel?.font = filterButton.titleLabel?.font.withSize(12)
+            filterButton.titleLabel?.textAlignment = .center
+            filterButton.titleLabel?.backgroundColor = UIColor.clear
+            
+            let title = NSMutableAttributedString(string: "Filtered by:\n")
+            title.append(NSMutableAttributedString(string: appliedFiltersDescription, attributes: [
+                NSAttributedStringKey.foregroundColor : self.view.tintColor
+            ]))
+            
+            filterButton.setAttributedTitle(title, for: .normal)
+            filterButton.sizeToFit()
+            
+            filterButton.addTarget(self, action: #selector(showFilterPanel), for: .touchUpInside)
+        
+            return UIBarButtonItem(customView: filterButton)
+        } else {
+            let messageLabel = UILabel()
+            messageLabel.numberOfLines = 0
+            messageLabel.font = messageLabel.font.withSize(12)
+            messageLabel.textAlignment = .center
+            messageLabel.backgroundColor = UIColor.clear
+            
+            let title: NSMutableAttributedString
+            
+            if isUpdating {
+                title = NSMutableAttributedString(string: "Updating ...")
+            } else {
+                if let oldestUpdateDate = addresses.sorted(by: {
+                    guard let date0 = $0.lastUpdate, let date1 = $1.lastUpdate else {
+                        return false
+                    }
+                    
+                    return date0 < date1
+                }).first?.lastUpdate {
+                    title = NSMutableAttributedString(string: "\(Format.getUpdateStatus(for: oldestUpdateDate))\n")
+                } else {
+                    title = NSMutableAttributedString(string: "")
+                }
+                
+                if let unreadTransactions = fetchedResultsController?.fetchedObjects?.filter({ $0.isUnread }), unreadTransactions.count > 0 {
+                    title.append(NSAttributedString(string: "\(unreadTransactions.count) unread", attributes: [
+                        NSAttributedStringKey.foregroundColor : UIColor.gray
+                        ]))
+                } else {
+                    messageLabel.numberOfLines = 1
+                }
+            }
+            
+            messageLabel.attributedText = title
+            messageLabel.sizeToFit()
+            
+            return UIBarButtonItem(customView: messageLabel)
+        }
+    }
+    
+    @objc private func toggleShowsExchangeValue() {
+        showsExchangeValue = !showsExchangeValue
+    }
+    
+    @objc private func toggleIsUnread() {
+        isUnread = !isUnread
+    }
+
     @objc private func updateAddresses() {
+        isUpdating = true
+        
         for (index, address) in addresses.enumerated() {
             if index == self.addresses.count-1 {
                 address.update {
                     self.refreshControl?.endRefreshing()
+                    self.isUpdating = false
                 }
             } else {
                 address.update(completion: nil)
@@ -94,13 +305,191 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
         }
     }
     
-    // MARK: - Filter Delegate
-    func didChangeTransactionType(to type: TransactionType) {
-        self.transactionFilter = type
+    @objc private func showFilterPanel() {
+        performSegue(withIdentifier: "showFilterPanel", sender: self)
     }
     
-    func didChangeSelectedAddresses() {
-        self.addresses = PortfolioManager.shared.selectedAddresses
+    @objc private func showTagActionSheet() {
+        guard let selectedTransactions = selectedTransactions else {
+            return
+        }
+        
+        let alertController = UIAlertController(title: "\(selectedTransactions.count) transactions", message: nil, preferredStyle: .actionSheet)
+    
+        let investmentActionTitle: String
+        let isInvestmentStatus: Bool
+        
+        if selectedTransactions.contains(where: { $0.isInvestment }) {
+            investmentActionTitle = "Untag as investment"
+            isInvestmentStatus = false
+        } else {
+            investmentActionTitle = "Tag as investment"
+            isInvestmentStatus = true
+        }
+        
+        alertController.addAction(UIAlertAction(title: investmentActionTitle, style: .default, handler: { _ in
+            for transaction in selectedTransactions {
+                do {
+                    try transaction.setIsInvestment(state: isInvestmentStatus)
+                } catch {
+                    // present error
+                }
+            }
+            
+            self.isEditing = false
+        }))
+        
+        if selectedTransactions.contains(where: { $0.hasUserExchangeValue }) {
+            alertController.addAction(UIAlertAction(title: "Reset exchange value", style: .default, handler: { _ in
+                for transaction in selectedTransactions {
+                    do {
+                        try transaction.resetUserExchangeValue()
+                    } catch {
+                        // present error
+                    }
+                }
+            }))
+            
+            self.isEditing = false
+        } else {
+            alertController.addAction(UIAlertAction(title: "Set \(selectedTransactions.count > 1 ? "distributed" : "") exchange value", style: .default, handler: { _ in
+                self.showUserExchangeValueAlert()
+            }))
+        }
+        
+        let markActionTitle: String
+        let isUnreadStatus: Bool
+        
+        if selectedTransactions.contains(where: { $0.isUnread }) {
+            markActionTitle = "Mark as read"
+            isUnreadStatus = false
+        } else {
+            markActionTitle = "Mark as unread"
+            isUnreadStatus = true
+        }
+        
+        alertController.addAction(UIAlertAction(title: markActionTitle, style: .default, handler: { _ in
+            for transaction in selectedTransactions {
+                do {
+                    try transaction.setIsUnread(state: isUnreadStatus)
+                } catch {
+                    // present error
+                }
+            }
+            
+            self.isEditing = false
+        }))
+        
+        
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        present(alertController, animated: true, completion: nil)
+    }
+    
+    private func showUserExchangeValueAlert() {
+        let alertController = UIAlertController(title: "Exchange Value", message: nil, preferredStyle: .alert)
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        
+        let saveAction = UIAlertAction(title: "Save", style: .default, handler: { alertAction in
+            let valueField = alertController.textFields![0]
+            if let totalValueString = valueField.text?.trimmingCharacters(in: .whitespacesAndNewlines), let totalValue = Double(totalValueString) {
+                guard let selectedTransactions = self.selectedTransactions else {
+                    return
+                }
+                
+                let totalAmounts = selectedTransactions.flatMap({ $0.totalAmount }).reduce(0, +)
+
+                for transaction in selectedTransactions {
+                    do {
+                        let value = totalValue / totalAmounts * transaction.totalAmount
+                        try transaction.setUserExchangeValue(value: value)
+                    } catch {
+                        // present error
+                    }
+                }
+            }
+        })
+        
+        saveAction.isEnabled = false
+        valueSaveAction = saveAction
+        
+        alertController.addTextField(configurationHandler: { textField in
+            textField.delegate = self
+            textField.keyboardType = .decimalPad
+            textField.addTarget(self, action: #selector(self.textFieldDidChange(_:)), for: .editingChanged)
+        })
+        
+        alertController.addAction(cancelAction)
+        alertController.addAction(saveAction)
+        
+        present(alertController, animated: true, completion: nil)
+    }
+    
+    // MARK: - TextField Delegate
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let decimalSeperator = NumberFormatter().decimalSeparator!
+        
+        if string.count == 1 {
+            if textField.text?.range(of: decimalSeperator) != nil {
+                if string == decimalSeperator {
+                    return false
+                }
+                
+                if let subStrings = textField.text?.split(separator: Character(decimalSeperator)) {
+                    let decimalDigits: String
+                    
+                    if subStrings.count == 2 {
+                        decimalDigits = subStrings[1] + string
+                    } else {
+                        decimalDigits = string
+                    }
+                    
+                    if decimalDigits.count > PortfolioManager.shared.baseCurrency.decimalDigits {
+                        return false
+                    }
+                }
+                
+                return true
+            } else {
+                return true
+            }
+        } else {
+            let char = string.cString(using: String.Encoding.utf8)!
+            let isBackSpace = strcmp(char, "\\b")
+            
+            if (isBackSpace == -92) {
+                // backspace pressed
+                return true
+            } else {
+                // pasted text
+                return false
+            }
+        }
+    }
+    
+    @objc func textFieldDidChange(_ textField: UITextField) {
+        if let newValueString = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !newValueString.isEmpty {
+            valueSaveAction.isEnabled = true
+        } else {
+            valueSaveAction.isEnabled = false
+        }
+    }
+    
+    // MARK: - Filter Delegate
+    func didChangeTransactionType(type: TransactionType) {
+        self.transactionType = type
+    }
+    
+    func didChangeIsUnread(state: Bool) {
+        self.isUnread = state
+    }
+    
+    func didChangeIsError(state: Bool) {
+        self.isError = state
+    }
+    
+    func didChangeHasUserExchangeValue(state: Bool) {
+        self.hasUserExchangeValue = state
     }
     
     // MARK: - TableView Data Source
@@ -117,12 +506,18 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        let cell = tableView.dequeueReusableCell(withIdentifier: "transactionCell", for: indexPath) as! TransactionCell
-        let cell = tableView.dequeueReusableCell(withIdentifier: "txCell", for: indexPath)
         let transaction = fetchedResultsController!.object(at: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "txCell", for: indexPath)
+        
+//        let cell = tableView.dequeueReusableCell(withIdentifier: "transactionCell", for: indexPath) as! TransactionCell
 //        cell.configure(transaction: transaction)
         
-        cell.textLabel?.text = Format.getCurrencyFormatting(for: transaction.totalAmount, currency: transaction.owner!.blockchain)
+        if showsExchangeValue, let exchangeValue = transaction.exchangeValue {
+            cell.textLabel?.text = Format.getCurrencyFormatting(for: exchangeValue, currency: transaction.owner!.baseCurrency)
+        } else {
+            cell.textLabel?.text = Format.getCurrencyFormatting(for: transaction.totalAmount, currency: transaction.owner!.blockchain)
+        }
+        
         cell.detailTextLabel?.text = Format.getDateFormatting(for: transaction.date! as Date)
 
         if transaction.isOutbound {
@@ -152,10 +547,20 @@ class TransactionTableController: FetchedResultsTableViewController, FilterDeleg
     
     // MARK: - TableView Delegate
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        selectedTransaction = fetchedResultsController!.object(at: indexPath)
-        performSegue(withIdentifier: "showTransaction", sender: self)
+        if isEditing {
+            updateToolbar()
+        } else {
+            selectedTransaction = fetchedResultsController!.object(at: indexPath)
+            performSegue(withIdentifier: "showTransaction", sender: self)
+        }
     }
- 
+    
+    override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        if isEditing {
+            updateToolbar()
+        }
+    }
+    
 }
 
 // MARK: - NSFetchedResultsController Delegate

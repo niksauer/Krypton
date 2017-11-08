@@ -41,6 +41,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         console.minLevel = .verbose
         log.addDestination(console)
         
+        let _ = PortfolioManager.shared
+        
         return true
     }
 

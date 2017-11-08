@@ -104,7 +104,8 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
         
         if let destNavVC = segue.destination as? UINavigationController, let destVC = destNavVC.topViewController as? FilterController {
             destVC.delegate = self
-            destVC.selectedTransactionType = transactionFilter
+            destVC.isSelector = true
+            destVC.transactionType = transactionFilter
         }
     }
 
@@ -150,7 +151,7 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
         updateUI()
     }
     
-    func didChangeTransactionType(to type: TransactionType) {
+    func didChangeTransactionType(type: TransactionType) {
         self.transactionFilter = type
     }
 

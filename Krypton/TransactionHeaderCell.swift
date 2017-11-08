@@ -13,18 +13,23 @@ class TransactionHeaderCell: UITableViewCell {
     // MARK: - Outlets
     @IBOutlet weak var amountLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
+    @IBOutlet weak var isErrorImage: UIImageView!
+    @IBOutlet weak var isInvestmentImage: UIImageView!
     
     // MARK: - Public Methods
-    func configure(amount: Double, currency: Currency, date: Date, isOutbound: Bool) {
-        amountLabel.text = Format.getCurrencyFormatting(for: amount, currency: currency)
+    func configure(transaction: Transaction) {
+        amountLabel.text = Format.getCurrencyFormatting(for: transaction.totalAmount, currency: transaction.owner!.blockchain)
         
-        if isOutbound {
+        if transaction.isOutbound {
             amountLabel.textColor = UIColor.red
         } else {
             amountLabel.textColor = UIColor.green
         }
         
-        dateLabel.text = Format.getDateFormatting(for: date)
+        dateLabel.text = Format.getDateFormatting(for: transaction.date!)
+    
+        isInvestmentImage.isHidden = !transaction.isInvestment
+        isErrorImage.isHidden = !transaction.isError
     }
 
 }

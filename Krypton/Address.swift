@@ -227,6 +227,8 @@ class Address: NSManagedObject {
                     }
                 }
                 
+                self.lastUpdate = Date()
+                
                 do {
                     if context.hasChanges {
                         try context.save()
