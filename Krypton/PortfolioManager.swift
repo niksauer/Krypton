@@ -35,7 +35,7 @@ final class PortfolioManager: PortfolioDelegate {
     init() {
 //        deletePortfolios()
 //        deletePriceHistory()
-        
+    
         do {
             do {
                 storedPortfolios = try loadPortfolios()
@@ -47,7 +47,7 @@ final class PortfolioManager: PortfolioDelegate {
 
             if storedPortfolios.count == 0 {
                 do {
-                    let portfolio = try addPortfolio(alias: "Portfolio 1", baseCurrency: baseCurrency)
+                    let portfolio = try addPortfolio(alias: "Personal", baseCurrency: baseCurrency)
                     try portfolio.setIsDefault(true)
                     log.info("Created empty default portfolio '\(portfolio.alias!)'.")
                 } catch {
@@ -249,7 +249,7 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
-    func save() throws -> Bool  {
+    func saveChanges() throws -> Bool  {
         let context = AppDelegate.viewContext
         if context.hasChanges {
             do {
@@ -263,6 +263,10 @@ final class PortfolioManager: PortfolioDelegate {
         } else {
             return false
         }
+    }
+    
+    func discardChanges() {
+        AppDelegate.viewContext.rollback()
     }
     
     // MARK: Finance

@@ -8,8 +8,8 @@
 
 import UIKit
 
-class TransactionDetailController: UITableViewController, UITextFieldDelegate, TickerWatchlistDelegate, BlockchainWatchlistDelegate {
-
+class TransactionDetailController: UITableViewController, UITextFieldDelegate, TickerWatchlistDelegate, BlockchainWatchlistDelegate, PortfolioManagerDelegate {
+    
     // MARK: - Private Properties
     private var sendersIndexPath: IndexPath!
     private var receiversIndexPath: IndexPath!
@@ -17,6 +17,8 @@ class TransactionDetailController: UITableViewController, UITextFieldDelegate, T
     private var profitIndexPath: IndexPath!
     private var feeIndexPath: IndexPath!
     private var blockIndexPath: IndexPath!
+    
+    private var valueSaveAction: UIAlertAction!
     
     // MARK: - Public Properties
     var transaction: Transaction!
@@ -31,10 +33,23 @@ class TransactionDetailController: UITableViewController, UITextFieldDelegate, T
         
         TickerWatchlist.delegate = self
         BlockchainWatchlist.delegate = self
+        PortfolioManager.shared.delegate = self
         
-//        exchangeValueField.delegate = self
-//        self.navigationItem.rightBarButtonItem = self.editButtonItem
-
+        if transaction.isUnread {
+            do {
+                try transaction.setIsUnread(state: false)
+            } catch {
+                // present error
+            }
+        }
+        
+        let flexibleSpacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let investmentButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_label"), style: .plain, target: self, action: #selector(toggleIsInvestment))
+        let exchangeValueButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_money-bag"), style: .plain, target: self, action: #selector(showExchangeValueActionSheet))
+        let readButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_double-tick"), style: .plain, target: self, action: #selector(toggleIsUnread))
+        
+        self.toolbarItems = [investmentButton, flexibleSpacer, exchangeValueButton, flexibleSpacer, readButton]
+        self.navigationController?.setToolbarHidden(false, animated: true)
     }
 
     // MARK: - Navigation
@@ -63,45 +78,92 @@ class TransactionDetailController: UITableViewController, UITextFieldDelegate, T
         }
     }
     
-    @IBAction func toggleIsInvestment(_ state: Bool) {
+    // MARK: - Private Methods
+    // MARK: UI Initialization
+    private func updateUI() {
+        tableView.reloadData()
+    }
+    
+    // MARK: Content Interaction
+    @objc private func toggleIsInvestment() {
         do {
-            try transaction?.setIsInvestment(state: state)
+            try transaction?.setIsInvestment(state: !transaction.isInvestment)
         } catch {
             // present error
         }
     }
     
-//    override func setEditing(_ editing: Bool, animated: Bool) {
-//        super.setEditing(editing, animated: animated)
-//
-//        navigationItem.hidesBackButton = !navigationItem.hidesBackButton
-//
-//        if editing {
-//            showsExchangeValue = true
-//            exchangeValueField.isHidden = true
-//            exchangeValueField.text = exchangeValueField.text
-//            exchangeValueField.isHidden = false
-//        } else {
-//            if let newValueString = exchangeValueField.text?.trimmingCharacters(in: .whitespacesAndNewlines), let newValue = Double(newValueString) {
-//                do {
-//                    try transaction?.setUserExchangeValue(value: newValue)
-//                } catch {
-//                    // present error
-//                }
-//            }
-//
-//            showsExchangeValue = { showsExchangeValue }()
-//            exchangeValueField.isHidden = true
-//            exchangeValueField.resignFirstResponder()
-//            exchangeValueField.isHidden = false
-//        }
-//    }
-    
-    // MARK: - Public Methods
-    func updateUI() {
-        tableView.reloadData()
+    @objc private func toggleIsUnread() {
+        do {
+            try transaction?.setIsUnread(state: !transaction.isUnread)
+        } catch {
+            // present error
+        }
     }
     
+    @objc private func showExchangeValueActionSheet() {
+        guard transaction.hasUserExchangeValue else {
+            showExchangeValueInputAlert()
+            return
+        }
+        
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        alertController.addAction(UIAlertAction(title: "Set exchange value", style: .default, handler: { _ in
+            self.showExchangeValueInputAlert()
+        }))
+        
+        if transaction.hasUserExchangeValue {
+            alertController.addAction(UIAlertAction(title: "Reset exchange value", style: .destructive, handler: { _ in
+                do {
+                    try self.transaction.resetUserExchangeValue()
+                } catch {
+                    // present error
+                }
+            }))
+        }
+        
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        present(alertController, animated: true, completion: nil)
+    }
+    
+    private func showExchangeValueInputAlert() {
+        let alertController = UIAlertController(title: "Exchange Value", message: nil, preferredStyle: .alert)
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        
+        let saveAction = UIAlertAction(title: "Save", style: .default, handler: { alertAction in
+            let valueField = alertController.textFields![0]
+            if let valueString = valueField.text?.trimmingCharacters(in: .whitespacesAndNewlines), let value = Double(valueString) {
+                do {
+                    try self.transaction.setUserExchangeValue(value: value)
+                } catch {
+                    // present error
+                }
+            }
+        })
+        
+        saveAction.isEnabled = false
+        valueSaveAction = saveAction
+        
+        alertController.addTextField(configurationHandler: { textField in
+            textField.delegate = self
+            textField.keyboardType = .decimalPad
+            textField.addTarget(self, action: #selector(self.textFieldDidChange(_:)), for: .editingChanged)
+            
+            if let exchangeValue = self.transaction.exchangeValue {
+                textField.placeholder = Format.getCurrencyFormatting(for: exchangeValue, currency: self.transaction.owner!.baseCurrency)
+            } else {
+                textField.placeholder = "???"
+            }
+        })
+        
+        alertController.addAction(cancelAction)
+        alertController.addAction(saveAction)
+        
+        present(alertController, animated: true, completion: nil)
+    }
+   
     // MARK: - TickerWatchlist Delegate
     func didUpdateCurrentPrice(for tradingPair: TradingPair) {
         updateUI()
@@ -109,6 +171,11 @@ class TransactionDetailController: UITableViewController, UITextFieldDelegate, T
     
     // MARK: - BlockchainWatchlist Delegate
     func didUpdateBlockCount(for blockchain: Blockchain) {
+        updateUI()
+    }
+    
+    // MARK: - PortfolioManager Delegate
+    func didUpdatePortfolioManager() {
         updateUI()
     }
     
@@ -129,14 +196,9 @@ class TransactionDetailController: UITableViewController, UITextFieldDelegate, T
                 return 2
             }
         case _ where section == 2:
-            return 3
+            return 2
         case _ where section == 3:
-            switch transaction.owner! {
-            case is Ethereum:
-                return 4
-            default:
-                return 3
-            }
+            return 3
         default:
             return 0
         }
@@ -149,7 +211,7 @@ class TransactionDetailController: UITableViewController, UITextFieldDelegate, T
         switch section {
         case _ where section == 0:
             let cell = tableView.dequeueReusableCell(withIdentifier: "transactionHeaderCell", for: indexPath) as! TransactionHeaderCell
-            cell.configure(amount: transaction.totalAmount, currency: transaction.owner!.blockchain, date: transaction.date!, isOutbound: transaction.isOutbound)
+            cell.configure(transaction: transaction)
             return cell
         case _ where section == 1:
             let cell = tableView.dequeueReusableCell(withIdentifier: "infoCell", for: indexPath)
@@ -157,22 +219,23 @@ class TransactionDetailController: UITableViewController, UITextFieldDelegate, T
             switch row {
             case _ where row == 0:
                 sendersIndexPath = indexPath
-                cell.accessoryType = .disclosureIndicator
                 
                 if transaction.senders.count > 1 {
                     cell.textLabel?.text = "Senders"
                     cell.detailTextLabel?.text = String(transaction.senders.count)
+                    cell.accessoryType = .disclosureIndicator
                 } else {
                     cell.textLabel?.text = "Sender"
                     cell.detailTextLabel?.text = PortfolioManager.shared.getAlias(for: transaction.primarySender)
                 }
             case _ where row == 1:
                 receiversIndexPath = indexPath
-                cell.accessoryType = .disclosureIndicator
+                
                 
                 if transaction.receivers.count > 1 {
                     cell.textLabel?.text = "Receivers"
                     cell.detailTextLabel?.text = String(transaction.receivers.count)
+                    cell.accessoryType = .disclosureIndicator
                 } else {
                     cell.textLabel?.text = "Receiver"
                     cell.detailTextLabel?.text = PortfolioManager.shared.getAlias(for: transaction.primaryReceiver)
@@ -225,10 +288,6 @@ class TransactionDetailController: UITableViewController, UITextFieldDelegate, T
                 }
                 
                 return cell
-            case _ where row == 2:
-                let cell = tableView.dequeueReusableCell(withIdentifier: "switchCell", for: indexPath) as! SwitchCell
-                cell.configure(name: "Investment", isOn: transaction.isInvestment, completion: toggleIsInvestment)
-                return cell
             default:
                 // not valid
                 return UITableViewCell()
@@ -274,9 +333,6 @@ class TransactionDetailController: UITableViewController, UITextFieldDelegate, T
             case _ where row == 2:
                 cell.textLabel?.text = "Hash"
                 cell.detailTextLabel?.text = transaction.identifier
-            case _ where row == 3 && transaction.owner is Ethereum:
-                cell.textLabel?.text = "Executed"
-                cell.detailTextLabel?.text = String(!(transaction as! EthereumTransaction).isError)
             default:
                 // not valid
                 return UITableViewCell()
@@ -301,8 +357,16 @@ class TransactionDetailController: UITableViewController, UITextFieldDelegate, T
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch indexPath {
         case _ where indexPath == sendersIndexPath:
+            guard transaction.owner is Bitcoin else {
+                return
+            }
+            
             performSegue(withIdentifier: "showAmountFromSenders", sender: self)
         case _ where indexPath == receiversIndexPath:
+            guard transaction.owner is Bitcoin else {
+                return
+            }
+            
             performSegue(withIdentifier: "showAmountForReceivers", sender: self)
         case _ where indexPath == exchangeValueIndexPath:
             showsExchangeValue = !showsExchangeValue
@@ -319,32 +383,54 @@ class TransactionDetailController: UITableViewController, UITextFieldDelegate, T
         updateUI()
     }
     
-//    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-//        return false
-//    }
-    
     // MARK: - TextField Delegate
-//    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-//        let decimalSeperator = NumberFormatter().decimalSeparator!
-//
-//        if string.characters.count == 1 {
-//            if string == decimalSeperator && (textField.text?.range(of: decimalSeperator) != nil) {
-//                return false
-//            } else {
-//                return true
-//            }
-//        } else {
-//            let char = string.cString(using: String.Encoding.utf8)!
-//            let isBackSpace = strcmp(char, "\\b")
-//
-//            if (isBackSpace == -92) {
-//                // backspace pressed
-//                return true
-//            } else {
-//                // pasted text
-//                return false
-//            }
-//        }
-//    }
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let decimalSeperator = NumberFormatter().decimalSeparator!
+
+        if string.count == 1 {
+            if textField.text?.range(of: decimalSeperator) != nil {
+                if string == decimalSeperator {
+                    return false
+                }
+                
+                if let subStrings = textField.text?.split(separator: Character(decimalSeperator)) {
+                    let decimalDigits: String
+                    
+                    if subStrings.count == 2 {
+                        decimalDigits = subStrings[1] + string
+                    } else {
+                        decimalDigits = string
+                    }
+                    
+                    if decimalDigits.count > PortfolioManager.shared.baseCurrency.decimalDigits {
+                        return false
+                    }
+                }
+                
+                return true
+            } else {
+                return true
+            }
+        } else {
+            let char = string.cString(using: String.Encoding.utf8)!
+            let isBackSpace = strcmp(char, "\\b")
+
+            if (isBackSpace == -92) {
+                // backspace pressed
+                return true
+            } else {
+                // pasted text
+                return false
+            }
+        }
+    }
+    
+    @objc func textFieldDidChange(_ textField: UITextField) {
+        if let newValueString = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !newValueString.isEmpty {
+            valueSaveAction.isEnabled = true
+        } else {
+            valueSaveAction.isEnabled = false
+        }
+    }
     
 }

@@ -50,6 +50,7 @@
 		24A3D32F1F7DAF250081BF09 /* BlockExplorerAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A3D32E1F7DAF250081BF09 /* BlockExplorerAPI.swift */; };
 		24A514D41F7DA5300003BD65 /* TransactionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A514D31F7DA5300003BD65 /* TransactionCell.swift */; };
 		24BB0DFE1F4E41B40042562C /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BB0DFD1F4E41B40042562C /* Currency.swift */; };
+		24BF8C811FAA4EDD0070C178 /* AccountsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BF8C801FAA4EDD0070C178 /* AccountsController.swift */; };
 		24C63DB41F7F15DD0096A807 /* WatchlistController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C63DB31F7F15DD0096A807 /* WatchlistController.swift */; };
 /* End PBXBuildFile section */
 
@@ -208,6 +209,7 @@
 		24AF7B211F83130500400007 /* SwiftKeccak.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftKeccak.xcodeproj; path = SwiftKeccak/SwiftKeccak.xcodeproj; sourceTree = "<group>"; };
 		24AF7B2A1F83130E00400007 /* SwiftKeccak.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftKeccak.xcodeproj; path = SwiftKeccak/SwiftKeccak.xcodeproj; sourceTree = "<group>"; };
 		24BB0DFD1F4E41B40042562C /* Currency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
+		24BF8C801FAA4EDD0070C178 /* AccountsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsController.swift; sourceTree = "<group>"; };
 		24C63DB31F7F15DD0096A807 /* WatchlistController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchlistController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -425,6 +427,7 @@
 		24B859AC1F47C90800969049 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				24BF8C801FAA4EDD0070C178 /* AccountsController.swift */,
 				2438599C1F6CA6B600D67791 /* Dashboard */,
 				2438599D1F6CA6BF00D67791 /* Shared */,
 				242729A21F704C4C00E5231D /* Portfolios */,
@@ -641,6 +644,7 @@
 				2449F4481F6F1D1F006E21C8 /* CurrencySelectionController.swift in Sources */,
 				24150D431F88E3E1003B7091 /* Token.swift in Sources */,
 				24BB0DFE1F4E41B40042562C /* Currency.swift in Sources */,
+				24BF8C811FAA4EDD0070C178 /* AccountsController.swift in Sources */,
 				2449F43A1F6D59F5006E21C8 /* TextFieldCell.swift in Sources */,
 				2400D0921F40D6E700833958 /* TickerConnector.swift in Sources */,
 				2446F5DC1F8EAD1E00DF385B /* TokenAddress.swift in Sources */,

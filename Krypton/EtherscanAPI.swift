@@ -103,7 +103,7 @@ struct EtherscanAPI {
     }
     
     private static func ether(from weiString: String) -> Double? {
-        let missingLeadingZeros = 20-weiString.characters.count
+        let missingLeadingZeros = 20-weiString.count
         var valueString = weiString
         
         for _ in 0..<missingLeadingZeros {
