@@ -15,7 +15,7 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
     private var database = AppDelegate.persistentContainer
     private var fetchedResultsController: NSFetchedResultsController<Transaction>?
     private var selectedTransaction: Transaction?
-    private var valueSaveAction: UIAlertAction!
+    private var saveExchangeValueAction: UIAlertAction!
     
     private var isUpdating = false {
         didSet {
@@ -95,7 +95,7 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         super.viewWillAppear(animated)
         updateUI()
     }
-
+    
     // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         super.prepare(for: segue, sender: sender)
@@ -118,7 +118,12 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         updateToolbar()
     }
     
+    @objc private func showFilterPanel() {
+        performSegue(withIdentifier: "showFilterPanel", sender: self)
+    }
+    
     // MARK: - Private Methods
+    // MARK: UI Initialization
     private func updateUI() {
         updateData()
         updateToolbar()
@@ -179,15 +184,24 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         let flexibleSpacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         
         if isEditing {
-            let tagButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_tags"), style: .plain, target: self, action: #selector(showTagActionSheet))
+            let isEnabled: Bool
             
             if let selectedTransactions = tableView.indexPathsForSelectedRows, selectedTransactions.count > 0 {
-                tagButton.isEnabled = true
+                isEnabled = true
             } else {
-                tagButton.isEnabled = false
+                isEnabled = false
             }
             
-            self.toolbarItems = [flexibleSpacer, tagButton]
+            let investmentButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_label"), style: .plain, target: self, action: #selector(setIsInvestment))
+            investmentButton.isEnabled = isEnabled
+            
+            let exchangeValueButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_money-bag"), style: .plain, target: self, action: #selector(showExchangeValueActionSheet))
+            exchangeValueButton.isEnabled = isEnabled
+            
+            let readButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_double-tick"), style: .plain, target: self, action: #selector(setIsUnread))
+            readButton.isEnabled = isEnabled
+            
+            self.toolbarItems = [investmentButton, flexibleSpacer, exchangeValueButton, flexibleSpacer, readButton]
         } else {
             let filterButton: UIBarButtonItem
             
@@ -197,24 +211,14 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
                 filterButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_mail-filter"), style: .plain, target: self, action: #selector(toggleIsUnread))
             }
             
-            let messageItem = getToolbarItem()
+            let messageItem = getToolbarMessage()
             
             let valueButton: UIBarButtonItem
             
             if showsExchangeValue {
-                switch PortfolioManager.shared.baseCurrency.code {
-                case Fiat.EUR.code:
-                    valueButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_euro-filled"), style: .plain, target: self, action: #selector(toggleShowsExchangeValue))
-                default:
-                    valueButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_us-dollar-filled"), style: .plain, target: self, action: #selector(toggleShowsExchangeValue))
-                }
+                valueButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_us-dollar-filled"), style: .plain, target: self, action: #selector(toggleShowsExchangeValue))
             } else {
-                switch PortfolioManager.shared.baseCurrency.code {
-                case Fiat.EUR.code:
-                    valueButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_euro"), style: .plain, target: self, action: #selector(toggleShowsExchangeValue))
-                default:
-                    valueButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_us-dollar"), style: .plain, target: self, action: #selector(toggleShowsExchangeValue))
-                }
+                valueButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_us-dollar"), style: .plain, target: self, action: #selector(toggleShowsExchangeValue))
             }
             
             self.toolbarItems = [filterButton, flexibleSpacer, messageItem, flexibleSpacer, valueButton].flatMap { $0 }
@@ -223,7 +227,7 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         navigationController?.setToolbarHidden(false, animated: true)
     }
     
-    private func getToolbarItem() -> UIBarButtonItem? {
+    private func getToolbarMessage() -> UIBarButtonItem? {
         if hasAppliedFilter {
             let filterButton = UIButton()
             filterButton.titleLabel?.numberOfLines = 0
@@ -234,13 +238,13 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
             let title = NSMutableAttributedString(string: "Filtered by:\n")
             title.append(NSMutableAttributedString(string: appliedFiltersDescription, attributes: [
                 NSAttributedStringKey.foregroundColor : self.view.tintColor
-            ]))
+                ]))
             
             filterButton.setAttributedTitle(title, for: .normal)
             filterButton.sizeToFit()
             
             filterButton.addTarget(self, action: #selector(showFilterPanel), for: .touchUpInside)
-        
+            
             return UIBarButtonItem(customView: filterButton)
         } else {
             let messageLabel = UILabel()
@@ -282,6 +286,7 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         }
     }
     
+    // MARK: UI Modification
     @objc private func toggleShowsExchangeValue() {
         showsExchangeValue = !showsExchangeValue
     }
@@ -289,7 +294,8 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
     @objc private func toggleIsUnread() {
         isUnread = !isUnread
     }
-
+    
+    // MARK: Content Interaction
     @objc private func updateAddresses() {
         isUpdating = true
         
@@ -305,118 +311,113 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         }
     }
     
-    @objc private func showFilterPanel() {
-        performSegue(withIdentifier: "showFilterPanel", sender: self)
-    }
-    
-    @objc private func showTagActionSheet() {
+    @objc private func setIsUnread() {
         guard let selectedTransactions = selectedTransactions else {
             return
         }
         
-        let alertController = UIAlertController(title: "\(selectedTransactions.count) transactions", message: nil, preferredStyle: .actionSheet)
-    
-        let investmentActionTitle: String
-        let isInvestmentStatus: Bool
+        let isUnread = !selectedTransactions.contains(where: { $0.isUnread })
         
-        if selectedTransactions.contains(where: { $0.isInvestment }) {
-            investmentActionTitle = "Untag as investment"
-            isInvestmentStatus = false
-        } else {
-            investmentActionTitle = "Tag as investment"
-            isInvestmentStatus = true
-        }
-        
-        alertController.addAction(UIAlertAction(title: investmentActionTitle, style: .default, handler: { _ in
-            for transaction in selectedTransactions {
-                do {
-                    try transaction.setIsInvestment(state: isInvestmentStatus)
-                } catch {
-                    // present error
-                }
+        for transaction in selectedTransactions {
+            do {
+                try transaction.setIsUnread(state: isUnread)
+            } catch {
+                // present error
             }
-            
-            self.isEditing = false
-        }))
-        
-        if selectedTransactions.contains(where: { $0.hasUserExchangeValue }) {
-            alertController.addAction(UIAlertAction(title: "Reset exchange value", style: .default, handler: { _ in
-                for transaction in selectedTransactions {
-                    do {
-                        try transaction.resetUserExchangeValue()
-                    } catch {
-                        // present error
-                    }
-                }
-            }))
-            
-            self.isEditing = false
-        } else {
-            alertController.addAction(UIAlertAction(title: "Set \(selectedTransactions.count > 1 ? "distributed" : "") exchange value", style: .default, handler: { _ in
-                self.showUserExchangeValueAlert()
-            }))
         }
         
-        let markActionTitle: String
-        let isUnreadStatus: Bool
-        
-        if selectedTransactions.contains(where: { $0.isUnread }) {
-            markActionTitle = "Mark as read"
-            isUnreadStatus = false
-        } else {
-            markActionTitle = "Mark as unread"
-            isUnreadStatus = true
-        }
-        
-        alertController.addAction(UIAlertAction(title: markActionTitle, style: .default, handler: { _ in
-            for transaction in selectedTransactions {
-                do {
-                    try transaction.setIsUnread(state: isUnreadStatus)
-                } catch {
-                    // present error
-                }
-            }
-            
-            self.isEditing = false
-        }))
-        
-        
-        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        present(alertController, animated: true, completion: nil)
+        self.isEditing = false
     }
     
-    private func showUserExchangeValueAlert() {
+    @objc private func setIsInvestment() {
+        guard let selectedTransactions = selectedTransactions else {
+            return
+        }
+        
+        let isInvestment = !selectedTransactions.contains(where: { $0.isInvestment })
+        
+        for transaction in selectedTransactions {
+            do {
+                try transaction.setIsInvestment(state: isInvestment)
+            } catch {
+                // present error
+            }
+        }
+        
+        self.isEditing = false
+    }
+
+    @objc private func showExchangeValueActionSheet() {
+        guard let selectedTransactions = selectedTransactions else {
+            return
+        }
+        
+        if selectedTransactions.count == 1 && !selectedTransactions.contains(where: { $0.hasUserExchangeValue }) {
+            showExchangeValueInputAlert()
+        } else {
+            let alertController = UIAlertController(title: (selectedTransactions.count > 1 ? "Selected \(selectedTransactions.count) transactions" : nil), message: nil, preferredStyle: .actionSheet)
+        
+            alertController.addAction(UIAlertAction(title: "Set \(selectedTransactions.count > 1 ? "distributed" : "") exchange value", style: .default, handler: { _ in
+                self.showExchangeValueInputAlert()
+            }))
+            
+            if selectedTransactions.contains(where: { $0.hasUserExchangeValue }) {
+                alertController.addAction(UIAlertAction(title: "Reset exchange value", style: .destructive, handler: { _ in
+                    for transaction in selectedTransactions {
+                        do {
+                            try transaction.resetUserExchangeValue()
+                        } catch {
+                            // present error
+                        }
+                    }
+                    
+                    self.isEditing = false
+                }))
+            }
+            
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            present(alertController, animated: true, completion: nil)
+        }
+    }
+    
+    @objc private func showExchangeValueInputAlert() {
+        guard let selectedTransactions = self.selectedTransactions else {
+            return
+        }
+        
         let alertController = UIAlertController(title: "Exchange Value", message: nil, preferredStyle: .alert)
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         
         let saveAction = UIAlertAction(title: "Save", style: .default, handler: { alertAction in
             let valueField = alertController.textFields![0]
-            if let totalValueString = valueField.text?.trimmingCharacters(in: .whitespacesAndNewlines), let totalValue = Double(totalValueString) {
-                guard let selectedTransactions = self.selectedTransactions else {
-                    return
-                }
-                
-                let totalAmounts = selectedTransactions.flatMap({ $0.totalAmount }).reduce(0, +)
-
-                for transaction in selectedTransactions {
-                    do {
-                        let value = totalValue / totalAmounts * transaction.totalAmount
-                        try transaction.setUserExchangeValue(value: value)
-                    } catch {
-                        // present error
-                    }
+            
+            guard let totalValueString = valueField.text?.trimmingCharacters(in: .whitespacesAndNewlines), let totalExchangeValue = Double(totalValueString) else {
+                return
+            }
+            
+            let totalAmount = selectedTransactions.flatMap({ $0.totalAmount }).reduce(0, +)
+            
+            for transaction in selectedTransactions {
+                do {
+                    let value = totalExchangeValue / totalAmount * transaction.totalAmount
+                    try transaction.setUserExchangeValue(value: value)
+                } catch {
+                    // present error
                 }
             }
         })
         
         saveAction.isEnabled = false
-        valueSaveAction = saveAction
+        saveExchangeValueAction = saveAction
         
         alertController.addTextField(configurationHandler: { textField in
             textField.delegate = self
             textField.keyboardType = .decimalPad
             textField.addTarget(self, action: #selector(self.textFieldDidChange(_:)), for: .editingChanged)
+            
+            let totalExchangeValue = selectedTransactions.flatMap({ $0.exchangeValue }).reduce(0, +)
+            textField.placeholder = Format.getCurrencyFormatting(for: totalExchangeValue, currency: PortfolioManager.shared.baseCurrency)
         })
         
         alertController.addAction(cancelAction)
@@ -469,9 +470,9 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
     
     @objc func textFieldDidChange(_ textField: UITextField) {
         if let newValueString = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !newValueString.isEmpty {
-            valueSaveAction.isEnabled = true
+            saveExchangeValueAction.isEnabled = true
         } else {
-            valueSaveAction.isEnabled = false
+            saveExchangeValueAction.isEnabled = false
         }
     }
     

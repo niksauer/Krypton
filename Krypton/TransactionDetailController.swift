@@ -44,9 +44,11 @@ class TransactionDetailController: UITableViewController, UITextFieldDelegate, T
         }
         
         let flexibleSpacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let tagButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_label"), style: .plain, target: self, action: #selector(showTagActionSheet))
+        let investmentButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_label"), style: .plain, target: self, action: #selector(toggleIsInvestment))
+        let exchangeValueButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_money-bag"), style: .plain, target: self, action: #selector(showExchangeValueActionSheet))
+        let readButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_double-tick"), style: .plain, target: self, action: #selector(toggleIsUnread))
         
-        self.toolbarItems = [flexibleSpacer, tagButton]
+        self.toolbarItems = [investmentButton, flexibleSpacer, exchangeValueButton, flexibleSpacer, readButton]
         self.navigationController?.setToolbarHidden(false, animated: true)
     }
 
@@ -76,52 +78,48 @@ class TransactionDetailController: UITableViewController, UITextFieldDelegate, T
         }
     }
     
-    @IBAction func toggleIsInvestment(_ state: Bool) {
+    // MARK: - Private Methods
+    // MARK: UI Initialization
+    private func updateUI() {
+        tableView.reloadData()
+    }
+    
+    // MARK: Content Interaction
+    @objc private func toggleIsInvestment() {
         do {
-            try transaction?.setIsInvestment(state: state)
+            try transaction?.setIsInvestment(state: !transaction.isInvestment)
         } catch {
             // present error
         }
     }
     
-    // MARK: - Private Methods
-    private func updateUI() {
-        tableView.reloadData()
+    @objc private func toggleIsUnread() {
+        do {
+            try transaction?.setIsUnread(state: !transaction.isUnread)
+        } catch {
+            // present error
+        }
     }
     
-    @objc private func showTagActionSheet() {
-        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-
-        let investmentActionTitle: String
-        let isInvestmentStatus: Bool
-        
-        if transaction.isInvestment {
-            investmentActionTitle = "Untag as investment"
-            isInvestmentStatus = false
-        } else {
-            investmentActionTitle = "Tag as investment"
-            isInvestmentStatus = true
+    @objc private func showExchangeValueActionSheet() {
+        guard transaction.hasUserExchangeValue else {
+            showExchangeValueInputAlert()
+            return
         }
         
-        alertController.addAction(UIAlertAction(title: investmentActionTitle, style: .default, handler: { _ in
-            do {
-                try self.transaction.setIsInvestment(state: isInvestmentStatus)
-            } catch {
-                // present error
-            }
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        alertController.addAction(UIAlertAction(title: "Set exchange value", style: .default, handler: { _ in
+            self.showExchangeValueInputAlert()
         }))
         
         if transaction.hasUserExchangeValue {
-            alertController.addAction(UIAlertAction(title: "Reset exchange value", style: .default, handler: { _ in
+            alertController.addAction(UIAlertAction(title: "Reset exchange value", style: .destructive, handler: { _ in
                 do {
                     try self.transaction.resetUserExchangeValue()
                 } catch {
                     // present error
                 }
-            }))
-        } else {
-            alertController.addAction(UIAlertAction(title: "Set exchange value", style: .default, handler: { _ in
-                self.showUserExchangeValueAlert()
             }))
         }
         
@@ -129,7 +127,7 @@ class TransactionDetailController: UITableViewController, UITextFieldDelegate, T
         present(alertController, animated: true, completion: nil)
     }
     
-    func showUserExchangeValueAlert() {
+    private func showExchangeValueInputAlert() {
         let alertController = UIAlertController(title: "Exchange Value", message: nil, preferredStyle: .alert)
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
@@ -165,7 +163,7 @@ class TransactionDetailController: UITableViewController, UITextFieldDelegate, T
         
         present(alertController, animated: true, completion: nil)
     }
-    
+   
     // MARK: - TickerWatchlist Delegate
     func didUpdateCurrentPrice(for tradingPair: TradingPair) {
         updateUI()

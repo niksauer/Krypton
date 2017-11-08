@@ -98,19 +98,19 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="Zb9-9V-Eds">
-                                <rect key="frame" x="0.0" y="116" width="0.0" height="145"/>
+                                <rect key="frame" x="16" y="116" width="343" height="145"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="std-qQ-v37">
-                                        <rect key="frame" x="0.0" y="16" width="0.0" height="51.5"/>
+                                        <rect key="frame" x="0.0" y="16" width="343" height="51.5"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="portfolioValue" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iFG-nm-Oga">
-                                                <rect key="frame" x="0.0" y="0.0" width="0.0" height="26.5"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="343" height="26.5"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="22"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="portfolioLabel" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HH0-6O-jkQ">
-                                                <rect key="frame" x="0.0" y="34.5" width="0.0" height="17"/>
+                                                <rect key="frame" x="0.0" y="34.5" width="343" height="17"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
@@ -118,19 +118,19 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="FzE-Fx-HOW">
-                                        <rect key="frame" x="0.0" y="83.5" width="0.0" height="45.5"/>
+                                        <rect key="frame" x="0.0" y="83.5" width="343" height="45.5"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="Sj5-dI-tPd">
-                                                <rect key="frame" x="0.0" y="0.0" width="0.0" height="45.5"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="167.5" height="45.5"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="profitValue" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="R0s-e6-ckW">
-                                                        <rect key="frame" x="0.0" y="0.0" width="0.0" height="20.5"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="167.5" height="20.5"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="profitLabel" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bPa-KR-qKO">
-                                                        <rect key="frame" x="0.0" y="28.5" width="0.0" height="17"/>
+                                                        <rect key="frame" x="0.0" y="28.5" width="167.5" height="17"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
@@ -138,16 +138,16 @@
                                                 </subviews>
                                             </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="55m-al-KAb">
-                                                <rect key="frame" x="0.0" y="0.0" width="0.0" height="45.5"/>
+                                                <rect key="frame" x="175.5" y="0.0" width="167.5" height="45.5"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="investmentValue" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oVE-Wg-SFw">
-                                                        <rect key="frame" x="0.0" y="0.0" width="0.0" height="20.5"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="167.5" height="20.5"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="investmentLabel" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iBT-wE-zvf">
-                                                        <rect key="frame" x="0.0" y="28.5" width="0.0" height="17"/>
+                                                        <rect key="frame" x="0.0" y="28.5" width="167.5" height="17"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
@@ -835,10 +835,10 @@
                                             <nil key="textColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="error" translatesAutoresizingMaskIntoConstraints="NO" id="Kfj-HH-yBl">
+                                        <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="GP_error" translatesAutoresizingMaskIntoConstraints="NO" id="Kfj-HH-yBl">
                                             <rect key="frame" x="16" y="20" width="30" height="30"/>
                                         </imageView>
-                                        <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="money_bag" translatesAutoresizingMaskIntoConstraints="NO" id="eH0-LI-lhK">
+                                        <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="GP_money_bag" translatesAutoresizingMaskIntoConstraints="NO" id="eH0-LI-lhK">
                                             <rect key="frame" x="329" y="20" width="30" height="30"/>
                                         </imageView>
                                     </subviews>
@@ -1341,8 +1341,8 @@
         </scene>
     </scenes>
     <resources>
-        <image name="error" width="30" height="30"/>
-        <image name="money_bag" width="30" height="30"/>
+        <image name="GP_error" width="30" height="30"/>
+        <image name="GP_money_bag" width="30" height="30"/>
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="c35-bw-ktD"/>
