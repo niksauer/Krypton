@@ -45,7 +45,6 @@ class AccountsController: UITableViewController {
         }
     }
     
-    
     // MARK: - TableView Data Source
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 2 + portfolios.count

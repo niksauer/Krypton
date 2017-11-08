@@ -14,6 +14,57 @@ import UIKit
     @objc optional func didChangeIsError(state: Bool)
     @objc optional func didChangeTransactionType(type: TransactionType)
     @objc optional func didChangeSelectedAddresses()
+    @objc optional func didResetFilterOptions()
+}
+
+struct FilterOptions {
+    var transactionType: TransactionType
+    var isUnread: Bool
+    var isError: Bool
+    var hasUserExchangeValue: Bool
+    
+    private static var nameForProperty: [String : String] = [
+        "transactionType" : "Type",
+        "hasUserExchangeValue" : "Manual Value",
+        "isUnread" : "Unread",
+        "isError" : "Error"
+    ]
+
+    private func allProperties() -> [String: Any] {
+        var result: [String: Any] = [:]
+
+        let mirror = Mirror(reflecting: self)
+        
+        for (labelMaybe, valueMaybe) in mirror.children {
+            guard let label = labelMaybe else {
+                continue
+            }
+            
+            result[label] = valueMaybe
+        }
+        
+        return result
+    }
+
+    var hasAppliedFilter: Bool {
+        return transactionType != .all || isUnread || isError || hasUserExchangeValue
+    }
+
+    var appliedFiltersDescription: String {
+        var activeProperties: [String] = []
+
+        for property in allProperties() {
+            if let isActive = property.value as? Bool, isActive {
+                activeProperties.append(FilterOptions.nameForProperty[property.key]!)
+            }
+
+            if let type = property.value as? TransactionType, type != .all {
+                activeProperties.append(FilterOptions.nameForProperty[property.key]!)
+            }
+        }
+
+        return activeProperties.joined(separator: ", ")
+    }
 }
 
 class FilterController: UITableViewController {
@@ -27,10 +78,7 @@ class FilterController: UITableViewController {
     var delegate: FilterDelegate?
     var isSelector = false
     
-    var transactionType: TransactionType = .all
-    var isError = false
-    var isUnread = false
-    var hasUserExchangeValue = false
+    var options = FilterOptions(transactionType: .all, isUnread: false, isError: false, hasUserExchangeValue: false)
 
     // MARK: - Navigation
     @IBAction func cancel(_ sender: UIBarButtonItem) {
@@ -39,10 +87,16 @@ class FilterController: UITableViewController {
     }
     
     @IBAction func apply(_ sender: UIBarButtonItem) {
-        delegate?.didChangeTransactionType?(type: transactionType)
-        delegate?.didChangeIsUnread?(state: isUnread)
-        delegate?.didChangeIsError?(state: isError)
-        delegate?.didChangeHasUserExchangeValue?(state: hasUserExchangeValue)
+        guard options.hasAppliedFilter else {
+            delegate?.didResetFilterOptions?()
+            dismiss(animated: true, completion: nil)
+            return
+        }
+        
+        delegate?.didChangeTransactionType?(type: options.transactionType)
+        delegate?.didChangeIsUnread?(state: options.isUnread)
+        delegate?.didChangeIsError?(state: options.isError)
+        delegate?.didChangeHasUserExchangeValue?(state: options.hasUserExchangeValue)
         
         do {
             if try PortfolioManager.shared.saveChanges() {
@@ -59,7 +113,7 @@ class FilterController: UITableViewController {
     
     // MARK: - Public Methods
     func setTransactionType(_ rawValue: Int) {
-        transactionType = TransactionType(rawValue: rawValue) ?? transactionType
+        options.transactionType = TransactionType(rawValue: rawValue)!
     }
     
     // MARK: - TableView Data Source
@@ -76,7 +130,7 @@ class FilterController: UITableViewController {
         case _ where section == transactionTypeIndexPath.section:
             return 1
         case _ where section == 1:
-            return 2
+            return 3
         default:
             return portfolios[section-filterSectionsCount].storedAddresses.count
         }
@@ -86,20 +140,26 @@ class FilterController: UITableViewController {
         switch indexPath {
         case _ where indexPath == transactionTypeIndexPath:
             let cell = tableView.dequeueReusableCell(withIdentifier: "segmentedControlCell", for: indexPath) as! SegmentedControlCell
-            cell.configure(segments: ["All", "Investment", "Other"], selectedSegment: transactionType.rawValue, completion: setTransactionType)
+            cell.configure(segments: ["All", "Investment", "Other"], selectedSegment: options.transactionType.rawValue, completion: setTransactionType)
             return cell
         case _ where indexPath.section == 1:
             switch indexPath.row {
             case 0:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "switchCell", for: indexPath) as! SwitchCell
-                cell.configure(name: "Is Error", isOn: isError, completion: { state in
-                    self.isError = state
+                cell.configure(name: "Is Error", isOn: options.isError, completion: { state in
+                    self.options.isError = state
                 })
                 return cell
             case 1:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "switchCell", for: indexPath) as! SwitchCell
-                cell.configure(name: "Manual Exchange Value", isOn: hasUserExchangeValue, completion: { state in
-                    self.hasUserExchangeValue = state
+                cell.configure(name: "Manual Exchange Value", isOn: options.hasUserExchangeValue, completion: { state in
+                    self.options.hasUserExchangeValue = state
+                })
+                return cell
+            case 2:
+                let cell = tableView.dequeueReusableCell(withIdentifier: "switchCell", for: indexPath) as! SwitchCell
+                cell.configure(name: "Unread", isOn: options.isUnread, completion: { state in
+                    self.options.isUnread = state
                 })
                 return cell
             default:

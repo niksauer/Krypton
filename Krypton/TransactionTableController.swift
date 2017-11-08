@@ -38,14 +38,6 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         return selectedTransactions
     }
     
-    private var hasAppliedFilter: Bool {
-        return transactionType != .all || isUnread || isError || hasUserExchangeValue
-    }
-    
-    private var appliedFiltersDescription: String {
-        return "Unread"
-    }
-    
     // MARK: - Public Properties
     var addresses: [Address]! {
         didSet {
@@ -53,25 +45,13 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         }
     }
     
-    var transactionType: TransactionType = .all {
+    var isFilterActive = false {
         didSet {
             updateUI()
         }
     }
     
-    var isError = false {
-        didSet {
-            updateUI()
-        }
-    }
-    
-    var isUnread = false {
-        didSet {
-            updateUI()
-        }
-    }
-    
-    var hasUserExchangeValue = false {
+    var filterOptions = FilterOptions(transactionType: .all, isUnread: true, isError: false, hasUserExchangeValue: false) {
         didSet {
             updateUI()
         }
@@ -88,7 +68,6 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         super.viewDidLoad()
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(updateAddresses), for: UIControlEvents.valueChanged)
-        self.navigationItem.rightBarButtonItem = self.editButtonItem
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -106,10 +85,10 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         
         if let destNavVC = segue.destination as? UINavigationController, let destVC = destNavVC.topViewController as? FilterController {
             destVC.delegate = self
-            destVC.transactionType = transactionType
-            destVC.isUnread = isUnread
-            destVC.isError = isError
-            destVC.hasUserExchangeValue = hasUserExchangeValue
+            destVC.options.transactionType = filterOptions.transactionType
+            destVC.options.isUnread = filterOptions.isUnread
+            destVC.options.isError = filterOptions.isError
+            destVC.options.hasUserExchangeValue = filterOptions.hasUserExchangeValue
         }
     }
     
@@ -127,6 +106,12 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
     private func updateUI() {
         updateData()
         updateToolbar()
+        
+        if let transactions = fetchedResultsController?.fetchedObjects, transactions.count > 0 {
+            self.navigationItem.rightBarButtonItem = self.editButtonItem
+        } else {
+            self.navigationItem.rightBarButtonItem = nil
+        }
     }
     
     private func updateData() {
@@ -143,25 +128,27 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         var isErrorPredicate: NSPredicate?
         var hasUserExchangeValuePredicate: NSPredicate?
         
-        switch transactionType {
-        case .investment:
-            transactionTypePredicate = NSPredicate(format: "isInvestment = YES", addresses)
-        case .other:
-            transactionTypePredicate = NSPredicate(format: "isInvestment = NO", addresses)
-        default:
-            break
-        }
-        
-        if isError {
-            isErrorPredicate = NSPredicate(format: "isError = YES")
-        }
-        
-        if isUnread {
-            isUnreadPredicate = NSPredicate(format: "isUnread = YES")
-        }
-        
-        if hasUserExchangeValue {
-            hasUserExchangeValuePredicate = NSPredicate(format: "userExchangeValue != -1")
+        if isFilterActive {
+            switch filterOptions.transactionType {
+            case .investment:
+                transactionTypePredicate = NSPredicate(format: "isInvestment = YES", addresses)
+            case .other:
+                transactionTypePredicate = NSPredicate(format: "isInvestment = NO", addresses)
+            default:
+                break
+            }
+            
+            if filterOptions.isError {
+                isErrorPredicate = NSPredicate(format: "isError = YES")
+            }
+            
+            if filterOptions.isUnread {
+                isUnreadPredicate = NSPredicate(format: "isUnread = YES")
+            }
+            
+            if filterOptions.hasUserExchangeValue {
+                hasUserExchangeValuePredicate = NSPredicate(format: "userExchangeValue != -1")
+            }
         }
         
         // final predicates
@@ -205,10 +192,10 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         } else {
             let filterButton: UIBarButtonItem
             
-            if hasAppliedFilter {
-                filterButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_mail-filter-filled"), style: .plain, target: self, action: #selector(toggleIsUnread))
+            if isFilterActive {
+                filterButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_mail-filter-filled"), style: .plain, target: self, action: #selector(toggleIsFilterActive))
             } else {
-                filterButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_mail-filter"), style: .plain, target: self, action: #selector(toggleIsUnread))
+                filterButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_mail-filter"), style: .plain, target: self, action: #selector(toggleIsFilterActive))
             }
             
             let messageItem = getToolbarMessage()
@@ -228,7 +215,7 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
     }
     
     private func getToolbarMessage() -> UIBarButtonItem? {
-        if hasAppliedFilter {
+        if isFilterActive {
             let filterButton = UIButton()
             filterButton.titleLabel?.numberOfLines = 0
             filterButton.titleLabel?.font = filterButton.titleLabel?.font.withSize(12)
@@ -236,7 +223,7 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
             filterButton.titleLabel?.backgroundColor = UIColor.clear
             
             let title = NSMutableAttributedString(string: "Filtered by:\n")
-            title.append(NSMutableAttributedString(string: appliedFiltersDescription, attributes: [
+            title.append(NSMutableAttributedString(string: filterOptions.appliedFiltersDescription, attributes: [
                 NSAttributedStringKey.foregroundColor : self.view.tintColor
                 ]))
             
@@ -291,8 +278,8 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         showsExchangeValue = !showsExchangeValue
     }
     
-    @objc private func toggleIsUnread() {
-        isUnread = !isUnread
+    @objc private func toggleIsFilterActive() {
+        isFilterActive = !isFilterActive
     }
     
     // MARK: Content Interaction
@@ -478,19 +465,24 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
     
     // MARK: - Filter Delegate
     func didChangeTransactionType(type: TransactionType) {
-        self.transactionType = type
+        filterOptions.transactionType = type
     }
     
     func didChangeIsUnread(state: Bool) {
-        self.isUnread = state
+        filterOptions.isUnread = state
     }
     
     func didChangeIsError(state: Bool) {
-        self.isError = state
+        filterOptions.isError = state
     }
     
     func didChangeHasUserExchangeValue(state: Bool) {
-        self.hasUserExchangeValue = state
+        filterOptions.hasUserExchangeValue = state
+    }
+    
+    func didResetFilterOptions() {
+        isFilterActive = false
+        filterOptions = FilterOptions(transactionType: .all, isUnread: true, isError: false, hasUserExchangeValue: false)
     }
     
     // MARK: - TableView Data Source

@@ -105,7 +105,7 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
         if let destNavVC = segue.destination as? UINavigationController, let destVC = destNavVC.topViewController as? FilterController {
             destVC.delegate = self
             destVC.isSelector = true
-            destVC.transactionType = transactionFilter
+            destVC.options.transactionType = transactionFilter
         }
     }
 
