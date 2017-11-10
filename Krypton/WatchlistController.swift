@@ -8,29 +8,18 @@
 
 import UIKit
 
-class WatchlistController: UITableViewController, TickerWatchlistDelegate, CurrencySelectionDelegate {
+class WatchlistController: UITableViewController, TickerDaemonDelegate {
     
     // MARK: - Public Properties
     var tradingPairs = [TradingPair]()
-    
-    // MARK: - Initialization
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        TickerWatchlist.delegate = self
-        tradingPairs = Array(PortfolioManager.shared.storedTradingPairs)
-    }
 
-    // MARK: - Navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        super.prepare(for: segue, sender: sender)
+    // MARK: - Initialization
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        TickerDaemon.delegate = self
+        self.navigationItem.rightBarButtonItem = self.editButtonItem
         
-        if let destVC = segue.destination as? CurrencySelectionController {
-            destVC.delegate = self
-            destVC.selection = PortfolioManager.shared.baseCurrency
-            destVC.type = .crypto
-            destVC.title = "Crypto Currency"
-//            destVC.exceptions = PortfolioManager.shared.storedCryptoCurrencies
-        }
+        tradingPairs = Array(PortfolioManager.shared.storedTradingPairs).sorted(by: { $0.base.code < $1.base.code })
     }
     
     // MARK: - TableView Data Source
@@ -43,13 +32,11 @@ class WatchlistController: UITableViewController, TickerWatchlistDelegate, Curre
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cryptoCurrency = tradingPairs[indexPath.row]
-        let cell = tableView.dequeueReusableCell(withIdentifier: "tickerCell", for: indexPath)
-        cell.textLabel?.text = cryptoCurrency.rawValue
-    
         let tradingPair = tradingPairs[indexPath.row]
-        
-        if let currentPrice = TickerWatchlist.getCurrentPrice(for: tradingPair) {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "tickerCell", for: indexPath)
+        cell.textLabel?.text = tradingPair.base.code
+    
+        if let currentPrice = tradingPair.currentPrice {
             cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: currentPrice, currency: PortfolioManager.shared.baseCurrency)
         } else {
             cell.detailTextLabel?.text = "???"
@@ -58,13 +45,9 @@ class WatchlistController: UITableViewController, TickerWatchlistDelegate, Curre
         return cell
     }
     
-    // MARK: - TickerWatchlist Delegate
+    // MARK: - TickerDaemon Delegate
     func didUpdateCurrentPrice(for tradingPair: TradingPair) {
         tableView.reloadData()
     }
 
-    // MARK: - CurrencySelector Delegate
-    func didSelectCurrency(selection: Currency) {
-        
-    }
 }

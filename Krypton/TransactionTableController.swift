@@ -17,6 +17,8 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
     private var selectedTransaction: Transaction?
     private var saveExchangeValueAction: UIAlertAction!
     
+    private var updateTimer: Timer?
+    
     private var isUpdating = false {
         didSet {
             updateToolbar()
@@ -51,7 +53,7 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         }
     }
     
-    var filterOptions = FilterOptions(transactionType: .all, isUnread: true, isError: false, hasUserExchangeValue: false) {
+    var filter = Filter() {
         didSet {
             updateUI()
         }
@@ -73,6 +75,12 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         updateUI()
+        startUpdateTimer()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        stopUpdateTimer()
     }
     
     // MARK: - Navigation
@@ -85,10 +93,14 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         
         if let destNavVC = segue.destination as? UINavigationController, let destVC = destNavVC.topViewController as? FilterController {
             destVC.delegate = self
-            destVC.options.transactionType = filterOptions.transactionType
-            destVC.options.isUnread = filterOptions.isUnread
-            destVC.options.isError = filterOptions.isError
-            destVC.options.hasUserExchangeValue = filterOptions.hasUserExchangeValue
+            
+            destVC.isSelector = false
+            
+            destVC.showsAdvancedProperties = true
+            destVC.filter.transactionType = filter.transactionType
+            destVC.filter.isUnread = filter.isUnread
+            destVC.filter.isError = filter.isError
+            destVC.filter.hasUserExchangeValue = filter.hasUserExchangeValue
         }
     }
     
@@ -129,7 +141,7 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         var hasUserExchangeValuePredicate: NSPredicate?
         
         if isFilterActive {
-            switch filterOptions.transactionType {
+            switch filter.transactionType {
             case .investment:
                 transactionTypePredicate = NSPredicate(format: "isInvestment = YES", addresses)
             case .other:
@@ -138,15 +150,15 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
                 break
             }
             
-            if filterOptions.isError {
+            if filter.isError {
                 isErrorPredicate = NSPredicate(format: "isError = YES")
             }
             
-            if filterOptions.isUnread {
+            if filter.isUnread {
                 isUnreadPredicate = NSPredicate(format: "isUnread = YES")
             }
             
-            if filterOptions.hasUserExchangeValue {
+            if filter.hasUserExchangeValue {
                 hasUserExchangeValuePredicate = NSPredicate(format: "userExchangeValue != -1")
             }
         }
@@ -223,7 +235,7 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
             filterButton.titleLabel?.backgroundColor = UIColor.clear
             
             let title = NSMutableAttributedString(string: "Filtered by:\n")
-            title.append(NSMutableAttributedString(string: filterOptions.appliedFiltersDescription, attributes: [
+            title.append(NSMutableAttributedString(string: filter.description, attributes: [
                 NSAttributedStringKey.foregroundColor : self.view.tintColor
                 ]))
             
@@ -273,6 +285,34 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         }
     }
     
+    // MARK: UI Updating
+    @objc func startUpdateTimer() {
+        guard updateTimer == nil else {
+            // timer already running
+            return
+        }
+        
+        updateTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true, block: { _ in
+            self.updateToolbar()
+        })
+        
+        let notificationCenter = NotificationCenter.default
+        notificationCenter.setObserver(self, selector: #selector(stopUpdateTimer), name: Notification.Name.UIApplicationDidEnterBackground, object: nil)
+        notificationCenter.setObserver(self, selector: #selector(startUpdateTimer), name: Notification.Name.UIApplicationDidBecomeActive, object: nil)
+        log.debug("Started updateTimer for TransactionTable with 60 second intervall.")
+    }
+    
+    @objc func stopUpdateTimer() {
+        guard updateTimer != nil else {
+            // no timer set
+            return
+        }
+        
+        updateTimer?.invalidate()
+        updateTimer = nil
+        log.debug("Stopped updateTimer for TransactionTable.")
+    }
+    
     // MARK: UI Modification
     @objc private func toggleShowsExchangeValue() {
         showsExchangeValue = !showsExchangeValue
@@ -281,7 +321,7 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
     @objc private func toggleIsFilterActive() {
         isFilterActive = !isFilterActive
     }
-    
+
     // MARK: Content Interaction
     @objc private func updateAddresses() {
         isUpdating = true
@@ -393,6 +433,8 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
                     // present error
                 }
             }
+            
+            self.isEditing = false
         })
         
         saveAction.isEnabled = false
@@ -465,24 +507,24 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
     
     // MARK: - Filter Delegate
     func didChangeTransactionType(type: TransactionType) {
-        filterOptions.transactionType = type
+        filter.transactionType = type
     }
     
     func didChangeIsUnread(state: Bool) {
-        filterOptions.isUnread = state
+        filter.isUnread = state
     }
     
     func didChangeIsError(state: Bool) {
-        filterOptions.isError = state
+        filter.isError = state
     }
     
     func didChangeHasUserExchangeValue(state: Bool) {
-        filterOptions.hasUserExchangeValue = state
+        filter.hasUserExchangeValue = state
     }
     
-    func didResetFilterOptions() {
+    func didResetFilter() {
         isFilterActive = false
-        filterOptions = FilterOptions(transactionType: .all, isUnread: true, isError: false, hasUserExchangeValue: false)
+        filter = Filter()
     }
     
     // MARK: - TableView Data Source

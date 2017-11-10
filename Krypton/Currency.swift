@@ -121,20 +121,81 @@ enum Fiat: String, Currency {
     
 }
 
-enum TradingPair: String {
-    case ETHEUR
-    case ETHUSD
-    case XBTEUR
-    case XBTUSD
+struct TradingPair: Hashable {
     
-    // https://api.kraken.com/0/public/AssetPairs
-    static var allValues = [ETHEUR, ETHUSD, XBTEUR, XBTUSD]
+    // MARK: - Public Properties
+    let base: Currency
+    let quote: Currency
+    private(set) public var intermediate: Currency?
     
-    // MARK: - Public Type Methods
-    /// returns trading pair constructed from specified crypto and fiat currency
-    static func getTradingPair(a: Currency, b: Currency) -> TradingPair? {
-        let tradingPairRaw = a.code + b.code
-        return TradingPair(rawValue: tradingPairRaw)
+    var name: String {
+        return base.code + quote.code
+    }
+    
+    var currentPrice: Double? {
+        return getValue(on: Date())
+    }
+    
+    // MARK: - Initialization
+    init(base: Currency, quote: Currency) {
+        self.base = base
+        self.quote = quote
+    }
+    
+    init(base: Currency, quote: Currency, intermediate: Currency) {
+        self.base = base
+        self.quote = quote
+        self.intermediate = intermediate
+    }
+    
+    // MARK: - Public Methods
+    func registerForUpdates() {
+        if let intermediate = intermediate {
+            TickerDaemon.addTradingPair(TradingPair(base: base, quote: intermediate))
+            TickerDaemon.addTradingPair(TradingPair(base: intermediate, quote: quote))
+        } else {
+            TickerDaemon.addTradingPair(self)
+        }
+    }
+    
+    func getValue(on date: Date) -> Double? {
+        if let intermediate = intermediate {
+            let baseInterPair = TradingPair(base: base, quote: intermediate)
+            let interQuotePair = TradingPair(base: intermediate, quote: quote)
+        
+            let baseInterValue: Double?
+            let interQuoteValue: Double?
+            
+            switch date {
+            case _ where date.isToday:
+                baseInterValue = TickerDaemon.getCurrentPrice(for: baseInterPair)
+                interQuoteValue = TickerDaemon.getCurrentPrice(for: interQuotePair)
+            default:
+                baseInterValue = TickerPrice.getTickerPrice(for: baseInterPair, on: date)?.value
+                interQuoteValue = TickerPrice.getTickerPrice(for: interQuotePair, on: date)?.value
+            }
+            
+            guard baseInterValue != nil, interQuoteValue != nil else {
+                return nil
+            }
+            
+            return baseInterValue! * interQuoteValue!
+        } else {
+            if date.isToday {
+                return TickerDaemon.getCurrentPrice(for: self)
+            } else {
+                return TickerPrice.getTickerPrice(for: self, on: date)?.value
+            }
+        }
+    }
+    
+    // MARK: - Hashable Protocol
+    var hashValue: Int {
+        return name.hashValue
+    }
+    
+    static func ==(lhs: TradingPair, rhs: TradingPair) -> Bool {
+        return lhs.base.code == rhs.base.code && lhs.quote.code == rhs.quote.code
     }
     
 }

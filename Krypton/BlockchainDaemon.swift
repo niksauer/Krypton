@@ -1,5 +1,5 @@
 //
-//  BlockchainWatchlist.swift
+//  BlockchainDaemon.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 26.10.17.
@@ -8,14 +8,14 @@
 
 import Foundation
 
-protocol BlockchainWatchlistDelegate {
+protocol BlockchainDaemonDelegate {
     func didUpdateBlockCount(for blockchain: Blockchain)
 }
 
-final class BlockchainWatchlist {
+final class BlockchainDaemon {
     
     // MARK: - Public Properties
-    static var delegate: BlockchainWatchlistDelegate?
+    static var delegate: BlockchainDaemonDelegate?
     
     // MARK: - Private Properties
     private static var updateTimerForBlockchain = [Blockchain: Timer]()
@@ -36,7 +36,7 @@ final class BlockchainWatchlist {
         if !blockchains.contains(blockchain) {
             blockchains.insert(blockchain)
             updateBlockCount(for: blockchain)
-            log.debug("Added blockchain '\(blockchain.rawValue)' to BlockchainWatchlist.")
+            log.debug("Added blockchain '\(blockchain.rawValue)' to BlockchainDaemon.")
         }
     
         if let requestCount = requestsForBlockchain[blockchain] {
@@ -59,7 +59,7 @@ final class BlockchainWatchlist {
         if requestCount == 1 {
             blockchains.remove(blockchain)
             requestsForBlockchain.removeValue(forKey: blockchain)
-            log.debug("Removed blockchain '\(blockchain.rawValue)' from BlockchainWatchlist.")
+            log.debug("Removed blockchain '\(blockchain.rawValue)' from BlockchainDaemon.")
         } else {
             requestsForBlockchain[blockchain] = requestCount - 1
             log.debug("Updated requests (\(requestCount - 1)) for blockchain '\(blockchain.rawValue)'.")
@@ -78,7 +78,7 @@ final class BlockchainWatchlist {
         stopUpdateTimer()
         blockchains = Set<Blockchain>()
         requestsForBlockchain = [Blockchain: Int]()
-        log.debug("Reset BlockchainWatchlist.")
+        log.debug("Reset BlockchainDaemon.")
     }
     
     @objc class func startUpdateTimer() {

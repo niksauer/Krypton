@@ -212,29 +212,21 @@ class Transaction: NSManagedObject {
         guard !date.isFuture else {
             return nil
         }
-
-        let unitExchangeValue: Double?
-
-        if date.isToday {
-            unitExchangeValue = TickerWatchlist.getCurrentPrice(for: owner!.tradingPair)
-        } else {
-            unitExchangeValue = TickerPrice.getTickerPrice(for: owner!.tradingPair, on: date)?.value
+        
+        if date.UTCStart == self.date?.UTCStart, hasUserExchangeValue {
+            return userExchangeValue
         }
-
-        guard unitExchangeValue != nil else {
+        
+        guard let unitExchangeValue = owner?.tradingPair.getValue(on: date) else {
             log.warning("Failed to get exchange value for transaction '\(self.logDescription)'.")
             return nil
         }
 
         switch type {
         case .fee:
-            return unitExchangeValue! * feeAmount
+            return unitExchangeValue * feeAmount
         case .total:
-            if hasUserExchangeValue {
-                return userExchangeValue
-            } else {
-                return unitExchangeValue! * totalAmount
-            }
+            return unitExchangeValue * totalAmount
         }
     }
 

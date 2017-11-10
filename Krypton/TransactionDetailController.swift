@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TransactionDetailController: UITableViewController, UITextFieldDelegate, TickerWatchlistDelegate, BlockchainWatchlistDelegate, PortfolioManagerDelegate {
+class TransactionDetailController: UITableViewController, UITextFieldDelegate, TickerDaemonDelegate, BlockchainDaemonDelegate, PortfolioManagerDelegate {
     
     // MARK: - Private Properties
     private var sendersIndexPath: IndexPath!
@@ -31,8 +31,8 @@ class TransactionDetailController: UITableViewController, UITextFieldDelegate, T
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        TickerWatchlist.delegate = self
-        BlockchainWatchlist.delegate = self
+        TickerDaemon.delegate = self
+        BlockchainDaemon.delegate = self
         PortfolioManager.shared.delegate = self
         
         if transaction.isUnread {
@@ -164,12 +164,12 @@ class TransactionDetailController: UITableViewController, UITextFieldDelegate, T
         present(alertController, animated: true, completion: nil)
     }
    
-    // MARK: - TickerWatchlist Delegate
+    // MARK: - TickerDaemon Delegate
     func didUpdateCurrentPrice(for tradingPair: TradingPair) {
         updateUI()
     }
     
-    // MARK: - BlockchainWatchlist Delegate
+    // MARK: - BlockchainDaemon Delegate
     func didUpdateBlockCount(for blockchain: Blockchain) {
         updateUI()
     }
@@ -284,6 +284,7 @@ class TransactionDetailController: UITableViewController, UITextFieldDelegate, T
                     cell.detailTextLabel?.text = Format.getRelativeProfitFormatting(from: profitStats)
                 } else {
                     cell.textLabel?.text = "Absolute Profit"
+                    print(profitStats)
                     cell.detailTextLabel?.text = Format.getAbsoluteProfitFormatting(from: profitStats, currency: transaction.owner!.baseCurrency)
                 }
                 
@@ -318,7 +319,7 @@ class TransactionDetailController: UITableViewController, UITextFieldDelegate, T
             case _ where row == 1:
                 blockIndexPath = indexPath
                 
-                guard let blockCount = BlockchainWatchlist.getBlockCount(for: transaction.owner!.blockchain) else {
+                guard let blockCount = BlockchainDaemon.getBlockCount(for: transaction.owner!.blockchain) else {
                     cell.detailTextLabel?.text = "???"
                     break
                 }

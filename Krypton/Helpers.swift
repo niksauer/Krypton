@@ -82,8 +82,19 @@ struct Format {
     }
     
     static func getRelativeProfitFormatting(from: (startValue: Double, endValue: Double)) -> String? {
-        if let percentage = getNumberFormatting(for: ((from.endValue - from.startValue) / from.startValue * 100)) {
-            return percentage + "%"
+        let percentage = ((from.startValue - from.endValue) / from.startValue * 100)
+        let result: Double
+        
+        if from.startValue < from.endValue {
+            result = abs(percentage)
+        } else if from.startValue > from.endValue {
+            result = -abs(percentage)
+        } else {
+            result = 0
+        }
+        
+        if let numberString = Format.getNumberFormatting(for: result) {
+            return numberString + "%"
         } else {
             return nil
         }

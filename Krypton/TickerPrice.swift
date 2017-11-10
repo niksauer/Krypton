@@ -20,7 +20,7 @@ class TickerPrice: NSManagedObject {
     private class func getNewestTickerPrice(for tradingPair: TradingPair) -> TickerPrice? {
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()
-        request.predicate = NSPredicate(format: "tradingPairRaw = %@", tradingPair.rawValue)
+        request.predicate = NSPredicate(format: "tradingPairRaw = %@", tradingPair.name)
         request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
         request.fetchLimit = 1
         
@@ -40,7 +40,7 @@ class TickerPrice: NSManagedObject {
     /// creates and returns ticker price if non-existent in database, throws otherwise
     class func createTickerPrice(from priceInfo: TickerConnector.Price, in context: NSManagedObjectContext) throws -> TickerPrice {
         let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()
-        request.predicate = NSPredicate(format: "tradingPairRaw = %@ AND date = %@", priceInfo.tradingPair.rawValue, priceInfo.date as NSDate)
+        request.predicate = NSPredicate(format: "tradingPairRaw = %@ AND date = %@", priceInfo.tradingPair.name, priceInfo.date as NSDate)
         
         do {
             let matches = try context.fetch(request)
@@ -54,7 +54,7 @@ class TickerPrice: NSManagedObject {
         
         let tickerPrice = TickerPrice(context: context)
         tickerPrice.date = priceInfo.date
-        tickerPrice.tradingPairRaw = priceInfo.tradingPair.rawValue
+        tickerPrice.tradingPairRaw = priceInfo.tradingPair.name
         tickerPrice.value = priceInfo.value
         
         return tickerPrice
@@ -71,7 +71,7 @@ class TickerPrice: NSManagedObject {
         
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()
-        request.predicate = NSPredicate(format: "tradingPairRaw = %@ AND date >= %@ AND date < %@", tradingPair.rawValue, startDate, endDate)
+        request.predicate = NSPredicate(format: "tradingPairRaw = %@ AND date >= %@ AND date < %@", tradingPair.name, startDate, endDate)
         
         do {
             let matches = try context.fetch(request)
@@ -123,7 +123,7 @@ class TickerPrice: NSManagedObject {
                         case TickerPriceError.duplicate:
                             duplicateCount = duplicateCount + 1
                         default:
-                            log.error("Failed to create tickerPrice for tradingPair '\(price.tradingPair.rawValue)': \(error)")
+                            log.error("Failed to create tickerPrice for tradingPair '\(price.tradingPair.name)': \(error)")
                         }
                     }
                 }
@@ -132,15 +132,15 @@ class TickerPrice: NSManagedObject {
                     if context.hasChanges {
                         try context.save()
                         let multiplePrices = newPriceCount >= 2 || newPriceCount == 0
-                        log.debug("Saved price history for tradingPair '\(tradingPair.rawValue)' with \(newPriceCount) new price\(multiplePrices ? "s" : "") since \(Format.getDateFormatting(for: startDate)).")
+                        log.debug("Saved price history for tradingPair '\(tradingPair.name)' with \(newPriceCount) new price\(multiplePrices ? "s" : "") since \(Format.getDateFormatting(for: startDate)).")
                     }
                     
                     completion?()
                 } catch {
-                    log.error("Failed to save fetched price history for tradingPair '\(tradingPair.rawValue)': \(error)")
+                    log.error("Failed to save fetched price history for tradingPair '\(tradingPair.name)': \(error)")
                 }
             case .failure(let error):
-                log.error("Failed to fetch price history for tradingPair '\(tradingPair.rawValue)': \(error)")
+                log.error("Failed to fetch price history for tradingPair '\(tradingPair.name)': \(error)")
             }
         }
     }

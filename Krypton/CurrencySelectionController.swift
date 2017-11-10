@@ -27,8 +27,6 @@ class CurrencySelectionController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         currencies = CurrencyManager.getAllValues(for: type)
-        
-        
     }
 
     // MARK: - TableView Data Source

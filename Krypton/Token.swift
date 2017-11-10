@@ -73,6 +73,11 @@ class Token: NSManagedObject, Currency {
         
     }
     
+    // MARK: - Public Properties
+    var tradingPair: TradingPair {
+        return TradingPair(base: self, quote: owner!.baseCurrency, intermediate: owner!.blockchain)
+    }
+    
     // MARK: - Public Class Methods
     class func createToken(from tokenInfo: TokenFeatures, owner: TokenAddress, in context: NSManagedObjectContext) throws -> Token {
         let request: NSFetchRequest<Token> = Token.fetchRequest()

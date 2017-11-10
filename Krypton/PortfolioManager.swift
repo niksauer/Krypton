@@ -64,7 +64,9 @@ final class PortfolioManager: PortfolioDelegate {
                 }
             }
 
-            prepareWatchlists()
+            prepareTickerDaemon()
+            prepareBlockchainDaemon()
+            
             updatePortfolios()
         } catch {
             log.error("Failed to initialize PortfolioManager singleton: \(error)")
@@ -108,38 +110,28 @@ final class PortfolioManager: PortfolioDelegate {
     }
     
     var storedTradingPairs: Set<TradingPair> {
-        return Set(storedAddresses.map { $0.tradingPair })
+        var tradingPairs = [TradingPair]()
+        
+        tradingPairs.append(contentsOf: storedAddresses.map({ $0.tradingPair }))
+        tradingPairs.append(contentsOf: storedTokens.map({ $0.tradingPair }))
+        
+        return Set(tradingPairs)
     }
     
     var storedBlockchains: Set<Blockchain> {
         return Set(storedAddresses.map { $0.blockchain })
     }
     
-//    var storedCryptoCurrencies: [Currency] {
-//        var storedBlockchains = Set<Blockchain>()
-//        var storedTokens = Set<Token>()
-//        
-//        for address in storedAddresses {
-//            switch address {
-//            case let tokenAddress as TokenAddress:
-//                for token in tokenAddress.storedTokens {
-//                    storedTokens.insert(token)
-//                }
-//                fallthrough
-//            default:
-//                storedBlockchains.insert(address.blockchain)
-//            }
-//        }
-//        
-//        return Array(storedBlockchains) as [Currency] + Array(storedTokens) as [Currency]
-//    }
-    
+    var storedTokens: Set<Token> {
+        return Set((storedAddresses.filter({ $0 is TokenAddress }) as! [TokenAddress]).flatMap({ $0.storedTokens }))
+    }
+
     // MARK: - Private Methods
     /// loads and returns all addresses stored in Core Data
     private func loadPortfolios() throws -> [Portfolio] {
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<Portfolio> = Portfolio.fetchRequest()
-        
+    
         do {
             return try context.fetch(request)
         } catch {
@@ -147,16 +139,19 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
-    private func prepareWatchlists() {
-        TickerWatchlist.reset()
-        BlockchainWatchlist.reset()
+    private func prepareTickerDaemon() {
+        TickerDaemon.reset()
         
         for tradingPair in storedTradingPairs {
-            TickerWatchlist.addTradingPair(tradingPair)
+            tradingPair.registerForUpdates()
         }
+    }
+    
+    private func prepareBlockchainDaemon() {
+        BlockchainDaemon.reset()
         
         for blockchain in storedBlockchains {
-            BlockchainWatchlist.addBlockchain(blockchain)
+            BlockchainDaemon.addBlockchain(blockchain)
         }
     }
 
@@ -185,11 +180,7 @@ final class PortfolioManager: PortfolioDelegate {
             baseCurrency = currency
             log.debug("Updated base currency (\(currency.code)) of PortfolioManager.")
             
-            TickerWatchlist.reset()
-            
-            for tradingPair in storedTradingPairs {
-                TickerWatchlist.addTradingPair(tradingPair)
-            }
+            prepareTickerDaemon()
             
             delegate?.didUpdatePortfolioManager()
         } catch {
@@ -224,7 +215,8 @@ final class PortfolioManager: PortfolioDelegate {
             context.delete(portfolio)
             try context.save()
             log.info("Deleted portfolio '\(alias)'.")
-            prepareWatchlists()
+            prepareTickerDaemon()
+            prepareBlockchainDaemon()
             delegate?.didUpdatePortfolioManager()
         } catch {
             log.error("Failed to delete portfolio: \(error)")
@@ -298,7 +290,7 @@ final class PortfolioManager: PortfolioDelegate {
                 return nil
             }
         }
-        
+    
         return (startValue, endValue)
     }
     
@@ -364,14 +356,14 @@ final class PortfolioManager: PortfolioDelegate {
     }
     
     func didAddAddress(to portfolio: Portfolio, address: Address) {
-        TickerWatchlist.addTradingPair(address.tradingPair)
-        BlockchainWatchlist.addBlockchain(address.blockchain)
+        TickerDaemon.addTradingPair(address.tradingPair)
+        BlockchainDaemon.addBlockchain(address.blockchain)
         delegate?.didUpdatePortfolioManager()
     }
     
     func didRemoveAddress(from portfolio: Portfolio, tradingPair: TradingPair, blockchain: Blockchain) {
-        TickerWatchlist.removeTradingPair(tradingPair)
-        BlockchainWatchlist.removeBlockchain(blockchain)
+        TickerDaemon.removeTradingPair(tradingPair)
+        BlockchainDaemon.removeBlockchain(blockchain)
         delegate?.didUpdatePortfolioManager()
     }
     

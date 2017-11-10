@@ -84,7 +84,7 @@ class Address: NSManagedObject {
     
     /// returns trading pair constructed from owner's baseCurrency + address' cryptoCurrency
     var tradingPair: TradingPair {
-        return TradingPair.getTradingPair(a: blockchain, b: baseCurrency)!
+        return TradingPair(base: blockchain, quote: baseCurrency)
     }
     
     /// returns all transaction associated with address
@@ -281,23 +281,11 @@ class Address: NSManagedObject {
     
     /// returns exchange value on speicfied date, nil if date is in the future
     func getExchangeValue(for type: TransactionType, on date: Date) -> (balance: Double, value: Double)? {
-        guard !date.isFuture, let balance = getBalance(for: type, on: date) else {
+        guard !date.isFuture, let balance = getBalance(for: type, on: date), let unitExchangeValue = tradingPair.getValue(on: date) else {
             return nil
         }
         
-        let unitExchangeValue: Double?
-        
-        if date.isToday {
-            unitExchangeValue = TickerWatchlist.getCurrentPrice(for: tradingPair)
-        } else {
-            unitExchangeValue = TickerPrice.getTickerPrice(for: tradingPair, on: date)?.value
-        }
-        
-        guard unitExchangeValue != nil else {
-            return nil
-        }
-        
-        return (balance, unitExchangeValue! * balance)
+        return (balance, unitExchangeValue * balance)
     }
     
     /// returns total value invested in address

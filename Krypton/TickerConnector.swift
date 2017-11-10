@@ -48,7 +48,12 @@ struct TickerConnector {
             return .failure(error!)
         }
         
-        return KrakenAPI.currentPrice(for: tradingPair, fromJSON: jsonData)
+        switch tradingPair.base {
+        case is Token:
+            return BittrexAPI.currentPrice(for: tradingPair, fromJSON: jsonData)
+        default:
+            return KrakenAPI.currentPrice(for: tradingPair, fromJSON: jsonData)
+        }
     }
     
     // MARK: - Public Methods
@@ -68,7 +73,15 @@ struct TickerConnector {
     }
     
     static func fetchCurrentPrice(for tradingPair: TradingPair, completion: @escaping (CurrentPriceResult) -> Void) {
-        let url = KrakenAPI.currentPriceURL(for: tradingPair)
+        let url: URL
+        
+        switch tradingPair.base {
+        case is Token:
+            url = BittrexAPI.currentPriceURL(for: tradingPair)
+        default:
+            url = KrakenAPI.currentPriceURL(for: tradingPair)
+        }
+        
         let request = URLRequest(url: url)
         
         let task = session.dataTask(with: request) { (data, response, error) -> Void in

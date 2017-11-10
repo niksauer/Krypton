@@ -36,6 +36,11 @@ class SettingsController: UITableViewController, CurrencySelectionDelegate, Port
         }
     }
     
+    @IBAction func done(_ sender: UIBarButtonItem) {
+        self.dismiss(animated: true, completion: nil)
+    }
+    
+    
     // MARK: - CurrencySelection Delegate
     func didSelectCurrency(selection: Currency) {
         do {

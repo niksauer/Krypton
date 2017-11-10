@@ -8,7 +8,7 @@
 
 import UIKit
 
-class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWatchlistDelegate, FilterDelegate {
+class DashboardController: UIViewController, PortfolioManagerDelegate, TickerDaemonDelegate, FilterDelegate {
     
     // MARK: - Private Properties
     private enum PortfolioDisplayType {
@@ -17,13 +17,13 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
         case absoluteProfit
     }
 
-    private var comparisonDate: Date = Calendar.current.date(byAdding: .day, value: -1, to: Date())! {
+    private var comparisonDate = Calendar.current.date(byAdding: .day, value: -1, to: Date())! {
         didSet {
             updateUI()
         }
     }
     
-    private var transactionFilter: TransactionType = .all {
+    private var filter = Filter() {
         didSet {
             updateUI()
         }
@@ -31,7 +31,7 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
     
     private var portfolioDisplay: PortfolioDisplayType = .currentExchangeValue {
         didSet {
-            guard let currentExchangeValue = PortfolioManager.shared.getExchangeValue(for: transactionFilter, on: Date()), let profitStats = PortfolioManager.shared.getProfitStats(for: transactionFilter, timeframe: .allTime) else {
+            guard let currentExchangeValue = PortfolioManager.shared.getExchangeValue(for: filter.transactionType, on: Date()), let profitStats = PortfolioManager.shared.getProfitStats(for: filter.transactionType, timeframe: .allTime) else {
                 portfolioValueLabel.text = "???"
                 return
             }
@@ -52,7 +52,7 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
     
     private var showsRelativeProfit: Bool = true {
         didSet {
-            guard let profitStats = PortfolioManager.shared.getProfitStats(for: transactionFilter, timeframe: .sinceDate(comparisonDate)) else {
+            guard let profitStats = PortfolioManager.shared.getProfitStats(for: filter.transactionType, timeframe: .sinceDate(comparisonDate)) else {
                 profitValueLabel.text = "???"
                 return
             }
@@ -94,7 +94,7 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         PortfolioManager.shared.delegate = self
-        TickerWatchlist.delegate = self
+        TickerDaemon.delegate = self
         updateUI()
     }
 
@@ -105,7 +105,7 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
         if let destNavVC = segue.destination as? UINavigationController, let destVC = destNavVC.topViewController as? FilterController {
             destVC.delegate = self
             destVC.isSelector = true
-            destVC.options.transactionType = transactionFilter
+            destVC.filter.transactionType = filter.transactionType
         }
     }
 
@@ -114,7 +114,7 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
         portfolioDisplay = { portfolioDisplay }()
         showsRelativeProfit = { showsRelativeProfit }()
         
-        if let investmentValue = PortfolioManager.shared.getProfitStats(for: transactionFilter, timeframe: .allTime)?.startValue {
+        if let investmentValue = PortfolioManager.shared.getProfitStats(for: filter.transactionType, timeframe: .allTime)?.startValue {
             investmentValueLabel.text = Format.getCurrencyFormatting(for: investmentValue, currency: PortfolioManager.shared.baseCurrency)
         } else {
             investmentValueLabel.text = "???"
@@ -141,7 +141,7 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
         updateUI()
     }
     
-    // MARK: - TickerWatchlist Delegate
+    // MARK: - TickerDaemon Delegate
     func didUpdateCurrentPrice(for tradingPair: TradingPair) {
         updateUI()
     }
@@ -152,7 +152,7 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerWat
     }
     
     func didChangeTransactionType(type: TransactionType) {
-        self.transactionFilter = type
+        filter.transactionType = type
     }
 
 }
