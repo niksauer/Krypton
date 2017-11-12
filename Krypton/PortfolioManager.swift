@@ -47,7 +47,7 @@ final class PortfolioManager: PortfolioDelegate {
 
             if storedPortfolios.count == 0 {
                 do {
-                    let portfolio = try addPortfolio(alias: "Personal", baseCurrency: baseCurrency)
+                    let portfolio = try addPortfolio(alias: "Personal", quoteCurrency: quoteCurrency)
                     try portfolio.setIsDefault(true)
                     log.info("Created empty default portfolio '\(portfolio.alias!)'.")
                 } catch {
@@ -73,21 +73,31 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
+    // MARK: - Private Properties
+    private var storedCurrencyPairs: Set<CurrencyPair> {
+        var currencyPairs = [CurrencyPair]()
+        
+        currencyPairs.append(contentsOf: storedAddresses.map({ $0.currencyPair }))
+        currencyPairs.append(contentsOf: storedTokens.map({ $0.currencyPair }))
+        
+        return Set(currencyPairs)
+    }
+    
     // MARK: - Public Properties
     /// delegate who gets notified of changes in portfolio
     var delegate: PortfolioManagerDelegate?
     
     /// fiat currency used to calculate exchange values of all stored portfolios
-    private(set) public var baseCurrency: Currency = {
-        if let storedBaseCurrencyCode = UserDefaults.standard.value(forKey: "baseCurrency") as? String, let storedBaseCurrency = CurrencyManager.getCurrency(from: storedBaseCurrencyCode) {
-            log.debug("Loaded base currency '\(storedBaseCurrency)' from UserDefaults.")
-            return storedBaseCurrency
+    private(set) public var quoteCurrency: CurrencyFeatures = {
+        if let storedQuoteCurrencyCode = UserDefaults.standard.value(forKey: "quoteCurrency") as? String, let storedQuoteCurrency = CurrencyManager.getCurrency(from: storedQuoteCurrencyCode) {
+            log.debug("Loaded base currency '\(storedQuoteCurrency)' from UserDefaults.")
+            return storedQuoteCurrency
         } else {
-            let standardBaseCurrency = Fiat.EUR
-            UserDefaults.standard.setValue(standardBaseCurrency.rawValue, forKey: "baseCurrency")
+            let standardQuoteCurrency = Fiat.EUR
+            UserDefaults.standard.setValue(standardQuoteCurrency.rawValue, forKey: "quoteCurrency")
             UserDefaults.standard.synchronize()
-            log.debug("Could not load base currency from UserDefaults. Set '\(standardBaseCurrency)' as default.")
-            return standardBaseCurrency
+            log.debug("Could not load base currency from UserDefaults. Set '\(standardQuoteCurrency)' as default.")
+            return standardQuoteCurrency
         }
     }()
 
@@ -109,19 +119,17 @@ final class PortfolioManager: PortfolioDelegate {
         return storedAddresses.filter { $0.isSelected }
     }
     
-    var storedTradingPairs: Set<TradingPair> {
-        var tradingPairs = [TradingPair]()
-        
-        tradingPairs.append(contentsOf: storedAddresses.map({ $0.tradingPair }))
-        tradingPairs.append(contentsOf: storedTokens.map({ $0.tradingPair }))
-        
-        return Set(tradingPairs)
-    }
+//    var storedCryptoCurrencyCodes: Set<String> {
+//        var currencies: [String] = []
+//        currencies.append(contentsOf: storedAddresses.map { $0.blockchain.code })
+//        currencies.append(contentsOf: (storedAddresses.filter({ $0 is TokenAddress }) as! [TokenAddress]).flatMap({ $0.storedTokens.map({ $0.code! })}))
+//        return Set(currencies)
+//    }
     
     var storedBlockchains: Set<Blockchain> {
         return Set(storedAddresses.map { $0.blockchain })
     }
-    
+
     var storedTokens: Set<Token> {
         return Set((storedAddresses.filter({ $0 is TokenAddress }) as! [TokenAddress]).flatMap({ $0.storedTokens }))
     }
@@ -142,8 +150,8 @@ final class PortfolioManager: PortfolioDelegate {
     private func prepareTickerDaemon() {
         TickerDaemon.reset()
         
-        for tradingPair in storedTradingPairs {
-            tradingPair.registerForUpdates()
+        for currencyPair in storedCurrencyPairs {
+            currencyPair.registerForUpdates()
         }
     }
     
@@ -165,19 +173,19 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
-    func setBaseCurrency(_ currency: Currency) throws {
-        guard currency.code != baseCurrency.code else {
+    func setQuoteCurrency(_ currency: CurrencyFeatures) throws {
+        guard currency.code != quoteCurrency.code else {
             return
         }
         
         do {
             for portfolio in storedPortfolios {
-                try portfolio.setBaseCurrency(currency)
+                try portfolio.setQuoteCurrency(currency)
             }
             
-            UserDefaults.standard.setValue(currency.code, forKey: "baseCurrency")
+            UserDefaults.standard.setValue(currency.code, forKey: "quoteCurrency")
             UserDefaults.standard.synchronize()
-            baseCurrency = currency
+            quoteCurrency = currency
             log.debug("Updated base currency (\(currency.code)) of PortfolioManager.")
             
             prepareTickerDaemon()
@@ -191,14 +199,14 @@ final class PortfolioManager: PortfolioDelegate {
     
     // MARK: Management
     /// creates, saves and adds portfolio with specified base currency
-    func addPortfolio(alias: String, baseCurrency: Currency) throws -> Portfolio {
+    func addPortfolio(alias: String, quoteCurrency: CurrencyFeatures) throws -> Portfolio {
         do {
             let context = AppDelegate.viewContext
-            let portfolio = Portfolio.createPortfolio(alias: alias, baseCurrency: baseCurrency, in: context)
+            let portfolio = Portfolio.createPortfolio(alias: alias, quoteCurrency: quoteCurrency, in: context)
             try context.save()
             portfolio.delegate = self
             storedPortfolios.append(portfolio)
-            log.info("Created portfolio '\(alias)' with base currency '\(baseCurrency)'.")
+            log.info("Created portfolio '\(alias)' with base currency '\(quoteCurrency)'.")
             delegate?.didUpdatePortfolioManager()
             return portfolio
         } catch {
@@ -226,7 +234,7 @@ final class PortfolioManager: PortfolioDelegate {
     
     func moveAddress(_ address: Address, to portfolio: Portfolio) throws {
         do {
-            try address.setBaseCurrency(portfolio.baseCurrency)
+            try address.setQuoteCurrency(portfolio.quoteCurrency)
             address.portfolio = portfolio
             try AppDelegate.viewContext.save()
             log.info("Moved address '\(address.logDescription)' to portfolio '\(portfolio.logDescription)'.")
@@ -351,18 +359,18 @@ final class PortfolioManager: PortfolioDelegate {
         delegate?.didUpdatePortfolioManager()
     }
     
-    func didUpdateBaseCurrency(for portfolio: Portfolio) {
+    func didUpdateQuoteCurrency(for portfolio: Portfolio) {
         delegate?.didUpdatePortfolioManager()
     }
     
     func didAddAddress(to portfolio: Portfolio, address: Address) {
-        TickerDaemon.addTradingPair(address.tradingPair)
+        TickerDaemon.addCurrencyPair(address.currencyPair)
         BlockchainDaemon.addBlockchain(address.blockchain)
         delegate?.didUpdatePortfolioManager()
     }
     
-    func didRemoveAddress(from portfolio: Portfolio, tradingPair: TradingPair, blockchain: Blockchain) {
-        TickerDaemon.removeTradingPair(tradingPair)
+    func didRemoveAddress(from portfolio: Portfolio, currencyPair: CurrencyPair, blockchain: Blockchain) {
+        TickerDaemon.removeCurrencyPair(currencyPair)
         BlockchainDaemon.removeBlockchain(blockchain)
         delegate?.didUpdatePortfolioManager()
     }
@@ -392,7 +400,7 @@ final class PortfolioManager: PortfolioDelegate {
     
     private func deletePriceHistory() {
         let context = AppDelegate.viewContext
-        let request: NSFetchRequest<TickerPrice> = TickerPrice.fetchRequest()
+        let request: NSFetchRequest<MarketPrice> = MarketPrice.fetchRequest()
         
         if let prices = try? context.fetch(request) {
             for price in prices {
@@ -402,9 +410,9 @@ final class PortfolioManager: PortfolioDelegate {
         
         do {
             try context.save()
-            log.info("Deleted all tickerPrices from Core Data.")
+            log.info("Deleted all MarketPrices from Core Data.")
         } catch {
-            log.error("Failed to delete all tickerPrices from Core Data: \(error)")
+            log.error("Failed to delete all MarketPrices from Core Data: \(error)")
         }
         
     }

@@ -13,7 +13,7 @@ class AmountForAddressController: UITableViewController {
     // MARK: - Public Properties
     var addresses: [String]!
     var amountForAddress: [String: Double]!
-    var currency: Currency!
+    var currency: CurrencyFeatures!
 
     // MARK: - TableView Data Source
     override func numberOfSections(in tableView: UITableView) -> Int {

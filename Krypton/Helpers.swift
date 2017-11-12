@@ -33,7 +33,7 @@ struct Format {
         return formatter.string(from: NSNumber(value: value))
     }
     
-    private static func getTokenFormatting(for value: Double, token: Token) -> String? {
+    private static func getTokenFormatting(for value: Double, token: TokenFeatures) -> String? {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.minimumFractionDigits = 2
@@ -64,20 +64,20 @@ struct Format {
         return formatter.string(from: date)
     }
     
-    static func getCurrencyFormatting(for value: Double, currency: Currency) -> String? {
+    static func getCurrencyFormatting(for value: Double, currency: CurrencyFeatures) -> String? {
         switch currency {
         case let fiatCurrency as Fiat:
             return getFiatFormatting(for: value, fiatCurrency: fiatCurrency)
         case let blockchain as Blockchain:
             return getCryptoFormatting(for: value, blockchain: blockchain)
-        case let token as Token:
+        case let token as TokenFeatures:
             return getTokenFormatting(for: value, token: token)
         default:
             return nil
         }
     }
     
-    static func getAbsoluteProfitFormatting(from: (startValue: Double, endValue: Double), currency: Currency) -> String? {
+    static func getAbsoluteProfitFormatting(from: (startValue: Double, endValue: Double), currency: CurrencyFeatures) -> String? {
         return getCurrencyFormatting(for: (from.endValue - from.startValue), currency: currency)
     }
     

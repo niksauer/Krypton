@@ -446,7 +446,7 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
             textField.addTarget(self, action: #selector(self.textFieldDidChange(_:)), for: .editingChanged)
             
             let totalExchangeValue = selectedTransactions.flatMap({ $0.exchangeValue }).reduce(0, +)
-            textField.placeholder = Format.getCurrencyFormatting(for: totalExchangeValue, currency: PortfolioManager.shared.baseCurrency)
+            textField.placeholder = Format.getCurrencyFormatting(for: totalExchangeValue, currency: PortfolioManager.shared.quoteCurrency)
         })
         
         alertController.addAction(cancelAction)
@@ -474,7 +474,7 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
                         decimalDigits = string
                     }
                     
-                    if decimalDigits.count > PortfolioManager.shared.baseCurrency.decimalDigits {
+                    if decimalDigits.count > PortfolioManager.shared.quoteCurrency.decimalDigits {
                         return false
                     }
                 }
@@ -548,7 +548,7 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
 //        cell.configure(transaction: transaction)
         
         if showsExchangeValue, let exchangeValue = transaction.exchangeValue {
-            cell.textLabel?.text = Format.getCurrencyFormatting(for: exchangeValue, currency: transaction.owner!.baseCurrency)
+            cell.textLabel?.text = Format.getCurrencyFormatting(for: exchangeValue, currency: transaction.owner!.quoteCurrency)
         } else {
             cell.textLabel?.text = Format.getCurrencyFormatting(for: transaction.totalAmount, currency: transaction.owner!.blockchain)
         }

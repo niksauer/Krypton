@@ -11,7 +11,9 @@ import UIKit
 class WatchlistController: UITableViewController, TickerDaemonDelegate {
     
     // MARK: - Public Properties
-    var tradingPairs = [TradingPair]()
+    var displayedCurrencyPairs = Set<CurrencyPair>()
+    var storedCurrencyPairs = Set<CurrencyPair>()
+//    var allcurrencyPairs = [CurrencyPair]()
 
     // MARK: - Initialization
     override func viewDidLoad() {
@@ -19,7 +21,22 @@ class WatchlistController: UITableViewController, TickerDaemonDelegate {
         TickerDaemon.delegate = self
         self.navigationItem.rightBarButtonItem = self.editButtonItem
         
-        tradingPairs = Array(PortfolioManager.shared.storedTradingPairs).sorted(by: { $0.base.code < $1.base.code })
+//        for code in PortfolioManager.shared.storedCryptoCurrencyCodes {
+//            guard let quoteCurrency = CurrencyManager.getCurrency(from: code) else {
+//                continue
+//            }
+//            
+//            storedCurrencyPairs.insert(CurrencyPair(base: quoteCurrency, quote: PortfolioManager.shared.quoteCurrency))
+//        }
+            
+            
+        displayedCurrencyPairs = storedCurrencyPairs
+        
+    }
+    
+    override func setEditing(_ editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: animated)
+        tableView.setEditing(editing, animated: animated)
     }
     
     // MARK: - TableView Data Source
@@ -28,16 +45,16 @@ class WatchlistController: UITableViewController, TickerDaemonDelegate {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return tradingPairs.count
+        return displayedCurrencyPairs.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let tradingPair = tradingPairs[indexPath.row]
+        let currencyPair = Array(displayedCurrencyPairs)[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: "tickerCell", for: indexPath)
-        cell.textLabel?.text = tradingPair.base.code
+        cell.textLabel?.text = currencyPair.base.code
     
-        if let currentPrice = tradingPair.currentPrice {
-            cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: currentPrice, currency: PortfolioManager.shared.baseCurrency)
+        if let currentRate = currencyPair.currentRate {
+            cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: currentRate, currency: PortfolioManager.shared.quoteCurrency)
         } else {
             cell.detailTextLabel?.text = "???"
         }
@@ -46,7 +63,7 @@ class WatchlistController: UITableViewController, TickerDaemonDelegate {
     }
     
     // MARK: - TickerDaemon Delegate
-    func didUpdateCurrentPrice(for tradingPair: TradingPair) {
+    func didUpdateCurrentPrice(for currencyPair: CurrencyPair) {
         tableView.reloadData()
     }
 

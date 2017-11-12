@@ -9,84 +9,77 @@
 import Foundation
 import SwiftKeccak
 
-protocol Currency {
+protocol CurrencyFeatures {
     var code: String { get }
+    var name: String { get }
+    var symbol: String { get }
     var decimalDigits: Int { get }
     var type: CurrencyType { get }
 }
 
-enum CurrencyType {
-    case fiat
-    case crypto
+enum CurrencyType: String {
+    case Fiat
+    case Crypto
 }
 
 struct CurrencyManager {
     
-    static func getCurrency(from code: String) -> Currency? {
-        return Fiat(rawValue: code) ?? Blockchain(rawValue: code) ?? Token.ERC20(rawValue: code)
+    // MARK: - Private Properties
+    private static let allCurrencies = [Blockchain.self, Fiat.self, Token.self] as [Any]
+    
+    // MARK: - Public Methods
+    static func getCurrency(from code: String) -> CurrencyFeatures? {
+        return Fiat(rawValue: code) ?? Blockchain(rawValue: code) ?? ERC20Token(rawValue: code)
     }
     
-    static func getAllCurrencies(for currency: Currency) -> [Currency]? {
-        switch currency {
-        case is Fiat:
+    static func getCurrencies(of type: CurrencyType) -> [CurrencyFeatures] {
+        switch type {
+        case .Fiat:
             return Fiat.allValues
-        case is Blockchain:
-            return Blockchain.allValues
-        case is Token.ERC20:
-            return Token.ERC20.allValues
-        default:
-            return nil
-        }
-    }
-    
-    static func getAllValues(for currencyType: CurrencyType) -> [Currency] {
-        switch currencyType {
-        case .fiat:
-            return Fiat.allValues
-        case .crypto:
-            return Blockchain.allValues as [Currency] + Token.ERC20.allValues as [Currency]
+        case .Crypto:
+            return Blockchain.allValues as [CurrencyFeatures] + ERC20Token.allValues as [CurrencyFeatures]
         }
     }
     
 }
 
-enum Blockchain: String, Currency {
+enum Blockchain: String, CurrencyFeatures {
+    
     case ETH
     case XBT
     
     // MARK: - Private Properties
-    /// dictionary mapping crypto currencies to their respective currency symbol
-    private static let symbolForBlockchain: [Blockchain: String] = [
-        .ETH : "Ξ",
-        .XBT : "Ƀ"
-    ]
-    
     private static let nameForBlockchain: [Blockchain: String] = [
         .ETH: "Ethereum",
         .XBT: "Bitcoin"
     ]
     
+    private static let symbolForBlockchain: [Blockchain: String] = [
+        .ETH : "Ξ",
+        .XBT : "Ƀ"
+    ]
+
     private static let decimalDigitsForBlockchain: [Blockchain: Int] = [
         .ETH: 18,
         .XBT: 8
     ]
-    
-    // MARK: - Public Properties
-    /// returns currency symbol
-    var symbol: String {
-        return Blockchain.symbolForBlockchain[self]!
-    }
-    
-    /// returns currency name
-    var name: String {
-        return Blockchain.nameForBlockchain[self]!
-    }
 
-    static var allValues = [ETH, XBT]
+    // MARK: - Public Properties
+    static var allValues: [CurrencyFeatures] {
+        return [ETH, XBT]
+    }
     
     // MARK: - Currency Protocol
     var code: String {
         return self.rawValue
+    }
+    
+    var name: String {
+        return Blockchain.nameForBlockchain[self]!
+    }
+    
+    var symbol: String {
+        return Blockchain.symbolForBlockchain[self]!
     }
     
     var decimalDigits: Int {
@@ -94,21 +87,52 @@ enum Blockchain: String, Currency {
     }
     
     var type: CurrencyType {
-        return .crypto
+        return .Crypto
     }
     
+    // MARK: - Currency Protocol
+    func getToken(address: String) -> TokenFeatures? {
+        switch self {
+        case .ETH:
+            return ERC20Token.init(address: address)
+        default:
+            return nil
+        }
+    }
+
 }
 
-enum Fiat: String, Currency {
+enum Fiat: String, CurrencyFeatures {
+    
     case EUR
     case USD
     
-    // MARK: - Public Properties
-    static var allValues = [EUR, USD]
+    // MARK: - Private Properties
+    private static let nameForFiat: [Fiat: String] = [
+        .EUR: "Euro",
+        .USD: "Dollar"
+    ]
+    
+    private static let symbolForFiat: [Fiat: String] = [
+        .EUR : "€",
+        .USD : "$"
+    ]
     
     // MARK: - Currency Protocol
+    static var allValues: [CurrencyFeatures] {
+        return [EUR, USD]
+    }
+    
     var code: String {
         return self.rawValue
+    }
+    
+    var name: String {
+        return Fiat.nameForFiat[self]!
+    }
+    
+    var symbol: String {
+        return Fiat.symbolForFiat[self]!
     }
     
     var decimalDigits: Int {
@@ -116,52 +140,45 @@ enum Fiat: String, Currency {
     }
     
     var type: CurrencyType {
-        return .fiat
+        return .Fiat
     }
-    
+
 }
 
-struct TradingPair: Hashable {
+struct CurrencyPair: Hashable {
+
+    // MARK: - Private Properties
+    private var intermediate: CurrencyFeatures?
     
     // MARK: - Public Properties
-    let base: Currency
-    let quote: Currency
-    private(set) public var intermediate: Currency?
+    let base: CurrencyFeatures
+    let quote: CurrencyFeatures
     
     var name: String {
         return base.code + quote.code
     }
     
-    var currentPrice: Double? {
-        return getValue(on: Date())
+    var currentRate: Double? {
+        return getRate(on: Date())
     }
     
     // MARK: - Initialization
-    init(base: Currency, quote: Currency) {
-        self.base = base
-        self.quote = quote
-    }
-    
-    init(base: Currency, quote: Currency, intermediate: Currency) {
-        self.base = base
-        self.quote = quote
-        self.intermediate = intermediate
-    }
-    
-    // MARK: - Public Methods
-    func registerForUpdates() {
-        if let intermediate = intermediate {
-            TickerDaemon.addTradingPair(TradingPair(base: base, quote: intermediate))
-            TickerDaemon.addTradingPair(TradingPair(base: intermediate, quote: quote))
+    init(base: CurrencyFeatures, quote: CurrencyFeatures) {
+        if let token = base as? TokenFeatures, quote.type != .Crypto {
+            self.base = base
+            self.quote = quote
+            self.intermediate = token.blockchain
         } else {
-            TickerDaemon.addTradingPair(self)
+            self.base = base
+            self.quote = quote
         }
     }
     
-    func getValue(on date: Date) -> Double? {
+    // MARK: - Public Methods
+    func getRate(on date: Date) -> Double? {
         if let intermediate = intermediate {
-            let baseInterPair = TradingPair(base: base, quote: intermediate)
-            let interQuotePair = TradingPair(base: intermediate, quote: quote)
+            let baseInterPair = CurrencyPair(base: base, quote: intermediate)
+            let interQuotePair = CurrencyPair(base: intermediate, quote: quote)
         
             let baseInterValue: Double?
             let interQuoteValue: Double?
@@ -171,8 +188,8 @@ struct TradingPair: Hashable {
                 baseInterValue = TickerDaemon.getCurrentPrice(for: baseInterPair)
                 interQuoteValue = TickerDaemon.getCurrentPrice(for: interQuotePair)
             default:
-                baseInterValue = TickerPrice.getTickerPrice(for: baseInterPair, on: date)?.value
-                interQuoteValue = TickerPrice.getTickerPrice(for: interQuotePair, on: date)?.value
+                baseInterValue = MarketPrice.getMarketPrice(for: baseInterPair, on: date)
+                interQuoteValue = MarketPrice.getMarketPrice(for: interQuotePair, on: date)
             }
             
             guard baseInterValue != nil, interQuoteValue != nil else {
@@ -184,8 +201,17 @@ struct TradingPair: Hashable {
             if date.isToday {
                 return TickerDaemon.getCurrentPrice(for: self)
             } else {
-                return TickerPrice.getTickerPrice(for: self, on: date)?.value
+                return MarketPrice.getMarketPrice(for: self, on: date)
             }
+        }
+    }
+    
+    func registerForUpdates() {
+        if let intermediate = intermediate {
+            TickerDaemon.addCurrencyPair(CurrencyPair(base: base, quote: intermediate))
+            TickerDaemon.addCurrencyPair(CurrencyPair(base: intermediate, quote: quote))
+        } else {
+            TickerDaemon.addCurrencyPair(self)
         }
     }
     
@@ -194,7 +220,7 @@ struct TradingPair: Hashable {
         return name.hashValue
     }
     
-    static func ==(lhs: TradingPair, rhs: TradingPair) -> Bool {
+    static func ==(lhs: CurrencyPair, rhs: CurrencyPair) -> Bool {
         return lhs.base.code == rhs.base.code && lhs.quote.code == rhs.quote.code
     }
     

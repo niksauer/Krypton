@@ -14,12 +14,13 @@
 		2400D0881F40715900833958 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2400D0861F40715900833958 /* LaunchScreen.storyboard */; };
 		2400D0901F40720500833958 /* KrakenAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D08F1F40720500833958 /* KrakenAPI.swift */; };
 		2400D0921F40D6E700833958 /* TickerConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0911F40D6E700833958 /* TickerConnector.swift */; };
-		2400D0941F40D90900833958 /* TickerPrice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0931F40D90900833958 /* TickerPrice.swift */; };
+		2400D0941F40D90900833958 /* MarketPrice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0931F40D90900833958 /* MarketPrice.swift */; };
 		2400D0961F424B5600833958 /* EtherscanAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0951F424B5600833958 /* EtherscanAPI.swift */; };
 		2400D0981F42508100833958 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0971F42508100833958 /* Transaction.swift */; };
 		2400D09A1F42511800833958 /* BlockchainConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0991F42511800833958 /* BlockchainConnector.swift */; };
 		240C63B11F47A88300728B8B /* Portfolio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240C63B01F47A88300728B8B /* Portfolio.swift */; };
 		240C63B31F47A88E00728B8B /* Address.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240C63B21F47A88E00728B8B /* Address.swift */; };
+		240DF3E41FB5CB08003DED40 /* TokenPrototype.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240DF3E31FB5CB08003DED40 /* TokenPrototype.swift */; };
 		24150D431F88E3E1003B7091 /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24150D421F88E3E1003B7091 /* Token.swift */; };
 		242016C11FA1F90E00A7FA17 /* BlockchainDaemon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242016C01FA1F90E00A7FA17 /* BlockchainDaemon.swift */; };
 		242729A41F7075CC00E5231D /* AddresDetailController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242729A31F7075CC00E5231D /* AddresDetailController.swift */; };
@@ -173,12 +174,13 @@
 		2400D0891F40715900833958 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2400D08F1F40720500833958 /* KrakenAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KrakenAPI.swift; sourceTree = "<group>"; };
 		2400D0911F40D6E700833958 /* TickerConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TickerConnector.swift; sourceTree = "<group>"; };
-		2400D0931F40D90900833958 /* TickerPrice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TickerPrice.swift; sourceTree = "<group>"; };
+		2400D0931F40D90900833958 /* MarketPrice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketPrice.swift; sourceTree = "<group>"; };
 		2400D0951F424B5600833958 /* EtherscanAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EtherscanAPI.swift; sourceTree = "<group>"; };
 		2400D0971F42508100833958 /* Transaction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
 		2400D0991F42511800833958 /* BlockchainConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockchainConnector.swift; sourceTree = "<group>"; };
 		240C63B01F47A88300728B8B /* Portfolio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Portfolio.swift; sourceTree = "<group>"; };
 		240C63B21F47A88E00728B8B /* Address.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Address.swift; sourceTree = "<group>"; };
+		240DF3E31FB5CB08003DED40 /* TokenPrototype.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPrototype.swift; sourceTree = "<group>"; };
 		24150D421F88E3E1003B7091 /* Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Token.swift; sourceTree = "<group>"; };
 		242016C01FA1F90E00A7FA17 /* BlockchainDaemon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainDaemon.swift; sourceTree = "<group>"; };
 		242729A31F7075CC00E5231D /* AddresDetailController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddresDetailController.swift; sourceTree = "<group>"; };
@@ -286,8 +288,9 @@
 				240C63B21F47A88E00728B8B /* Address.swift */,
 				2446F5DB1F8EAD1E00DF385B /* TokenAddress.swift */,
 				2400D0971F42508100833958 /* Transaction.swift */,
-				2400D0931F40D90900833958 /* TickerPrice.swift */,
+				2400D0931F40D90900833958 /* MarketPrice.swift */,
 				24150D421F88E3E1003B7091 /* Token.swift */,
+				240DF3E31FB5CB08003DED40 /* TokenPrototype.swift */,
 			);
 			name = EntitiesMO;
 			sourceTree = "<group>";
@@ -625,6 +628,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2400D0961F424B5600833958 /* EtherscanAPI.swift in Sources */,
+				240DF3E41FB5CB08003DED40 /* TokenPrototype.swift in Sources */,
 				2458132F1F5F503B007795BC /* PortfolioManager.swift in Sources */,
 				24A007C41F538AD800EC0DCF /* TickerDaemon.swift in Sources */,
 				24A3D32F1F7DAF250081BF09 /* BlockExplorerAPI.swift in Sources */,
@@ -662,7 +666,7 @@
 				242729A41F7075CC00E5231D /* AddresDetailController.swift in Sources */,
 				2438599B1F6C890600D67791 /* PortfolioTableController.swift in Sources */,
 				2400D07E1F40715900833958 /* DashboardController.swift in Sources */,
-				2400D0941F40D90900833958 /* TickerPrice.swift in Sources */,
+				2400D0941F40D90900833958 /* MarketPrice.swift in Sources */,
 				248F62311FB500EB003D213A /* BittrexAPI.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

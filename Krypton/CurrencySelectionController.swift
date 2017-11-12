@@ -9,24 +9,24 @@
 import UIKit
 
 protocol CurrencySelectionDelegate {
-    func didSelectCurrency(selection: Currency)
+    func didSelectCurrency(selection: CurrencyFeatures)
 }
 
 class CurrencySelectionController: UITableViewController {
 
     // MARK: - Private Properties
-    private var currencies: [Currency]!
+    private var currencies: [CurrencyFeatures]!
     
     // MARK: - Public Properties
     var delegate: CurrencySelectionDelegate?
-    var selection: Currency?
+    var selection: CurrencyFeatures?
     var type: CurrencyType!
-    var exceptions = [Currency]()
+    var exceptions = [CurrencyFeatures]()
     
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
-        currencies = CurrencyManager.getAllValues(for: type)
+        currencies = CurrencyManager.getCurrencies(of: type)
     }
 
     // MARK: - TableView Data Source
