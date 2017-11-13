@@ -64,6 +64,8 @@ final class PortfolioManager: PortfolioDelegate {
                 }
             }
 
+            optionalCurrencies = loadOptionalCurrencies()
+            
             prepareTickerDaemon()
             prepareBlockchainDaemon()
             
@@ -73,22 +75,12 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
-    // MARK: - Private Properties
-    private var storedCurrencyPairs: Set<CurrencyPair> {
-        var currencyPairs = [CurrencyPair]()
-        
-        currencyPairs.append(contentsOf: storedAddresses.map({ $0.currencyPair }))
-        currencyPairs.append(contentsOf: storedTokens.map({ $0.currencyPair }))
-        
-        return Set(currencyPairs)
-    }
-    
     // MARK: - Public Properties
     /// delegate who gets notified of changes in portfolio
     var delegate: PortfolioManagerDelegate?
     
     /// fiat currency used to calculate exchange values of all stored portfolios
-    private(set) public var quoteCurrency: CurrencyFeatures = {
+    private(set) public var quoteCurrency: Currency = {
         if let storedQuoteCurrencyCode = UserDefaults.standard.value(forKey: "quoteCurrency") as? String, let storedQuoteCurrency = CurrencyManager.getCurrency(from: storedQuoteCurrencyCode) {
             log.debug("Loaded base currency '\(storedQuoteCurrency)' from UserDefaults.")
             return storedQuoteCurrency
@@ -119,21 +111,20 @@ final class PortfolioManager: PortfolioDelegate {
         return storedAddresses.filter { $0.isSelected }
     }
     
-//    var storedCryptoCurrencyCodes: Set<String> {
-//        var currencies: [String] = []
-//        currencies.append(contentsOf: storedAddresses.map { $0.blockchain.code })
-//        currencies.append(contentsOf: (storedAddresses.filter({ $0 is TokenAddress }) as! [TokenAddress]).flatMap({ $0.storedTokens.map({ $0.code! })}))
-//        return Set(currencies)
-//    }
+    var storedTokens: [Token] {
+        return (storedAddresses.filter({ $0 is TokenAddress }) as! [TokenAddress]).flatMap({ $0.storedTokens })
+    }
     
     var storedBlockchains: Set<Blockchain> {
         return Set(storedAddresses.map { $0.blockchain })
     }
 
-    var storedTokens: Set<Token> {
-        return Set((storedAddresses.filter({ $0 is TokenAddress }) as! [TokenAddress]).flatMap({ $0.storedTokens }))
+    var requiredCurrencyPairs: Set<CurrencyPair> {
+        return Set(storedAddresses.map({ $0.currencyPair }) + storedTokens.map({ $0.currencyPair }))
     }
-
+    
+    private(set) public var optionalCurrencies = [Currency]()
+    
     // MARK: - Private Methods
     /// loads and returns all addresses stored in Core Data
     private func loadPortfolios() throws -> [Portfolio] {
@@ -147,11 +138,30 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
+    private func loadOptionalCurrencies() -> [Currency] {
+        if let currencyCodes = UserDefaults.standard.value(forKey: "optionalCurrencies") as? [String] {
+            return currencyCodes.map { CurrencyManager.getCurrency(from: $0)}.flatMap({ $0 })
+        } else {
+            return Array()
+        }
+    }
+    
+    private func saveOptionalCurrencies() {
+        let currencyCodes = optionalCurrencies.map({ $0.code })
+        UserDefaults.standard.setValue(currencyCodes, forKey: "optionalCurrencies")
+        UserDefaults.standard.synchronize()
+    }
+    
     private func prepareTickerDaemon() {
         TickerDaemon.reset()
         
-        for currencyPair in storedCurrencyPairs {
-            currencyPair.registerForUpdates()
+        for currencyPair in requiredCurrencyPairs {
+            currencyPair.register()
+        }
+        
+        for currency in optionalCurrencies {
+            let currencyPair = CurrencyPair(base: currency, quote: quoteCurrency)
+            currencyPair.register()
         }
     }
     
@@ -173,33 +183,35 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
-    func setQuoteCurrency(_ currency: CurrencyFeatures) throws {
-        guard currency.code != quoteCurrency.code else {
-            return
+    func updatePortfolios() {
+        for portfolio in storedPortfolios {
+            portfolio.update()
         }
-        
-        do {
-            for portfolio in storedPortfolios {
-                try portfolio.setQuoteCurrency(currency)
+    }
+    
+    func saveChanges() throws -> Bool  {
+        let context = AppDelegate.viewContext
+        if context.hasChanges {
+            do {
+                try context.save()
+                log.debug("Saved changes made to Core Data.")
+                return true
+            } catch {
+                log.debug("Failed to save changes made to Core Data.")
+                throw error
             }
-            
-            UserDefaults.standard.setValue(currency.code, forKey: "quoteCurrency")
-            UserDefaults.standard.synchronize()
-            quoteCurrency = currency
-            log.debug("Updated base currency (\(currency.code)) of PortfolioManager.")
-            
-            prepareTickerDaemon()
-            
-            delegate?.didUpdatePortfolioManager()
-        } catch {
-            log.error("Failed to update base currency of PortfolioManager: \(error)")
-            throw error
+        } else {
+            return false
         }
+    }
+    
+    func discardChanges() {
+        AppDelegate.viewContext.rollback()
     }
     
     // MARK: Management
     /// creates, saves and adds portfolio with specified base currency
-    func addPortfolio(alias: String, quoteCurrency: CurrencyFeatures) throws -> Portfolio {
+    func addPortfolio(alias: String, quoteCurrency: Currency) throws -> Portfolio {
         do {
             let context = AppDelegate.viewContext
             let portfolio = Portfolio.createPortfolio(alias: alias, quoteCurrency: quoteCurrency, in: context)
@@ -232,42 +244,62 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
-    func moveAddress(_ address: Address, to portfolio: Portfolio) throws {
+    func setQuoteCurrency(_ currency: Currency) throws {
+        guard currency.code != quoteCurrency.code else {
+            return
+        }
+        
         do {
-            try address.setQuoteCurrency(portfolio.quoteCurrency)
-            address.portfolio = portfolio
-            try AppDelegate.viewContext.save()
-            log.info("Moved address '\(address.logDescription)' to portfolio '\(portfolio.logDescription)'.")
-        } catch {
-            log.error("Failed to move address '\(address.logDescription)': \(error)")
-        }
-    }
-    
-    func updatePortfolios() {
-        for portfolio in storedPortfolios {
-            portfolio.update()
-        }
-    }
-    
-    func saveChanges() throws -> Bool  {
-        let context = AppDelegate.viewContext
-        if context.hasChanges {
-            do {
-                try context.save()
-                log.debug("Saved changes made to Core Data.")
-                return true
-            } catch {
-                log.debug("Failed to save changes made to Core Data.")
-                throw error
+            for portfolio in storedPortfolios {
+                try portfolio.setQuoteCurrency(currency)
             }
-        } else {
-            return false
+            
+            UserDefaults.standard.setValue(currency.code, forKey: "quoteCurrency")
+            UserDefaults.standard.synchronize()
+            quoteCurrency = currency
+            log.debug("Updated base currency (\(currency.code)) of PortfolioManager.")
+            
+            prepareTickerDaemon()
+            
+            delegate?.didUpdatePortfolioManager()
+        } catch {
+            log.error("Failed to update base currency of PortfolioManager: \(error)")
+            throw error
         }
     }
     
-    func discardChanges() {
-        AppDelegate.viewContext.rollback()
+    func addCurrency(_ currency: Currency) {
+        guard !optionalCurrencies.contains(where: { $0.isEqual(to: currency) }) else {
+            return
+        }
+    
+        let currencyPair = CurrencyPair(base: currency, quote: quoteCurrency)
+        currencyPair.register()
+        optionalCurrencies.append(currency)
+        saveOptionalCurrencies()
     }
+
+    func removeCurrency(_ currency: Currency) {
+        guard let index = optionalCurrencies.index(where: { $0.isEqual(to: currency) }) else {
+            return
+        }
+        
+        let currencyPair = CurrencyPair(base: currency, quote: quoteCurrency)
+        currencyPair.deregister()
+        optionalCurrencies.remove(at: index)
+        saveOptionalCurrencies()
+    }
+    
+//    func moveAddress(_ address: Address, to portfolio: Portfolio) throws {
+//        do {
+//            try address.setQuoteCurrency(portfolio.quoteCurrency)
+//            address.portfolio = portfolio
+//            try AppDelegate.viewContext.save()
+//            log.info("Moved address '\(address.logDescription)' to portfolio '\(portfolio.logDescription)'.")
+//        } catch {
+//            log.error("Failed to move address '\(address.logDescription)': \(error)")
+//        }
+//    }
     
     // MARK: Finance
     /// returns exchange value of selected addresses on specified date

@@ -22,7 +22,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
     
     // MARK: - Public Class Methods
     /// creates and returns portfolio with specified base currency
-    class func createPortfolio(alias: String?, quoteCurrency: CurrencyFeatures, in context: NSManagedObjectContext) -> Portfolio {
+    class func createPortfolio(alias: String?, quoteCurrency: Currency, in context: NSManagedObjectContext) -> Portfolio {
         let portfolio = Portfolio(context: context)
         portfolio.alias = alias
         portfolio.quoteCurrencyCode = quoteCurrency.code
@@ -51,7 +51,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
     /// delegate who gets notified of changes in portfolio, i.e., balance, transaction history and all associated transactions' userExchangeValue, isInvestment properties
     var delegate: PortfolioDelegate?
     
-    private(set) public var quoteCurrency: CurrencyFeatures {
+    private(set) public var quoteCurrency: Currency {
         get {
             return CurrencyManager.getCurrency(from: quoteCurrencyCode!)!
         }
@@ -106,7 +106,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
         }
     }
 
-    func setQuoteCurrency(_ currency: CurrencyFeatures) throws {
+    func setQuoteCurrency(_ currency: Currency) throws {
         guard self.quoteCurrency.code != currency.code else {
             return
         }

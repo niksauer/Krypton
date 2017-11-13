@@ -9,19 +9,18 @@
 import UIKit
 
 protocol CurrencySelectionDelegate {
-    func didSelectCurrency(selection: CurrencyFeatures)
+    func didSelectCurrency(selection: Currency)
 }
 
 class CurrencySelectionController: UITableViewController {
 
     // MARK: - Private Properties
-    private var currencies: [CurrencyFeatures]!
+    private var currencies: [Currency]!
     
     // MARK: - Public Properties
     var delegate: CurrencySelectionDelegate?
-    var selection: CurrencyFeatures?
+    var selection: Currency?
     var type: CurrencyType!
-    var exceptions = [CurrencyFeatures]()
     
     // MARK: - Initialization
     override func viewDidLoad() {
@@ -43,7 +42,7 @@ class CurrencySelectionController: UITableViewController {
         let currency = currencies[indexPath.row]
         cell.textLabel?.text = currency.code
         
-        if currency.code == selection?.code {
+        if let selection = selection, currency.isEqual(to: selection) {
             cell.accessoryType = .checkmark
         }
         

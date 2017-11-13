@@ -40,7 +40,7 @@ struct BittrexAPI {
     static func currentRate(for currencyPair: CurrencyPair, fromJSON data: Data) -> CurrentPriceResult {
         do {
             let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
-
+            
             guard let jsonDictionary = jsonObject as? [AnyHashable: Any], let result = jsonDictionary["result"] as? [String: Any], let lastClosedValue = result["Last"] as? Double else {
                 return .failure(KrakenError.invalidJSONData)
             }

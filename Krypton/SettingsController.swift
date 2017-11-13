@@ -42,7 +42,7 @@ class SettingsController: UITableViewController, CurrencySelectionDelegate, Port
     
     
     // MARK: - CurrencySelection Delegate
-    func didSelectCurrency(selection: CurrencyFeatures) {
+    func didSelectCurrency(selection: Currency) {
         do {
             try PortfolioManager.shared.setQuoteCurrency(selection)
         } catch {

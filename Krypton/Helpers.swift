@@ -64,7 +64,7 @@ struct Format {
         return formatter.string(from: date)
     }
     
-    static func getCurrencyFormatting(for value: Double, currency: CurrencyFeatures) -> String? {
+    static func getCurrencyFormatting(for value: Double, currency: Currency) -> String? {
         switch currency {
         case let fiatCurrency as Fiat:
             return getFiatFormatting(for: value, fiatCurrency: fiatCurrency)
@@ -77,7 +77,7 @@ struct Format {
         }
     }
     
-    static func getAbsoluteProfitFormatting(from: (startValue: Double, endValue: Double), currency: CurrencyFeatures) -> String? {
+    static func getAbsoluteProfitFormatting(from: (startValue: Double, endValue: Double), currency: Currency) -> String? {
         return getCurrencyFormatting(for: (from.endValue - from.startValue), currency: currency)
     }
     

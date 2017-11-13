@@ -56,7 +56,7 @@ class Ethereum: TokenAddress {
                     let context = AppDelegate.viewContext
                     
                     guard balance > 0 else {
-                        if let token = self.storedTokens.filter({ $0.code == etherToken.code }).first {
+                        if let token = self.storedTokens.filter({ $0.isEqual(to: etherToken) }).first {
                             context.delete(token)
                         }
                     
@@ -64,7 +64,7 @@ class Ethereum: TokenAddress {
                         return
                     }
                     
-                    if let token = self.storedTokens.filter({ $0.code == etherToken.code }).first {
+                    if let token = self.storedTokens.filter({ $0.isEqual(to: etherToken) }).first {
                         do {
                             guard token.balance != balance else {
                                 log.verbose("Balance of token '\(etherToken.name)' for address '\(self.logDescription)' is already up-to-date.")

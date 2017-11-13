@@ -8,14 +8,14 @@
 
 import Foundation
 
-protocol TokenFeatures: CurrencyFeatures {
+protocol TokenFeatures: Currency {
     var address: String { get set }
     var blockchain: Blockchain { get }
 }
 
 // MARK: - Prototypes
 enum ERC20Token: String, TokenFeatures {
-    
+
     case OMG
     case REP
     case STORJ
@@ -40,7 +40,7 @@ enum ERC20Token: String, TokenFeatures {
     ]
     
     // MARK: - Currency Protocol
-    static var allValues: [CurrencyFeatures] {
+    static var allValues: [Currency] {
         return [OMG, REP, STORJ]
     }
     

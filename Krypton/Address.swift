@@ -27,7 +27,7 @@ class Address: NSManagedObject {
     
     // MARK: - Public Class Methods
     /// creates and returns address if non-existent in database, throws otherwise
-    class func createAddress(_ addressString: String, alias: String?, blockchain: Blockchain, quoteCurrency: CurrencyFeatures, in context: NSManagedObjectContext) throws -> Address {
+    class func createAddress(_ addressString: String, alias: String?, blockchain: Blockchain, quoteCurrency: Currency, in context: NSManagedObjectContext) throws -> Address {
         let request: NSFetchRequest<Address> = Address.fetchRequest()
         request.predicate = NSPredicate(format: "identifier = %@", addressString)
         
@@ -73,7 +73,7 @@ class Address: NSManagedObject {
         }
     }
     
-    private(set) public var quoteCurrency: CurrencyFeatures {
+    private(set) public var quoteCurrency: Currency {
         get {
             return CurrencyManager.getCurrency(from: quoteCurrencyCode!)!
         }
@@ -145,7 +145,7 @@ class Address: NSManagedObject {
         }
     }
     
-    func setQuoteCurrency(_ currency: CurrencyFeatures) throws {
+    func setQuoteCurrency(_ currency: Currency) throws {
         guard self.quoteCurrency.code != currency.code else {
             return
         }

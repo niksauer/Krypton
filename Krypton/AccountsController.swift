@@ -13,7 +13,15 @@ class AccountsController: UITableViewController {
     // MARK: - Private Properties
     private var portfolios = PortfolioManager.shared.storedPortfolios.filter { $0.storedAddresses.count > 0 }
     
+    private var isUpdating = false
+    
     // MARK: - Initialization
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        refreshControl = UIRefreshControl()
+        refreshControl?.addTarget(self, action: #selector(updateAddresses), for: UIControlEvents.valueChanged)
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         portfolios = PortfolioManager.shared.storedPortfolios.filter { $0.storedAddresses.count > 0 }
@@ -46,6 +54,22 @@ class AccountsController: UITableViewController {
                 let address = portfolios[section-2].storedAddresses[row]
                 destVC.addresses = [address]
                 destVC.title = PortfolioManager.shared.getAlias(for: address.identifier!)
+            }
+        }
+    }
+    
+    // MARK: - Private Methods
+    @objc private func updateAddresses() {
+        isUpdating = true
+        
+        for (index, address) in PortfolioManager.shared.storedAddresses.enumerated() {
+            if index == PortfolioManager.shared.storedAddresses.count-1 {
+                address.update {
+                    self.refreshControl?.endRefreshing()
+                    self.isUpdating = false
+                }
+            } else {
+                address.update(completion: nil)
             }
         }
     }

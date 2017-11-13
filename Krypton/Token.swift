@@ -26,7 +26,7 @@ class Token: NSManagedObject, TokenFeatures {
         return CurrencyPair(base: self, quote: owner!.quoteCurrency)
     }
     
-    // MARK: - CurrencyFeatures Protocol
+    // MARK: - Currency Protocol
     var code: String {
         return token.code
     }

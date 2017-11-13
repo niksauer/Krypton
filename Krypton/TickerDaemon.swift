@@ -19,8 +19,6 @@ final class TickerDaemon {
     /// delegate who is notified of price updates
     static var delegate: TickerDaemonDelegate?
     
-//    static var storedTokens = Set<Token>()
-    
     // MARK: - Private Properties
     /// timer used to continioulsy fetch price updates
     private static var updateTimer: Timer?
@@ -75,31 +73,6 @@ final class TickerDaemon {
             stopUpdateTimer()
         }
     }
-    
-//    class func addToken(_ token: Token) {
-//        guard let currencyPair = CurrencyPair.getCurrencyPair(a: token, b: PortfolioManager.shared.quoteCurrency) else {
-//            return
-//        }
-//
-//        var tokens = storedTokens
-//
-//        if !storedTokens.contains(token) {
-//            UserDefaults.standard.set(tokens.insert(token), forKey: "tokens")
-//        }
-//        if var storedTokens = UserDefaults.standard.value(forKey: "tokens") as? [String], !storedTokens.contains(token.code) {
-//            UserDefaults.standard.set(storedTokens.append(token.code), forKey: "tokens")
-//            UserDefaults.standard.synchronize()
-//        } else {
-//            UserDefaults.standard.set([token], forKey: "tokens")
-//            UserDefaults.standard.synchronize()
-//        }
-//
-//        addCurrencyPair(currencyPair)
-//    }
-    
-//    class func loadStoredTokens() -> Set<Token> {
-//        return UserDefaults.standard.value(forKey: "tokens") as? Set<Token> ?? Set()
-//    }
     
     /// returns current price for specified trading pair
     class func getCurrentPrice(for currencyPair: CurrencyPair) -> Double? {
