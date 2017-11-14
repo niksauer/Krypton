@@ -49,7 +49,7 @@ struct TickerConnector {
         }
         
         switch currencyPair.base {
-        case is Token:
+        case is TokenFeatures:
             return BittrexAPI.currentRate(for: currencyPair, fromJSON: jsonData)
         default:
             return KrakenAPI.currentRate(for: currencyPair, fromJSON: jsonData)
@@ -76,7 +76,7 @@ struct TickerConnector {
         let url: URL
         
         switch currencyPair.base {
-        case is Token:
+        case is TokenFeatures:
             url = BittrexAPI.currentRateURL(for: currencyPair)
         default:
             url = KrakenAPI.currentRateURL(for: currencyPair)

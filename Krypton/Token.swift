@@ -16,6 +16,33 @@ enum TokenError: Error {
 
 class Token: NSManagedObject, TokenFeatures {
     
+    // MARK: - Public Class Methods
+    class func createToken(from tokenInfo: TokenFeatures, owner: TokenAddress, in context: NSManagedObjectContext) throws -> Token {
+        guard owner.blockchain == tokenInfo.blockchain else {
+            throw TokenError.invalidBlockchain
+        }
+        
+        let request: NSFetchRequest<Token> = Token.fetchRequest()
+        request.predicate = NSPredicate(format: "identifier = %@ AND owner = %@", tokenInfo.address, owner)
+        
+        do {
+            let matches = try context.fetch(request)
+            if matches.count > 0 {
+                assert(matches.count >= 1, "Token.createToken -- Database Inconsistency")
+                throw TokenError.duplicate
+            }
+        } catch {
+            throw error
+        }
+        
+        let token = Token(context: context)
+        
+        token.identifier = tokenInfo.address
+        token.owner = owner
+        
+        return token
+    }
+
     // MARK: - Private Properties
     private var token: TokenFeatures {
         return owner!.blockchain.getToken(address: identifier!)!
@@ -24,6 +51,37 @@ class Token: NSManagedObject, TokenFeatures {
     // MARK: - Public Properties
     var currencyPair: CurrencyPair {
         return CurrencyPair(base: self, quote: owner!.quoteCurrency)
+    }
+    
+    var currentExchangeValue: Double? {
+        return getExchangeValue(on: Date())
+    }
+    
+    var logDescription: String {
+        return "\(self.identifier!), owner: \(self.owner!.logDescription)"
+    }
+    
+    // MARK: - Public Methods
+    // MARK: Finance
+    func getExchangeValue(on date: Date) -> Double? {
+        guard !date.isFuture else {
+            return nil
+        }
+        
+        guard let exchangeRate = currencyPair.getRate(on: date) else {
+            log.warning("Failed to get exchange value for token '\(self.logDescription)'.")
+            return nil
+        }
+        
+        return exchangeRate * balance
+    }
+    
+    func getProfitStats(timeframe: ProfitTimeframe) -> (startValue: Double, endValue: Double)? {
+        return nil
+    }
+    
+    func getAbsoluteProfitHistory(since date: Date) -> [(date: Date, profit: Double)]? {
+        return nil
     }
     
     // MARK: - Currency Protocol
@@ -60,32 +118,5 @@ class Token: NSManagedObject, TokenFeatures {
     var blockchain: Blockchain {
         return token.blockchain
     }
-
-    // MARK: - Public Class Methods
-    class func createToken(from tokenInfo: TokenFeatures, owner: TokenAddress, in context: NSManagedObjectContext) throws -> Token {
-        guard owner.blockchain == tokenInfo.blockchain else {
-            throw TokenError.invalidBlockchain
-        }
-        
-        let request: NSFetchRequest<Token> = Token.fetchRequest()
-        request.predicate = NSPredicate(format: "identifier = %@ AND owner = %@", tokenInfo.address, owner)
-        
-        do {
-            let matches = try context.fetch(request)
-            if matches.count > 0 {
-                assert(matches.count >= 1, "Token.createToken -- Database Inconsistency")
-                throw TokenError.duplicate
-            }
-        } catch {
-            throw error
-        }
-        
-        let token = Token(context: context)
-        
-        token.identifier = tokenInfo.address
-        token.owner = owner
-        
-        return token
-    }
-
+    
 }
