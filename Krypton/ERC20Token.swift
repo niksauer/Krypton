@@ -1,5 +1,5 @@
 //
-//  TokenPrototype.swift
+//  ERC20Token.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 10.11.17.
@@ -13,7 +13,6 @@ protocol TokenFeatures: Currency {
     var blockchain: Blockchain { get }
 }
 
-// MARK: - Prototypes
 enum ERC20Token: String, TokenFeatures {
 
     case OMG
@@ -39,11 +38,21 @@ enum ERC20Token: String, TokenFeatures {
         .STORJ: 8
     ]
     
-    // MARK: - Currency Protocol
+    // MARK: - Public Properties
     static var allValues: [Currency] {
         return [OMG, REP, STORJ]
     }
     
+    // MARK: - Initializers
+    init?(address: String) {
+        if let index = ERC20Token.addressForToken.values.index(of: address) {
+            self.init(rawValue: ERC20Token.addressForToken.keys[index].rawValue)
+        } else {
+            return nil
+        }
+    }
+    
+    // MARK: - Currency Protocol
     var code: String {
         return self.rawValue
     }
@@ -76,15 +85,6 @@ enum ERC20Token: String, TokenFeatures {
     
     var blockchain: Blockchain {
         return .ETH
-    }
-    
-    // MARK: - Initializers
-    init?(address: String) {
-        if let index = ERC20Token.addressForToken.values.index(of: address) {
-            self.init(rawValue: ERC20Token.addressForToken.keys[index].rawValue)
-        } else {
-            return nil
-        }
     }
     
 }

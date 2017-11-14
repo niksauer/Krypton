@@ -119,7 +119,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
                 try address.setQuoteCurrency(currency)
             }
             
-            self.update()
+            self.update(completion: nil)
             log.debug("Updated base currency (\(currency.code)) for portfolio '\(self.logDescription)'.")
             delegate?.didUpdateQuoteCurrency(for: self)
         } catch {
@@ -130,9 +130,13 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
     
     // MARK: Management
     /// updates all stored addresses by updating their transaction history, price history and balance
-    func update() {
-        for address in storedAddresses {
-            address.update(completion: nil)
+    func update(completion: (() -> Void)?) {
+        for (index, address) in storedAddresses.enumerated() {
+            if index == storedAddresses.count-1 {
+                address.update(completion: completion)
+            } else {
+                address.update(completion: nil)
+            }
         }
     }
     

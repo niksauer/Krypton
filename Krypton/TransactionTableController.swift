@@ -69,7 +69,7 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
     override func viewDidLoad() {
         super.viewDidLoad()
         refreshControl = UIRefreshControl()
-        refreshControl?.addTarget(self, action: #selector(updateAddresses), for: UIControlEvents.valueChanged)
+        refreshControl?.addTarget(self, action: #selector(updateAddresses), for: .valueChanged)
     }
     
     override func viewWillAppear(_ animated: Bool) {

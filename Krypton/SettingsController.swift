@@ -32,7 +32,7 @@ class SettingsController: UITableViewController, CurrencySelectionDelegate, Port
             destVC.delegate = self
             destVC.selection = PortfolioManager.shared.quoteCurrency
             destVC.type = .Fiat
-            destVC.title = "Base Currency"
+            destVC.title = "Quote Currency"
         }
     }
     

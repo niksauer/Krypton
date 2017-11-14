@@ -64,12 +64,12 @@ final class PortfolioManager: PortfolioDelegate {
                 }
             }
 
-            optionalCurrencies = loadOptionalCurrencies()
+            manualCurrencies = loadManualCurrencies()
             
             prepareTickerDaemon()
             prepareBlockchainDaemon()
             
-            updatePortfolios()
+            update(completion: nil)
         } catch {
             log.error("Failed to initialize PortfolioManager singleton: \(error)")
         }
@@ -112,7 +112,7 @@ final class PortfolioManager: PortfolioDelegate {
     }
     
     var storedTokens: [Token] {
-        return (storedAddresses.filter({ $0 is TokenAddress }) as! [TokenAddress]).flatMap({ $0.storedTokens })
+        return (storedAddresses.filter({ $0 is TokenAddress }) as! [TokenAddress]).flatMap { $0.storedTokens }
     }
     
     var storedBlockchains: Set<Blockchain> {
@@ -120,10 +120,10 @@ final class PortfolioManager: PortfolioDelegate {
     }
 
     var requiredCurrencyPairs: Set<CurrencyPair> {
-        return Set(storedAddresses.map({ $0.currencyPair }) + storedTokens.map({ $0.currencyPair }))
+        return Set(storedAddresses.map { $0.currencyPair } + storedTokens.map { $0.currencyPair })
     }
     
-    private(set) public var optionalCurrencies = [Currency]()
+    private(set) public var manualCurrencies = [Currency]()
     
     // MARK: - Private Methods
     /// loads and returns all addresses stored in Core Data
@@ -138,17 +138,17 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
-    private func loadOptionalCurrencies() -> [Currency] {
-        if let currencyCodes = UserDefaults.standard.value(forKey: "optionalCurrencies") as? [String] {
-            return currencyCodes.map { CurrencyManager.getCurrency(from: $0)}.flatMap({ $0 })
+    private func loadManualCurrencies() -> [Currency] {
+        if let currencyCodes = UserDefaults.standard.value(forKey: "manualCurrencies") as? [String] {
+            return currencyCodes.map({ CurrencyManager.getCurrency(from: $0) }).flatMap { $0 }
         } else {
             return Array()
         }
     }
     
-    private func saveOptionalCurrencies() {
-        let currencyCodes = optionalCurrencies.map({ $0.code })
-        UserDefaults.standard.setValue(currencyCodes, forKey: "optionalCurrencies")
+    private func saveManualCurrencies() {
+        let currencyCodes = manualCurrencies.map { $0.code }
+        UserDefaults.standard.setValue(currencyCodes, forKey: "manualCurrencies")
         UserDefaults.standard.synchronize()
     }
     
@@ -159,7 +159,7 @@ final class PortfolioManager: PortfolioDelegate {
             currencyPair.register()
         }
         
-        for currency in optionalCurrencies {
+        for currency in manualCurrencies {
             let currencyPair = CurrencyPair(base: currency, quote: quoteCurrency)
             currencyPair.register()
         }
@@ -183,30 +183,38 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
-    func updatePortfolios() {
-        for portfolio in storedPortfolios {
-            portfolio.update()
+    func setQuoteCurrency(_ currency: Currency) throws {
+        guard currency.code != quoteCurrency.code else {
+            return
         }
-    }
-    
-    func saveChanges() throws -> Bool  {
-        let context = AppDelegate.viewContext
-        if context.hasChanges {
-            do {
-                try context.save()
-                log.debug("Saved changes made to Core Data.")
-                return true
-            } catch {
-                log.debug("Failed to save changes made to Core Data.")
-                throw error
+        
+        do {
+            for portfolio in storedPortfolios {
+                try portfolio.setQuoteCurrency(currency)
             }
-        } else {
-            return false
+            
+            UserDefaults.standard.setValue(currency.code, forKey: "quoteCurrency")
+            UserDefaults.standard.synchronize()
+            quoteCurrency = currency
+            log.debug("Updated base currency (\(currency.code)) of PortfolioManager.")
+            
+            prepareTickerDaemon()
+            
+            delegate?.didUpdatePortfolioManager()
+        } catch {
+            log.error("Failed to update base currency of PortfolioManager: \(error)")
+            throw error
         }
     }
     
-    func discardChanges() {
-        AppDelegate.viewContext.rollback()
+    func update(completion: (() -> Void)?) {
+        for (index, portfolio) in storedPortfolios.enumerated() {
+            if index == storedPortfolios.count-1 {
+                portfolio.update(completion: completion)
+            } else {
+                portfolio.update(completion: nil)
+            }
+        }
     }
     
     // MARK: Management
@@ -244,50 +252,49 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
-    func setQuoteCurrency(_ currency: Currency) throws {
-        guard currency.code != quoteCurrency.code else {
-            return
-        }
-        
-        do {
-            for portfolio in storedPortfolios {
-                try portfolio.setQuoteCurrency(currency)
-            }
-            
-            UserDefaults.standard.setValue(currency.code, forKey: "quoteCurrency")
-            UserDefaults.standard.synchronize()
-            quoteCurrency = currency
-            log.debug("Updated base currency (\(currency.code)) of PortfolioManager.")
-            
-            prepareTickerDaemon()
-            
-            delegate?.didUpdatePortfolioManager()
-        } catch {
-            log.error("Failed to update base currency of PortfolioManager: \(error)")
-            throw error
-        }
-    }
-    
     func addCurrency(_ currency: Currency) {
-        guard !optionalCurrencies.contains(where: { $0.isEqual(to: currency) }) else {
+        guard !manualCurrencies.contains(where: { $0.isEqual(to: currency) }) else {
             return
         }
     
         let currencyPair = CurrencyPair(base: currency, quote: quoteCurrency)
         currencyPair.register()
-        optionalCurrencies.append(currency)
-        saveOptionalCurrencies()
+        manualCurrencies.append(currency)
+        log.debug("Manually added currency '\(currency.code)' to PortfolioManager.")
+        saveManualCurrencies()
     }
 
     func removeCurrency(_ currency: Currency) {
-        guard let index = optionalCurrencies.index(where: { $0.isEqual(to: currency) }) else {
+        guard let index = manualCurrencies.index(where: { $0.isEqual(to: currency) }) else {
             return
         }
         
         let currencyPair = CurrencyPair(base: currency, quote: quoteCurrency)
         currencyPair.deregister()
-        optionalCurrencies.remove(at: index)
-        saveOptionalCurrencies()
+        manualCurrencies.remove(at: index)
+        log.debug("Removed manually added currency '\(currency.code)' from PortfolioManager.")
+        saveManualCurrencies()
+    }
+    
+    func saveChanges() throws -> Bool  {
+        let context = AppDelegate.viewContext
+        if context.hasChanges {
+            do {
+                try context.save()
+                log.debug("Saved changes made to Core Data.")
+                return true
+            } catch {
+                log.debug("Failed to save changes made to Core Data.")
+                throw error
+            }
+        } else {
+            return false
+        }
+    }
+    
+    func discardChanges() {
+        log.debug("Discard any unsaved changes made to Core Data.")
+        AppDelegate.viewContext.rollback()
     }
     
 //    func moveAddress(_ address: Address, to portfolio: Portfolio) throws {

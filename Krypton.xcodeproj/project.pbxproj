@@ -20,7 +20,7 @@
 		2400D09A1F42511800833958 /* BlockchainConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0991F42511800833958 /* BlockchainConnector.swift */; };
 		240C63B11F47A88300728B8B /* Portfolio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240C63B01F47A88300728B8B /* Portfolio.swift */; };
 		240C63B31F47A88E00728B8B /* Address.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240C63B21F47A88E00728B8B /* Address.swift */; };
-		240DF3E41FB5CB08003DED40 /* TokenPrototype.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240DF3E31FB5CB08003DED40 /* TokenPrototype.swift */; };
+		240DF3E41FB5CB08003DED40 /* ERC20Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240DF3E31FB5CB08003DED40 /* ERC20Token.swift */; };
 		24150D431F88E3E1003B7091 /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24150D421F88E3E1003B7091 /* Token.swift */; };
 		242016C11FA1F90E00A7FA17 /* BlockchainDaemon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242016C01FA1F90E00A7FA17 /* BlockchainDaemon.swift */; };
 		242729A41F7075CC00E5231D /* AddresDetailController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242729A31F7075CC00E5231D /* AddresDetailController.swift */; };
@@ -45,6 +45,8 @@
 		246874F61F464B4E009BB60A /* Krypton.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 246874F41F464B4E009BB60A /* Krypton.xcdatamodeld */; };
 		247665521F94CFB8000857B2 /* TransactionHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247665511F94CFB8000857B2 /* TransactionHeaderCell.swift */; };
 		2476659A1F94DEF3000857B2 /* SwiftyBeaver.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2476658F1F94DEDE000857B2 /* SwiftyBeaver.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		247D1C0B1FBA261700B45941 /* Fiat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247D1C0A1FBA261700B45941 /* Fiat.swift */; };
+		247D1C171FBA265100B45941 /* Blockchain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247D1C161FBA265100B45941 /* Blockchain.swift */; };
 		248F62311FB500EB003D213A /* BittrexAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248F62301FB500EB003D213A /* BittrexAPI.swift */; };
 		24935C691FA0B81B00F4F291 /* AmountForAddressController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24935C681FA0B81B00F4F291 /* AmountForAddressController.swift */; };
 		24A007C41F538AD800EC0DCF /* TickerDaemon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A007C31F538AD800EC0DCF /* TickerDaemon.swift */; };
@@ -180,7 +182,7 @@
 		2400D0991F42511800833958 /* BlockchainConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockchainConnector.swift; sourceTree = "<group>"; };
 		240C63B01F47A88300728B8B /* Portfolio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Portfolio.swift; sourceTree = "<group>"; };
 		240C63B21F47A88E00728B8B /* Address.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Address.swift; sourceTree = "<group>"; };
-		240DF3E31FB5CB08003DED40 /* TokenPrototype.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPrototype.swift; sourceTree = "<group>"; };
+		240DF3E31FB5CB08003DED40 /* ERC20Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ERC20Token.swift; sourceTree = "<group>"; };
 		24150D421F88E3E1003B7091 /* Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Token.swift; sourceTree = "<group>"; };
 		242016C01FA1F90E00A7FA17 /* BlockchainDaemon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainDaemon.swift; sourceTree = "<group>"; };
 		242729A31F7075CC00E5231D /* AddresDetailController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddresDetailController.swift; sourceTree = "<group>"; };
@@ -203,6 +205,8 @@
 		246874F51F464B4E009BB60A /* Krypton.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Krypton.xcdatamodel; sourceTree = "<group>"; };
 		247665511F94CFB8000857B2 /* TransactionHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHeaderCell.swift; sourceTree = "<group>"; };
 		247665861F94DEDE000857B2 /* SwiftyBeaver.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftyBeaver.xcodeproj; path = SwiftyBeaver/SwiftyBeaver.xcodeproj; sourceTree = "<group>"; };
+		247D1C0A1FBA261700B45941 /* Fiat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fiat.swift; sourceTree = "<group>"; };
+		247D1C161FBA265100B45941 /* Blockchain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Blockchain.swift; sourceTree = "<group>"; };
 		248F62301FB500EB003D213A /* BittrexAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BittrexAPI.swift; sourceTree = "<group>"; };
 		24935C681FA0B81B00F4F291 /* AmountForAddressController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountForAddressController.swift; sourceTree = "<group>"; };
 		24A007C31F538AD800EC0DCF /* TickerDaemon.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TickerDaemon.swift; sourceTree = "<group>"; };
@@ -290,7 +294,6 @@
 				2400D0971F42508100833958 /* Transaction.swift */,
 				2400D0931F40D90900833958 /* MarketPrice.swift */,
 				24150D421F88E3E1003B7091 /* Token.swift */,
-				240DF3E31FB5CB08003DED40 /* TokenPrototype.swift */,
 			);
 			name = EntitiesMO;
 			sourceTree = "<group>";
@@ -306,18 +309,20 @@
 			name = Portfolios;
 			sourceTree = "<group>";
 		};
-		2438599C1F6CA6B600D67791 /* Dashboard */ = {
+		2438599C1F6CA6B600D67791 /* Main */ = {
 			isa = PBXGroup;
 			children = (
-				243859951F6C442300D67791 /* AddAddressController.swift */,
+				24BF8C801FAA4EDD0070C178 /* AccountsController.swift */,
+				2400D07D1F40715900833958 /* DashboardController.swift */,
+				24C63DB31F7F15DD0096A807 /* WatchlistController.swift */,
 			);
-			name = Dashboard;
+			name = Main;
 			sourceTree = "<group>";
 		};
 		2438599D1F6CA6BF00D67791 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				2449F4471F6F1D1F006E21C8 /* CurrencySelectionController.swift */,
+				243859951F6C442300D67791 /* AddAddressController.swift */,
 				243859931F6BE01F00D67791 /* FilterController.swift */,
 			);
 			name = Shared;
@@ -357,6 +362,17 @@
 				247665971F94DEDE000857B2 /* SwiftyBeaver.framework */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		247D1C151FBA262000B45941 /* Currency */ = {
+			isa = PBXGroup;
+			children = (
+				24BB0DFD1F4E41B40042562C /* Currency.swift */,
+				247D1C0A1FBA261700B45941 /* Fiat.swift */,
+				247D1C161FBA265100B45941 /* Blockchain.swift */,
+				240DF3E31FB5CB08003DED40 /* ERC20Token.swift */,
+			);
+			name = Currency;
 			sourceTree = "<group>";
 		};
 		24AF7B131F830B6C00400007 /* Products */ = {
@@ -420,10 +436,10 @@
 			isa = PBXGroup;
 			children = (
 				2458132E1F5F503B007795BC /* PortfolioManager.swift */,
-				24BB0DFD1F4E41B40042562C /* Currency.swift */,
 				24A007C31F538AD800EC0DCF /* TickerDaemon.swift */,
 				242016C01FA1F90E00A7FA17 /* BlockchainDaemon.swift */,
 				24A226BD1F50ED9300907999 /* Helpers.swift */,
+				247D1C151FBA262000B45941 /* Currency */,
 				240C63B61F47A8A800728B8B /* EntitiesMO */,
 			);
 			name = Model;
@@ -432,10 +448,7 @@
 		24B859AC1F47C90800969049 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				24BF8C801FAA4EDD0070C178 /* AccountsController.swift */,
-				2400D07D1F40715900833958 /* DashboardController.swift */,
-				24C63DB31F7F15DD0096A807 /* WatchlistController.swift */,
-				2438599C1F6CA6B600D67791 /* Dashboard */,
+				2438599C1F6CA6B600D67791 /* Main */,
 				2438599D1F6CA6BF00D67791 /* Shared */,
 				242729A21F704C4C00E5231D /* Portfolios */,
 				2438599E1F6CA6D500D67791 /* Transactions */,
@@ -448,6 +461,7 @@
 			isa = PBXGroup;
 			children = (
 				2449F4491F6F1F40006E21C8 /* SettingsController.swift */,
+				2449F4471F6F1D1F006E21C8 /* CurrencySelectionController.swift */,
 			);
 			name = Settings;
 			sourceTree = "<group>";
@@ -628,10 +642,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				2400D0961F424B5600833958 /* EtherscanAPI.swift in Sources */,
-				240DF3E41FB5CB08003DED40 /* TokenPrototype.swift in Sources */,
+				247D1C171FBA265100B45941 /* Blockchain.swift in Sources */,
+				240DF3E41FB5CB08003DED40 /* ERC20Token.swift in Sources */,
 				2458132F1F5F503B007795BC /* PortfolioManager.swift in Sources */,
 				24A007C41F538AD800EC0DCF /* TickerDaemon.swift in Sources */,
 				24A3D32F1F7DAF250081BF09 /* BlockExplorerAPI.swift in Sources */,
+				247D1C0B1FBA261700B45941 /* Fiat.swift in Sources */,
 				2400D0901F40720500833958 /* KrakenAPI.swift in Sources */,
 				2449F4371F6D5711006E21C8 /* PortfolioDetailController.swift in Sources */,
 				2400D0981F42508100833958 /* Transaction.swift in Sources */,

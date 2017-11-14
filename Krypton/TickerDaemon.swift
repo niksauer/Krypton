@@ -39,7 +39,7 @@ final class TickerDaemon {
     class func addCurrencyPair(_ currencyPair: CurrencyPair) {
         if !currencyPairs.contains(currencyPair) {
             currencyPairs.insert(currencyPair)
-            updatePrice(for: currencyPair)
+            updatePrice(for: currencyPair, completion: nil)
             log.debug("Added currencyPair '\(currencyPair.name)' to TickerDaemon.")
         }
     
@@ -86,6 +86,16 @@ final class TickerDaemon {
         log.debug("Reset TickerDaemon.")
     }
     
+    class func update(completion: (() -> Void)?) {
+        for (index, currencyPair) in currencyPairs.enumerated() {
+            if index == currencyPairs.count-1 {
+                updatePrice(for: currencyPair, completion: completion)
+            } else {
+                updatePrice(for: currencyPair, completion: nil)
+            }
+        }
+    }
+    
     /// starts unique timer to update current price in specified interval for all stored trading pairs
     /// timer stop if app enters background, starts/continues when becoming active again
     @objc class func startUpdateTimer() {
@@ -95,9 +105,7 @@ final class TickerDaemon {
         }
         
         updateTimer = Timer.scheduledTimer(withTimeInterval: updateIntervall, repeats: true, block: { _ in
-            for currencyPair in currencyPairs {
-                updatePrice(for: currencyPair)
-            }
+            update(completion: nil)
         })
         
         let notificationCenter = NotificationCenter.default
@@ -119,15 +127,17 @@ final class TickerDaemon {
     
     // MARK: - Private Class Methods
     /// updates current price for specified trading pair, notifies delegate of change
-    private class func updatePrice(for currencyPair: CurrencyPair) {
+    private class func updatePrice(for currencyPair: CurrencyPair, completion: (() -> Void)?) {
         TickerConnector.fetchCurrentPrice(for: currencyPair, completion: { result in
             switch result {
             case .success(let currentRate):
                 self.currentRateForCurrencyPair[currencyPair] = currentRate.value
                 log.verbose("Updated current price for currencyPair '\(currencyPair.name)': \(currentRate.value)")
                 delegate?.didUpdateCurrentPrice(for: currencyPair)
+                completion?()
             case .failure(let error):
                 log.error("Failed to fetch current price for currencyPair '\(currencyPair.name)': \(error)")
+                completion?()
             }
         })
     }
