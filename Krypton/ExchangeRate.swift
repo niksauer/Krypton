@@ -20,7 +20,7 @@ class ExchangeRate: NSManagedObject {
     private class func getNewestExchangeRate(for currencyPair: CurrencyPair) -> ExchangeRate? {
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<ExchangeRate> = ExchangeRate.fetchRequest()
-        request.predicate = NSPredicate(format: "base = %@ AND quote = %@ AND date = %@", currencyPair.base.code, currencyPair.quote.code)
+        request.predicate = NSPredicate(format: "base = %@ AND quote = %@", currencyPair.base.code, currencyPair.quote.code)
         request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
         request.fetchLimit = 1
         
@@ -40,7 +40,11 @@ class ExchangeRate: NSManagedObject {
     /// creates and returns ticker exchangeRate if non-existent in database, throws otherwise
     class func createExchangeRate(from prototype: TickerConnector.ExchangeRate, in context: NSManagedObjectContext) throws -> ExchangeRate {
         let request: NSFetchRequest<ExchangeRate> = ExchangeRate.fetchRequest()
-        request.predicate = NSPredicate(format: "base = %@ AND quote = %@ AND date = %@", prototype.currencyPair.base.code, prototype.currencyPair.quote.code, prototype.date as NSDate)
+        
+        let startDate = prototype.date.UTCStart as NSDate
+        let endDate = prototype.date.UTCEnd as NSDate
+        
+        request.predicate = NSPredicate(format: "base = %@ AND quote = %@ AND date >= %@ AND date < %@", prototype.currencyPair.base.code, prototype.currencyPair.quote.code, startDate, endDate)
         
         do {
             let matches = try context.fetch(request)
@@ -67,13 +71,13 @@ class ExchangeRate: NSManagedObject {
         guard !date.isUTCToday, !date.isUTCFuture else {
             return nil
         }
-    
+        
         let startDate = date.UTCStart as NSDate
         let endDate = date.UTCEnd as NSDate
         
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<ExchangeRate> = ExchangeRate.fetchRequest()
-        request.predicate = NSPredicate(format: "base = %@ AND quote = %@ AND date = %@ AND date >= %@ AND date < %@", currencyPair.base.code, currencyPair.quote.code, startDate, endDate)
+        request.predicate = NSPredicate(format: "base = %@ AND quote = %@ AND date >= %@ AND date < %@", currencyPair.base.code, currencyPair.quote.code, startDate, endDate)
         
         do {
             let matches = try context.fetch(request)

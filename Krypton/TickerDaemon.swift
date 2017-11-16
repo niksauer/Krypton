@@ -10,7 +10,7 @@ import Foundation
 import CoreData
 
 protocol TickerDaemonDelegate {
-    func didUpdateCurrentPrice(for currencyPair: CurrencyPair)
+    func didUpdateCurrentExchangeRate(for currencyPair: CurrencyPair)
 }
 
 final class TickerDaemon {
@@ -39,7 +39,7 @@ final class TickerDaemon {
     class func addCurrencyPair(_ currencyPair: CurrencyPair) {
         if !currencyPairs.contains(currencyPair) {
             currencyPairs.insert(currencyPair)
-            updatePrice(for: currencyPair, completion: nil)
+            updateExchangeRate(for: currencyPair, completion: nil)
             log.debug("Added currency pair '\(currencyPair.name)' to TickerDaemon.")
         }
     
@@ -75,7 +75,7 @@ final class TickerDaemon {
     }
     
     /// returns current price for specified trading pair
-    class func getCurrentPrice(for currencyPair: CurrencyPair) -> Double? {
+    class func getCurrentExchangeRate(for currencyPair: CurrencyPair) -> Double? {
         return currentExchangeRateForCurrencyPair[currencyPair]
     }
     
@@ -88,11 +88,13 @@ final class TickerDaemon {
     
     class func update(completion: (() -> Void)?) {
         for (index, currencyPair) in currencyPairs.enumerated() {
+            var updateCompletion: (() -> Void)? = nil
+            
             if index == currencyPairs.count-1 {
-                updatePrice(for: currencyPair, completion: completion)
-            } else {
-                updatePrice(for: currencyPair, completion: nil)
+                updateCompletion = completion
             }
+            
+            updateExchangeRate(for: currencyPair, completion: updateCompletion)
         }
     }
     
@@ -127,13 +129,13 @@ final class TickerDaemon {
     
     // MARK: - Private Class Methods
     /// updates current price for specified trading pair, notifies delegate of change
-    private class func updatePrice(for currencyPair: CurrencyPair, completion: (() -> Void)?) {
+    private class func updateExchangeRate(for currencyPair: CurrencyPair, completion: (() -> Void)?) {
         TickerConnector.fetchCurrentExchangeRate(for: currencyPair, completion: { result in
             switch result {
             case .success(let currentExchangeRate):
                 self.currentExchangeRateForCurrencyPair[currencyPair] = currentExchangeRate.value
                 log.verbose("Updated current exchange rate for currency pair '\(currencyPair.name)': \(currentExchangeRate.value)")
-                delegate?.didUpdateCurrentPrice(for: currencyPair)
+                delegate?.didUpdateCurrentExchangeRate(for: currencyPair)
                 completion?()
             case .failure(let error):
                 log.error("Failed to fetch current exchange rate for currency pair '\(currencyPair.name)': \(error)")

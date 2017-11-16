@@ -142,7 +142,7 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerDae
     }
     
     // MARK: - TickerDaemon Delegate
-    func didUpdateCurrentPrice(for currencyPair: CurrencyPair) {
+    func didUpdateCurrentExchangeRate(for currencyPair: CurrencyPair) {
         updateUI()
     }
     

@@ -164,7 +164,7 @@ class Address: NSManagedObject {
     // MARK: Management
     func update(completion: (() -> Void)?) {
         self.updateTransactionHistory {
-            self.updatePriceHistory {
+            self.updateExchangeRateHistory {
                 self.updateBalance {
                     completion?()
                 }
@@ -250,7 +250,7 @@ class Address: NSManagedObject {
     }
     
     /// asks ExchangeRate to update price history for set trading pair starting from oldest transaction date encountered, passes completion block to retrieval
-    func updatePriceHistory(completion: (() -> Void)?) {
+    func updateExchangeRateHistory(completion: (() -> Void)?) {
         if let firstTransaction = getOldestTransaction() {
             ExchangeRate.updateExchangeRateHistory(for: currencyPair, since: firstTransaction.date! as Date, completion: completion)
         } else {

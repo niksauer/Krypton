@@ -61,8 +61,6 @@ struct TickerConnector {
         let url = CryptoCompareAPI.exchangeRateHistoryURL(for: currencyPair, since: date)
         let request = URLRequest(url: url)
         
-        print(url)
-        
         let task = session.dataTask(with: request) { (data, response, error) -> Void in
             let result = self.processExchangeRateHistoryRequest(for: currencyPair, data: data, error: error)
             

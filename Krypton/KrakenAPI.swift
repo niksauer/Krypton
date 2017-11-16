@@ -50,20 +50,20 @@ struct KrakenAPI: Exchange {
         do {
             let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
             
-            guard let jsonDictionary = jsonObject as? [AnyHashable: Any], let result = jsonDictionary["result"] as? [String: Any], let resultName = resultForCurrencyPair[currencyPair.name], let pricesArray = result[resultName] as? [[Any]] else {
+            guard let jsonDictionary = jsonObject as? [AnyHashable: Any], let result = jsonDictionary["result"] as? [String: Any], let resultName = resultForCurrencyPair[currencyPair.name], let exchangeRateArray = result[resultName] as? [[Any]] else {
                 return .failure(KrakenError.invalidJSONData)
             }
             
             var exchangeRateHistory = [TickerConnector.ExchangeRate]()
             
-            for priceJSON in pricesArray {
-                if let time = priceJSON[0] as? Double, let valueString = priceJSON[4] as? String, let value = Double(valueString) {
-                    let price = TickerConnector.ExchangeRate(date: Date(timeIntervalSince1970: time), currencyPair: currencyPair, value: value)
-                    exchangeRateHistory.append(price)
+            for exchangeRateJSON in exchangeRateArray {
+                if let time = exchangeRateJSON[0] as? Double, let valueString = exchangeRateJSON[4] as? String, let value = Double(valueString) {
+                    let exchangeRate = TickerConnector.ExchangeRate(date: Date(timeIntervalSince1970: time), currencyPair: currencyPair, value: value)
+                    exchangeRateHistory.append(exchangeRate)
                 }
             }
             
-            if exchangeRateHistory.isEmpty && !pricesArray.isEmpty {
+            if exchangeRateHistory.isEmpty && !exchangeRateArray.isEmpty {
                 return .failure(KrakenError.invalidJSONData)
             }
             

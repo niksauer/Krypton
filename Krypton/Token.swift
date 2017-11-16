@@ -77,11 +77,11 @@ class Token: NSManagedObject, TokenFeatures {
     }
     
     func getProfitStats(timeframe: ProfitTimeframe) -> (startValue: Double, endValue: Double)? {
-        return nil
+        preconditionFailure("This method must be overridden")
     }
     
     func getAbsoluteProfitHistory(since date: Date) -> [(date: Date, profit: Double)]? {
-        return nil
+        preconditionFailure("This method must be overridden")
     }
     
     // MARK: - Currency Protocol

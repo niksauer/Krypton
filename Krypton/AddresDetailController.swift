@@ -72,17 +72,16 @@ class AddresDetailController: UITableViewController {
             }
         }
     }
-    
+
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let section = indexPath.section
         let row = indexPath.row
         
         switch address {
         case let tokenAddress as TokenAddress where (section == 2 && tokenAddress.storedTokens.count > 0):
-            let cell = tableView.dequeueReusableCell(withIdentifier: "infoCell", for: indexPath)
             let token = tokenAddress.storedTokens[indexPath.row]
-            cell.textLabel?.text = token.name
-            cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: token.balance, currency: token)
+            let cell = tableView.dequeueReusableCell(withIdentifier: "tokenCell", for: indexPath) as! TokenCell
+            cell.configure(token: token, showsBalance: true)
             return cell
         default:
             if section == 0 {
@@ -100,10 +99,11 @@ class AddresDetailController: UITableViewController {
                 if row == 0 {
                     cell.textLabel?.text = "Blockchain"
                     cell.detailTextLabel?.text = address.blockchain.name
-                } else {
+                } else if row == 1 {
                     cell.textLabel?.text = "Balance"
                     cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: address.balance, currency: address.blockchain)
                 }
+                
                 return cell
             } else {
                 deleteIndexPath = indexPath
@@ -131,6 +131,10 @@ class AddresDetailController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath == deleteIndexPath {
             deleteAddress()
+        }
+    
+        if let tokenCell = tableView.cellForRow(at: indexPath) as? TokenCell {
+            tokenCell.showsBalance = !tokenCell.showsBalance
         }
     }
 

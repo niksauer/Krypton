@@ -135,7 +135,7 @@ class WatchlistController: UITableViewController, TickerDaemonDelegate {
     }
     
     // MARK: - TickerDaemon Delegate
-    func didUpdateCurrentPrice(for currencyPair: CurrencyPair) {
+    func didUpdateCurrentExchangeRate(for currencyPair: CurrencyPair) {
         tableView.reloadData()
     }
 

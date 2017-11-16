@@ -211,11 +211,13 @@ final class PortfolioManager: PortfolioDelegate {
     
     func update(completion: (() -> Void)?) {
         for (index, portfolio) in storedPortfolios.enumerated() {
+            var updateCompletion: (() -> Void)? = nil
+            
             if index == storedPortfolios.count-1 {
-                portfolio.update(completion: completion)
-            } else {
-                portfolio.update(completion: nil)
+                updateCompletion = completion
             }
+            
+            portfolio.update(completion: updateCompletion)
         }
     }
     
@@ -444,9 +446,9 @@ final class PortfolioManager: PortfolioDelegate {
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<ExchangeRate> = ExchangeRate.fetchRequest()
         
-        if let prices = try? context.fetch(request) {
-            for price in prices {
-                context.delete(price)
+        if let history = try? context.fetch(request) {
+            for exchangeRate in history {
+                context.delete(exchangeRate)
             }
         }
         

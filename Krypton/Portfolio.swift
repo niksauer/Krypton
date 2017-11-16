@@ -132,11 +132,13 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
     /// updates all stored addresses by updating their transaction history, price history and balance
     func update(completion: (() -> Void)?) {
         for (index, address) in storedAddresses.enumerated() {
+            var updateCompletion: (() -> Void)? = nil
+            
             if index == storedAddresses.count-1 {
-                address.update(completion: completion)
-            } else {
-                address.update(completion: nil)
+                updateCompletion = completion
             }
+            
+            address.update(completion: updateCompletion)
         }
     }
     
@@ -188,6 +190,21 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
         
         return value
     }
+    
+//    func getTokenExchangeValue(on date: Date) -> Double? {
+//        let storedTokens = (storedAddresses.filter({ $0 is TokenAddress }) as! [TokenAddress]).flatMap({ $0.storedTokens })
+//        var value = 0.0
+//
+//        for token in storedTokens {
+//            if let tokenValue = token.getExchangeValue(on: date) {
+//                value = value + tokenValue
+//            } else {
+//                return nil
+//            }
+//        }
+//
+//        return value
+//    }
     
     /// returns the absolute profit generated from all stored addresses
     func getProfitStats(for type: TransactionType, timeframe: ProfitTimeframe) -> (startValue: Double, endValue: Double)? {

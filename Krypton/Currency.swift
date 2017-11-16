@@ -71,7 +71,7 @@ struct CurrencyPair: Hashable {
     // MARK: - Public Methods
     func getRate(on date: Date) -> Double? {
         if date.isToday {
-            return TickerDaemon.getCurrentPrice(for: self)
+            return TickerDaemon.getCurrentExchangeRate(for: self)
         } else {
             return ExchangeRate.getExchangeRate(for: self, on: date)
         }

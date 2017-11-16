@@ -327,14 +327,16 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         isUpdating = true
         
         for (index, address) in addresses.enumerated() {
-            if index == self.addresses.count-1 {
-                address.update {
+            var updateCompletion: (() -> Void)? = nil
+            
+            if index == addresses.count-1 {
+                updateCompletion = {
                     self.refreshControl?.endRefreshing()
                     self.isUpdating = false
                 }
-            } else {
-                address.update(completion: nil)
             }
+            
+            address.update(completion: updateCompletion)
         }
     }
     
