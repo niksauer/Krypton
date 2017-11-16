@@ -9,60 +9,60 @@
 import Foundation
 import CoreData
 
-enum PriceHistoryResult {
-    case success([TickerConnector.Price])
+enum ExchangeRateHistoryResult {
+    case success([TickerConnector.ExchangeRate])
     case failure(Error)
 }
 
-enum CurrentPriceResult {
-    case success(TickerConnector.Price)
+enum CurrentExchangeRateResult {
+    case success(TickerConnector.ExchangeRate)
     case failure(Error)
+}
+
+protocol Exchange {
+    static func exchangeRateHistory(for currencyPair: CurrencyPair, fromJSON data: Data) -> ExchangeRateHistoryResult
+    static func currentExchangeRate(for currencyPair: CurrencyPair, fromJSON data: Data) -> CurrentExchangeRateResult
+    
+    static func exchangeRateHistoryURL(for currencyPair: CurrencyPair, since date: Date) -> URL
+    static func currentExchangeRateURL(for currencyPair: CurrencyPair) -> URL
 }
 
 struct TickerConnector {
     
     // MARK: - Private Properties
-    private static let session: URLSession = {
-        let config = URLSessionConfiguration.default
-        return URLSession(configuration: config)
-    }()
+    private static let session = URLSession(configuration: .default)
     
     // MARK: - Public Properties
-    struct Price {
+    struct ExchangeRate {
         let date: Date
         let currencyPair: CurrencyPair
         let value: Double
     }
     
     // MARK: - Private Methods
-    private static func processPriceHistoryRequest(for currencyPair: CurrencyPair, data: Data?, error: Error?) -> PriceHistoryResult {
+    private static func processExchangeRateHistoryRequest(for currencyPair: CurrencyPair, data: Data?, error: Error?) -> ExchangeRateHistoryResult {
         guard let jsonData = data else {
             return .failure(error!)
         }
-        
-        return KrakenAPI.priceHistory(for: currencyPair, fromJSON: jsonData)
+    
+        return CryptoCompareAPI.exchangeRateHistory(for: currencyPair, fromJSON: jsonData)
     }
     
-    private static func processCurrentPriceRequest(for currencyPair: CurrencyPair, data: Data?, error: Error?) -> CurrentPriceResult {
+    private static func processCurrentExchangeRateRequest(for currencyPair: CurrencyPair, data: Data?, error: Error?) -> CurrentExchangeRateResult {
         guard let jsonData = data else {
             return .failure(error!)
         }
         
-        switch currencyPair.base {
-        case is TokenFeatures:
-            return BittrexAPI.currentRate(for: currencyPair, fromJSON: jsonData)
-        default:
-            return KrakenAPI.currentRate(for: currencyPair, fromJSON: jsonData)
-        }
+        return CryptoCompareAPI.currentExchangeRate(for: currencyPair, fromJSON: jsonData)
     }
     
     // MARK: - Public Methods
-    static func fetchPriceHistory(for currencyPair: CurrencyPair, since: Date, completion: @escaping (PriceHistoryResult) -> Void) {
-        let url = KrakenAPI.priceHistoryURL(for: currencyPair, since: since)
+    static func fetchExchangeRateHistory(for currencyPair: CurrencyPair, since date: Date, completion: @escaping (ExchangeRateHistoryResult) -> Void) {
+        let url = CryptoCompareAPI.exchangeRateHistoryURL(for: currencyPair, since: date)
         let request = URLRequest(url: url)
         
         let task = session.dataTask(with: request) { (data, response, error) -> Void in
-            let result = self.processPriceHistoryRequest(for: currencyPair, data: data, error: error)
+            let result = self.processExchangeRateHistoryRequest(for: currencyPair, data: data, error: error)
             
             OperationQueue.main.addOperation {
                 completion(result)
@@ -72,20 +72,12 @@ struct TickerConnector {
         task.resume()
     }
     
-    static func fetchCurrentPrice(for currencyPair: CurrencyPair, completion: @escaping (CurrentPriceResult) -> Void) {
-        let url: URL
-        
-        switch currencyPair.base {
-        case is TokenFeatures:
-            url = BittrexAPI.currentRateURL(for: currencyPair)
-        default:
-            url = KrakenAPI.currentRateURL(for: currencyPair)
-        }
-        
+    static func fetchCurrentExchangeRate(for currencyPair: CurrencyPair, completion: @escaping (CurrentExchangeRateResult) -> Void) {
+        let url = CryptoCompareAPI.currentExchangeRateURL(for: currencyPair)
         let request = URLRequest(url: url)
         
         let task = session.dataTask(with: request) { (data, response, error) -> Void in
-            let result = self.processCurrentPriceRequest(for: currencyPair, data: data, error: error)
+            let result = self.processCurrentExchangeRateRequest(for: currencyPair, data: data, error: error)
             
             OperationQueue.main.addOperation {
                 completion(result)

@@ -12,13 +12,13 @@ enum BittrexError: Error {
     case invalidJSONData
 }
 
-struct BittrexAPI {
+struct BittrexAPI: Exchange {
     
     // MARK: - Private Properties
     private static let baseURL = "https://bittrex.com/api/v1.1/public"
     
     private enum Method: String {
-        case currentRate = "getticker"
+        case CurrentExchangeRate = "getticker"
     }
     
     // MARK: - Private Methods
@@ -37,7 +37,12 @@ struct BittrexAPI {
     }
     
     // MARK: - Public Methods
-    static func currentRate(for currencyPair: CurrencyPair, fromJSON data: Data) -> CurrentPriceResult {
+    // MARK: Data Aggregation
+    static func exchangeRateHistory(for currencyPair: CurrencyPair, fromJSON data: Data) -> ExchangeRateHistoryResult {
+        fatalError("This method has not been implemented yet.")
+    }
+    
+    static func currentExchangeRate(for currencyPair: CurrencyPair, fromJSON data: Data) -> CurrentExchangeRateResult {
         do {
             let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
             
@@ -45,16 +50,21 @@ struct BittrexAPI {
                 return .failure(KrakenError.invalidJSONData)
             }
             
-            let currentRate = TickerConnector.Price(date: Date(), currencyPair: currencyPair, value: lastClosedValue)
+            let currentExchangeRate = TickerConnector.ExchangeRate(date: Date(), currencyPair: currencyPair, value: lastClosedValue)
             
-            return .success(currentRate)
+            return .success(currentExchangeRate)
         } catch {
             return .failure(error)
         }
     }
     
-    static func currentRateURL(for currencyPair: CurrencyPair) -> URL {
-        return bittrexURL(method: .currentRate, parameters: [
+    // MARK: URL Creation
+    static func exchangeRateHistoryURL(for currencyPair: CurrencyPair, since date: Date) -> URL {
+        fatalError("This method has not been implemented yet.")
+    }
+    
+    static func currentExchangeRateURL(for currencyPair: CurrencyPair) -> URL {
+        return bittrexURL(method: .CurrentExchangeRate, parameters: [
             "market": "\(currencyPair.quote.code)-\(currencyPair.base.code)"
         ])
     }

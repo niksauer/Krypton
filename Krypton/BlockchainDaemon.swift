@@ -21,7 +21,7 @@ final class BlockchainDaemon {
     private static var updateTimerForBlockchain = [Blockchain: Timer]()
     
     private static var updateIntervallForBlockchain: [Blockchain: TimeInterval] = [
-        .XBT: 600,
+        .BTC: 600,
         .ETH: 60
     ]
     

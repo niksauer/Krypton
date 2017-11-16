@@ -38,7 +38,7 @@ class MarketPrice: NSManagedObject {
     
     // MARK: - Public Class Methods
     /// creates and returns ticker price if non-existent in database, throws otherwise
-    class func createMarketPrice(from priceInfo: TickerConnector.Price, in context: NSManagedObjectContext) throws -> MarketPrice {
+    class func createMarketPrice(from priceInfo: TickerConnector.ExchangeRate, in context: NSManagedObjectContext) throws -> MarketPrice {
         let request: NSFetchRequest<MarketPrice> = MarketPrice.fetchRequest()
         request.predicate = NSPredicate(format: "currencyPair = %@ AND date = %@", priceInfo.currencyPair.name, priceInfo.date as NSDate)
         
@@ -102,7 +102,7 @@ class MarketPrice: NSManagedObject {
             return
         }
         
-        TickerConnector.fetchPriceHistory(for: currencyPair, since: startDate) { result in
+        TickerConnector.fetchExchangeRateHistory(for: currencyPair, since: startDate) { result in
             switch result {
             case let .success(priceHistory):
                 let context = AppDelegate.viewContext

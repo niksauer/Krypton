@@ -30,7 +30,7 @@ final class TickerDaemon {
     private static var currencyPairs = Set<CurrencyPair>()
     
     /// dictionary mapping trading pairs to their most current price
-    private static var currentRateForCurrencyPair = [CurrencyPair: Double]()
+    private static var currentExchangeRateForCurrencyPair = [CurrencyPair: Double]()
     
     private static var requestsForCurrencyPair = [CurrencyPair: Int]()
     
@@ -76,7 +76,7 @@ final class TickerDaemon {
     
     /// returns current price for specified trading pair
     class func getCurrentPrice(for currencyPair: CurrencyPair) -> Double? {
-        return currentRateForCurrencyPair[currencyPair]
+        return currentExchangeRateForCurrencyPair[currencyPair]
     }
     
     class func reset() {
@@ -128,11 +128,11 @@ final class TickerDaemon {
     // MARK: - Private Class Methods
     /// updates current price for specified trading pair, notifies delegate of change
     private class func updatePrice(for currencyPair: CurrencyPair, completion: (() -> Void)?) {
-        TickerConnector.fetchCurrentPrice(for: currencyPair, completion: { result in
+        TickerConnector.fetchCurrentExchangeRate(for: currencyPair, completion: { result in
             switch result {
-            case .success(let currentRate):
-                self.currentRateForCurrencyPair[currencyPair] = currentRate.value
-                log.verbose("Updated current price for currencyPair '\(currencyPair.name)': \(currentRate.value)")
+            case .success(let currentExchangeRate):
+                self.currentExchangeRateForCurrencyPair[currencyPair] = currentExchangeRate.value
+                log.verbose("Updated current price for currencyPair '\(currencyPair.name)': \(currentExchangeRate.value)")
                 delegate?.didUpdateCurrentPrice(for: currencyPair)
                 completion?()
             case .failure(let error):

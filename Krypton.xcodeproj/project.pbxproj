@@ -55,6 +55,7 @@
 		24A514D41F7DA5300003BD65 /* TransactionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A514D31F7DA5300003BD65 /* TransactionCell.swift */; };
 		24BB0DFE1F4E41B40042562C /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BB0DFD1F4E41B40042562C /* Currency.swift */; };
 		24BF8C811FAA4EDD0070C178 /* AccountsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BF8C801FAA4EDD0070C178 /* AccountsController.swift */; };
+		24C033361FBDBA6B0040D972 /* CryptoCompareAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C033351FBDBA6B0040D972 /* CryptoCompareAPI.swift */; };
 		24C63DB41F7F15DD0096A807 /* WatchlistController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C63DB31F7F15DD0096A807 /* WatchlistController.swift */; };
 /* End PBXBuildFile section */
 
@@ -218,6 +219,7 @@
 		24AF7B2A1F83130E00400007 /* SwiftKeccak.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftKeccak.xcodeproj; path = SwiftKeccak/SwiftKeccak.xcodeproj; sourceTree = "<group>"; };
 		24BB0DFD1F4E41B40042562C /* Currency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
 		24BF8C801FAA4EDD0070C178 /* AccountsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsController.swift; sourceTree = "<group>"; };
+		24C033351FBDBA6B0040D972 /* CryptoCompareAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoCompareAPI.swift; sourceTree = "<group>"; };
 		24C63DB31F7F15DD0096A807 /* WatchlistController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchlistController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -269,6 +271,7 @@
 			isa = PBXGroup;
 			children = (
 				2400D0911F40D6E700833958 /* TickerConnector.swift */,
+				24C033351FBDBA6B0040D972 /* CryptoCompareAPI.swift */,
 				2400D08F1F40720500833958 /* KrakenAPI.swift */,
 				248F62301FB500EB003D213A /* BittrexAPI.swift */,
 			);
@@ -643,6 +646,7 @@
 			files = (
 				2400D0961F424B5600833958 /* EtherscanAPI.swift in Sources */,
 				247D1C171FBA265100B45941 /* Blockchain.swift in Sources */,
+				24C033361FBDBA6B0040D972 /* CryptoCompareAPI.swift in Sources */,
 				240DF3E41FB5CB08003DED40 /* ERC20Token.swift in Sources */,
 				2458132F1F5F503B007795BC /* PortfolioManager.swift in Sources */,
 				24A007C41F538AD800EC0DCF /* TickerDaemon.swift in Sources */,

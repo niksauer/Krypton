@@ -46,7 +46,7 @@ class Address: NSManagedObject {
         switch blockchain {
         case .ETH:
             address = Ethereum(context: context)
-        case .XBT:
+        case .BTC:
             address = Bitcoin(context: context)
         }
     
@@ -338,7 +338,7 @@ class Bitcoin: Address {
     // MARK: - Initializers
     override func awakeFromInsert() {
         super.awakeFromInsert()
-        blockchainRaw = Blockchain.XBT.rawValue
+        blockchainRaw = Blockchain.BTC.rawValue
     }
     
     // MARK: - Public Methods    
