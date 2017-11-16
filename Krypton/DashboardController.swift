@@ -39,13 +39,13 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerDae
             switch portfolioDisplay {
             case .currentExchangeValue:
                 portfolioLabel.text = "Total Portfolio Value"
-                portfolioValueLabel.text = Format.getCurrencyFormatting(for: currentExchangeValue, currency: PortfolioManager.shared.baseCurrency)
+                portfolioValueLabel.text = Format.getCurrencyFormatting(for: currentExchangeValue, currency: PortfolioManager.shared.quoteCurrency)
             case .relativeProfit:
                 portfolioLabel.text = "Total Relative Profit"
                 portfolioValueLabel.text = Format.getRelativeProfitFormatting(from: profitStats)
             case .absoluteProfit:
                 portfolioLabel.text = "Total Absolute Profit"
-                portfolioValueLabel.text = Format.getAbsoluteProfitFormatting(from: profitStats, currency: PortfolioManager.shared.baseCurrency)
+                portfolioValueLabel.text = Format.getAbsoluteProfitFormatting(from: profitStats, currency: PortfolioManager.shared.quoteCurrency)
             }
         }
     }
@@ -62,7 +62,7 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerDae
             if showsRelativeProfit {
                 profitValueLabel.text = Format.getRelativeProfitFormatting(from: profitStats)
             } else {
-                profitValueLabel.text = Format.getAbsoluteProfitFormatting(from: profitStats, currency: PortfolioManager.shared.baseCurrency)
+                profitValueLabel.text = Format.getAbsoluteProfitFormatting(from: profitStats, currency: PortfolioManager.shared.quoteCurrency)
             }
         }
     }
@@ -115,7 +115,7 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerDae
         showsRelativeProfit = { showsRelativeProfit }()
         
         if let investmentValue = PortfolioManager.shared.getProfitStats(for: filter.transactionType, timeframe: .allTime)?.startValue {
-            investmentValueLabel.text = Format.getCurrencyFormatting(for: investmentValue, currency: PortfolioManager.shared.baseCurrency)
+            investmentValueLabel.text = Format.getCurrencyFormatting(for: investmentValue, currency: PortfolioManager.shared.quoteCurrency)
         } else {
             investmentValueLabel.text = "???"
         }
@@ -142,7 +142,7 @@ class DashboardController: UIViewController, PortfolioManagerDelegate, TickerDae
     }
     
     // MARK: - TickerDaemon Delegate
-    func didUpdateCurrentPrice(for tradingPair: TradingPair) {
+    func didUpdateCurrentPrice(for currencyPair: CurrencyPair) {
         updateUI()
     }
     

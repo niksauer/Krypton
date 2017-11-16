@@ -21,7 +21,7 @@ class AddresDetailController: UITableViewController {
         let folderButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_folder"), style: .plain, target: self, action: nil)
         let deleteButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_trash"), style: .plain, target: self, action: nil)
         self.toolbarItems = [deleteButton, flexibleSpacer, folderButton]
-        navigationController?.setToolbarHidden(false, animated: false)
+//        navigationController?.setToolbarHidden(false, animated: false)
     }
     
     // MARK: - Navigation

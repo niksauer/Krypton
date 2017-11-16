@@ -217,16 +217,16 @@ class Transaction: NSManagedObject {
             return userExchangeValue
         }
         
-        guard let unitExchangeValue = owner?.tradingPair.getValue(on: date) else {
+        guard let exchangeRate = owner?.currencyPair.getRate(on: date) else {
             log.warning("Failed to get exchange value for transaction '\(self.logDescription)'.")
             return nil
         }
 
         switch type {
         case .fee:
-            return unitExchangeValue * feeAmount
+            return exchangeRate * feeAmount
         case .total:
-            return unitExchangeValue * totalAmount
+            return exchangeRate * totalAmount
         }
     }
 
@@ -311,7 +311,7 @@ class Transaction: NSManagedObject {
                 // return for any day between startDate and today, including today
                 absoluteProfit = exchangeValue - baseExchangeValue
             } else {
-                // error retrieving tickerprice
+                // error retrieving MarketPrice
                 return nil
             }
 

@@ -18,7 +18,7 @@ struct BittrexAPI {
     private static let baseURL = "https://bittrex.com/api/v1.1/public"
     
     private enum Method: String {
-        case currentPrice = "getticker"
+        case currentRate = "getticker"
     }
     
     // MARK: - Private Methods
@@ -37,25 +37,25 @@ struct BittrexAPI {
     }
     
     // MARK: - Public Methods
-    static func currentPrice(for tradingPair: TradingPair, fromJSON data: Data) -> CurrentPriceResult {
+    static func currentRate(for currencyPair: CurrencyPair, fromJSON data: Data) -> CurrentPriceResult {
         do {
             let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
-
+            
             guard let jsonDictionary = jsonObject as? [AnyHashable: Any], let result = jsonDictionary["result"] as? [String: Any], let lastClosedValue = result["Last"] as? Double else {
                 return .failure(KrakenError.invalidJSONData)
             }
             
-            let currentPrice = TickerConnector.Price(date: Date(), tradingPair: tradingPair, value: lastClosedValue)
+            let currentRate = TickerConnector.Price(date: Date(), currencyPair: currencyPair, value: lastClosedValue)
             
-            return .success(currentPrice)
+            return .success(currentRate)
         } catch {
             return .failure(error)
         }
     }
     
-    static func currentPriceURL(for tradingPair: TradingPair) -> URL {
-        return bittrexURL(method: .currentPrice, parameters: [
-            "market": "\(tradingPair.quote.code)-\(tradingPair.base.code)"
+    static func currentRateURL(for currencyPair: CurrencyPair) -> URL {
+        return bittrexURL(method: .currentRate, parameters: [
+            "market": "\(currencyPair.quote.code)-\(currencyPair.base.code)"
         ])
     }
     

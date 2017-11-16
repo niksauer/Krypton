@@ -11,12 +11,12 @@ import UIKit
 class SettingsController: UITableViewController, CurrencySelectionDelegate, PortfolioManagerDelegate {
 
     // MARK: - Outlets
-    @IBOutlet weak var baseCurrencyCodeLabel: UILabel!
+    @IBOutlet weak var quoteCurrencyCodeLabel: UILabel!
     
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
-        baseCurrencyCodeLabel.text = PortfolioManager.shared.baseCurrency.code
+        quoteCurrencyCodeLabel.text = PortfolioManager.shared.quoteCurrency.code
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -30,9 +30,9 @@ class SettingsController: UITableViewController, CurrencySelectionDelegate, Port
         
         if let destVC = segue.destination as? CurrencySelectionController {
             destVC.delegate = self
-            destVC.selection = PortfolioManager.shared.baseCurrency
-            destVC.type = .fiat
-            destVC.title = "Base Currency"
+            destVC.selection = PortfolioManager.shared.quoteCurrency
+            destVC.type = .Fiat
+            destVC.title = "Quote Currency"
         }
     }
     
@@ -44,7 +44,7 @@ class SettingsController: UITableViewController, CurrencySelectionDelegate, Port
     // MARK: - CurrencySelection Delegate
     func didSelectCurrency(selection: Currency) {
         do {
-            try PortfolioManager.shared.setBaseCurrency(selection)
+            try PortfolioManager.shared.setQuoteCurrency(selection)
         } catch {
             // present error
         }
@@ -52,7 +52,7 @@ class SettingsController: UITableViewController, CurrencySelectionDelegate, Port
     
     // MARK: - PortfolioManager Delegate
     func didUpdatePortfolioManager() {
-        baseCurrencyCodeLabel.text = PortfolioManager.shared.baseCurrency.code
+        quoteCurrencyCodeLabel.text = PortfolioManager.shared.quoteCurrency.code
     }
     
 }

@@ -115,7 +115,7 @@ class PortfolioTableController: UITableViewController, PortfolioManagerDelegate,
     // MARK: - PortfolioCreator Delegate
     func shouldCreatePortfolio(alias: String, isDefault: Bool) {
         do {
-            let portfolio = try PortfolioManager.shared.addPortfolio(alias: alias, baseCurrency: PortfolioManager.shared.baseCurrency)
+            let portfolio = try PortfolioManager.shared.addPortfolio(alias: alias, quoteCurrency: PortfolioManager.shared.quoteCurrency)
             try portfolio.setIsDefault(isDefault)
             selectedPortfolio = portfolio
             delegate?.didChangeSelection(selection: portfolio)

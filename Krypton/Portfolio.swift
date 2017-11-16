@@ -12,9 +12,9 @@ import CoreData
 protocol PortfolioDelegate {
     func didUpdateAlias(for portfolio: Portfolio)
     func didUpdateIsDefault(for portfolio: Portfolio)
-    func didUpdateBaseCurrency(for portfolio: Portfolio)
+    func didUpdateQuoteCurrency(for portfolio: Portfolio)
     func didAddAddress(to portfolio: Portfolio, address: Address)
-    func didRemoveAddress(from portfolio: Portfolio, tradingPair: TradingPair, blockchain: Blockchain)
+    func didRemoveAddress(from portfolio: Portfolio, currencyPair: CurrencyPair, blockchain: Blockchain)
     func didUpdateProperty(for address: Address, in portfolio: Portfolio)
 }
 
@@ -22,10 +22,10 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
     
     // MARK: - Public Class Methods
     /// creates and returns portfolio with specified base currency
-    class func createPortfolio(alias: String?, baseCurrency: Currency, in context: NSManagedObjectContext) -> Portfolio {
+    class func createPortfolio(alias: String?, quoteCurrency: Currency, in context: NSManagedObjectContext) -> Portfolio {
         let portfolio = Portfolio(context: context)
         portfolio.alias = alias
-        portfolio.baseCurrencyCode = baseCurrency.code
+        portfolio.quoteCurrencyCode = quoteCurrency.code
         return portfolio
     }
     
@@ -51,12 +51,12 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
     /// delegate who gets notified of changes in portfolio, i.e., balance, transaction history and all associated transactions' userExchangeValue, isInvestment properties
     var delegate: PortfolioDelegate?
     
-    private(set) public var baseCurrency: Currency {
+    private(set) public var quoteCurrency: Currency {
         get {
-            return CurrencyManager.getCurrency(from: baseCurrencyCode!)!
+            return CurrencyManager.getCurrency(from: quoteCurrencyCode!)!
         }
         set {
-            baseCurrencyCode = newValue.code
+            quoteCurrencyCode = newValue.code
         }
     }
     
@@ -70,7 +70,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
     }
     
     var logDescription: String {
-        return "\(self.alias!), baseCurrency: \(self.baseCurrency.code)"
+        return "\(self.alias!), quoteCurrency: \(self.quoteCurrency.code)"
     }
     
     // MARK: - Public Methods
@@ -106,22 +106,22 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
         }
     }
 
-    func setBaseCurrency(_ currency: Currency) throws {
-        guard self.baseCurrency.code != currency.code else {
+    func setQuoteCurrency(_ currency: Currency) throws {
+        guard self.quoteCurrency.code != currency.code else {
             return
         }
         
         do {
-            self.baseCurrencyCode = currency.code
+            self.quoteCurrencyCode = currency.code
             try AppDelegate.viewContext.save()
             
             for address in storedAddresses {
-                try address.setBaseCurrency(currency)
+                try address.setQuoteCurrency(currency)
             }
             
-            self.update()
+            self.update(completion: nil)
             log.debug("Updated base currency (\(currency.code)) for portfolio '\(self.logDescription)'.")
-            delegate?.didUpdateBaseCurrency(for: self)
+            delegate?.didUpdateQuoteCurrency(for: self)
         } catch {
             log.error("Failed to update base currency for portfolio '\(self.logDescription).")
             throw error
@@ -130,9 +130,13 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
     
     // MARK: Management
     /// updates all stored addresses by updating their transaction history, price history and balance
-    func update() {
-        for address in storedAddresses {
-            address.update(completion: nil)
+    func update(completion: (() -> Void)?) {
+        for (index, address) in storedAddresses.enumerated() {
+            if index == storedAddresses.count-1 {
+                address.update(completion: completion)
+            } else {
+                address.update(completion: nil)
+            }
         }
     }
     
@@ -140,7 +144,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
     func addAddress(_ addressString: String, alias: String?, blockchain: Blockchain) throws {
         do {
             let context = AppDelegate.viewContext
-            let address = try Address.createAddress(addressString, alias: alias, blockchain: blockchain, baseCurrency: baseCurrency, in: context)
+            let address = try Address.createAddress(addressString, alias: alias, blockchain: blockchain, quoteCurrency: quoteCurrency, in: context)
             self.addToAddresses(address)
             try context.save()
             address.delegate = self
@@ -157,12 +161,12 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
         do {
             let addressIdentifier = address.identifier!
             let context = AppDelegate.viewContext
-            let tradingPair = address.tradingPair
+            let currencyPair = address.currencyPair
             let blockchain = address.blockchain
             context.delete(address)
             try context.save()
             log.info("Removed address '\(addressIdentifier)' from portfolio '\(self.logDescription)'.")
-            delegate?.didRemoveAddress(from: self, tradingPair: tradingPair, blockchain: blockchain)
+            delegate?.didRemoveAddress(from: self, currencyPair: currencyPair, blockchain: blockchain)
         } catch {
             log.error("Failed to remove address '\(address.identifier!)' from from portfolio '\(self.logDescription)': \(error)")
             throw error
@@ -246,7 +250,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
         delegate?.didUpdateProperty(for: address, in: self)
     }
     
-    func didUpdateBaseCurrency(for address: Address) {
+    func didUpdateQuoteCurrency(for address: Address) {
         delegate?.didUpdateProperty(for: address, in: self)
     }
     

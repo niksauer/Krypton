@@ -11,7 +11,7 @@ import UIKit
 class AddAddressController: UITableViewController, UITextFieldDelegate, UIPickerViewDataSource, UIPickerViewDelegate, PortfolioSelectorDelegate {
     
     // MARK: - Private Properties
-    private let blockchains = Blockchain.allValues
+    private let blockchains = Blockchain.allValues as! [Blockchain]
     private let blockchainFieldIndexPath = IndexPath(row: 0, section: 1)
     private let blockchainPickerIndexPath = IndexPath(row: 1, section: 1)
     

@@ -10,7 +10,7 @@ import Foundation
 import CoreData
 
 protocol TickerDaemonDelegate {
-    func didUpdateCurrentPrice(for tradingPair: TradingPair)
+    func didUpdateCurrentPrice(for currencyPair: CurrencyPair)
 }
 
 final class TickerDaemon {
@@ -18,8 +18,6 @@ final class TickerDaemon {
     // MARK: - Public Properties
     /// delegate who is notified of price updates
     static var delegate: TickerDaemonDelegate?
-    
-//    static var storedTokens = Set<Token>()
     
     // MARK: - Private Properties
     /// timer used to continioulsy fetch price updates
@@ -29,88 +27,73 @@ final class TickerDaemon {
     private static var updateIntervall: TimeInterval = 30
     
     /// trading pairs for which continious price updates are retrieved
-    private static var tradingPairs = Set<TradingPair>()
+    private static var currencyPairs = Set<CurrencyPair>()
     
     /// dictionary mapping trading pairs to their most current price
-    private static var currentPriceForTradingPair = [TradingPair: Double]()
+    private static var currentRateForCurrencyPair = [CurrencyPair: Double]()
     
-    private static var requestsForTradingPair = [TradingPair: Int]()
+    private static var requestsForCurrencyPair = [CurrencyPair: Int]()
     
     // MARK: - Public Class Methods
     /// adds trading pair and fetches current price if it has not already been added to watchlist, starts update timer
-    class func addTradingPair(_ tradingPair: TradingPair) {
-        if !tradingPairs.contains(tradingPair) {
-            tradingPairs.insert(tradingPair)
-            updatePrice(for: tradingPair)
-            log.debug("Added tradingPair '\(tradingPair.name)' to TickerDaemon.")
+    class func addCurrencyPair(_ currencyPair: CurrencyPair) {
+        if !currencyPairs.contains(currencyPair) {
+            currencyPairs.insert(currencyPair)
+            updatePrice(for: currencyPair, completion: nil)
+            log.debug("Added currencyPair '\(currencyPair.name)' to TickerDaemon.")
         }
     
-        if let requestCount = requestsForTradingPair[tradingPair] {
-            requestsForTradingPair[tradingPair] = requestCount + 1
-            log.debug("Updated requests (\(requestCount + 1)) for tradingPair '\(tradingPair.name)'.")
+        if let requestCount = requestsForCurrencyPair[currencyPair] {
+            requestsForCurrencyPair[currencyPair] = requestCount + 1
+            log.debug("Updated requests (\(requestCount + 1)) for currencyPair '\(currencyPair.name)'.")
         } else {
-            requestsForTradingPair[tradingPair] = 1
+            requestsForCurrencyPair[currencyPair] = 1
         }
         
-        if tradingPairs.count == 1 {
+        if currencyPairs.count == 1 {
             startUpdateTimer()
         }
     }
     
-    class func removeTradingPair(_ tradingPair: TradingPair) {
-        guard let requestCount = requestsForTradingPair[tradingPair] else {
+    class func removeCurrencyPair(_ currencyPair: CurrencyPair) {
+        guard let requestCount = requestsForCurrencyPair[currencyPair] else {
             return
         }
         
         if requestCount == 1 {
-            tradingPairs.remove(tradingPair)
-            requestsForTradingPair.removeValue(forKey: tradingPair)
-            log.debug("Removed tradingPair '\(tradingPair.name)' from TickerDaemon.")
+            currencyPairs.remove(currencyPair)
+            requestsForCurrencyPair.removeValue(forKey: currencyPair)
+            log.debug("Removed currencyPair '\(currencyPair.name)' from TickerDaemon.")
         } else {
-            requestsForTradingPair[tradingPair] = requestCount - 1
-            log.debug("Updated requests (\(requestCount - 1)) for tradingPair '\(tradingPair.name)'.")
+            requestsForCurrencyPair[currencyPair] = requestCount - 1
+            log.debug("Updated requests (\(requestCount - 1)) for currencyPair '\(currencyPair.name)'.")
         }
         
-        if tradingPairs.count == 0 {
+        if currencyPairs.count == 0 {
             stopUpdateTimer()
         }
     }
     
-//    class func addToken(_ token: Token) {
-//        guard let tradingPair = TradingPair.getTradingPair(a: token, b: PortfolioManager.shared.baseCurrency) else {
-//            return
-//        }
-//
-//        var tokens = storedTokens
-//
-//        if !storedTokens.contains(token) {
-//            UserDefaults.standard.set(tokens.insert(token), forKey: "tokens")
-//        }
-//        if var storedTokens = UserDefaults.standard.value(forKey: "tokens") as? [String], !storedTokens.contains(token.code) {
-//            UserDefaults.standard.set(storedTokens.append(token.code), forKey: "tokens")
-//            UserDefaults.standard.synchronize()
-//        } else {
-//            UserDefaults.standard.set([token], forKey: "tokens")
-//            UserDefaults.standard.synchronize()
-//        }
-//
-//        addTradingPair(tradingPair)
-//    }
-    
-//    class func loadStoredTokens() -> Set<Token> {
-//        return UserDefaults.standard.value(forKey: "tokens") as? Set<Token> ?? Set()
-//    }
-    
     /// returns current price for specified trading pair
-    class func getCurrentPrice(for tradingPair: TradingPair) -> Double? {
-        return currentPriceForTradingPair[tradingPair]
+    class func getCurrentPrice(for currencyPair: CurrencyPair) -> Double? {
+        return currentRateForCurrencyPair[currencyPair]
     }
     
     class func reset() {
         stopUpdateTimer()
-        tradingPairs = Set<TradingPair>()
-        requestsForTradingPair = [TradingPair: Int]()
+        currencyPairs = Set<CurrencyPair>()
+        requestsForCurrencyPair = [CurrencyPair: Int]()
         log.debug("Reset TickerDaemon.")
+    }
+    
+    class func update(completion: (() -> Void)?) {
+        for (index, currencyPair) in currencyPairs.enumerated() {
+            if index == currencyPairs.count-1 {
+                updatePrice(for: currencyPair, completion: completion)
+            } else {
+                updatePrice(for: currencyPair, completion: nil)
+            }
+        }
     }
     
     /// starts unique timer to update current price in specified interval for all stored trading pairs
@@ -122,9 +105,7 @@ final class TickerDaemon {
         }
         
         updateTimer = Timer.scheduledTimer(withTimeInterval: updateIntervall, repeats: true, block: { _ in
-            for tradingPair in tradingPairs {
-                updatePrice(for: tradingPair)
-            }
+            update(completion: nil)
         })
         
         let notificationCenter = NotificationCenter.default
@@ -146,15 +127,17 @@ final class TickerDaemon {
     
     // MARK: - Private Class Methods
     /// updates current price for specified trading pair, notifies delegate of change
-    private class func updatePrice(for tradingPair: TradingPair) {
-        TickerConnector.fetchCurrentPrice(for: tradingPair, completion: { result in
+    private class func updatePrice(for currencyPair: CurrencyPair, completion: (() -> Void)?) {
+        TickerConnector.fetchCurrentPrice(for: currencyPair, completion: { result in
             switch result {
-            case .success(let currentPrice):
-                self.currentPriceForTradingPair[tradingPair] = currentPrice.value
-                log.verbose("Updated current price for tradingPair '\(tradingPair.name)': \(currentPrice.value)")
-                delegate?.didUpdateCurrentPrice(for: tradingPair)
+            case .success(let currentRate):
+                self.currentRateForCurrencyPair[currencyPair] = currentRate.value
+                log.verbose("Updated current price for currencyPair '\(currencyPair.name)': \(currentRate.value)")
+                delegate?.didUpdateCurrentPrice(for: currencyPair)
+                completion?()
             case .failure(let error):
-                log.error("Failed to fetch current price for tradingPair '\(tradingPair.name)': \(error)")
+                log.error("Failed to fetch current price for currencyPair '\(currencyPair.name)': \(error)")
+                completion?()
             }
         })
     }

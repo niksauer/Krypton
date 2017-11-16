@@ -18,7 +18,7 @@ protocol AddressDelegate {
     func didUpdateTransactionHistory(for address: Address)
     func didUpdateBalance(for address: Address)
     func didUpdateAlias(for address: Address)
-    func didUpdateBaseCurrency(for address: Address)
+    func didUpdateQuoteCurrency(for address: Address)
     func didUpdateUserExchangeValue(for transaction: Transaction)
     func didUpdateIsInvestmentStatus(for transaction: Transaction)
 }
@@ -27,7 +27,7 @@ class Address: NSManagedObject {
     
     // MARK: - Public Class Methods
     /// creates and returns address if non-existent in database, throws otherwise
-    class func createAddress(_ addressString: String, alias: String?, blockchain: Blockchain, baseCurrency: Currency, in context: NSManagedObjectContext) throws -> Address {
+    class func createAddress(_ addressString: String, alias: String?, blockchain: Blockchain, quoteCurrency: Currency, in context: NSManagedObjectContext) throws -> Address {
         let request: NSFetchRequest<Address> = Address.fetchRequest()
         request.predicate = NSPredicate(format: "identifier = %@", addressString)
         
@@ -58,7 +58,7 @@ class Address: NSManagedObject {
         }
         
         address.alias = alias
-        address.baseCurrencyCode = baseCurrency.code
+        address.quoteCurrencyCode = quoteCurrency.code
         
         return address
     }
@@ -73,18 +73,18 @@ class Address: NSManagedObject {
         }
     }
     
-    private(set) public var baseCurrency: Currency {
+    private(set) public var quoteCurrency: Currency {
         get {
-            return CurrencyManager.getCurrency(from: baseCurrencyCode!)!
+            return CurrencyManager.getCurrency(from: quoteCurrencyCode!)!
         }
         set {
-            baseCurrencyCode = newValue.code
+            quoteCurrencyCode = newValue.code
         }
     }
     
-    /// returns trading pair constructed from owner's baseCurrency + address' cryptoCurrency
-    var tradingPair: TradingPair {
-        return TradingPair(base: blockchain, quote: baseCurrency)
+    /// returns trading pair constructed from owner's quoteCurrency + address' cryptoCurrency
+    var currencyPair: CurrencyPair {
+        return CurrencyPair(base: blockchain, quote: quoteCurrency)
     }
     
     /// returns all transaction associated with address
@@ -145,16 +145,16 @@ class Address: NSManagedObject {
         }
     }
     
-    func setBaseCurrency(_ currency: Currency) throws {
-        guard self.baseCurrency.code != currency.code else {
+    func setQuoteCurrency(_ currency: Currency) throws {
+        guard self.quoteCurrency.code != currency.code else {
             return
         }
         
         do {
-            self.baseCurrencyCode = currency.code
+            self.quoteCurrencyCode = currency.code
             try AppDelegate.viewContext.save()
             log.debug("Updated base currency (\(currency.code)) for address '\(logDescription)'.")
-            delegate?.didUpdateBaseCurrency(for: self)
+            delegate?.didUpdateQuoteCurrency(for: self)
         } catch {
             log.error("Failed to update base currency for address '\(logDescription)': \(error)")
             throw error
@@ -249,10 +249,10 @@ class Address: NSManagedObject {
         }
     }
     
-    /// asks tickerPrice to update price history for set trading pair starting from oldest transaction date encountered, passes completion block to retrieval
+    /// asks MarketPrice to update price history for set trading pair starting from oldest transaction date encountered, passes completion block to retrieval
     func updatePriceHistory(completion: (() -> Void)?) {
         if let firstTransaction = getOldestTransaction() {
-            TickerPrice.updatePriceHistory(for: tradingPair, since: firstTransaction.date! as Date, completion: completion)
+            MarketPrice.updatePriceHistory(for: currencyPair, since: firstTransaction.date! as Date, completion: completion)
         } else {
             completion?()
         }
@@ -281,11 +281,11 @@ class Address: NSManagedObject {
     
     /// returns exchange value on speicfied date, nil if date is in the future
     func getExchangeValue(for type: TransactionType, on date: Date) -> (balance: Double, value: Double)? {
-        guard !date.isFuture, let balance = getBalance(for: type, on: date), let unitExchangeValue = tradingPair.getValue(on: date) else {
+        guard !date.isFuture, let balance = getBalance(for: type, on: date), let exchangeRate = currencyPair.getRate(on: date) else {
             return nil
         }
         
-        return (balance, unitExchangeValue * balance)
+        return (balance, exchangeRate * balance)
     }
     
     /// returns total value invested in address

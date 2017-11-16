@@ -21,12 +21,11 @@ class CurrencySelectionController: UITableViewController {
     var delegate: CurrencySelectionDelegate?
     var selection: Currency?
     var type: CurrencyType!
-    var exceptions = [Currency]()
     
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
-        currencies = CurrencyManager.getAllValues(for: type)
+        currencies = CurrencyManager.getCurrencies(of: type)
     }
 
     // MARK: - TableView Data Source
@@ -43,7 +42,7 @@ class CurrencySelectionController: UITableViewController {
         let currency = currencies[indexPath.row]
         cell.textLabel?.text = currency.code
         
-        if currency.code == selection?.code {
+        if let selection = selection, currency.isEqual(to: selection) {
             cell.accessoryType = .checkmark
         }
         

@@ -14,74 +14,16 @@ enum TokenError: Error {
     case invalidBlockchain
 }
 
-protocol TokenFeatures: Currency {
-    var name: String { get }
-    var address: String { get }
-}
-
-class Token: NSManagedObject, Currency {
-    
-    // MARK: - Prototypes
-    enum ERC20: String, TokenFeatures {
-        case OMG
-        case REP
-        case STORJ
-        
-        // MARK: - Private Properties
-        private static let nameForToken: [ERC20: String] = [
-            .OMG: "OmiseGo",
-            .REP: "Augur",
-            .STORJ: "Storj"
-        ]
-        
-        private static let addressForToken: [ERC20: String] = [
-            .OMG: "0xd26114cd6EE289AccF82350c8d8487fedB8A0C07",
-            .REP: "0xe94327d07fc17907b4db788e5adf2ed424addff6",
-            .STORJ: "0xb64ef51c888972c908cfacf59b47c1afbc0ab8ac"
-        ]
-        
-        private static let decimalDigitsForToken: [ERC20: Int] = [
-            .OMG: 18,
-            .REP: 18,
-            .STORJ: 8
-        ]
-        
-        // MARK: - Public Properties
-        static var allValues = [ OMG, REP, STORJ ]
-        
-        // MARK: - TokenFeatures Protocol
-        var name: String {
-            return ERC20.nameForToken[self]!
-        }
-        
-        var address: String {
-            return ERC20.addressForToken[self]!
-        }
-        
-        // MARK: - Currency Protocol
-        var code: String {
-            return self.rawValue
-        }
-        
-        var decimalDigits: Int {
-            return ERC20.decimalDigitsForToken[self]!
-        }
-        
-        var type: CurrencyType {
-            return .crypto
-        }
-        
-    }
-    
-    // MARK: - Public Properties
-    var tradingPair: TradingPair {
-        return TradingPair(base: self, quote: owner!.baseCurrency, intermediate: owner!.blockchain)
-    }
+class Token: NSManagedObject, TokenFeatures {
     
     // MARK: - Public Class Methods
     class func createToken(from tokenInfo: TokenFeatures, owner: TokenAddress, in context: NSManagedObjectContext) throws -> Token {
+        guard owner.blockchain == tokenInfo.blockchain else {
+            throw TokenError.invalidBlockchain
+        }
+        
         let request: NSFetchRequest<Token> = Token.fetchRequest()
-        request.predicate = NSPredicate(format: "currencyCode = %@ AND owner = %@", tokenInfo.code, owner)
+        request.predicate = NSPredicate(format: "identifier = %@ AND owner = %@", tokenInfo.address, owner)
         
         do {
             let matches = try context.fetch(request)
@@ -94,26 +36,87 @@ class Token: NSManagedObject, Currency {
         }
         
         let token = Token(context: context)
-        token.address = tokenInfo.address
-        token.name = tokenInfo.name
-        token.currencyCode = tokenInfo.code
-        token.currencyDecimalDigits = Int16(tokenInfo.decimalDigits)
+        
+        token.identifier = tokenInfo.address
         token.owner = owner
         
         return token
     }
+
+    // MARK: - Private Properties
+    private var token: TokenFeatures {
+        return owner!.blockchain.getToken(address: identifier!)!
+    }
+    
+    // MARK: - Public Properties
+    var currencyPair: CurrencyPair {
+        return CurrencyPair(base: self, quote: owner!.quoteCurrency)
+    }
+    
+    var currentExchangeValue: Double? {
+        return getExchangeValue(on: Date())
+    }
+    
+    var logDescription: String {
+        return "\(self.identifier!), owner: \(self.owner!.logDescription)"
+    }
+    
+    // MARK: - Public Methods
+    // MARK: Finance
+    func getExchangeValue(on date: Date) -> Double? {
+        guard !date.isFuture else {
+            return nil
+        }
+        
+        guard let exchangeRate = currencyPair.getRate(on: date) else {
+            log.warning("Failed to get exchange value for token '\(self.logDescription)'.")
+            return nil
+        }
+        
+        return exchangeRate * balance
+    }
+    
+    func getProfitStats(timeframe: ProfitTimeframe) -> (startValue: Double, endValue: Double)? {
+        return nil
+    }
+    
+    func getAbsoluteProfitHistory(since date: Date) -> [(date: Date, profit: Double)]? {
+        return nil
+    }
     
     // MARK: - Currency Protocol
     var code: String {
-        return currencyCode!
+        return token.code
+    }
+    
+    var name: String {
+        return token.name
+    }
+    
+    var symbol: String {
+        return token.symbol
     }
     
     var decimalDigits: Int {
-        return Int(currencyDecimalDigits)
+        return token.decimalDigits
     }
     
     var type: CurrencyType {
-        return .crypto
+        return token.type
     }
-
+    
+    // MARK: - TokenFeatures Protocol
+    var address: String {
+        get {
+            return identifier!
+        }
+        set {
+            self.identifier = newValue
+        }
+    }
+    
+    var blockchain: Blockchain {
+        return token.blockchain
+    }
+    
 }

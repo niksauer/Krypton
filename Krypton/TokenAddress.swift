@@ -23,23 +23,6 @@ class TokenAddress: Address {
         return Array(tokens!) as! [Token]
     }
     
-    // MARK: - Public Methods
-    func getToken(_ token: TokenFeatures) -> Token? {
-        let request: NSFetchRequest<Token> = Token.fetchRequest()
-        request.predicate = NSPredicate(format: "currencyCode = %@ AND owner = %@", token.code, self)
-        
-        do {
-            let matches = try AppDelegate.viewContext.fetch(request)
-            if matches.count > 0 {
-                return matches[0]
-            } else {
-                return nil
-            }
-        } catch {
-            return nil
-        }
-    }
-    
     // MARK: Management
     override func update(completion: (() -> Void)?) {
         super.update {
@@ -66,21 +49,23 @@ class Ethereum: TokenAddress {
     // MARK: - Public Methods
     // MARK: Management    
     override func updateTokenBalance(completion: (() -> Void)?) {
-        for etherToken in Token.ERC20.allValues {
+        for etherToken in ERC20Token.allValues as! [TokenFeatures] {
             BlockchainConnector.fetchTokenBalance(for: self, token: etherToken) { result in
                 switch result {
                 case .success(let balance):
                     let context = AppDelegate.viewContext
+                    let token = self.storedTokens.filter({ $0.isEqual(to: etherToken) }).first
                     
                     guard balance > 0 else {
-                        if let token = self.getToken(etherToken) {
-                            context.delete(token)
+                        if token != nil {
+                            context.delete(token!)
                         }
+   
                         completion?()
                         return
                     }
                     
-                    if let token = self.getToken(etherToken) {
+                    if let token = token {
                         do {
                             guard token.balance != balance else {
                                 log.verbose("Balance of token '\(etherToken.name)' for address '\(self.logDescription)' is already up-to-date.")
@@ -88,7 +73,6 @@ class Ethereum: TokenAddress {
                                 return
                             }
                             
-                            token.address = etherToken.address
                             token.balance = balance
                             try context.save()
                             log.debug("Updated balance (\(balance) \(etherToken.code) of token '\(etherToken.name)' for address '\(self.logDescription)'.")

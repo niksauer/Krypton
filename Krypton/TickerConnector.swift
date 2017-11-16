@@ -30,39 +30,39 @@ struct TickerConnector {
     // MARK: - Public Properties
     struct Price {
         let date: Date
-        let tradingPair: TradingPair
+        let currencyPair: CurrencyPair
         let value: Double
     }
     
     // MARK: - Private Methods
-    private static func processPriceHistoryRequest(for tradingPair: TradingPair, data: Data?, error: Error?) -> PriceHistoryResult {
+    private static func processPriceHistoryRequest(for currencyPair: CurrencyPair, data: Data?, error: Error?) -> PriceHistoryResult {
         guard let jsonData = data else {
             return .failure(error!)
         }
         
-        return KrakenAPI.priceHistory(for: tradingPair, fromJSON: jsonData)
+        return KrakenAPI.priceHistory(for: currencyPair, fromJSON: jsonData)
     }
     
-    private static func processCurrentPriceRequest(for tradingPair: TradingPair, data: Data?, error: Error?) -> CurrentPriceResult {
+    private static func processCurrentPriceRequest(for currencyPair: CurrencyPair, data: Data?, error: Error?) -> CurrentPriceResult {
         guard let jsonData = data else {
             return .failure(error!)
         }
         
-        switch tradingPair.base {
-        case is Token:
-            return BittrexAPI.currentPrice(for: tradingPair, fromJSON: jsonData)
+        switch currencyPair.base {
+        case is TokenFeatures:
+            return BittrexAPI.currentRate(for: currencyPair, fromJSON: jsonData)
         default:
-            return KrakenAPI.currentPrice(for: tradingPair, fromJSON: jsonData)
+            return KrakenAPI.currentRate(for: currencyPair, fromJSON: jsonData)
         }
     }
     
     // MARK: - Public Methods
-    static func fetchPriceHistory(for tradingPair: TradingPair, since: Date, completion: @escaping (PriceHistoryResult) -> Void) {
-        let url = KrakenAPI.priceHistoryURL(for: tradingPair, since: since)
+    static func fetchPriceHistory(for currencyPair: CurrencyPair, since: Date, completion: @escaping (PriceHistoryResult) -> Void) {
+        let url = KrakenAPI.priceHistoryURL(for: currencyPair, since: since)
         let request = URLRequest(url: url)
         
         let task = session.dataTask(with: request) { (data, response, error) -> Void in
-            let result = self.processPriceHistoryRequest(for: tradingPair, data: data, error: error)
+            let result = self.processPriceHistoryRequest(for: currencyPair, data: data, error: error)
             
             OperationQueue.main.addOperation {
                 completion(result)
@@ -72,20 +72,20 @@ struct TickerConnector {
         task.resume()
     }
     
-    static func fetchCurrentPrice(for tradingPair: TradingPair, completion: @escaping (CurrentPriceResult) -> Void) {
+    static func fetchCurrentPrice(for currencyPair: CurrencyPair, completion: @escaping (CurrentPriceResult) -> Void) {
         let url: URL
         
-        switch tradingPair.base {
-        case is Token:
-            url = BittrexAPI.currentPriceURL(for: tradingPair)
+        switch currencyPair.base {
+        case is TokenFeatures:
+            url = BittrexAPI.currentRateURL(for: currencyPair)
         default:
-            url = KrakenAPI.currentPriceURL(for: tradingPair)
+            url = KrakenAPI.currentRateURL(for: currencyPair)
         }
         
         let request = URLRequest(url: url)
         
         let task = session.dataTask(with: request) { (data, response, error) -> Void in
-            let result = self.processCurrentPriceRequest(for: tradingPair, data: data, error: error)
+            let result = self.processCurrentPriceRequest(for: currencyPair, data: data, error: error)
             
             OperationQueue.main.addOperation {
                 completion(result)
