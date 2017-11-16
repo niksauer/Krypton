@@ -92,7 +92,7 @@ final class BlockchainDaemon {
                 updateBlockCount(for: blockchain)
             })
             
-            log.debug("Started updateTimer for blockchain '\(blockchain.rawValue)' with \(updateIntervall) second intervall.")
+            log.debug("Started timer for blockchain '\(blockchain.rawValue)' with \(updateIntervall) second intervall.")
         }
         
         let notificationCenter = NotificationCenter.default
@@ -104,7 +104,7 @@ final class BlockchainDaemon {
         for (blockchain, updateTimer) in updateTimerForBlockchain {
             updateTimer.invalidate()
             updateTimerForBlockchain.removeValue(forKey: blockchain)
-            log.debug("Stopped updateTimer for blockchain '\(blockchain.rawValue)'.")
+            log.debug("Stopped timer for blockchain '\(blockchain.rawValue)'.")
         }
     }
     

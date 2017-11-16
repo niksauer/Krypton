@@ -73,7 +73,7 @@ struct CurrencyPair: Hashable {
         if date.isToday {
             return TickerDaemon.getCurrentPrice(for: self)
         } else {
-            return MarketPrice.getMarketPrice(for: self, on: date)
+            return ExchangeRate.getExchangeRate(for: self, on: date)
         }
     }
     

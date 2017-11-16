@@ -39,9 +39,10 @@ final class PortfolioManager: PortfolioDelegate {
         do {
             do {
                 storedPortfolios = try loadPortfolios()
-                log.info("Loaded \(storedPortfolios.count) portfolio\(storedPortfolios.count >= 2 || storedPortfolios.count == 0 ? "s" : "") from Core Data.")
+                let multiple = storedPortfolios.count >= 2 || storedPortfolios.count == 0
+                log.info("Loaded \(storedPortfolios.count) portfolio\(multiple ? "s" : "") from CoreData.")
             } catch {
-                log.error("Failed to load portfolios from Core Data: \(error)")
+                log.error("Failed to load portfolios from CoreData: \(error)")
                 throw error
             }
 
@@ -60,7 +61,8 @@ final class PortfolioManager: PortfolioDelegate {
                 portfolio.delegate = self
 
                 for address in portfolio.storedAddresses {
-                    log.verbose("\(address.identifier!): \(address.balance) \(address.blockchain.code), \(address.storedTransactions.count) transaction\(address.storedTransactions.count >= 2 || address.storedTransactions.count == 0 ? "s" : "").")
+                    let mulitple = (address.storedTransactions.count >= 2) || (address.storedTransactions.count == 0)
+                    log.verbose("\(address.identifier!): \(address.balance) \(address.blockchain.code), \(address.storedTransactions.count) transaction\(mulitple ? "s" : "").")
                 }
             }
 
@@ -281,10 +283,10 @@ final class PortfolioManager: PortfolioDelegate {
         if context.hasChanges {
             do {
                 try context.save()
-                log.debug("Saved changes made to Core Data.")
+                log.debug("Saved changes made to CoreData.")
                 return true
             } catch {
-                log.debug("Failed to save changes made to Core Data.")
+                log.debug("Failed to save changes made to CoreData.")
                 throw error
             }
         } else {
@@ -293,7 +295,7 @@ final class PortfolioManager: PortfolioDelegate {
     }
     
     func discardChanges() {
-        log.debug("Discard any unsaved changes made to Core Data.")
+        log.debug("Discarded all unsaved changes made to CoreData.")
         AppDelegate.viewContext.rollback()
     }
     
@@ -366,20 +368,21 @@ final class PortfolioManager: PortfolioDelegate {
             return
         }
         
-        var defaultPortfoliosCount = 0
+        var count = 0
         
         for storedPortfolio in storedPortfolios {
             if storedPortfolio != portfolio, storedPortfolio.isDefault {
                 storedPortfolio.isDefault = false
-                defaultPortfoliosCount = defaultPortfoliosCount + 1
+                count = count + 1
             }
         }
         
         do {
             try AppDelegate.viewContext.save()
             
-            if defaultPortfoliosCount > 0 {
-                log.debug("Unset \(defaultPortfoliosCount) previous default portfolio\(defaultPortfoliosCount >= 2 ? "s" : "").")
+            if count > 0 {
+                let multiple = (count >= 2) || (count == 0)
+                log.debug("Unset \(count) previous default portfolio\(multiple ? "s" : "").")
             }
             
             delegate?.didUpdatePortfolioManager()
@@ -431,15 +434,15 @@ final class PortfolioManager: PortfolioDelegate {
 
         do {
             try context.save()
-            log.info("Deleted all portfolios, addresses and transactions from Core Data.")
+            log.info("Deleted all portfolios, addresses and transactions from CoreData.")
         } catch {
-            log.error("Failed to delete all portfolios from Core Data: \(error)")
+            log.error("Failed to delete all portfolios from CoreData: \(error)")
         }
     }
     
-    private func deletePriceHistory() {
+    private func deleteExchangeRateHistory() {
         let context = AppDelegate.viewContext
-        let request: NSFetchRequest<MarketPrice> = MarketPrice.fetchRequest()
+        let request: NSFetchRequest<ExchangeRate> = ExchangeRate.fetchRequest()
         
         if let prices = try? context.fetch(request) {
             for price in prices {
@@ -449,9 +452,9 @@ final class PortfolioManager: PortfolioDelegate {
         
         do {
             try context.save()
-            log.info("Deleted all MarketPrices from Core Data.")
+            log.info("Deleted all exchange rates from CoreData.")
         } catch {
-            log.error("Failed to delete all MarketPrices from Core Data: \(error)")
+            log.error("Failed to delete all exchange rates from CoreData: \(error)")
         }
         
     }

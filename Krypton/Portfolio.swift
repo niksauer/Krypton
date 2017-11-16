@@ -120,10 +120,10 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
             }
             
             self.update(completion: nil)
-            log.debug("Updated base currency (\(currency.code)) for portfolio '\(self.logDescription)'.")
+            log.debug("Updated quote currency (\(currency.code)) for portfolio '\(self.logDescription)'.")
             delegate?.didUpdateQuoteCurrency(for: self)
         } catch {
-            log.error("Failed to update base currency for portfolio '\(self.logDescription).")
+            log.error("Failed to update quote currency for portfolio '\(self.logDescription).")
             throw error
         }
     }

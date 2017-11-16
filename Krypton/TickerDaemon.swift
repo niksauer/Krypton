@@ -40,12 +40,12 @@ final class TickerDaemon {
         if !currencyPairs.contains(currencyPair) {
             currencyPairs.insert(currencyPair)
             updatePrice(for: currencyPair, completion: nil)
-            log.debug("Added currencyPair '\(currencyPair.name)' to TickerDaemon.")
+            log.debug("Added currency pair '\(currencyPair.name)' to TickerDaemon.")
         }
     
         if let requestCount = requestsForCurrencyPair[currencyPair] {
             requestsForCurrencyPair[currencyPair] = requestCount + 1
-            log.debug("Updated requests (\(requestCount + 1)) for currencyPair '\(currencyPair.name)'.")
+            log.debug("Updated requests (\(requestCount + 1)) for currency pair '\(currencyPair.name)'.")
         } else {
             requestsForCurrencyPair[currencyPair] = 1
         }
@@ -63,10 +63,10 @@ final class TickerDaemon {
         if requestCount == 1 {
             currencyPairs.remove(currencyPair)
             requestsForCurrencyPair.removeValue(forKey: currencyPair)
-            log.debug("Removed currencyPair '\(currencyPair.name)' from TickerDaemon.")
+            log.debug("Removed currency pair '\(currencyPair.name)' from TickerDaemon.")
         } else {
             requestsForCurrencyPair[currencyPair] = requestCount - 1
-            log.debug("Updated requests (\(requestCount - 1)) for currencyPair '\(currencyPair.name)'.")
+            log.debug("Updated requests (\(requestCount - 1)) for currency pair '\(currencyPair.name)'.")
         }
         
         if currencyPairs.count == 0 {
@@ -111,7 +111,7 @@ final class TickerDaemon {
         let notificationCenter = NotificationCenter.default
         notificationCenter.setObserver(self, selector: #selector(stopUpdateTimer), name: Notification.Name.UIApplicationDidEnterBackground, object: nil)
         notificationCenter.setObserver(self, selector: #selector(startUpdateTimer), name: Notification.Name.UIApplicationDidBecomeActive, object: nil)
-        log.debug("Started updateTimer for TickerDaemon with \(updateIntervall) second intervall.")
+        log.debug("Started timer for TickerDaemon with \(updateIntervall) second intervall.")
     }
     
     @objc class func stopUpdateTimer() {
@@ -122,7 +122,7 @@ final class TickerDaemon {
         
         updateTimer?.invalidate()
         updateTimer = nil
-        log.debug("Stopped updateTimer for TickerDaemon.")
+        log.debug("Stopped timer for TickerDaemon.")
     }
     
     // MARK: - Private Class Methods
@@ -132,11 +132,11 @@ final class TickerDaemon {
             switch result {
             case .success(let currentExchangeRate):
                 self.currentExchangeRateForCurrencyPair[currencyPair] = currentExchangeRate.value
-                log.verbose("Updated current price for currencyPair '\(currencyPair.name)': \(currentExchangeRate.value)")
+                log.verbose("Updated current exchange rate for currency pair '\(currencyPair.name)': \(currentExchangeRate.value)")
                 delegate?.didUpdateCurrentPrice(for: currencyPair)
                 completion?()
             case .failure(let error):
-                log.error("Failed to fetch current price for currencyPair '\(currencyPair.name)': \(error)")
+                log.error("Failed to fetch current exchange rate for currency pair '\(currencyPair.name)': \(error)")
                 completion?()
             }
         })

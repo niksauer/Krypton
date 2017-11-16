@@ -39,7 +39,7 @@ struct BittrexAPI: Exchange {
     // MARK: - Public Methods
     // MARK: Data Aggregation
     static func exchangeRateHistory(for currencyPair: CurrencyPair, fromJSON data: Data) -> ExchangeRateHistoryResult {
-        fatalError("This method has not been implemented yet.")
+        preconditionFailure("This method must be overridden")
     }
     
     static func currentExchangeRate(for currencyPair: CurrencyPair, fromJSON data: Data) -> CurrentExchangeRateResult {
@@ -60,7 +60,7 @@ struct BittrexAPI: Exchange {
     
     // MARK: URL Creation
     static func exchangeRateHistoryURL(for currencyPair: CurrencyPair, since date: Date) -> URL {
-        fatalError("This method has not been implemented yet.")
+        preconditionFailure("This method must be overridden")
     }
     
     static func currentExchangeRateURL(for currencyPair: CurrencyPair) -> URL {

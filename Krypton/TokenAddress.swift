@@ -49,7 +49,11 @@ class Ethereum: TokenAddress {
     // MARK: - Public Methods
     // MARK: Management    
     override func updateTokenBalance(completion: (() -> Void)?) {
-        for etherToken in ERC20Token.allValues as! [TokenFeatures] {
+        guard let associatedTokens = blockchain.associatedTokens else {
+            return
+        }
+        
+        for etherToken in associatedTokens {
             BlockchainConnector.fetchTokenBalance(for: self, token: etherToken) { result in
                 switch result {
                 case .success(let balance):

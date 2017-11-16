@@ -34,6 +34,15 @@ enum Blockchain: String, Currency {
         return [ETH, BTC]
     }
     
+    var associatedTokens: [TokenFeatures]? {
+        switch self {
+        case .ETH:
+            return ERC20Token.allValues as? [TokenFeatures]
+        default:
+            return nil
+        }
+    }
+    
     // MARK: - Currency Protocol
     var code: String {
         return self.rawValue
@@ -73,5 +82,5 @@ enum Blockchain: String, Currency {
             return nil
         }
     }
-    
+
 }
