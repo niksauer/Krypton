@@ -21,9 +21,10 @@
     <entity name="EthereumTransaction" representedClassName=".EthereumTransaction" parentEntity="Transaction" syncable="YES" codeGenerationType="category">
         <attribute name="type" attributeType="String" syncable="YES"/>
     </entity>
-    <entity name="MarketPrice" representedClassName=".MarketPrice" syncable="YES" codeGenerationType="category">
-        <attribute name="currencyPair" attributeType="String" syncable="YES"/>
+    <entity name="ExchangeRate" representedClassName=".ExchangeRate" syncable="YES" codeGenerationType="category">
+        <attribute name="base" attributeType="String" syncable="YES"/>
         <attribute name="date" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="quote" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="value" attributeType="Double" usesScalarValueType="YES" syncable="YES"/>
     </entity>
     <entity name="Portfolio" representedClassName=".Portfolio" syncable="YES" codeGenerationType="category">
@@ -61,7 +62,7 @@
         <element name="BitcoinTransaction" positionX="-171" positionY="-495" width="128" height="73"/>
         <element name="Ethereum" positionX="216" positionY="-238" width="128" height="43"/>
         <element name="EthereumTransaction" positionX="-171" positionY="-603" width="128" height="58"/>
-        <element name="MarketPrice" positionX="-146" positionY="54" width="128" height="90"/>
+        <element name="ExchangeRate" positionX="-270" positionY="-63" width="128" height="103"/>
         <element name="Portfolio" positionX="-396" positionY="-153" width="128" height="28"/>
         <element name="Token" positionX="27" positionY="-403" width="128" height="90"/>
         <element name="TokenAddress" positionX="36" positionY="-252" width="128" height="58"/>

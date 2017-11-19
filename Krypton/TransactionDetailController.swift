@@ -165,7 +165,7 @@ class TransactionDetailController: UITableViewController, UITextFieldDelegate, T
     }
    
     // MARK: - TickerDaemon Delegate
-    func didUpdateCurrentPrice(for currencyPair: CurrencyPair) {
+    func didUpdateCurrentExchangeRate(for currencyPair: CurrencyPair) {
         updateUI()
     }
     

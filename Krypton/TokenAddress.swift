@@ -27,13 +27,105 @@ class TokenAddress: Address {
     override func update(completion: (() -> Void)?) {
         super.update {
             self.updateTokenBalance {
-                completion?()
+                self.updateTokenExchangeRateHistory {
+                    completion?()
+                }
             }
         }
     }
     
     func updateTokenBalance(completion: (() -> Void)?) {
-        preconditionFailure("This method must be overridden")
+        guard let associatedTokens = self.blockchain.associatedTokens else {
+            return
+        }
+        
+        for (index, associatedToken) in associatedTokens.enumerated() {
+            var updateCompletion: (() -> Void)? = nil
+            
+            if index == associatedTokens.count-1 {
+                updateCompletion = completion
+            }
+            
+            BlockchainConnector.fetchTokenBalance(for: self, token: associatedToken) { result in
+                switch result {
+                case .success(let balance):
+                    let context = AppDelegate.viewContext
+                    let token = self.storedTokens.filter({ $0.isEqual(to: associatedToken) }).first
+                    
+                    guard balance > 0 else {
+                        if token != nil {
+                            context.delete(token!)
+                        }
+                        
+                        updateCompletion?()
+                        return
+                    }
+                    
+                    if let token = token {
+                        do {
+                            guard token.balance != balance else {
+                                log.verbose("Balance of token '\(associatedToken.name)' for address '\(self.logDescription)' is already up-to-date.")
+                                updateCompletion?()
+                                return
+                            }
+                            
+                            token.balance = balance
+                            try context.save()
+                            log.debug("Updated balance (\(balance) \(associatedToken.code) of token '\(associatedToken.name)' for address '\(self.logDescription)'.")
+                            self.tokenDelegate?.didUpdateTokenBalance(for: self, token: token)
+                            updateCompletion?()
+                        } catch {
+                            log.error("Failed to save fetched balance of token '\(associatedToken.name)' for address '\(self.logDescription)': \(error)")
+                        }
+                    } else {
+                        do {
+                            let token = try Token.createToken(from: associatedToken, owner: self, in: context)
+                            token.balance = balance
+                            try context.save()
+                            log.info("Created token '\(associatedToken.name)' for address '\(self.logDescription)' with balance: \(balance) \(associatedToken.code)")
+                            self.tokenDelegate?.didUpdateTokenBalance(for: self, token: token)
+                            updateCompletion?()
+                        } catch {
+                            log.error("Failed to create token '\(associatedToken.name)' for address '\(self.logDescription)': \(error)")
+                        }
+                    }
+                case .failure(let error):
+                    log.error("Failed to fetch balance of token '\(associatedToken.name)' for address '\(self.logDescription)': \(error)")
+                }
+            }
+        }
+    }
+    
+    func updateTokenExchangeRateHistory(completion: (() -> Void)?) {
+        if let firstTransaction = getOldestTransaction() {
+            for (index, token) in storedTokens.enumerated() {
+                var updateCompletion: (() -> Void)? = nil
+                
+                if index == storedTokens.count-1 {
+                    updateCompletion = completion
+                }
+                
+                ExchangeRate.updateExchangeRateHistory(for: token.currencyPair, since: firstTransaction.date!, completion: updateCompletion)
+            }
+        } else {
+            log.debug("Exchange rate history is already up-to-date.")
+            completion?()
+        }
+    }
+    
+    // MARK: Finance
+    func getTokenExchangeValue(on date: Date) -> Double? {
+        var value = 0.0
+        
+        for token in storedTokens {
+            if let exchangeValue = token.getExchangeValue(on: date) {
+                value = value + exchangeValue
+            } else {
+                return nil
+            }
+        }
+        
+        return value
     }
     
 }
@@ -44,60 +136,6 @@ class Ethereum: TokenAddress {
     override func awakeFromInsert() {
         super.awakeFromInsert()
         blockchainRaw = Blockchain.ETH.rawValue
-    }
-    
-    // MARK: - Public Methods
-    // MARK: Management    
-    override func updateTokenBalance(completion: (() -> Void)?) {
-        for etherToken in ERC20Token.allValues as! [TokenFeatures] {
-            BlockchainConnector.fetchTokenBalance(for: self, token: etherToken) { result in
-                switch result {
-                case .success(let balance):
-                    let context = AppDelegate.viewContext
-                    let token = self.storedTokens.filter({ $0.isEqual(to: etherToken) }).first
-                    
-                    guard balance > 0 else {
-                        if token != nil {
-                            context.delete(token!)
-                        }
-   
-                        completion?()
-                        return
-                    }
-                    
-                    if let token = token {
-                        do {
-                            guard token.balance != balance else {
-                                log.verbose("Balance of token '\(etherToken.name)' for address '\(self.logDescription)' is already up-to-date.")
-                                completion?()
-                                return
-                            }
-                            
-                            token.balance = balance
-                            try context.save()
-                            log.debug("Updated balance (\(balance) \(etherToken.code) of token '\(etherToken.name)' for address '\(self.logDescription)'.")
-                            self.tokenDelegate?.didUpdateTokenBalance(for: self, token: token)
-                            completion?()
-                        } catch {
-                            log.error("Failed to save fetched balance of token '\(etherToken.name)' for address '\(self.logDescription)': \(error)")
-                        }
-                    } else {
-                        do {
-                            let token = try Token.createToken(from: etherToken, owner: self, in: context)
-                            token.balance = balance
-                            try context.save()
-                            log.info("Created token '\(etherToken.name)' for address '\(self.logDescription)' with balance: \(balance) \(etherToken.code)")
-                            self.tokenDelegate?.didUpdateTokenBalance(for: self, token: token)
-                            completion?()
-                        } catch {
-                            log.error("Failed to create token '\(etherToken.name)' for address '\(self.logDescription)': \(error)")
-                        }
-                    }
-                case .failure(let error):
-                    log.error("Failed to fetch balance of token '\(etherToken.name)' for address '\(self.logDescription)': \(error)")
-                }
-            }
-        }
     }
     
     // MARK: Cryptography

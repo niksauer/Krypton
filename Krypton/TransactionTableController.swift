@@ -299,7 +299,7 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         let notificationCenter = NotificationCenter.default
         notificationCenter.setObserver(self, selector: #selector(stopUpdateTimer), name: Notification.Name.UIApplicationDidEnterBackground, object: nil)
         notificationCenter.setObserver(self, selector: #selector(startUpdateTimer), name: Notification.Name.UIApplicationDidBecomeActive, object: nil)
-        log.debug("Started updateTimer for TransactionTable with 60 second intervall.")
+        log.debug("Started timer for TransactionTable with 60 second intervall.")
     }
     
     @objc func stopUpdateTimer() {
@@ -310,7 +310,7 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         
         updateTimer?.invalidate()
         updateTimer = nil
-        log.debug("Stopped updateTimer for TransactionTable.")
+        log.debug("Stopped timer for TransactionTable.")
     }
     
     // MARK: UI Modification
@@ -327,14 +327,16 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         isUpdating = true
         
         for (index, address) in addresses.enumerated() {
-            if index == self.addresses.count-1 {
-                address.update {
+            var updateCompletion: (() -> Void)? = nil
+            
+            if index == addresses.count-1 {
+                updateCompletion = {
                     self.refreshControl?.endRefreshing()
                     self.isUpdating = false
                 }
-            } else {
-                address.update(completion: nil)
             }
+            
+            address.update(completion: updateCompletion)
         }
     }
     

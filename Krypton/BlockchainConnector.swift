@@ -61,10 +61,7 @@ enum EthereumTransactionHistoryType: String {
 struct BlockchainConnector {
     
     // MARK: - Private Properties
-    private static let session: URLSession = {
-        let config = URLSessionConfiguration.default
-        return URLSession(configuration: config)
-    }()
+    private static let session = URLSession(configuration: .default)
     
     // MARK: - Public Methods
     static func fetchTransactionHistory(for address: Address, timeframe: TransactionHistoryTimeframe, completion: @escaping (TransactionHistoryResult) -> Void) {
@@ -227,7 +224,7 @@ struct BlockchainConnector {
         let url: URL
         
         switch blockchain {
-        case .XBT:
+        case .BTC:
             url = BlockExplorerAPI.blockCountURL()
         case .ETH:
             url = EtherscanAPI.blockCountURL()
@@ -240,7 +237,7 @@ struct BlockchainConnector {
             
             if let jsonData = data {
                 switch blockchain {
-                case .XBT:
+                case .BTC:
                     result = BlockExplorerAPI.blockCount(fromJSON: jsonData)
                 case .ETH:
                     result = EtherscanAPI.blockCount(fromJSON: jsonData)

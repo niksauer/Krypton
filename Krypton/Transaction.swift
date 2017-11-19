@@ -311,7 +311,7 @@ class Transaction: NSManagedObject {
                 // return for any day between startDate and today, including today
                 absoluteProfit = exchangeValue - baseExchangeValue
             } else {
-                // error retrieving MarketPrice
+                // error retrieving ExchangeRate
                 return nil
             }
 

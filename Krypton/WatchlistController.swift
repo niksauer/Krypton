@@ -86,8 +86,8 @@ class WatchlistController: UITableViewController, TickerDaemonDelegate {
         cell.textLabel?.text = currencyPair.base.code
     
         if requiredCurrencies.contains(where: { $0.isEqual(to: currency) }) || manualCurrencies.contains(where: { $0.isEqual(to: currency) }) {
-            if let currentRate = currencyPair.currentRate {
-                cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: currentRate, currency: PortfolioManager.shared.quoteCurrency)
+            if let currentExchangeRate = currencyPair.currentExchangeRate {
+                cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: currentExchangeRate, currency: PortfolioManager.shared.quoteCurrency)
             } else {
                 cell.detailTextLabel?.text = "???"
             }
@@ -135,7 +135,7 @@ class WatchlistController: UITableViewController, TickerDaemonDelegate {
     }
     
     // MARK: - TickerDaemon Delegate
-    func didUpdateCurrentPrice(for currencyPair: CurrencyPair) {
+    func didUpdateCurrentExchangeRate(for currencyPair: CurrencyPair) {
         tableView.reloadData()
     }
 

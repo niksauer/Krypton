@@ -49,9 +49,6 @@ struct CurrencyManager {
 }
 
 struct CurrencyPair: Hashable {
-
-    // MARK: - Private Properties
-    private var intermediate: Currency?
     
     // MARK: - Public Properties
     let base: Currency
@@ -61,70 +58,31 @@ struct CurrencyPair: Hashable {
         return base.code + quote.code
     }
     
-    var currentRate: Double? {
+    var currentExchangeRate: Double? {
         return getRate(on: Date())
     }
     
     // MARK: - Initialization
     init(base: Currency, quote: Currency) {
-        if let token = base as? TokenFeatures, quote.type != .Crypto {
-            self.base = base
-            self.quote = quote
-            self.intermediate = token.blockchain
-        } else {
-            self.base = base
-            self.quote = quote
-        }
+        self.base = base
+        self.quote = quote
     }
     
     // MARK: - Public Methods
     func getRate(on date: Date) -> Double? {
-        if let intermediate = intermediate {
-            let baseInterPair = CurrencyPair(base: base, quote: intermediate)
-            let interQuotePair = CurrencyPair(base: intermediate, quote: quote)
-        
-            let baseInterValue: Double?
-            let interQuoteValue: Double?
-            
-            switch date {
-            case _ where date.isToday:
-                baseInterValue = TickerDaemon.getCurrentPrice(for: baseInterPair)
-                interQuoteValue = TickerDaemon.getCurrentPrice(for: interQuotePair)
-            default:
-                baseInterValue = MarketPrice.getMarketPrice(for: baseInterPair, on: date)
-                interQuoteValue = MarketPrice.getMarketPrice(for: interQuotePair, on: date)
-            }
-            
-            guard baseInterValue != nil, interQuoteValue != nil else {
-                return nil
-            }
-            
-            return baseInterValue! * interQuoteValue!
+        if date.isToday {
+            return TickerDaemon.getCurrentExchangeRate(for: self)
         } else {
-            if date.isToday {
-                return TickerDaemon.getCurrentPrice(for: self)
-            } else {
-                return MarketPrice.getMarketPrice(for: self, on: date)
-            }
+            return ExchangeRate.getExchangeRate(for: self, on: date)
         }
     }
     
     func register() {
-        if let intermediate = intermediate {
-            TickerDaemon.addCurrencyPair(CurrencyPair(base: base, quote: intermediate))
-            TickerDaemon.addCurrencyPair(CurrencyPair(base: intermediate, quote: quote))
-        } else {
-            TickerDaemon.addCurrencyPair(self)
-        }
+        TickerDaemon.addCurrencyPair(self)
     }
     
     func deregister() {
-        if let intermediate = intermediate {
-            TickerDaemon.removeCurrencyPair(CurrencyPair(base: base, quote: intermediate))
-            TickerDaemon.removeCurrencyPair(CurrencyPair(base: intermediate, quote: quote))
-        } else {
-            TickerDaemon.removeCurrencyPair(self)
-        }
+        TickerDaemon.removeCurrencyPair(self)
     }
     
     // MARK: - Hashable Protocol

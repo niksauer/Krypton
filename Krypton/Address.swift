@@ -46,7 +46,7 @@ class Address: NSManagedObject {
         switch blockchain {
         case .ETH:
             address = Ethereum(context: context)
-        case .XBT:
+        case .BTC:
             address = Bitcoin(context: context)
         }
     
@@ -153,10 +153,10 @@ class Address: NSManagedObject {
         do {
             self.quoteCurrencyCode = currency.code
             try AppDelegate.viewContext.save()
-            log.debug("Updated base currency (\(currency.code)) for address '\(logDescription)'.")
+            log.debug("Updated quote currency (\(currency.code)) for address '\(logDescription)'.")
             delegate?.didUpdateQuoteCurrency(for: self)
         } catch {
-            log.error("Failed to update base currency for address '\(logDescription)': \(error)")
+            log.error("Failed to update quote currency for address '\(logDescription)': \(error)")
             throw error
         }
     }
@@ -164,7 +164,7 @@ class Address: NSManagedObject {
     // MARK: Management
     func update(completion: (() -> Void)?) {
         self.updateTransactionHistory {
-            self.updatePriceHistory {
+            self.updateExchangeRateHistory {
                 self.updateBalance {
                     completion?()
                 }
@@ -232,8 +232,8 @@ class Address: NSManagedObject {
                 do {
                     if context.hasChanges {
                         try context.save()
-                        let multipleTx = newTxCount >= 2 || newTxCount == 0
-                        log.debug("Updated transaction history for address '\(self.logDescription)' with \(newTxCount) new transaction\(multipleTx ? "s" : "").")
+                        let multiple = (newTxCount >= 2) || (newTxCount == 0)
+                        log.debug("Updated transaction history for address '\(self.logDescription)' with \(newTxCount) new transaction\(multiple ? "s" : "").")
                     } else {
                         log.verbose("Transaction history for address '\(self.logDescription)' is already up-to-date.")
                     }
@@ -249,10 +249,10 @@ class Address: NSManagedObject {
         }
     }
     
-    /// asks MarketPrice to update price history for set trading pair starting from oldest transaction date encountered, passes completion block to retrieval
-    func updatePriceHistory(completion: (() -> Void)?) {
+    /// asks ExchangeRate to update price history for set trading pair starting from oldest transaction date encountered, passes completion block to retrieval
+    func updateExchangeRateHistory(completion: (() -> Void)?) {
         if let firstTransaction = getOldestTransaction() {
-            MarketPrice.updatePriceHistory(for: currencyPair, since: firstTransaction.date! as Date, completion: completion)
+            ExchangeRate.updateExchangeRateHistory(for: currencyPair, since: firstTransaction.date! as Date, completion: completion)
         } else {
             completion?()
         }
@@ -338,7 +338,7 @@ class Bitcoin: Address {
     // MARK: - Initializers
     override func awakeFromInsert() {
         super.awakeFromInsert()
-        blockchainRaw = Blockchain.XBT.rawValue
+        blockchainRaw = Blockchain.BTC.rawValue
     }
     
     // MARK: - Public Methods    

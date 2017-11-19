@@ -11,27 +11,36 @@ import Foundation
 enum Blockchain: String, Currency {
     
     case ETH
-    case XBT
+    case BTC
     
     // MARK: - Private Properties
     private static let nameForBlockchain: [Blockchain: String] = [
         .ETH: "Ethereum",
-        .XBT: "Bitcoin"
+        .BTC: "Bitcoin"
     ]
     
     private static let symbolForBlockchain: [Blockchain: String] = [
         .ETH : "Ξ",
-        .XBT : "Ƀ"
+        .BTC : "Ƀ"
     ]
     
     private static let decimalDigitsForBlockchain: [Blockchain: Int] = [
         .ETH: 18,
-        .XBT: 8
+        .BTC: 8
     ]
     
     // MARK: - Public Properties
     static var allValues: [Currency] {
-        return [ETH, XBT]
+        return [ETH, BTC]
+    }
+    
+    var associatedTokens: [TokenFeatures]? {
+        switch self {
+        case .ETH:
+            return ERC20Token.allValues as? [TokenFeatures]
+        default:
+            return nil
+        }
     }
     
     // MARK: - Currency Protocol
@@ -73,5 +82,5 @@ enum Blockchain: String, Currency {
             return nil
         }
     }
-    
+
 }
