@@ -12,11 +12,11 @@ struct Format {
     
     // MARK: - Private Static Methods
     /// formats crypto currency values with 2-4 decimal digits
-    private static func getCryptoFormatting(for value: Double, blockchain: Blockchain) -> String? {
+    private static func getCryptoFormatting(for value: Double, blockchain: Blockchain, digits: Int?) -> String? {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = blockchain.decimalDigits
+        formatter.maximumFractionDigits = digits ?? blockchain.decimalDigits
         
         if let formattedString = formatter.string(from: NSNumber(value: value)) {
             return "\(blockchain.symbol) \(formattedString)"
@@ -33,11 +33,11 @@ struct Format {
         return formatter.string(from: NSNumber(value: value))
     }
     
-    private static func getTokenFormatting(for value: Double, token: TokenFeatures) -> String? {
+    private static func getTokenFormatting(for value: Double, token: TokenFeatures, digits: Int?) -> String? {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = token.decimalDigits
+        formatter.maximumFractionDigits = digits ?? token.decimalDigits
         
         if let formattedString = formatter.string(from: NSNumber(value: value)) {
             return "\(formattedString) \(token.code)"
@@ -47,7 +47,7 @@ struct Format {
     }
     
     /// formats numbers with 2 decimal digits
-    private static func getNumberFormatting(for value: Double) -> String? {
+    private static func getNumberFormatting(for value: Double, digits: Int?) -> String? {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.minimumFractionDigits = 2
@@ -64,19 +64,23 @@ struct Format {
         return formatter.string(from: date)
     }
     
-    static func getCurrencyFormatting(for value: Double, currency: Currency) -> String? {
+    static func getCurrencyFormatting(for value: Double, currency: Currency, customDigits: Int?) -> String? {
         switch currency {
         case let fiatCurrency as Fiat:
             return getFiatFormatting(for: value, fiatCurrency: fiatCurrency)
         case let blockchain as Blockchain:
-            return getCryptoFormatting(for: value, blockchain: blockchain)
+            return getCryptoFormatting(for: value, blockchain: blockchain, digits: customDigits)
         case let token as TokenFeatures:
-            return getTokenFormatting(for: value, token: token)
+            return getTokenFormatting(for: value, token: token, digits: customDigits)
         default:
             return nil
         }
     }
     
+    static func getCurrencyFormatting(for value: Double, currency: Currency) -> String? {
+        return Format.getCurrencyFormatting(for: value, currency: currency, customDigits: nil)
+    }
+
     static func getAbsoluteProfitFormatting(from: (startValue: Double, endValue: Double), currency: Currency) -> String? {
         return getCurrencyFormatting(for: (from.endValue - from.startValue), currency: currency)
     }
@@ -93,7 +97,7 @@ struct Format {
             result = 0
         }
         
-        if let numberString = Format.getNumberFormatting(for: result) {
+        if let numberString = Format.getNumberFormatting(for: result, digits: 2) {
             return numberString + "%"
         } else {
             return nil

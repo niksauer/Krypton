@@ -15,6 +15,7 @@ protocol PortfolioDelegate {
     func didUpdateQuoteCurrency(for portfolio: Portfolio)
     func didAddAddress(to portfolio: Portfolio, address: Address)
     func didRemoveAddress(from portfolio: Portfolio, currencyPair: CurrencyPair, blockchain: Blockchain)
+    func didMoveAddress(from portfolio: Portfolio, address: Address)
     func didUpdateProperty(for address: Address, in portfolio: Portfolio)
 }
 
@@ -269,6 +270,10 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
     
     func didUpdateQuoteCurrency(for address: Address) {
         delegate?.didUpdateProperty(for: address, in: self)
+    }
+    
+    func didUpdatePortfolio(for address: Address) {
+        delegate?.didMoveAddress(from: self, address: address)
     }
     
     // MARK: - TokenAddress Delegate

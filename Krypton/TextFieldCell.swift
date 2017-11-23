@@ -13,8 +13,21 @@ class TextFieldCell: UITableViewCell, UITextFieldDelegate {
     // MARK: - Private Properties
     private var completion: ((String?) -> Void)?
     
+    // MARK: - Public Properties
+    var isEnabled: Bool = true {
+        didSet {
+            if isEnabled {
+                textField.isUserInteractionEnabled = true
+                textField.clearButtonMode = .always
+            } else {
+                textField.isUserInteractionEnabled = false
+                textField.clearButtonMode = .never
+            }
+        }
+    }
+    
     // MARK: - Outlets
-    @IBOutlet weak var textField: UITextField!
+    @IBOutlet private weak var textField: UITextField!
     
     // MARK: - Initialization
     override func awakeFromNib() {
@@ -23,9 +36,10 @@ class TextFieldCell: UITableViewCell, UITextFieldDelegate {
     }
     
     // MARK: - Public Methods
-    func configure(text: String?, placeholder: String?, completion: ((String?) -> Void)?) {
+    func configure(text: String?, placeholder: String?, isEnabled: Bool, completion: ((String?) -> Void)?) {
         textField.text = text
         textField.placeholder = placeholder
+        self.isEnabled = isEnabled
         self.completion = completion
     }
     

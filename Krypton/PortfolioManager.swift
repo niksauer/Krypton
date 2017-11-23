@@ -301,17 +301,6 @@ final class PortfolioManager: PortfolioDelegate {
         AppDelegate.viewContext.rollback()
     }
     
-//    func moveAddress(_ address: Address, to portfolio: Portfolio) throws {
-//        do {
-//            try address.setQuoteCurrency(portfolio.quoteCurrency)
-//            address.portfolio = portfolio
-//            try AppDelegate.viewContext.save()
-//            log.info("Moved address '\(address.logDescription)' to portfolio '\(portfolio.logDescription)'.")
-//        } catch {
-//            log.error("Failed to move address '\(address.logDescription)': \(error)")
-//        }
-//    }
-    
     // MARK: Finance
     /// returns exchange value of selected addresses on specified date
     func getExchangeValue(for type: TransactionType, on date: Date) -> Double? {
@@ -416,6 +405,10 @@ final class PortfolioManager: PortfolioDelegate {
     func didRemoveAddress(from portfolio: Portfolio, currencyPair: CurrencyPair, blockchain: Blockchain) {
         TickerDaemon.removeCurrencyPair(currencyPair)
         BlockchainDaemon.removeBlockchain(blockchain)
+        delegate?.didUpdatePortfolioManager()
+    }
+    
+    func didMoveAddress(from portfolio: Portfolio, address: Address) {
         delegate?.didUpdatePortfolioManager()
     }
     

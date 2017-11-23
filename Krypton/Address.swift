@@ -21,6 +21,7 @@ protocol AddressDelegate {
     func didUpdateQuoteCurrency(for address: Address)
     func didUpdateUserExchangeValue(for transaction: Transaction)
     func didUpdateIsInvestmentStatus(for transaction: Transaction)
+    func didUpdatePortfolio(for address: Address)
 }
 
 class Address: NSManagedObject {
@@ -157,6 +158,23 @@ class Address: NSManagedObject {
             delegate?.didUpdateQuoteCurrency(for: self)
         } catch {
             log.error("Failed to update quote currency for address '\(logDescription)': \(error)")
+            throw error
+        }
+    }
+    
+    func setPortfolio(_ portfolio: Portfolio) throws {
+        guard self.portfolio != portfolio else {
+            return
+        }
+        
+        do {
+            self.portfolio = portfolio
+            try AppDelegate.viewContext.save()
+            log.debug("Moved address '\(logDescription)' to portfolio '\(portfolio.logDescription)'.")
+            delegate?.didUpdatePortfolio(for: self)
+            delegate = portfolio
+        } catch {
+            log.error("Failed to move address '\(logDescription)' to portfolio '\(portfolio.logDescription)': \(error)")
             throw error
         }
     }
