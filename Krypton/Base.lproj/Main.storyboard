@@ -61,6 +61,50 @@
                                     </subviews>
                                 </tableViewCellContentView>
                             </tableViewCell>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="portfolioHeaderCell" id="n6l-7U-t3K" customClass="SectionHeaderCell" customModule="Krypton" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="143.5" width="375" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="n6l-7U-t3K" id="2YC-4J-ZOM">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Value" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dYp-76-Adn">
+                                            <rect key="frame" x="325.5" y="19.5" width="33.5" height="16"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                            <color key="textColor" cocoaTouchSystemColor="scrollViewTexturedBackgroundColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="OT_collapse-arrow" translatesAutoresizingMaskIntoConstraints="NO" id="1yf-Pb-a2I">
+                                            <rect key="frame" x="16" y="22" width="13" height="11"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="13" id="ty9-z0-wtV"/>
+                                                <constraint firstAttribute="height" constant="11" id="zcH-ad-J6P"/>
+                                            </constraints>
+                                        </imageView>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ALIAS" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7wr-Wy-7RG">
+                                            <rect key="frame" x="37" y="19.5" width="36.5" height="16"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                            <color key="textColor" cocoaTouchSystemColor="scrollViewTexturedBackgroundColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="dYp-76-Adn" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="7wr-Wy-7RG" secondAttribute="trailing" id="E5T-jh-pTb"/>
+                                        <constraint firstItem="7wr-Wy-7RG" firstAttribute="centerY" secondItem="1yf-Pb-a2I" secondAttribute="centerY" id="HVo-Cf-7EU"/>
+                                        <constraint firstItem="7wr-Wy-7RG" firstAttribute="leading" secondItem="1yf-Pb-a2I" secondAttribute="trailing" constant="8" id="MWL-eG-k3J"/>
+                                        <constraint firstItem="1yf-Pb-a2I" firstAttribute="leading" secondItem="2YC-4J-ZOM" secondAttribute="leadingMargin" id="Otg-sR-1QZ"/>
+                                        <constraint firstAttribute="bottomMargin" secondItem="1yf-Pb-a2I" secondAttribute="bottom" id="cuC-IA-eLB"/>
+                                        <constraint firstItem="dYp-76-Adn" firstAttribute="trailing" secondItem="2YC-4J-ZOM" secondAttribute="trailingMargin" id="u4D-gf-l3C"/>
+                                        <constraint firstItem="dYp-76-Adn" firstAttribute="centerY" secondItem="7wr-Wy-7RG" secondAttribute="centerY" id="yL6-j9-B2o"/>
+                                    </constraints>
+                                </tableViewCellContentView>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <connections>
+                                    <outlet property="collapseImage" destination="1yf-Pb-a2I" id="yOE-Rq-Uy4"/>
+                                    <outlet property="rightDetailLabel" destination="dYp-76-Adn" id="fGm-xD-n8P"/>
+                                    <outlet property="sectionTitleLabel" destination="7wr-Wy-7RG" id="RdF-Kp-IsQ"/>
+                                </connections>
+                            </tableViewCell>
                         </prototypes>
                         <connections>
                             <outlet property="dataSource" destination="psp-GB-K0o" id="jlu-po-dza"/>
@@ -88,7 +132,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="eDr-23-DWi" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-726" y="-439"/>
+            <point key="canvasLocation" x="-727.20000000000005" y="-439.43028485757122"/>
         </scene>
         <!--Dashboard-->
         <scene sceneID="hNz-n2-bh7">
@@ -1357,6 +1401,7 @@
     </scenes>
     <resources>
         <image name="GP_error" width="30" height="30"/>
+        <image name="OT_collapse-arrow" width="25" height="25"/>
         <image name="OT_label" width="25" height="25"/>
         <image name="OT_settings" width="25" height="25"/>
     </resources>

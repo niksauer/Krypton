@@ -58,6 +58,7 @@
 		24BF8C811FAA4EDD0070C178 /* AccountsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BF8C801FAA4EDD0070C178 /* AccountsController.swift */; };
 		24C033361FBDBA6B0040D972 /* CryptoCompareAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C033351FBDBA6B0040D972 /* CryptoCompareAPI.swift */; };
 		24C63DB41F7F15DD0096A807 /* WatchlistController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C63DB31F7F15DD0096A807 /* WatchlistController.swift */; };
+		24E0AE151FC8A62000BB4794 /* SectionHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24E0AE141FC8A62000BB4794 /* SectionHeaderCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -223,6 +224,7 @@
 		24BF8C801FAA4EDD0070C178 /* AccountsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsController.swift; sourceTree = "<group>"; };
 		24C033351FBDBA6B0040D972 /* CryptoCompareAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoCompareAPI.swift; sourceTree = "<group>"; };
 		24C63DB31F7F15DD0096A807 /* WatchlistController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchlistController.swift; sourceTree = "<group>"; };
+		24E0AE141FC8A62000BB4794 /* SectionHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeaderCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -354,6 +356,7 @@
 				2449F43D1F6D5D6D006E21C8 /* AddressCell.swift */,
 				24A514D31F7DA5300003BD65 /* TransactionCell.swift */,
 				243194D31FBE50DE00C56A22 /* TokenCell.swift */,
+				24E0AE141FC8A62000BB4794 /* SectionHeaderCell.swift */,
 			);
 			name = "Custom Views";
 			sourceTree = "<group>";
@@ -655,6 +658,7 @@
 				24A007C41F538AD800EC0DCF /* TickerDaemon.swift in Sources */,
 				24A3D32F1F7DAF250081BF09 /* BlockExplorerAPI.swift in Sources */,
 				247D1C0B1FBA261700B45941 /* Fiat.swift in Sources */,
+				24E0AE151FC8A62000BB4794 /* SectionHeaderCell.swift in Sources */,
 				2400D0901F40720500833958 /* KrakenAPI.swift in Sources */,
 				2449F4371F6D5711006E21C8 /* PortfolioDetailController.swift in Sources */,
 				2400D0981F42508100833958 /* Transaction.swift in Sources */,

@@ -74,6 +74,14 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
         return "\(self.alias!), quoteCurrency: \(self.quoteCurrency.code)"
     }
     
+    var totalExchangeValue: Double? {
+        guard let balanceExchangeValue = getExchangeValue(for: .all, on: Date()), let tokenExchangeValue = getTokenExchangeValue(on: Date()) else {
+            return nil
+        }
+        
+        return balanceExchangeValue + tokenExchangeValue
+    }
+    
     // MARK: - Public Methods
     func setAlias(_ alias: String) throws {
         guard self.alias != alias else {
@@ -106,7 +114,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
             throw error
         }
     }
-
+    
     func setQuoteCurrency(_ currency: Currency) throws {
         guard self.quoteCurrency.code != currency.code else {
             return
@@ -138,7 +146,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
             if index == storedAddresses.count-1 {
                 updateCompletion = completion
             }
-            
+        
             address.update(completion: updateCompletion)
         }
     }
@@ -192,20 +200,20 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
         return value
     }
     
-//    func getTokenExchangeValue(on date: Date) -> Double? {
-//        let storedTokens = (storedAddresses.filter({ $0 is TokenAddress }) as! [TokenAddress]).flatMap({ $0.storedTokens })
-//        var value = 0.0
-//
-//        for token in storedTokens {
-//            if let tokenValue = token.getExchangeValue(on: date) {
-//                value = value + tokenValue
-//            } else {
-//                return nil
-//            }
-//        }
-//
-//        return value
-//    }
+    func getTokenExchangeValue(on date: Date) -> Double? {
+        let storedTokens = (storedAddresses.filter({ $0 is TokenAddress }) as! [TokenAddress]).flatMap({ $0.storedTokens })
+        var value = 0.0
+
+        for token in storedTokens {
+            if let tokenValue = token.getExchangeValue(on: date) {
+                value = value + tokenValue
+            } else {
+                return nil
+            }
+        }
+
+        return value
+    }
     
     /// returns the absolute profit generated from all stored addresses
     func getProfitStats(for type: TransactionType, timeframe: ProfitTimeframe) -> (startValue: Double, endValue: Double)? {

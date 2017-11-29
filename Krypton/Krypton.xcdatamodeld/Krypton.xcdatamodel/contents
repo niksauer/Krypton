@@ -29,6 +29,7 @@
     </entity>
     <entity name="Portfolio" representedClassName=".Portfolio" syncable="YES" codeGenerationType="category">
         <attribute name="alias" attributeType="String" syncable="YES"/>
+        <attribute name="isCollapsed" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="isDefault" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="quoteCurrencyCode" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="addresses" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Address" inverseName="portfolio" inverseEntity="Address" syncable="YES"/>
@@ -63,7 +64,7 @@
         <element name="Ethereum" positionX="216" positionY="-238" width="128" height="43"/>
         <element name="EthereumTransaction" positionX="-171" positionY="-603" width="128" height="58"/>
         <element name="ExchangeRate" positionX="-270" positionY="-63" width="128" height="103"/>
-        <element name="Portfolio" positionX="-396" positionY="-153" width="128" height="28"/>
+        <element name="Portfolio" positionX="-396" positionY="-153" width="128" height="120"/>
         <element name="Token" positionX="27" positionY="-403" width="128" height="90"/>
         <element name="TokenAddress" positionX="36" positionY="-252" width="128" height="58"/>
         <element name="Transaction" positionX="-342" positionY="-531" width="128" height="240"/>

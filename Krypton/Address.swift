@@ -248,7 +248,7 @@ class Address: NSManagedObject {
                 self.lastUpdate = Date()
                 
                 do {
-                    if context.hasChanges {
+                    if context.hasChanges, newTxCount > 0 {
                         try context.save()
                         let multiple = (newTxCount >= 2) || (newTxCount == 0)
                         log.debug("Updated transaction history for address '\(self.logDescription)' with \(newTxCount) new transaction\(multiple ? "s" : "").")

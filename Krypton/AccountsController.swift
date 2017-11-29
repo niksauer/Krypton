@@ -8,28 +8,35 @@
 
 import UIKit
 
-class AccountsController: UITableViewController {
-
+class AccountsController: UITableViewController, PortfolioManagerDelegate, TickerDaemonDelegate {
+    
     // MARK: - Private Properties
-    private var portfolios = PortfolioManager.shared.storedPortfolios.filter { $0.storedAddresses.count > 0 }
+    private var portfolios = [Portfolio]()
     private var selectedAddresses: [Address]?
     
     // MARK: - Initialization
     override func viewDidLoad() {
         super.viewDidLoad()
         refreshControl = UIRefreshControl()
-        refreshControl?.addTarget(self, action: #selector(updateAddresses), for: .valueChanged)
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        portfolios = PortfolioManager.shared.storedPortfolios.filter { $0.storedAddresses.count > 0 }
-        tableView.reloadData()
+        refreshControl?.addTarget(self, action: #selector(updatePortfolios), for: .valueChanged)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setToolbarHidden(true, animated: true)
+        
+        PortfolioManager.shared.delegate = self
+        TickerDaemon.delegate = self
+        
+        portfolios = PortfolioManager.shared.storedPortfolios.filter { $0.storedAddresses.count > 0 }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        do {
+            _ = try PortfolioManager.shared.saveChanges()
+        } catch {
+            // present error
+        }
     }
     
     // MARK: - Navigation
@@ -39,28 +46,86 @@ class AccountsController: UITableViewController {
         if let destVC = segue.destination as? TransactionTableController {
             destVC.addresses = selectedAddresses
             
-            if selectedAddresses?.count == 1 {
-                destVC.title = PortfolioManager.shared.getAlias(for: selectedAddresses!.first!.identifier!)
+            if selectedAddresses?.count == 1, let address = selectedAddresses?.first {
+                destVC.title = PortfolioManager.shared.getAlias(for: address.identifier!)
             } else {
                 destVC.title = "All Transactions"
             }
         }
         
         if let destVC = segue.destination as? AddressDetailController {
-            destVC.address = selectedAddresses?.first
+            guard let address = selectedAddresses?.first else {
+                return
+            }
+            
+            destVC.address = address
         }
     }
     
     // MARK: - Private Methods
-    @objc private func updateAddresses() {
+    private func updateUI() {
+        tableView.reloadSections(IndexSet(integer: 2), with: .automatic)
+    }
+    
+    @objc private func updatePortfolios() {
         PortfolioManager.shared.update {
             self.refreshControl?.endRefreshing()
         }
     }
     
+    // MARK: Section Helpers
+    private func getHeaderIndices() -> [Int] {
+        var index = 0
+        var indices: [Int] = []
+        
+        for portfolio in portfolios {
+            indices.append(index)
+            index = index + portfolio.storedAddresses.count + 1
+        }
+        
+        return indices
+    }
+    
+    private func getSectionIndex(_ row: Int) -> Int {
+        let indices = getHeaderIndices()
+        
+        for i in 0..<indices.count {
+            if i == indices.count - 1 || row < indices[i + 1] {
+                return i
+            }
+        }
+        
+        return -1
+    }
+    
+    private func getRowIndex(_ row: Int) -> Int {
+        var index = row
+        let indices = getHeaderIndices()
+        
+        for i in 0..<indices.count {
+            if i == indices.count - 1 || row < indices[i + 1] {
+                index -= indices[i]
+                break
+            }
+        }
+        
+        return index
+    }
+    
+    // MARK: - PortfolioManager Delegate
+    func didUpdatePortfolioManager() {
+        portfolios = PortfolioManager.shared.storedPortfolios.filter { $0.storedAddresses.count > 0 }
+        updateUI()
+    }
+    
+    // MARK: - TickerDaemon Delegate
+    func didUpdateCurrentExchangeRate(for currencyPair: CurrencyPair) {
+        updateUI()
+    }
+    
     // MARK: - TableView Data Source
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return 2 + portfolios.count
+        return 3
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -69,7 +134,13 @@ class AccountsController: UITableViewController {
         } else if section == 1 {
             return 1
         } else {
-            return portfolios[section-2].storedAddresses.count
+            var count = portfolios.count
+            
+            for portfolio in portfolios {
+                count = count + portfolio.storedAddresses.count
+            }
+            
+            return count
         }
     }
 
@@ -91,24 +162,50 @@ class AccountsController: UITableViewController {
             cell.textLabel?.text = "All Transactions"
             return cell
         } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "accountCell", for: indexPath)
-            let portfolio = portfolios[section-2]
-            let address = portfolio.storedAddresses[row]
-            cell.textLabel?.text = address.alias
-            cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: address.balance, currency: address.blockchain, customDigits: 2)
-            return cell
+            let section = getSectionIndex(indexPath.row)
+            let row = getRowIndex(indexPath.row)
+            
+            if row == 0 {
+                let portfolio = portfolios[section]
+                let cell = tableView.dequeueReusableCell(withIdentifier: "portfolioHeaderCell", for: indexPath) as! SectionHeaderCell
+                cell.isCollapsed = portfolio.isCollapsed
+                cell.sectionTitleLabel.text = portfolio.alias?.uppercased()
+                
+                if let exchangeValue = portfolio.totalExchangeValue {
+                    cell.rightDetailLabel.text = Format.getCurrencyFormatting(for: exchangeValue, currency: portfolio.quoteCurrency)
+                } else {
+                    cell.rightDetailLabel.text = nil
+                }
+                
+                return cell
+            } else {
+                let address = portfolios[section].storedAddresses[row-1]
+                let cell = tableView.dequeueReusableCell(withIdentifier: "accountCell", for: indexPath)
+                cell.textLabel?.text = address.alias
+                cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: address.balance, currency: address.blockchain, customDigits: 2)
+                return cell
+            }
         }
-    }
-    
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        guard section >= 2 else {
-            return nil
-        }
-        
-        return portfolios[section-2].alias
     }
     
     // MARK: - TableView Delegate
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        guard indexPath.section == 2 else {
+            return super.tableView(tableView, heightForRowAt: indexPath)
+        }
+        
+        let section = getSectionIndex(indexPath.row)
+        let row = getRowIndex(indexPath.row)
+        
+        if row == 0 {
+            // sectionHeader
+            return super.tableView(tableView, heightForRowAt: indexPath)
+        } else {
+            // sectionItem
+            return portfolios[section].isCollapsed ? 0 : 44
+        }
+    }
+    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let section = indexPath.section
         let row = indexPath.row
@@ -125,21 +222,45 @@ class AccountsController: UITableViewController {
                 selectedAddresses = PortfolioManager.shared.storedAddresses
                 performSegue(withIdentifier: "showTransactions", sender: self)
             }
-        } else {
-            selectedAddresses = [portfolios[section-2].storedAddresses[row]]
-            performSegue(withIdentifier: "showTransactions", sender: self)
+        } else if section == 2 {
+            let section = getSectionIndex(indexPath.row)
+            let row = getRowIndex(indexPath.row)
+        
+            if row == 0 {
+                // toggle collapse
+                portfolios[section].isCollapsed = !portfolios[section].isCollapsed
+            
+                let cell = tableView.cellForRow(at: indexPath) as! SectionHeaderCell
+                cell.isCollapsed = portfolios[section].isCollapsed
+                
+                let indices = getHeaderIndices()
+                
+                let start = indices[section]
+                let end = start + portfolios[section].storedAddresses.count
+        
+                tableView.beginUpdates()
+                
+                for i in start ..< end + 1 {
+                    let indexPath = IndexPath(row: i, section: 2)
+                    tableView.reloadRows(at: [indexPath], with: .automatic)
+                }
+                
+                tableView.endUpdates()
+            } else {
+                selectedAddresses = [portfolios[section].storedAddresses[row-1]]
+                performSegue(withIdentifier: "showTransactions", sender: self)
+            }
         }
     }
     
     override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
-        let section = indexPath.section
-        let row = indexPath.row
-        
-        guard section >= 2 else {
+        guard indexPath.section >= 2 else {
             return
         }
         
-        selectedAddresses = [portfolios[section-2].storedAddresses[row]]
+        let section = getSectionIndex(indexPath.row)
+        let row = getRowIndex(indexPath.row)
+        selectedAddresses = [portfolios[section].storedAddresses[row-1]]
         performSegue(withIdentifier: "showAddress", sender: self)
     }
     

@@ -27,9 +27,11 @@ class TokenAddress: Address {
     override func update(completion: (() -> Void)?) {
         super.update {
             self.updateTokenBalance {
-                self.updateTokenExchangeRateHistory {
-                    completion?()
-                }
+                completion?()
+                
+//                self.updateTokenExchangeRateHistory {
+//
+//                }
             }
         }
     }
@@ -43,7 +45,10 @@ class TokenAddress: Address {
             var updateCompletion: (() -> Void)? = nil
             
             if index == associatedTokens.count-1 {
-                updateCompletion = completion
+                updateCompletion = {
+                    log.verbose("Updated tokens for address '\(self.logDescription)'.")
+                    completion?()
+                }
             }
             
             BlockchainConnector.fetchTokenBalance(for: self, token: associatedToken) { result in
@@ -53,10 +58,6 @@ class TokenAddress: Address {
                     let token = self.storedTokens.filter({ $0.isEqual(to: associatedToken) }).first
                     
                     guard balance > 0 else {
-                        if token != nil {
-                            context.delete(token!)
-                        }
-                        
                         updateCompletion?()
                         return
                     }
@@ -97,18 +98,23 @@ class TokenAddress: Address {
     }
     
     func updateTokenExchangeRateHistory(completion: (() -> Void)?) {
-        if let firstTransaction = getOldestTransaction() {
-            for (index, token) in storedTokens.enumerated() {
+        if storedTokens.count > 0 {
+            for (index, _) in storedTokens.enumerated() {
                 var updateCompletion: (() -> Void)? = nil
                 
                 if index == storedTokens.count-1 {
-                    updateCompletion = completion
+                    updateCompletion = {
+                        log.verbose("Updated token exchange rate histories for address '\(self.logDescription)'.")
+                        completion?()
+                    }
                 }
                 
-                ExchangeRate.updateExchangeRateHistory(for: token.currencyPair, since: firstTransaction.date!, completion: updateCompletion)
+                updateCompletion?()
+                
+                // use token transfer date
+//                ExchangeRate.updateExchangeRateHistory(for: token.currencyPair, since: firstTransaction.date!, completion: updateCompletion)
             }
         } else {
-            log.debug("Exchange rate history is already up-to-date.")
             completion?()
         }
     }
