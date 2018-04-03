@@ -7,3 +7,9 @@
 [submodule "SwiftyBeaver"]
 	path = SwiftyBeaver
 	url = git@github.com:SwiftyBeaver/SwiftyBeaver.git
+[submodule "Frameworks/SwiftyBeaver"]
+	path = Frameworks/SwiftyBeaver
+	url = https://github.com/SwiftyBeaver/SwiftyBeaver
+[submodule "Frameworks/SwiftKeccak"]
+	path = Frameworks/SwiftKeccak
+	url = git@github.com:uport-project/SwiftKeccak.git

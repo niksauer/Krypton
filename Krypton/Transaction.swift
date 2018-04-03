@@ -52,15 +52,8 @@ class Transaction: NSManagedObject {
             request.predicate = NSPredicate(format: "identifier = %@ AND owner = %@", prototype.identifier, owner)
         }
     
-        do {
-            let matches = try context.fetch(request)
-            if matches.count > 0 {
-                assert(matches.count >= 1, "Transaction.createTransaction -- Database Inconsistency")
-                throw TransactionError.duplicate
-            }
-        } catch {
-            throw error
-        }
+        
+        
         
         let transaction: Transaction
         

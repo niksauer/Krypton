@@ -32,6 +32,8 @@ class AccountsController: UITableViewController, PortfolioManagerDelegate, Ticke
     }
     
     override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
         do {
             _ = try PortfolioManager.shared.saveChanges()
         } catch {
@@ -44,17 +46,17 @@ class AccountsController: UITableViewController, PortfolioManagerDelegate, Ticke
         super.prepare(for: segue, sender: sender)
         
         if let destVC = segue.destination as? TransactionTableController {
-            destVC.addresses = selectedAddresses
-            
             if selectedAddresses?.count == 1, let address = selectedAddresses?.first {
+                destVC.addresses = [address]
                 destVC.title = PortfolioManager.shared.getAlias(for: address.identifier!)
             } else {
+                destVC.addresses = selectedAddresses
                 destVC.title = "All Transactions"
             }
         }
         
         if let destVC = segue.destination as? AddressDetailController {
-            guard let address = selectedAddresses?.first else {
+            guard selectedAddresses?.count == 1, let address = selectedAddresses?.first else {
                 return
             }
             
@@ -73,10 +75,10 @@ class AccountsController: UITableViewController, PortfolioManagerDelegate, Ticke
         }
     }
     
-    // MARK: Section Helpers
+    // MARK: Collapse Helpers
     private func getHeaderIndices() -> [Int] {
         var index = 0
-        var indices: [Int] = []
+        var indices = [Int]()
         
         for portfolio in portfolios {
             indices.append(index)

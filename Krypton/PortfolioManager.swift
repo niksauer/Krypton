@@ -142,7 +142,7 @@ final class PortfolioManager: PortfolioDelegate {
     
     private func loadManualCurrencies() -> [Currency] {
         if let currencyCodes = UserDefaults.standard.value(forKey: "manualCurrencies") as? [String] {
-            return currencyCodes.map({ CurrencyManager.getCurrency(from: $0) }).flatMap { $0 }
+            return currencyCodes.map({ CurrencyManager.getCurrency(from: $0) }).compactMap { $0 }
         } else {
             return Array()
         }

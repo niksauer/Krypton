@@ -164,7 +164,7 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
         }
         
         // final predicates
-        let applicablePredicates = [ownerPredicate, transactionTypePredicate, isUnreadPredicate, isErrorPredicate, hasUserExchangeValuePredicate].flatMap { $0 }
+        let applicablePredicates = [ownerPredicate, transactionTypePredicate, isUnreadPredicate, isErrorPredicate, hasUserExchangeValuePredicate].compactMap { $0 }
         request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: applicablePredicates)
         
         fetchedResultsController = NSFetchedResultsController<Transaction>(
@@ -220,7 +220,7 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
                 valueButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_us-dollar"), style: .plain, target: self, action: #selector(toggleShowsExchangeValue))
             }
             
-            self.toolbarItems = [filterButton, flexibleSpacer, messageItem, flexibleSpacer, valueButton].flatMap { $0 }
+            self.toolbarItems = [filterButton, flexibleSpacer, messageItem, flexibleSpacer, valueButton].compactMap { $0 }
         }
         
         navigationController?.setToolbarHidden(false, animated: true)
@@ -425,7 +425,7 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
                 return
             }
             
-            let totalAmount = selectedTransactions.flatMap({ $0.totalAmount }).reduce(0, +)
+            let totalAmount = selectedTransactions.compactMap({ $0.totalAmount }).reduce(0, +)
             
             for transaction in selectedTransactions {
                 do {
@@ -447,7 +447,7 @@ class TransactionTableController: FetchedResultsTableViewController, UITextField
             textField.keyboardType = .decimalPad
             textField.addTarget(self, action: #selector(self.textFieldDidChange(_:)), for: .editingChanged)
             
-            let totalExchangeValue = selectedTransactions.flatMap({ $0.exchangeValue }).reduce(0, +)
+            let totalExchangeValue = selectedTransactions.compactMap({ $0.exchangeValue }).reduce(0, +)
             textField.placeholder = Format.getCurrencyFormatting(for: totalExchangeValue, currency: PortfolioManager.shared.quoteCurrency)
         })
         
