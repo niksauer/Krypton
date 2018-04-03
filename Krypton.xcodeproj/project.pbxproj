@@ -250,115 +250,16 @@
 		2400D07A1F40715900833958 /* Krypton */ = {
 			isa = PBXGroup;
 			children = (
-				24B859AC1F47C90800969049 /* Controller */,
-				24B859AB1F47C8E400969049 /* Model */,
-				24B859AA1F47C8D500969049 /* Backend */,
-				2449F4381F6D59CC006E21C8 /* Custom Views */,
-				24B859A91F47C89A00969049 /* Supporting Files */,
+				2400D0811F40715900833958 /* Main.storyboard */,
+				2400D07B1F40715900833958 /* AppDelegate.swift */,
+				2400D0891F40715900833958 /* Info.plist */,
+				24CD00182073AFD70094A9ED /* Support */,
+				24CD001A2073B0060094A9ED /* Controller */,
+				24CD00252073B0DB0094A9ED /* Model */,
+				24CD00292073B1350094A9ED /* View */,
+				24CD00282073B11D0094A9ED /* Backend */,
 			);
 			path = Krypton;
-			sourceTree = "<group>";
-		};
-		2400D09B1F42513600833958 /* Exchange */ = {
-			isa = PBXGroup;
-			children = (
-				2400D0911F40D6E700833958 /* TickerConnector.swift */,
-				24C033351FBDBA6B0040D972 /* CryptoCompareAPI.swift */,
-				2400D08F1F40720500833958 /* KrakenAPI.swift */,
-				248F62301FB500EB003D213A /* BittrexAPI.swift */,
-			);
-			name = Exchange;
-			sourceTree = "<group>";
-		};
-		2400D09C1F42514000833958 /* Blockchain */ = {
-			isa = PBXGroup;
-			children = (
-				2400D0991F42511800833958 /* BlockchainConnector.swift */,
-				2400D0951F424B5600833958 /* EtherscanAPI.swift */,
-				24B1B17B1FF67D7E0054F088 /* EthplorerAPI.swift */,
-				24A3D32E1F7DAF250081BF09 /* BlockExplorerAPI.swift */,
-			);
-			name = Blockchain;
-			sourceTree = "<group>";
-		};
-		240C63B61F47A8A800728B8B /* EntitiesMO */ = {
-			isa = PBXGroup;
-			children = (
-				240C63B01F47A88300728B8B /* Portfolio.swift */,
-				240C63B21F47A88E00728B8B /* Address.swift */,
-				2446F5DB1F8EAD1E00DF385B /* TokenAddress.swift */,
-				2400D0971F42508100833958 /* Transaction.swift */,
-				2400D0931F40D90900833958 /* ExchangeRate.swift */,
-				24150D421F88E3E1003B7091 /* Token.swift */,
-			);
-			name = EntitiesMO;
-			sourceTree = "<group>";
-		};
-		242729A21F704C4C00E5231D /* Portfolios */ = {
-			isa = PBXGroup;
-			children = (
-				2438599A1F6C890500D67791 /* PortfolioTableController.swift */,
-				2449F4361F6D5711006E21C8 /* PortfolioDetailController.swift */,
-				2449F4431F6F0D3A006E21C8 /* AddPortfolioController.swift */,
-				242729A31F7075CC00E5231D /* AddressDetailController.swift */,
-			);
-			name = Portfolios;
-			sourceTree = "<group>";
-		};
-		2438599C1F6CA6B600D67791 /* Main */ = {
-			isa = PBXGroup;
-			children = (
-				24BF8C801FAA4EDD0070C178 /* AccountsController.swift */,
-				2400D07D1F40715900833958 /* DashboardController.swift */,
-				24C63DB31F7F15DD0096A807 /* WatchlistController.swift */,
-			);
-			name = Main;
-			sourceTree = "<group>";
-		};
-		2438599D1F6CA6BF00D67791 /* Shared */ = {
-			isa = PBXGroup;
-			children = (
-				243859951F6C442300D67791 /* AddAddressController.swift */,
-				243859931F6BE01F00D67791 /* FilterController.swift */,
-			);
-			name = Shared;
-			sourceTree = "<group>";
-		};
-		2438599E1F6CA6D500D67791 /* Transactions */ = {
-			isa = PBXGroup;
-			children = (
-				246737641F4B9255003277B8 /* TransactionTableController.swift */,
-				2449F4341F6CB30D006E21C8 /* TransactionDetailController.swift */,
-				24935C681FA0B81B00F4F291 /* AmountForAddressController.swift */,
-			);
-			name = Transactions;
-			sourceTree = "<group>";
-		};
-		2449F4381F6D59CC006E21C8 /* Custom Views */ = {
-			isa = PBXGroup;
-			children = (
-				2449F4391F6D59F5006E21C8 /* TextFieldCell.swift */,
-				2449F43B1F6D5AFA006E21C8 /* SwitchCell.swift */,
-				242E1D521F9395F700BB95E3 /* SegmentedControlCell.swift */,
-				242E1D541F939C4500BB95E3 /* DeleteCell.swift */,
-				247665511F94CFB8000857B2 /* TransactionHeaderCell.swift */,
-				2449F43D1F6D5D6D006E21C8 /* AddressCell.swift */,
-				24A514D31F7DA5300003BD65 /* TransactionCell.swift */,
-				243194D31FBE50DE00C56A22 /* TokenCell.swift */,
-				24E0AE141FC8A62000BB4794 /* SectionHeaderCell.swift */,
-			);
-			name = "Custom Views";
-			sourceTree = "<group>";
-		};
-		247D1C151FBA262000B45941 /* Currency */ = {
-			isa = PBXGroup;
-			children = (
-				24BB0DFD1F4E41B40042562C /* Currency.swift */,
-				247D1C0A1FBA261700B45941 /* Fiat.swift */,
-				247D1C161FBA265100B45941 /* Blockchain.swift */,
-				240DF3E31FB5CB08003DED40 /* ERC20Token.swift */,
-			);
-			name = Currency;
 			sourceTree = "<group>";
 		};
 		24AF7B1D1F830BE700400007 /* Frameworks */ = {
@@ -378,53 +279,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		24B859A91F47C89A00969049 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				2400D0811F40715900833958 /* Main.storyboard */,
-				2400D0861F40715900833958 /* LaunchScreen.storyboard */,
-				2400D07B1F40715900833958 /* AppDelegate.swift */,
-				246874F41F464B4E009BB60A /* Krypton.xcdatamodeld */,
-				2400D0891F40715900833958 /* Info.plist */,
-				2400D0841F40715900833958 /* Assets.xcassets */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		24B859AA1F47C8D500969049 /* Backend */ = {
-			isa = PBXGroup;
-			children = (
-				2400D09B1F42513600833958 /* Exchange */,
-				2400D09C1F42514000833958 /* Blockchain */,
-			);
-			name = Backend;
-			sourceTree = "<group>";
-		};
-		24B859AB1F47C8E400969049 /* Model */ = {
-			isa = PBXGroup;
-			children = (
-				2458132E1F5F503B007795BC /* PortfolioManager.swift */,
-				24A007C31F538AD800EC0DCF /* TickerDaemon.swift */,
-				242016C01FA1F90E00A7FA17 /* BlockchainDaemon.swift */,
-				24A226BD1F50ED9300907999 /* Helpers.swift */,
-				247D1C151FBA262000B45941 /* Currency */,
-				240C63B61F47A8A800728B8B /* EntitiesMO */,
-			);
-			name = Model;
-			sourceTree = "<group>";
-		};
-		24B859AC1F47C90800969049 /* Controller */ = {
-			isa = PBXGroup;
-			children = (
-				2438599C1F6CA6B600D67791 /* Main */,
-				2438599D1F6CA6BF00D67791 /* Shared */,
-				242729A21F704C4C00E5231D /* Portfolios */,
-				2438599E1F6CA6D500D67791 /* Transactions */,
-				24F2C8361F8FBB130065BDEC /* Settings */,
-			);
-			name = Controller;
-			sourceTree = "<group>";
-		};
 		24CD00022073AEF30094A9ED /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -432,6 +286,161 @@
 				24CD00092073AEF30094A9ED /* SwiftKeccakTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		24CD00182073AFD70094A9ED /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				2400D0861F40715900833958 /* LaunchScreen.storyboard */,
+				246874F41F464B4E009BB60A /* Krypton.xcdatamodeld */,
+				2400D0841F40715900833958 /* Assets.xcassets */,
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
+		24CD001A2073B0060094A9ED /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				24CD001C2073B0350094A9ED /* Main */,
+				24CD001D2073B0450094A9ED /* Shared */,
+				24CD001E2073B0530094A9ED /* Portfolio */,
+				24CD00202073B0780094A9ED /* Settings */,
+				24CD001F2073B0680094A9ED /* Transaction */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
+		24CD001C2073B0350094A9ED /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				24BF8C801FAA4EDD0070C178 /* AccountsController.swift */,
+				2400D07D1F40715900833958 /* DashboardController.swift */,
+				24C63DB31F7F15DD0096A807 /* WatchlistController.swift */,
+			);
+			path = Main;
+			sourceTree = "<group>";
+		};
+		24CD001D2073B0450094A9ED /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				243859951F6C442300D67791 /* AddAddressController.swift */,
+				243859931F6BE01F00D67791 /* FilterController.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		24CD001E2073B0530094A9ED /* Portfolio */ = {
+			isa = PBXGroup;
+			children = (
+				2438599A1F6C890500D67791 /* PortfolioTableController.swift */,
+				2449F4361F6D5711006E21C8 /* PortfolioDetailController.swift */,
+				2449F4431F6F0D3A006E21C8 /* AddPortfolioController.swift */,
+				242729A31F7075CC00E5231D /* AddressDetailController.swift */,
+			);
+			path = Portfolio;
+			sourceTree = "<group>";
+		};
+		24CD001F2073B0680094A9ED /* Transaction */ = {
+			isa = PBXGroup;
+			children = (
+				246737641F4B9255003277B8 /* TransactionTableController.swift */,
+				2449F4341F6CB30D006E21C8 /* TransactionDetailController.swift */,
+				24935C681FA0B81B00F4F291 /* AmountForAddressController.swift */,
+			);
+			path = Transaction;
+			sourceTree = "<group>";
+		};
+		24CD00202073B0780094A9ED /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				2449F4491F6F1F40006E21C8 /* SettingsController.swift */,
+				2449F4471F6F1D1F006E21C8 /* CurrencySelectionController.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		24CD00232073B0AE0094A9ED /* Currency */ = {
+			isa = PBXGroup;
+			children = (
+				24BB0DFD1F4E41B40042562C /* Currency.swift */,
+				247D1C0A1FBA261700B45941 /* Fiat.swift */,
+				247D1C161FBA265100B45941 /* Blockchain.swift */,
+				240DF3E31FB5CB08003DED40 /* ERC20Token.swift */,
+			);
+			path = Currency;
+			sourceTree = "<group>";
+		};
+		24CD00242073B0CC0094A9ED /* EntitiesMO */ = {
+			isa = PBXGroup;
+			children = (
+				240C63B01F47A88300728B8B /* Portfolio.swift */,
+				240C63B21F47A88E00728B8B /* Address.swift */,
+				2446F5DB1F8EAD1E00DF385B /* TokenAddress.swift */,
+				2400D0971F42508100833958 /* Transaction.swift */,
+				2400D0931F40D90900833958 /* ExchangeRate.swift */,
+				24150D421F88E3E1003B7091 /* Token.swift */,
+			);
+			path = EntitiesMO;
+			sourceTree = "<group>";
+		};
+		24CD00252073B0DB0094A9ED /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				24CD00232073B0AE0094A9ED /* Currency */,
+				24CD00242073B0CC0094A9ED /* EntitiesMO */,
+				2458132E1F5F503B007795BC /* PortfolioManager.swift */,
+				24A007C31F538AD800EC0DCF /* TickerDaemon.swift */,
+				242016C01FA1F90E00A7FA17 /* BlockchainDaemon.swift */,
+				24A226BD1F50ED9300907999 /* Helpers.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		24CD00262073B0FD0094A9ED /* Exchange */ = {
+			isa = PBXGroup;
+			children = (
+				2400D0911F40D6E700833958 /* TickerConnector.swift */,
+				24C033351FBDBA6B0040D972 /* CryptoCompareAPI.swift */,
+				2400D08F1F40720500833958 /* KrakenAPI.swift */,
+				248F62301FB500EB003D213A /* BittrexAPI.swift */,
+			);
+			path = Exchange;
+			sourceTree = "<group>";
+		};
+		24CD00272073B1110094A9ED /* Blockchain */ = {
+			isa = PBXGroup;
+			children = (
+				2400D0991F42511800833958 /* BlockchainConnector.swift */,
+				2400D0951F424B5600833958 /* EtherscanAPI.swift */,
+				24B1B17B1FF67D7E0054F088 /* EthplorerAPI.swift */,
+				24A3D32E1F7DAF250081BF09 /* BlockExplorerAPI.swift */,
+			);
+			path = Blockchain;
+			sourceTree = "<group>";
+		};
+		24CD00282073B11D0094A9ED /* Backend */ = {
+			isa = PBXGroup;
+			children = (
+				24CD00272073B1110094A9ED /* Blockchain */,
+				24CD00262073B0FD0094A9ED /* Exchange */,
+			);
+			path = Backend;
+			sourceTree = "<group>";
+		};
+		24CD00292073B1350094A9ED /* View */ = {
+			isa = PBXGroup;
+			children = (
+				2449F4391F6D59F5006E21C8 /* TextFieldCell.swift */,
+				2449F43B1F6D5AFA006E21C8 /* SwitchCell.swift */,
+				242E1D521F9395F700BB95E3 /* SegmentedControlCell.swift */,
+				242E1D541F939C4500BB95E3 /* DeleteCell.swift */,
+				247665511F94CFB8000857B2 /* TransactionHeaderCell.swift */,
+				2449F43D1F6D5D6D006E21C8 /* AddressCell.swift */,
+				24A514D31F7DA5300003BD65 /* TransactionCell.swift */,
+				243194D31FBE50DE00C56A22 /* TokenCell.swift */,
+				24E0AE141FC8A62000BB4794 /* SectionHeaderCell.swift */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 		24CDFFEC2073AE040094A9ED /* Products */ = {
@@ -444,15 +453,6 @@
 				24CDFFFC2073AE050094A9ED /* SwiftyBeaver.framework */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		24F2C8361F8FBB130065BDEC /* Settings */ = {
-			isa = PBXGroup;
-			children = (
-				2449F4491F6F1F40006E21C8 /* SettingsController.swift */,
-				2449F4471F6F1D1F006E21C8 /* CurrencySelectionController.swift */,
-			);
-			name = Settings;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
