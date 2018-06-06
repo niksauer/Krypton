@@ -116,7 +116,7 @@ class ExchangeRateManager {
                     if self.context.hasChanges {
                         try self.context.save()
                         let multiple = count >= 2 || count == 0
-                        log.debug("Saved exchange rate history for currency pair '\(currencyPair.name)' with \(count) new value\(multiple ? "s" : "") since \(Format.getDateFormatting(for: startDate)).")
+                        log.debug("Saved exchange rate history for currency pair '\(currencyPair.name)' with \(count) new value\(multiple ? "s" : "") since \(startDate)).")
                     }
                     
                     completion?()

@@ -27,6 +27,8 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
     private let portfolioManager: PortfolioManager
     private let tickerDaemon: TickerDaemon
     private let blockchainDaemon: BlockchainDaemon
+    private let currencyFormatter: CurrencyFormatter
+    private let dateFormatter: DateFormatter
     
     // MARK: - Public Properties
     var showsExchangeValue = true
@@ -35,13 +37,15 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
     var showsBlockNumber = true
     
     // MARK: - Initialization
-    init(viewFactory: ViewControllerFactory, transaction: Transaction, kryptonDaemon: KryptonDaemon, portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, blockchainDaemon: BlockchainDaemon) {
+    init(viewFactory: ViewControllerFactory, transaction: Transaction, kryptonDaemon: KryptonDaemon, portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, blockchainDaemon: BlockchainDaemon, currencyFormatter: CurrencyFormatter, dateFormatter: DateFormatter) {
         self.viewFactory = viewFactory
         self.transaction = transaction
         self.kryptonDaemon = kryptonDaemon
         self.portfolioManager = portfolioManager
         self.tickerDaemon = tickerDaemon
         self.blockchainDaemon = blockchainDaemon
+        self.currencyFormatter = currencyFormatter
+        self.dateFormatter = dateFormatter
         
         super.init(style: .grouped)
         
@@ -155,7 +159,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
             textField.addTarget(self, action: #selector(self.textFieldDidChange(_:)), for: .editingChanged)
             
             if let exchangeValue = self.transaction.exchangeValue {
-                textField.placeholder = Format.getCurrencyFormatting(for: exchangeValue, currency: self.transaction.owner!.quoteCurrency)
+                textField.placeholder = self.currencyFormatter.getCurrencyFormatting(for: exchangeValue, currency: self.transaction.owner!.quoteCurrency)
             } else {
                 textField.placeholder = "???"
             }
@@ -214,7 +218,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
         switch section {
         case _ where section == 0:
             let cell = tableView.dequeueReusableCell(withIdentifier: "TransactionHeaderCell", for: indexPath) as! TransactionHeaderCell
-            cell.configure(transaction: transaction)
+            cell.configure(transaction: transaction, currencyFormatter: currencyFormatter, dateFormatter: dateFormatter)
             return cell
         case _ where section == 1:
             let cell = UITableViewCell(style: .value1, reuseIdentifier: "InfoCell")
@@ -265,10 +269,10 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
                 
                 if showsExchangeValue {
                     cell.textLabel?.text = "Value"
-                    cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: exchangeValue, currency: transaction.owner!.quoteCurrency)
+                    cell.detailTextLabel?.text = currencyFormatter.getCurrencyFormatting(for: exchangeValue, currency: transaction.owner!.quoteCurrency)
                 } else {
                     cell.textLabel?.text = "Current Value"
-                    cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: currentExchangeValue, currency: transaction.owner!.quoteCurrency)
+                    cell.detailTextLabel?.text = currencyFormatter.getCurrencyFormatting(for: currentExchangeValue, currency: transaction.owner!.quoteCurrency)
                 }
                 
                 return cell
@@ -284,11 +288,11 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
                 
                 if showsRelativeProfit {
                     cell.textLabel?.text = "Relative Profit"
-                    cell.detailTextLabel?.text = Format.getRelativeProfitFormatting(from: profitStats)
+                    cell.detailTextLabel?.text = currencyFormatter.getRelativeProfitFormatting(from: profitStats)
                 } else {
                     cell.textLabel?.text = "Absolute Profit"
                     print(profitStats)
-                    cell.detailTextLabel?.text = Format.getAbsoluteProfitFormatting(from: profitStats, currency: transaction.owner!.quoteCurrency)
+                    cell.detailTextLabel?.text = currencyFormatter.getAbsoluteProfitFormatting(from: profitStats, currency: transaction.owner!.quoteCurrency)
                 }
                 
                 return cell
@@ -315,9 +319,9 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
                 }
                 
                 if showsCryptoFees {
-                    cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: transaction.feeAmount, currency: transaction.owner!.blockchain)
+                    cell.detailTextLabel?.text = currencyFormatter.getCurrencyFormatting(for: transaction.feeAmount, currency: transaction.owner!.blockchain)
                 } else {
-                    cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: feeExchangeValue, currency: transaction.owner!.quoteCurrency)
+                    cell.detailTextLabel?.text = currencyFormatter.getCurrencyFormatting(for: feeExchangeValue, currency: transaction.owner!.quoteCurrency)
                 }
             case _ where row == 1:
                 blockIndexPath = indexPath

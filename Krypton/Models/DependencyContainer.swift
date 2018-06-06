@@ -12,24 +12,39 @@ import CoreData
 struct DependencyContainer {
     
     // Mark: - Singletons
-    let kryptonDaemon: KryptonDaemon
-    let portfolioManager: PortfolioManager
-    let tickerDaemon: TickerDaemon = TickerDaemon.shared
-    let blockchainDaemom: BlockchainDaemon
+    private let kryptonDaemon: KryptonDaemon
+    private let portfolioManager: PortfolioManager
+    private let tickerDaemon: TickerDaemon = TickerDaemon.shared
+    private let blockchainDaemom: BlockchainDaemon
     
     // Mark: - Private Properties
-    let viewContext: NSManagedObjectContext = CoreDataStack.shared.viewContext
+    private let viewContext: NSManagedObjectContext = CoreDataStack.shared.viewContext
     
-    var blockchains: [Blockchain] {
+    private var blockchains: [Blockchain] {
         return Blockchain.allValues as! [Blockchain]
     }
     
-    var currencyManager: CurrencyManager {
+    private var currencyManager: CurrencyManager {
         return CurrencyManager()
     }
+
+    private var currencyFormatter: CurrencyFormatter {
+        return CurrencyFormatter()
+    }
     
-    var exchangeRateManager: ExchangeRateManager {
+    private var exchangeRateManager: ExchangeRateManager {
         return ExchangeRateManager(context: viewContext, tickerDaemon: tickerDaemon)
+    }
+    
+    private var mediumDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter
+    }()
+    
+    private var updateStatusDateFormatter: DateFormatter {
+        return UpdateStatusDateFormatter()
     }
     
     // Mark: - Initialization
@@ -51,15 +66,15 @@ extension DependencyContainer: ViewControllerFactory {
     
     // Main
     func makeAccountsViewController() -> AccountsViewController {
-        return AccountsViewController(viewFactory: self, kryptonDaemon: kryptonDaemon, portfolioManager: portfolioManager, tickerDaemon: tickerDaemon)
+        return AccountsViewController(viewFactory: self, kryptonDaemon: kryptonDaemon, portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, currencyFormatter: currencyFormatter)
     }
     
     func makeWatchlistViewController() -> WatchlistViewController {
-        return WatchlistViewController(portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, currencyManager: currencyManager)
+        return WatchlistViewController(portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, currencyManager: currencyManager, currencyFormatter: currencyFormatter)
     }
     
     func makeDashboardViewController() -> DashboardViewController {
-        return DashboardViewController(viewFactory: self, kryptonService: kryptonDaemon, portfolioManager: portfolioManager, tickerDaemon: tickerDaemon)
+        return DashboardViewController(viewFactory: self, kryptonService: kryptonDaemon, portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, currencyFormatter: currencyFormatter)
     }
     
     // Portfolio
@@ -81,7 +96,7 @@ extension DependencyContainer: ViewControllerFactory {
     
     // Address
     func makeAddressDetailViewController(for address: Address) -> AddressDetailViewController {
-        return AddressDetailViewController(viewFactory: self, address: address)
+        return AddressDetailViewController(viewFactory: self, address: address, currencyFormatter: currencyFormatter)
     }
     
     func makeAddAdressViewController() -> AddAddressViewController {
@@ -89,16 +104,16 @@ extension DependencyContainer: ViewControllerFactory {
     }
     
     func makeAmountByAddressViewController(for transaction: Transaction) -> AmountByAddressViewController {
-        return AmountByAddressViewController(transaction: transaction, portfolioManager: portfolioManager)
+        return AmountByAddressViewController(transaction: transaction, portfolioManager: portfolioManager, currencyFormatter: currencyFormatter)
     }
     
     // Transaction
     func makeTransactionsViewController(for addresses: [Address]) -> TransactionsViewController {
-        return TransactionsViewController(viewFactory: self, addresses: addresses, portfolioManager: portfolioManager, searchContext: viewContext)
+        return TransactionsViewController(viewFactory: self, addresses: addresses, portfolioManager: portfolioManager, searchContext: viewContext, dateFormatter: mediumDateFormatter, updateDateFormatter: updateStatusDateFormatter, currencyFormatter: currencyFormatter)
     }
     
     func makeTransactionDetailViewController(for transaction: Transaction) -> TransactionDetailViewController {
-        return TransactionDetailViewController(viewFactory: self, transaction: transaction, kryptonDaemon: kryptonDaemon, portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, blockchainDaemon: blockchainDaemom)
+        return TransactionDetailViewController(viewFactory: self, transaction: transaction, kryptonDaemon: kryptonDaemon, portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, blockchainDaemon: blockchainDaemom, currencyFormatter: currencyFormatter, dateFormatter: mediumDateFormatter)
     }
     
     // Settings

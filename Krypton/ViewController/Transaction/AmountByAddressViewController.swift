@@ -16,11 +16,13 @@ class AmountByAddressViewController: UITableViewController {
     // MARK: - Public Properties
     var addresses: [String]!
     var amountForAddress: [String: Double]!
-    var currency: Currency!
+    var currency: Currency
+    var currencyFormatter: CurrencyFormatter
 
     // MARK: - Initialization
-    init(transaction: Transaction, portfolioManager: PortfolioManager) {
+    init(transaction: Transaction, portfolioManager: PortfolioManager, currencyFormatter: CurrencyFormatter) {
         self.portfolioManager = portfolioManager
+        self.currencyFormatter = currencyFormatter
         currency = transaction.owner!.blockchain
         
         super.init(style: .plain)
@@ -47,7 +49,7 @@ class AmountByAddressViewController: UITableViewController {
         cell.textLabel?.lineBreakMode = .byTruncatingTail
         
         cell.textLabel?.text = portfolioManager.getAlias(for: address)
-        cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: amountForAddress[address]!, currency: currency)
+        cell.detailTextLabel?.text = currencyFormatter.getCurrencyFormatting(for: amountForAddress[address]!, currency: currency)
         
         return cell
     }

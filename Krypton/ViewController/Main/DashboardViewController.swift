@@ -30,6 +30,7 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
     private let kryptonDaemon: KryptonDaemon
     private let portfolioManager: PortfolioManager
     private let tickerDaemon: TickerDaemon
+    private let currencyFormatter: CurrencyFormatter
 
     private var comparisonDate = Calendar.current.date(byAdding: .day, value: -1, to: Date())! {
         didSet {
@@ -53,13 +54,13 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
             switch portfolioDisplay {
             case .currentExchangeValue:
                 portfolioLabel.text = "Total Portfolio Value"
-                portfolioValueLabel.text = Format.getCurrencyFormatting(for: currentExchangeValue, currency: portfolioManager.quoteCurrency)
+                portfolioValueLabel.text = currencyFormatter.getCurrencyFormatting(for: currentExchangeValue, currency: portfolioManager.quoteCurrency)
             case .relativeProfit:
                 portfolioLabel.text = "Total Relative Profit"
-                portfolioValueLabel.text = Format.getRelativeProfitFormatting(from: profitStats)
+                portfolioValueLabel.text = currencyFormatter.getRelativeProfitFormatting(from: profitStats)
             case .absoluteProfit:
                 portfolioLabel.text = "Total Absolute Profit"
-                portfolioValueLabel.text = Format.getAbsoluteProfitFormatting(from: profitStats, currency: portfolioManager.quoteCurrency)
+                portfolioValueLabel.text = currencyFormatter.getAbsoluteProfitFormatting(from: profitStats, currency: portfolioManager.quoteCurrency)
             }
         }
     }
@@ -74,19 +75,20 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
             profitLabel.text = "Since Yesterday"
             
             if showsRelativeProfit {
-                profitValueLabel.text = Format.getRelativeProfitFormatting(from: profitStats)
+                profitValueLabel.text = currencyFormatter.getRelativeProfitFormatting(from: profitStats)
             } else {
-                profitValueLabel.text = Format.getAbsoluteProfitFormatting(from: profitStats, currency: portfolioManager.quoteCurrency)
+                profitValueLabel.text = currencyFormatter.getAbsoluteProfitFormatting(from: profitStats, currency: portfolioManager.quoteCurrency)
             }
         }
     }
     
     // MARK: - Initialization
-    init(viewFactory: ViewControllerFactory, kryptonService: KryptonDaemon, portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon) {
+    init(viewFactory: ViewControllerFactory, kryptonService: KryptonDaemon, portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, currencyFormatter: CurrencyFormatter) {
         self.viewFactory = viewFactory
         self.kryptonDaemon = kryptonService
         self.portfolioManager = portfolioManager
         self.tickerDaemon = tickerDaemon
+        self.currencyFormatter = currencyFormatter
         
         super.init(nibName: nil, bundle: nil)
         
@@ -136,7 +138,7 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
         showsRelativeProfit = { showsRelativeProfit }()
         
         if let investmentValue = portfolioManager.getProfitStats(for: filter.transactionType, timeframe: .allTime)?.startValue {
-            investmentValueLabel.text = Format.getCurrencyFormatting(for: investmentValue, currency: portfolioManager.quoteCurrency)
+            investmentValueLabel.text = currencyFormatter.getCurrencyFormatting(for: investmentValue, currency: portfolioManager.quoteCurrency)
         } else {
             investmentValueLabel.text = "???"
         }

@@ -15,16 +15,18 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
     private let kryptonDaemon: KryptonDaemon
     private let portfolioManager: PortfolioManager
     private let tickerDaemon: TickerDaemon
+    private let currencyFormatter: CurrencyFormatter
     
     private var portfolios = [Portfolio]()
     private var selectedAddresses: [Address]?
     
     // MARK: - Initialization
-    init(viewFactory: ViewControllerFactory, kryptonDaemon: KryptonDaemon, portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon) {
+    init(viewFactory: ViewControllerFactory, kryptonDaemon: KryptonDaemon, portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, currencyFormatter: CurrencyFormatter) {
         self.viewFactory = viewFactory
         self.kryptonDaemon = kryptonDaemon
         self.portfolioManager = portfolioManager
         self.tickerDaemon = tickerDaemon
+        self.currencyFormatter = currencyFormatter
         
         super.init(style: .grouped)
         
@@ -208,7 +210,7 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
                 cell.sectionTitleLabel.text = portfolio.alias?.uppercased()
                 
                 if let exchangeValue = portfolio.totalExchangeValue {
-                    cell.rightDetailLabel.text = Format.getCurrencyFormatting(for: exchangeValue, currency: portfolio.quoteCurrency)
+                    cell.rightDetailLabel.text = currencyFormatter.getCurrencyFormatting(for: exchangeValue, currency: portfolio.quoteCurrency)
                 } else {
                     cell.rightDetailLabel.text = nil
                 }
@@ -219,7 +221,7 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
                 let cell = UITableViewCell(style: .value1, reuseIdentifier: "AccountCell")
                 cell.accessoryType = .detailDisclosureButton
                 cell.textLabel?.text = address.alias
-                cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: address.balance, currency: address.blockchain, customDigits: 2)
+                cell.detailTextLabel?.text = currencyFormatter.getCurrencyFormatting(for: address.balance, currency: address.blockchain, customDigits: 2)
                 return cell
             }
         default:

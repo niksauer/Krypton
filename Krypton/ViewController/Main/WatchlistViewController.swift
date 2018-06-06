@@ -14,6 +14,7 @@ class WatchlistViewController: UITableViewController, TickerDaemonDelegate {
     private let portfolioManager: PortfolioManager
     private let tickerDaemon: TickerDaemon
     private let currencyManager: CurrencyManager
+    private let currencyFormatter: CurrencyFormatter
     
     // MARK: - Public Properties
     var displayedCurrencies = [Currency]()
@@ -22,10 +23,11 @@ class WatchlistViewController: UITableViewController, TickerDaemonDelegate {
     var missingCurrencies = [Currency]()
 
     // MARK: - Initialization
-    init(portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, currencyManager: CurrencyManager) {
+    init(portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, currencyManager: CurrencyManager, currencyFormatter: CurrencyFormatter) {
         self.portfolioManager = portfolioManager
         self.tickerDaemon = tickerDaemon
         self.currencyManager = currencyManager
+        self.currencyFormatter = currencyFormatter
         
         super.init(style: .grouped)
         
@@ -113,7 +115,7 @@ class WatchlistViewController: UITableViewController, TickerDaemonDelegate {
     
         if requiredCurrencies.contains(where: { $0.isEqual(to: currency) }) || manualCurrencies.contains(where: { $0.isEqual(to: currency) }) {
             if let currentExchangeRate = tickerDaemon.getCurrentExchangeRate(for: currencyPair) {
-                cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: currentExchangeRate, currency: portfolioManager.quoteCurrency)
+                cell.detailTextLabel?.text = currencyFormatter.getCurrencyFormatting(for: currentExchangeRate, currency: portfolioManager.quoteCurrency)
             } else {
                 cell.detailTextLabel?.text = "???"
             }

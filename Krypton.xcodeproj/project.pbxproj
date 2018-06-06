@@ -48,7 +48,7 @@
 		248F62311FB500EB003D213A /* BittrexAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248F62301FB500EB003D213A /* BittrexAPI.swift */; };
 		24935C691FA0B81B00F4F291 /* AmountByAddressViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24935C681FA0B81B00F4F291 /* AmountByAddressViewController.swift */; };
 		24A007C41F538AD800EC0DCF /* TickerDaemon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A007C31F538AD800EC0DCF /* TickerDaemon.swift */; };
-		24A226BE1F50ED9300907999 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A226BD1F50ED9300907999 /* Helpers.swift */; };
+		24A226BE1F50ED9300907999 /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A226BD1F50ED9300907999 /* CurrencyFormatter.swift */; };
 		24A3D32F1F7DAF250081BF09 /* BlockExplorerAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A3D32E1F7DAF250081BF09 /* BlockExplorerAPI.swift */; };
 		24A514D41F7DA5300003BD65 /* TransactionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A514D31F7DA5300003BD65 /* TransactionCell.swift */; };
 		24A9FA3520C7F6090058223D /* KryptonDaemon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A9FA3420C7F6090058223D /* KryptonDaemon.swift */; };
@@ -78,6 +78,9 @@
 		24D71E2F20C8724C000155FE /* SegmentedControlCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 24D71E2D20C8724C000155FE /* SegmentedControlCell.xib */; };
 		24D71E3120C87A76000155FE /* DashboardViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 24D71E3020C87A76000155FE /* DashboardViewController.xib */; };
 		24D71E3320C87F06000155FE /* ViewControllerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D71E3220C87F06000155FE /* ViewControllerFactory.swift */; };
+		24D71E3520C88B70000155FE /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D71E3420C88B70000155FE /* Date.swift */; };
+		24D71E3920C88BB6000155FE /* Misc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D71E3820C88BB6000155FE /* Misc.swift */; };
+		24D71E3B20C88CE0000155FE /* UpdateStatusDateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D71E3A20C88CE0000155FE /* UpdateStatusDateFormatter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -246,7 +249,7 @@
 		248F62301FB500EB003D213A /* BittrexAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BittrexAPI.swift; sourceTree = "<group>"; };
 		24935C681FA0B81B00F4F291 /* AmountByAddressViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountByAddressViewController.swift; sourceTree = "<group>"; };
 		24A007C31F538AD800EC0DCF /* TickerDaemon.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TickerDaemon.swift; sourceTree = "<group>"; };
-		24A226BD1F50ED9300907999 /* Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
+		24A226BD1F50ED9300907999 /* CurrencyFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrencyFormatter.swift; sourceTree = "<group>"; };
 		24A3D32E1F7DAF250081BF09 /* BlockExplorerAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockExplorerAPI.swift; sourceTree = "<group>"; };
 		24A514D31F7DA5300003BD65 /* TransactionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionCell.swift; sourceTree = "<group>"; };
 		24A9FA3420C7F6090058223D /* KryptonDaemon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KryptonDaemon.swift; sourceTree = "<group>"; };
@@ -276,6 +279,9 @@
 		24D71E2D20C8724C000155FE /* SegmentedControlCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SegmentedControlCell.xib; sourceTree = "<group>"; };
 		24D71E3020C87A76000155FE /* DashboardViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DashboardViewController.xib; sourceTree = "<group>"; };
 		24D71E3220C87F06000155FE /* ViewControllerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllerFactory.swift; sourceTree = "<group>"; };
+		24D71E3420C88B70000155FE /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
+		24D71E3820C88BB6000155FE /* Misc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Misc.swift; sourceTree = "<group>"; };
+		24D71E3A20C88CE0000155FE /* UpdateStatusDateFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateStatusDateFormatter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -314,10 +320,11 @@
 		2400D07A1F40715900833958 /* Krypton */ = {
 			isa = PBXGroup;
 			children = (
-				24D71E3220C87F06000155FE /* ViewControllerFactory.swift */,
 				2400D07B1F40715900833958 /* AppDelegate.swift */,
 				2400D0891F40715900833958 /* Info.plist */,
 				24CD00182073AFD70094A9ED /* Support */,
+				24D71E3620C88B75000155FE /* Extensions */,
+				24D71E3720C88B7A000155FE /* Protocols */,
 				24CD001A2073B0060094A9ED /* ViewController */,
 				24CD00292073B1350094A9ED /* Views */,
 				24CD00252073B0DB0094A9ED /* Models */,
@@ -475,12 +482,13 @@
 		24CD00252073B0DB0094A9ED /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				24D71E3A20C88CE0000155FE /* UpdateStatusDateFormatter.swift */,
 				24B4A27A20C7152D007AEB28 /* DependencyContainer.swift */,
 				24B4A27620C700E0007AEB28 /* CoreDataStack.swift */,
 				24CD00232073B0AE0094A9ED /* Currency */,
 				24CD00242073B0CC0094A9ED /* EntitiesMO */,
 				24A9FA3F20C80C310058223D /* Daemons */,
-				24A226BD1F50ED9300907999 /* Helpers.swift */,
+				24A226BD1F50ED9300907999 /* CurrencyFormatter.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -569,6 +577,23 @@
 				243859951F6C442300D67791 /* AddAddressViewController.swift */,
 			);
 			path = Address;
+			sourceTree = "<group>";
+		};
+		24D71E3620C88B75000155FE /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				24D71E3820C88BB6000155FE /* Misc.swift */,
+				24D71E3420C88B70000155FE /* Date.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		24D71E3720C88B7A000155FE /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				24D71E3220C87F06000155FE /* ViewControllerFactory.swift */,
+			);
+			path = Protocols;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -795,9 +820,10 @@
 				2449F4351F6CB30D006E21C8 /* TransactionDetailViewController.swift in Sources */,
 				246737651F4B9255003277B8 /* TransactionsViewController.swift in Sources */,
 				2449F43E1F6D5D6D006E21C8 /* AddressCell.swift in Sources */,
+				24D71E3920C88BB6000155FE /* Misc.swift in Sources */,
 				24A9FA4C20C8173D0058223D /* PickerViewCell.swift in Sources */,
 				243859941F6BE01F00D67791 /* FilterViewController.swift in Sources */,
-				24A226BE1F50ED9300907999 /* Helpers.swift in Sources */,
+				24A226BE1F50ED9300907999 /* CurrencyFormatter.swift in Sources */,
 				2449F4481F6F1D1F006E21C8 /* CurrencySelectorViewController.swift in Sources */,
 				24A9FA4420C810690058223D /* SectionHeaderCell.swift in Sources */,
 				24150D431F88E3E1003B7091 /* Token.swift in Sources */,
@@ -811,6 +837,7 @@
 				2449F43C1F6D5AFA006E21C8 /* SwitchCell.swift in Sources */,
 				24B4A27B20C7152D007AEB28 /* DependencyContainer.swift in Sources */,
 				240C63B31F47A88E00728B8B /* Address.swift in Sources */,
+				24D71E3520C88B70000155FE /* Date.swift in Sources */,
 				242E1D531F9395F700BB95E3 /* SegmentedControlCell.swift in Sources */,
 				246874F61F464B4E009BB60A /* Krypton.xcdatamodeld in Sources */,
 				2449F4441F6F0D3A006E21C8 /* AddPortfolioViewController.swift in Sources */,
@@ -822,6 +849,7 @@
 				2438599B1F6C890600D67791 /* PortfoliosViewController.swift in Sources */,
 				2400D07E1F40715900833958 /* DashboardViewController.swift in Sources */,
 				2400D0941F40D90900833958 /* ExchangeRate.swift in Sources */,
+				24D71E3B20C88CE0000155FE /* UpdateStatusDateFormatter.swift in Sources */,
 				24A9FA3520C7F6090058223D /* KryptonDaemon.swift in Sources */,
 				248F62311FB500EB003D213A /* BittrexAPI.swift in Sources */,
 			);

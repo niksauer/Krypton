@@ -15,6 +15,9 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
     private let viewFactory: ViewControllerFactory
     private let portfolioManager: PortfolioManager
     private let searchContext: NSManagedObjectContext
+    private let dateFormatter: DateFormatter
+    private let updateDateFormatter: DateFormatter
+    private let currencyFormatter: CurrencyFormatter
     
     private var addresses: [Address] {
         didSet {
@@ -70,11 +73,14 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
     }
     
     // MARK: - Initialization
-    init(viewFactory: ViewControllerFactory, addresses: [Address], portfolioManager: PortfolioManager, searchContext: NSManagedObjectContext) {
+    init(viewFactory: ViewControllerFactory, addresses: [Address], portfolioManager: PortfolioManager, searchContext: NSManagedObjectContext, dateFormatter: DateFormatter, updateDateFormatter: DateFormatter, currencyFormatter: CurrencyFormatter) {
         self.viewFactory = viewFactory
         self.addresses = addresses
         self.portfolioManager = portfolioManager
         self.searchContext = searchContext
+        self.dateFormatter = dateFormatter
+        self.updateDateFormatter = updateDateFormatter
+        self.currencyFormatter = currencyFormatter
         
         super.init(style: .plain)
         
@@ -276,7 +282,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
                     
                     return date0 < date1
                 }).first?.lastUpdate {
-                    title = NSMutableAttributedString(string: "\(Format.getUpdateStatus(for: oldestUpdateDate))\n")
+                    title = NSMutableAttributedString(string: "\(updateDateFormatter.string(from: oldestUpdateDate))\n")
                 } else {
                     title = NSMutableAttributedString(string: "")
                 }
@@ -460,7 +466,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
             textField.addTarget(self, action: #selector(self.textFieldDidChange(_:)), for: .editingChanged)
             
             let totalExchangeValue = selectedTransactions.compactMap({ $0.exchangeValue }).reduce(0, +)
-            textField.placeholder = Format.getCurrencyFormatting(for: totalExchangeValue, currency: self.portfolioManager.quoteCurrency)
+            textField.placeholder = self.currencyFormatter.getCurrencyFormatting(for: totalExchangeValue, currency: self.portfolioManager.quoteCurrency)
         })
         
         alertController.addAction(cancelAction)
@@ -562,12 +568,12 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
 //        cell.configure(transaction: transaction)
         
         if showsExchangeValue, let exchangeValue = transaction.exchangeValue {
-            cell.textLabel?.text = Format.getCurrencyFormatting(for: exchangeValue, currency: transaction.owner!.quoteCurrency)
+            cell.textLabel?.text = currencyFormatter.getCurrencyFormatting(for: exchangeValue, currency: transaction.owner!.quoteCurrency)
         } else {
-            cell.textLabel?.text = Format.getCurrencyFormatting(for: transaction.totalAmount, currency: transaction.owner!.blockchain)
+            cell.textLabel?.text = currencyFormatter.getCurrencyFormatting(for: transaction.totalAmount, currency: transaction.owner!.blockchain)
         }
         
-        cell.detailTextLabel?.text = Format.getDateFormatting(for: transaction.date! as Date)
+        cell.detailTextLabel?.text = dateFormatter.string(from: transaction.date! as Date)
 
         if transaction.isOutbound {
             cell.textLabel?.textColor = UIColor.red

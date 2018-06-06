@@ -17,8 +17,8 @@ class TransactionHeaderCell: UITableViewCell {
     @IBOutlet weak var isInvestmentImage: UIImageView!
     
     // MARK: - Public Methods
-    func configure(transaction: Transaction) {
-        amountLabel.text = Format.getCurrencyFormatting(for: transaction.totalAmount, currency: transaction.owner!.blockchain)
+    func configure(transaction: Transaction, currencyFormatter: CurrencyFormatter, dateFormatter: DateFormatter) {
+        amountLabel.text = currencyFormatter.getCurrencyFormatting(for: transaction.totalAmount, currency: transaction.owner!.blockchain)
         
         if transaction.isOutbound {
             amountLabel.textColor = UIColor.red
@@ -26,7 +26,7 @@ class TransactionHeaderCell: UITableViewCell {
             amountLabel.textColor = UIColor.green
         }
         
-        dateLabel.text = Format.getDateFormatting(for: transaction.date!)
+        dateLabel.text = dateFormatter.string(from: transaction.date!)
     
         isInvestmentImage.isHidden = !transaction.isInvestment
         isErrorImage.isHidden = !transaction.isError

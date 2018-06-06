@@ -13,13 +13,15 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
     // MARK: - Private Properties
     private let viewFactory: ViewControllerFactory
     private let address: Address
+    private let currencyFormatter: CurrencyFormatter
     
     private var alias: String?
     
     // MARK: - Initialization
-    init(viewFactory: ViewControllerFactory, address: Address) {
+    init(viewFactory: ViewControllerFactory, address: Address, currencyFormatter: CurrencyFormatter) {
         self.viewFactory = viewFactory
         self.address = address
+        self.currencyFormatter = currencyFormatter
         alias = address.alias
         
         super.init(style: .grouped)
@@ -167,7 +169,7 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
                 
                 if row == 1 {
                     cell.textLabel?.text = "Balance"
-                    cell.detailTextLabel?.text = Format.getCurrencyFormatting(for: address.balance, currency: address.blockchain)
+                    cell.detailTextLabel?.text = currencyFormatter.getCurrencyFormatting(for: address.balance, currency: address.blockchain)
                 }
                 
                 return cell
@@ -177,7 +179,7 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
                 // token section (2)
                 let token = tokenAddress.storedTokens[indexPath.row]
                 let cell = tableView.dequeueReusableCell(withIdentifier: "TokenCell", for: indexPath) as! TokenCell
-                cell.configure(token: token, showsBalance: true)
+                cell.configure(token: token, currencyFormatter: currencyFormatter, showsBalance: true)
                 return cell
             }
         }
