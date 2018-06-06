@@ -3,7 +3,7 @@
 //  Krypton
 //
 //  Created by Niklas Sauer on 29.09.17.
-//  Copyright © 2017 Hewlett Packard Enterprise. All rights reserved.
+//  Copyright © 2017 SauerStudios. All rights reserved.
 //
 
 import Foundation

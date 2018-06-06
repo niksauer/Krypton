@@ -1,15 +1,9 @@
-[submodule "CryptoSwift"]
-	path = CryptoSwift
-	url = git@github.com:krzyzanowskim/CryptoSwift.git
-[submodule "SwiftKeccak"]
-	path = SwiftKeccak
-	url = git@github.com:uport-project/SwiftKeccak.git
-[submodule "SwiftyBeaver"]
-	path = SwiftyBeaver
-	url = git@github.com:SwiftyBeaver/SwiftyBeaver.git
 [submodule "Frameworks/SwiftyBeaver"]
 	path = Frameworks/SwiftyBeaver
-	url = https://github.com/SwiftyBeaver/SwiftyBeaver
+	url = git@github.com:SwiftyBeaver/SwiftyBeaver.git
 [submodule "Frameworks/SwiftKeccak"]
 	path = Frameworks/SwiftKeccak
 	url = git@github.com:uport-project/SwiftKeccak.git
+[submodule "Frameworks/NetworkKit"]
+	path = Frameworks/NetworkKit
+	url = git@github.com:niksauer/NetworkKit.git
