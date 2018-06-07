@@ -15,8 +15,6 @@ class PortfolioDetailViewController: UITableViewController {
     private let portfolio: Portfolio
     private let portfolioManager: PortfolioManager
     
-    private var selectedAddress: Address?
-    
     private var alias: String?
     private var isDefault: Bool
     
@@ -27,6 +25,7 @@ class PortfolioDetailViewController: UITableViewController {
         self.viewFactory = viewFactory
         self.portfolio = portfolio
         self.portfolioManager = portfolioManager
+        alias = portfolio.alias
         isDefault = portfolio.isDefault
         
         super.init(style: .grouped)
@@ -145,12 +144,12 @@ class PortfolioDetailViewController: UITableViewController {
             switch row {
             case 0:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "TextFieldCell", for: indexPath) as! TextFieldCell
-                cell.configure(text: portfolio.alias, placeholder: "Alias", isEnabled: isEditing, onChange: didChangeAlias)
+                cell.configure(text: alias, placeholder: "Alias", isEnabled: isEditing, onChange: didChangeAlias)
                 cell.isEnabledClearButtonMode = .always
                 return cell
             case 1:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "SwitchCell", for: indexPath) as! SwitchCell
-                cell.configure(name: "Use as default", isOn: portfolio.isDefault, onChange: didChangeIsDefault)
+                cell.configure(name: "Use as default", isOn: isDefault, onChange: didChangeIsDefault)
                 return cell
             default:
                 fatalError()

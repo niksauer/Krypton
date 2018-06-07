@@ -110,7 +110,7 @@ class WatchlistViewController: UITableViewController, TickerDaemonDelegate {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let currency = displayedCurrencies[indexPath.row]
         let currencyPair = CurrencyPair(base: currency, quote: portfolioManager.quoteCurrency)
-        let cell = UITableViewCell(style: .default, reuseIdentifier: "TickerCell")
+        let cell = UITableViewCell(style: .value1, reuseIdentifier: "TickerCell")
         cell.textLabel?.text = currencyPair.base.code
     
         if requiredCurrencies.contains(where: { $0.isEqual(to: currency) }) || manualCurrencies.contains(where: { $0.isEqual(to: currency) }) {

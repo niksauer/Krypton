@@ -18,6 +18,8 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
     
     private var alias: String?
     
+    private var isDeleted = false
+    
     // MARK: - Initialization
     init(viewFactory: ViewControllerFactory, address: Address, currencyFormatter: CurrencyFormatter, taxAdviser: TaxAdviser) {
         self.viewFactory = viewFactory
@@ -53,6 +55,10 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
+        guard !isDeleted else {
+            return
+        }
+        
         if let alias = alias?.trimmingCharacters(in: .whitespacesAndNewlines), alias != address.alias {
             do {
                 try address.setAlias(alias)
@@ -76,6 +82,7 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
     private func deleteAddress() {
         do {
             try address.portfolio!.removeAddress(address: address)
+            isDeleted = true
             self.navigationController?.popViewController(animated: true)
         } catch {
             // TODO: present error
@@ -203,7 +210,7 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
         }
         
         if row == 1 {
-            cell.configure(text: address.alias, placeholder: "Alias", isEnabled: isEditing, onChange: setAlias)
+            cell.configure(text: alias, placeholder: "Alias", isEnabled: isEditing, onChange: setAlias)
             cell.isEnabledClearButtonMode = .always
         }
         
