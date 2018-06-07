@@ -30,25 +30,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
         portfolio.quoteCurrencyCode = quoteCurrency.code
         return portfolio
     }
-    
-    // MARK: - Initialization
-    /// sets itself as delegate of all stored addresses
-    private override init(entity: NSEntityDescription, insertInto context: NSManagedObjectContext?) {
-        super.init(entity: entity, insertInto: context)
         
-        for address in storedAddresses {
-            switch address {
-            case let tokenAddress as TokenAddress:
-                tokenAddress.tokenDelegate = self
-                log.debug("Set portfolio '\(self.logDescription)' as token delegate of address '\(address.identifier!)'.")
-                fallthrough
-            default:
-                address.delegate = self
-                log.debug("Set portfolio '\(self.logDescription)' as delegate of address '\(address.identifier!)'.")
-            }
-        }
-    }
-    
     // MARK: - Private Properties
     private let context: NSManagedObjectContext = CoreDataStack.shared.viewContext
     private let currencyManager = CurrencyManager()

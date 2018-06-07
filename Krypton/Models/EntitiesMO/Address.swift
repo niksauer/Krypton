@@ -11,7 +11,7 @@ import CoreData
 
 enum AddressError: Error {
     case duplicate
-    case invalid
+    case invalidFormat
 }
 
 protocol AddressDelegate {
@@ -55,7 +55,7 @@ class Address: NSManagedObject, TransactionDelegate {
         
         guard address.isValidAddress() else {
             context.delete(address)
-            throw AddressError.invalid
+            throw AddressError.invalidFormat
         }
         
         address.alias = alias
@@ -100,6 +100,13 @@ class Address: NSManagedObject, TransactionDelegate {
     
     var logDescription: String {
         return "\(self.identifier!), alias: \(self.alias ?? "None")"
+    }
+    
+    // MARK: - Initialization
+    override func awakeFromFetch() {
+        super.awakeFromFetch()
+        delegate = portfolio
+        log.debug("Set portfolio '\(portfolio!.logDescription)' as delegate of address '\(logDescription)'.")
     }
     
     // MARK: - Private Methods
@@ -368,7 +375,7 @@ class Bitcoin: Address {
     // MARK: - Initializers
     override func awakeFromInsert() {
         super.awakeFromInsert()
-        blockchainRaw = Blockchain.BTC.rawValue
+        setPrimitiveValue(Blockchain.BTC.rawValue, forKey: "blockchainRaw")
     }
     
     // MARK: - Public Methods    

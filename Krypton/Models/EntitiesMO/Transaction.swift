@@ -57,9 +57,6 @@ class Transaction: NSManagedObject {
             request.predicate = NSPredicate(format: "identifier = %@ AND owner = %@", prototype.identifier, owner)
         }
     
-        
-        
-        
         let transaction: Transaction
         
         switch owner {
@@ -104,9 +101,9 @@ class Transaction: NSManagedObject {
     private let context: NSManagedObjectContext = CoreDataStack.shared.viewContext
     private let exchangeRateManager: ExchangeRateManager = ExchangeRateManager(context: CoreDataStack.shared.viewContext, tickerDaemon: TickerDaemon.shared)
     
+    // MARK: - Initialization
     override func awakeFromFetch() {
         super.awakeFromFetch()
-        
         delegate = owner
     }
     

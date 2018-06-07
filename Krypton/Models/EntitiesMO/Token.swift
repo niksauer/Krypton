@@ -60,7 +60,7 @@ class Token: NSManagedObject, TokenFeatures {
     }
     
     var logDescription: String {
-        return "\(self.identifier!), owner: \(self.owner!.logDescription)"
+        return "\(self.identifier!), code: \(code), owner: \(self.owner!.logDescription)"
     }
     
     // MARK: - Public Methods

@@ -26,6 +26,13 @@ class TokenAddress: Address {
         return Array(tokens!) as! [Token]
     }
     
+    // MARK: - Initialization
+    override func awakeFromFetch() {
+        super.awakeFromFetch()
+        tokenDelegate = portfolio
+        log.debug("Set portfolio '\(portfolio!.logDescription)' as delegate of address '\(logDescription)'.")
+    }
+    
     // MARK: Management
     override func update(completion: (() -> Void)?) {
         super.update {
@@ -143,9 +150,10 @@ class Ethereum: TokenAddress {
     // MARK: - Initializers
     override func awakeFromInsert() {
         super.awakeFromInsert()
-        blockchainRaw = Blockchain.ETH.rawValue
+        setPrimitiveValue(Blockchain.ETH.rawValue, forKey: "blockchainRaw")
     }
     
+    // MARK: - Public Methods
     // MARK: Cryptography
     override func isValidAddress() -> Bool {
         let allLowerCapsTest = NSPredicate(format: "SELF MATCHES %@", "(0x)?[0-9a-f]{40}")
