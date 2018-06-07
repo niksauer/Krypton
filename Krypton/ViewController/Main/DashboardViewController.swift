@@ -83,9 +83,9 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
     }
     
     // MARK: - Initialization
-    init(viewFactory: ViewControllerFactory, kryptonService: KryptonDaemon, portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, currencyFormatter: CurrencyFormatter) {
+    init(viewFactory: ViewControllerFactory, kryptonDaemon: KryptonDaemon, portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, currencyFormatter: CurrencyFormatter) {
         self.viewFactory = viewFactory
-        self.kryptonDaemon = kryptonService
+        self.kryptonDaemon = kryptonDaemon
         self.portfolioManager = portfolioManager
         self.tickerDaemon = tickerDaemon
         self.currencyFormatter = currencyFormatter
@@ -130,7 +130,7 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
         filterViewController.isSelector = true
         filterViewController.filter.transactionType = filter.transactionType
         let filterNavigationController = UINavigationController(rootViewController: filterViewController)
-        navigationController?.pushViewController(filterNavigationController, animated: true)
+        navigationController?.present(filterNavigationController, animated: true)
     }
     
     private func updateUI() {
@@ -160,7 +160,7 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
     }
     
     // MARK: - KryptonDaemon Delegate
-    func kryptonDaemonDidUpdate(_ kryptonService: KryptonDaemon) {
+    func kryptonDaemonDidUpdate(_ kryptonDaemon: KryptonDaemon) {
         updateUI()
     }
     

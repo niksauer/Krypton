@@ -10,10 +10,11 @@ import Foundation
 import CoreData
 
 protocol PortfolioManagerDelegate {
-    func portfolioManagerDidUpdatePortfolioDetails(_ portfolioManager: PortfolioManager)
+    func portfolioManagerDidReceivePortfolioUpdate(_ portfolioManager: PortfolioManager)
+    func portfolioManagerDidChangeQuoteCurrency(_ portfolioManager: PortfolioManager)
+    
     func portfolioManager(_ portfolioManager: PortfolioManager, didNoticeNewAddress address: Address)
     func portfolioManager(_ portfolioManager: PortfolioManager, didNoticeAddressRemovalFromPortfolio portfolio: Portfolio, currencyPair: CurrencyPair, blockchain: Blockchain)
-    func portfolioManagerDidChangeQuoteCurrency(_ portfolioManager: PortfolioManager)
     func portfolioManager(_ portfolioManager: PortfolioManager, didRemovePortfolio portfolio: Portfolio)
     func portfolioManager(_ portfolioManager: PortfolioManager, didAddCurrency currency: Currency)
     func portfolioManager(_ portfolioManager: PortfolioManager, didRemoveCurrency currency: Currency)
@@ -204,7 +205,7 @@ final class PortfolioManager: PortfolioDelegate {
             portfolio.delegate = self
             storedPortfolios.append(portfolio)
             log.info("Created portfolio '\(alias)' with base currency '\(quoteCurrency)'.")
-            delegate?.portfolioManagerDidUpdatePortfolioDetails(self)
+            delegate?.portfolioManagerDidReceivePortfolioUpdate(self)
             return portfolio
         } catch {
             log.error("Failed to create portfolio: \(error)")
@@ -321,7 +322,11 @@ final class PortfolioManager: PortfolioDelegate {
     }
     
     // MARK: - Portfolio Delegate
-    func didUpdateIsDefault(for portfolio: Portfolio) {
+    func portfolioDidUpdateAlias(_ portfolio: Portfolio) {
+        delegate?.portfolioManagerDidReceivePortfolioUpdate(self)
+    }
+    
+    func portfolioDidUpdateIsDefault(_ portfolio: Portfolio) {
         guard portfolio.isDefault == true else {
             return
         }
@@ -343,7 +348,7 @@ final class PortfolioManager: PortfolioDelegate {
                 log.debug("Unset \(count) previous default portfolio\(multiple ? "s" : "").")
             }
             
-            delegate?.portfolioManagerDidUpdatePortfolioDetails(self)
+            delegate?.portfolioManagerDidReceivePortfolioUpdate(self)
         } catch {
             log.error("Failed to unset previous default portfolio: \(error)")
             
@@ -355,28 +360,24 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
-    func didUpdateAlias(for portfolio: Portfolio) {
-        delegate?.portfolioManagerDidUpdatePortfolioDetails(self)
+    func portfolioDidUpdateQuoteCurrency(_ portfolio: Portfolio) {
+        delegate?.portfolioManagerDidReceivePortfolioUpdate(self)
     }
     
-    func didUpdateQuoteCurrency(for portfolio: Portfolio) {
-        delegate?.portfolioManagerDidUpdatePortfolioDetails(self)
-    }
-    
-    func didAddAddress(to portfolio: Portfolio, address: Address) {
+    func portfolio(_ portfolio: Portfolio, didAddAddress address: Address) {
         delegate?.portfolioManager(self, didNoticeNewAddress: address)
     }
     
-    func didRemoveAddress(from portfolio: Portfolio, currencyPair: CurrencyPair, blockchain: Blockchain) {
+    func portfolio(_ portfolio: Portfolio, didRemoveAddressWithCurrencyPair currencyPair: CurrencyPair, blockchain: Blockchain) {
         delegate?.portfolioManager(self, didNoticeAddressRemovalFromPortfolio: portfolio, currencyPair: currencyPair, blockchain: blockchain)
     }
     
-    func didMoveAddress(from portfolio: Portfolio, address: Address) {
-        delegate?.portfolioManagerDidUpdatePortfolioDetails(self)
+    func portfolio(_ portfolio: Portfolio, didNoticePortfolioChangeForAddress address: Address) {
+        delegate?.portfolioManagerDidReceivePortfolioUpdate(self)
     }
     
-    func didUpdateProperty(for address: Address, in portfolio: Portfolio) {
-        delegate?.portfolioManagerDidUpdatePortfolioDetails(self)
+    func portfolio(_ portfolio: Portfolio, didNoticeUpdateForAddress address: Address) {
+        delegate?.portfolioManagerDidReceivePortfolioUpdate(self)
     }
     
     // MARK: - Experimental

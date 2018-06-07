@@ -132,7 +132,7 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
     }
     
     // MARK: - KryptonDaemon Delegate
-    func kryptonDaemonDidUpdate(_ kryptonService: KryptonDaemon) {
+    func kryptonDaemonDidUpdate(_ kryptonDaemon: KryptonDaemon) {
         portfolios = portfolioManager.storedPortfolios.filter { $0.storedAddresses.count > 0 }
         updateUI()
     }

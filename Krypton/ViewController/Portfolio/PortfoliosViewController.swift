@@ -77,7 +77,7 @@ class PortfoliosViewController: UITableViewController, KryptonDaemonDelegate, Po
     }
     
     // MARK: - KryptonDaemon Delegate
-    func kryptonDaemonDidUpdate(_ kryptonService: KryptonDaemon) {
+    func kryptonDaemonDidUpdate(_ kryptonDaemon: KryptonDaemon) {
         updateUI()
     }
     

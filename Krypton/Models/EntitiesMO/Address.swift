@@ -15,16 +15,16 @@ enum AddressError: Error {
 }
 
 protocol AddressDelegate {
-    func didUpdateTransactionHistory(for address: Address)
-    func didUpdateBalance(for address: Address)
-    func didUpdateAlias(for address: Address)
-    func didUpdateQuoteCurrency(for address: Address)
-    func didUpdateUserExchangeValue(for transaction: Transaction)
-    func didUpdateIsInvestmentStatus(for transaction: Transaction)
-    func didUpdatePortfolio(for address: Address)
+    func addressDidUpdateTransactionHistory(_ address: Address)
+    func addressDidUpdateBalance(_ address: Address)
+    func addressDidUpdateAlias(_ address: Address)
+    func addressDidUpdateQuoteCurrency(_ address: Address)
+    func addressDidUpdatePortfolio(_ address: Address)
+
+    func address(_ address: Address, didNoticeUpdateForTransaction: Transaction)
 }
 
-class Address: NSManagedObject {
+class Address: NSManagedObject, TransactionDelegate {
     
     // MARK: - Public Class Methods
     /// creates and returns address if non-existent in database, throws otherwise
@@ -143,7 +143,7 @@ class Address: NSManagedObject {
             self.alias = alias
             try context.save()
             log.debug("Updated alias for address '\(logDescription)'.")
-            delegate?.didUpdateAlias(for: self)
+            delegate?.addressDidUpdateAlias(self)
         } catch {
             log.error("Failed to update alias for address '\(logDescription)': \(error)")
             throw error
@@ -159,7 +159,7 @@ class Address: NSManagedObject {
             self.quoteCurrencyCode = currency.code
             try context.save()
             log.debug("Updated quote currency (\(currency.code)) for address '\(logDescription)'.")
-            delegate?.didUpdateQuoteCurrency(for: self)
+            delegate?.addressDidUpdateQuoteCurrency(self)
         } catch {
             log.error("Failed to update quote currency for address '\(logDescription)': \(error)")
             throw error
@@ -175,7 +175,7 @@ class Address: NSManagedObject {
             self.portfolio = portfolio
             try context.save()
             log.debug("Moved address '\(logDescription)' to portfolio '\(portfolio.logDescription)'.")
-            delegate?.didUpdatePortfolio(for: self)
+            delegate?.addressDidUpdatePortfolio(self)
             delegate = portfolio
         } catch {
             log.error("Failed to move address '\(logDescription)' to portfolio '\(portfolio.logDescription)': \(error)")
@@ -209,7 +209,7 @@ class Address: NSManagedObject {
                     self.balance = balance
                     try self.context.save()
                     log.debug("Updated balance (\(balance) \(self.blockchain.code)) for address '\(self.logDescription)'.")
-                    self.delegate?.didUpdateBalance(for: self)
+                    self.delegate?.addressDidUpdateBalance(self)
                     completion?()
                 } catch {
                     log.error("Failed to save fetched balance for address '\(self.logDescription)': \(error).")
@@ -259,7 +259,7 @@ class Address: NSManagedObject {
                         log.verbose("Transaction history for address '\(self.logDescription)' is already up-to-date.")
                     }
                     
-                    self.delegate?.didUpdateTransactionHistory(for: self)
+                    self.delegate?.addressDidUpdateTransactionHistory(self)
                     completion?()
                 } catch {
                     log.error("Failed to save fetched transaction history for address '\(self.logDescription)': \(error)")
@@ -350,6 +350,15 @@ class Address: NSManagedObject {
     // MARK: Cryptography
     func isValidAddress() -> Bool {
         preconditionFailure("This method must be overridden")
+    }
+    
+    // MARK: - Transaction Delegate
+    func transactionDidUpdateUserExchangeValue(_ transaction: Transaction) {
+        delegate?.address(self, didNoticeUpdateForTransaction: transaction)
+    }
+    
+    func transactionDidUpdateInvestmentStatus(_ transaction: Transaction) {
+        delegate?.address(self, didNoticeUpdateForTransaction: transaction)
     }
     
 }

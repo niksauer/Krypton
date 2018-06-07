@@ -81,6 +81,8 @@
 		24D71E3520C88B70000155FE /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D71E3420C88B70000155FE /* Date.swift */; };
 		24D71E3920C88BB6000155FE /* Misc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D71E3820C88BB6000155FE /* Misc.swift */; };
 		24D71E3B20C88CE0000155FE /* UpdateStatusDateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D71E3A20C88CE0000155FE /* UpdateStatusDateFormatter.swift */; };
+		24D71E3C20C91DA1000155FE /* NetworkKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24B4A26A20C6FFFA007AEB28 /* NetworkKit.framework */; };
+		24D71E3D20C91DA1000155FE /* NetworkKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 24B4A26A20C6FFFA007AEB28 /* NetworkKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -189,6 +191,13 @@
 			remoteGlobalIDString = 9EDCE3E31C09D211002FA4A7;
 			remoteInfo = "SwiftyBeaver (iOS)";
 		};
+		24D71E3E20C91DA1000155FE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 24B4A26220C6FFFA007AEB28 /* NetworkKit.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 24B4A1AB20C6E258007AEB28;
+			remoteInfo = NetworkKit_iOS;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -200,6 +209,7 @@
 			files = (
 				24CD000B2073AEFF0094A9ED /* SwiftKeccak.framework in CopyFiles */,
 				24CDFFFE2073AE0E0094A9ED /* SwiftyBeaver.framework in CopyFiles */,
+				24D71E3D20C91DA1000155FE /* NetworkKit.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -291,6 +301,7 @@
 			files = (
 				24CD000A2073AEFF0094A9ED /* SwiftKeccak.framework in Frameworks */,
 				24CDFFFD2073AE0E0094A9ED /* SwiftyBeaver.framework in Frameworks */,
+				24D71E3C20C91DA1000155FE /* NetworkKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -613,6 +624,7 @@
 			dependencies = (
 				24CD00002073AE0E0094A9ED /* PBXTargetDependency */,
 				24CD000D2073AEFF0094A9ED /* PBXTargetDependency */,
+				24D71E3F20C91DA1000155FE /* PBXTargetDependency */,
 			);
 			name = Krypton;
 			productName = Krypton;
@@ -867,6 +879,11 @@
 			isa = PBXTargetDependency;
 			name = SwiftKeccak;
 			targetProxy = 24CD000C2073AEFF0094A9ED /* PBXContainerItemProxy */;
+		};
+		24D71E3F20C91DA1000155FE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = NetworkKit_iOS;
+			targetProxy = 24D71E3E20C91DA1000155FE /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

@@ -1,5 +1,5 @@
 //
-//  KryptonService.swift
+//  KryptonDaemon.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 06.06.18.
@@ -9,7 +9,7 @@
 import Foundation
 
 protocol KryptonDaemonDelegate {
-    func kryptonDaemonDidUpdate(_ kryptonService: KryptonDaemon)
+    func kryptonDaemonDidUpdate(_ kryptonDaemon: KryptonDaemon)
 }
 
 final class KryptonDaemon: PortfolioManagerDelegate {
@@ -91,7 +91,7 @@ final class KryptonDaemon: PortfolioManagerDelegate {
         delegate?.kryptonDaemonDidUpdate(self)
     }
     
-    func portfolioManagerDidUpdatePortfolioDetails(_ portfolioManager: PortfolioManager) {
+    func portfolioManagerDidReceivePortfolioUpdate(_ portfolioManager: PortfolioManager) {
         delegate?.kryptonDaemonDidUpdate(self)
     }
     

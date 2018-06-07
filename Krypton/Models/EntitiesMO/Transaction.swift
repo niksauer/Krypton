@@ -30,6 +30,11 @@ enum ProfitTimeframe {
     case sinceDate(Date)
 }
 
+protocol TransactionDelegate {
+    func transactionDidUpdateUserExchangeValue(_ transaction: Transaction)
+    func transactionDidUpdateInvestmentStatus(_ transaction: Transaction)
+}
+
 class Transaction: NSManagedObject {
     
     // MARK: - Public Class Methods
@@ -99,7 +104,15 @@ class Transaction: NSManagedObject {
     private let context: NSManagedObjectContext = CoreDataStack.shared.viewContext
     private let exchangeRateManager: ExchangeRateManager = ExchangeRateManager(context: CoreDataStack.shared.viewContext, tickerDaemon: TickerDaemon.shared)
     
+    override func awakeFromFetch() {
+        super.awakeFromFetch()
+        
+        delegate = owner
+    }
+    
     // MARK: - Public Properties
+    var delegate: TransactionDelegate?
+    
     var senders: [String] {
         return from as! [String]
     }
@@ -153,7 +166,7 @@ class Transaction: NSManagedObject {
             userExchangeValue = newValue
             try context.save()
             log.debug("Updated user exchange value (\(newValue)) for transaction '\(self.logDescription)'.")
-            self.owner!.delegate?.didUpdateUserExchangeValue(for: self)
+            self.delegate?.transactionDidUpdateUserExchangeValue(self)
         } catch {
             log.error("Failed to update user exchange value for transaction '\(self.logDescription)': \(error)")
             throw error
@@ -170,7 +183,7 @@ class Transaction: NSManagedObject {
             isInvestment = newValue
             try context.save()
             log.debug("Updated isInvestment status (\(newValue)) for transaction '\(self.logDescription)'.")
-            self.owner!.delegate?.didUpdateIsInvestmentStatus(for: self)
+            self.delegate?.transactionDidUpdateInvestmentStatus(self)
         } catch {
             log.error("Failed to update isInvestment status for transaction '\(self.logDescription)': \(error)")
             throw error
@@ -197,7 +210,7 @@ class Transaction: NSManagedObject {
             userExchangeValue = -1
             try context.save()
             log.debug("Reset user exchange value for transaction '\(self.logDescription)'.")
-            self.owner!.delegate?.didUpdateUserExchangeValue(for: self)
+            self.delegate?.transactionDidUpdateUserExchangeValue(self)
         } catch {
             log.error("Failed to reset user exchange value for transaction '\(self.logDescription)': \(error)")
             throw error

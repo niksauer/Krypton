@@ -44,7 +44,7 @@ class SettingsViewController: UITableViewController, KryptonDaemonDelegate, Curr
     }
 
     // MARK: - KryptonDaemon Delegate
-    func kryptonDaemonDidUpdate(_ kryptonService: KryptonDaemon) {
+    func kryptonDaemonDidUpdate(_ kryptonDaemon: KryptonDaemon) {
 
     }
     

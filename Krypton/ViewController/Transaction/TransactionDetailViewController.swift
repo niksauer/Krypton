@@ -172,7 +172,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
     }
    
     // MARK: - KryptonDaemon Delegate
-    func kryptonDaemonDidUpdate(_ kryptonService: KryptonDaemon) {
+    func kryptonDaemonDidUpdate(_ kryptonDaemon: KryptonDaemon) {
         updateUI()
     }
     

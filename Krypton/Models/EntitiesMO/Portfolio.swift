@@ -10,13 +10,14 @@ import Foundation
 import CoreData
 
 protocol PortfolioDelegate {
-    func didUpdateAlias(for portfolio: Portfolio)
-    func didUpdateIsDefault(for portfolio: Portfolio)
-    func didUpdateQuoteCurrency(for portfolio: Portfolio)
-    func didAddAddress(to portfolio: Portfolio, address: Address)
-    func didRemoveAddress(from portfolio: Portfolio, currencyPair: CurrencyPair, blockchain: Blockchain)
-    func didMoveAddress(from portfolio: Portfolio, address: Address)
-    func didUpdateProperty(for address: Address, in portfolio: Portfolio)
+    func portfolioDidUpdateAlias(_ portfolio: Portfolio)
+    func portfolioDidUpdateIsDefault(_ portfolio: Portfolio)
+    func portfolioDidUpdateQuoteCurrency(_ portfolio: Portfolio)
+    
+    func portfolio(_ portfolio: Portfolio, didAddAddress address: Address)
+    func portfolio(_ portfolio: Portfolio, didRemoveAddressWithCurrencyPair currencyPair: CurrencyPair, blockchain: Blockchain)
+    func portfolio(_ portfolio: Portfolio, didNoticePortfolioChangeForAddress address: Address)
+    func portfolio(_ portfolio: Portfolio, didNoticeUpdateForAddress address: Address)
 }
 
 class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
@@ -47,7 +48,6 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
             }
         }
     }
-    
     
     // MARK: - Private Properties
     private let context: NSManagedObjectContext = CoreDataStack.shared.viewContext
@@ -97,7 +97,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
             self.alias = alias
             try context.save()
             log.debug("Updated alias (\(alias)) for portfolio '\(self.logDescription)'.")
-            delegate?.didUpdateAlias(for: self)
+            delegate?.portfolioDidUpdateAlias(self)
         } catch {
             log.error("Failed to update alias for portfolio '\(self.logDescription)': \(error)")
             throw error
@@ -113,7 +113,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
             self.isDefault = state
             try context.save()
             log.debug("Updated isDefault status (\(state)) for portfolio '\(self.logDescription)'.")
-            delegate?.didUpdateIsDefault(for: self)
+            delegate?.portfolioDidUpdateIsDefault(self)
         } catch {
             log.error("Failed to update isDefault status for portfolio '\(self.logDescription)'.")
             throw error
@@ -135,7 +135,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
             
             self.update(completion: nil)
             log.debug("Updated quote currency (\(currency.code)) for portfolio '\(self.logDescription)'.")
-            delegate?.didUpdateQuoteCurrency(for: self)
+            delegate?.portfolioDidUpdateQuoteCurrency(self)
         } catch {
             log.error("Failed to update quote currency for portfolio '\(self.logDescription).")
             throw error
@@ -164,7 +164,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
             try context.save()
             address.delegate = self
             log.info("Created and added address '\(address.logDescription)' to portfolio '\(self.logDescription)'.")
-            delegate?.didAddAddress(to: self, address: address)
+            delegate?.portfolio(self, didAddAddress: address)
             address.update(completion: nil)
         } catch {
             log.error("Failed to create address '\(addressString)': \(error)")
@@ -180,7 +180,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
             context.delete(address)
             try context.save()
             log.info("Removed address '\(addressIdentifier)' from portfolio '\(self.logDescription)'.")
-            delegate?.didRemoveAddress(from: self, currencyPair: currencyPair, blockchain: blockchain)
+            delegate?.portfolio(self, didRemoveAddressWithCurrencyPair: currencyPair, blockchain: blockchain)
         } catch {
             log.error("Failed to remove address '\(address.identifier!)' from from portfolio '\(self.logDescription)': \(error)")
             throw error
@@ -256,40 +256,34 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
     
     // MARK: - Address Delegate
     /// notifies delegate that balance has changed for specified address
-    func didUpdateBalance(for address: Address) {
-        delegate?.didUpdateProperty(for: address, in: self)
+    func addressDidUpdateBalance(_ address: Address) {
+        delegate?.portfolio(self, didNoticeUpdateForAddress: address)
     }
     
     /// notified delegate that tranasction history has changed for specified address
-    func didUpdateTransactionHistory(for address: Address) {
-        delegate?.didUpdateProperty(for: address, in: self)
+    func addressDidUpdateTransactionHistory(_ address: Address) {
+        delegate?.portfolio(self, didNoticeUpdateForAddress: address)
     }
     
-    /// notifies delegate that userExchangeValue has been set for specified transaction
-    func didUpdateUserExchangeValue(for transaction: Transaction) {
-        delegate?.didUpdateProperty(for: transaction.owner!, in: self)
+    func address(_ address: Address, didNoticeUpdateForTransaction: Transaction) {
+        delegate?.portfolio(self, didNoticeUpdateForAddress: address)
     }
     
-    /// notifies delegate that isInvestment property has changed for specified transaction
-    func didUpdateIsInvestmentStatus(for transaction: Transaction) {
-        delegate?.didUpdateProperty(for: transaction.owner!, in: self)
+    func addressDidUpdateAlias(_ address: Address) {
+        delegate?.portfolio(self, didNoticeUpdateForAddress: address)
     }
     
-    func didUpdateAlias(for address: Address) {
-        delegate?.didUpdateProperty(for: address, in: self)
+    func addressDidUpdateQuoteCurrency(_ address: Address) {
+        delegate?.portfolio(self, didNoticeUpdateForAddress: address)
     }
     
-    func didUpdateQuoteCurrency(for address: Address) {
-        delegate?.didUpdateProperty(for: address, in: self)
-    }
-    
-    func didUpdatePortfolio(for address: Address) {
-        delegate?.didMoveAddress(from: self, address: address)
+    func addressDidUpdatePortfolio(_ address: Address) {
+        delegate?.portfolio(self, didNoticePortfolioChangeForAddress: address)
     }
     
     // MARK: - TokenAddress Delegate
-    func didUpdateTokenBalance(for address: Address, token: Token) {
-        delegate?.didUpdateProperty(for: address, in: self)
+    func tokenAddress(_ tokenAddress: TokenAddress, didUpdateBalanceForToken token: Token) {
+        delegate?.portfolio(self, didNoticeUpdateForAddress: tokenAddress)
     }
     
 }

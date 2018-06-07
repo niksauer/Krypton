@@ -74,7 +74,7 @@ extension DependencyContainer: ViewControllerFactory {
     }
     
     func makeDashboardViewController() -> DashboardViewController {
-        return DashboardViewController(viewFactory: self, kryptonService: kryptonDaemon, portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, currencyFormatter: currencyFormatter)
+        return DashboardViewController(viewFactory: self, kryptonDaemon: kryptonDaemon, portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, currencyFormatter: currencyFormatter)
     }
     
     // Portfolio

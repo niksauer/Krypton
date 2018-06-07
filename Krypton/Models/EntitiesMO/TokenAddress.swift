@@ -11,7 +11,7 @@ import CoreData
 import SwiftKeccak
 
 protocol TokenAddressDelegate {
-    func didUpdateTokenBalance(for address: Address, token: Token)
+    func tokenAddress(_ tokenAddress: TokenAddress, didUpdateBalanceForToken token: Token)
 }
 
 class TokenAddress: Address {
@@ -75,7 +75,7 @@ class TokenAddress: Address {
                             token.balance = balance
                             try self.context.save()
                             log.debug("Updated balance (\(balance) \(associatedToken.code) of token '\(associatedToken.name)' for address '\(self.logDescription)'.")
-                            self.tokenDelegate?.didUpdateTokenBalance(for: self, token: token)
+                            self.tokenDelegate?.tokenAddress(self, didUpdateBalanceForToken: token)
                             updateCompletion?()
                         } catch {
                             log.error("Failed to save fetched balance of token '\(associatedToken.name)' for address '\(self.logDescription)': \(error)")
@@ -86,7 +86,7 @@ class TokenAddress: Address {
                             token.balance = balance
                             try self.context.save()
                             log.info("Created token '\(associatedToken.name)' for address '\(self.logDescription)' with balance: \(balance) \(associatedToken.code)")
-                            self.tokenDelegate?.didUpdateTokenBalance(for: self, token: token)
+                            self.tokenDelegate?.tokenAddress(self, didUpdateBalanceForToken: token)
                             updateCompletion?()
                         } catch {
                             log.error("Failed to create token '\(associatedToken.name)' for address '\(self.logDescription)': \(error)")
