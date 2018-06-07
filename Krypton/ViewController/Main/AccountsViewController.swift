@@ -154,24 +154,10 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
         case 1:
             return 1
         case 2:
-            var count = portfolios.count
-            
-            for portfolio in portfolios {
-                count = count + portfolio.storedAddresses.count
-            }
-            
-            return count
+            return portfolios.reduce(portfolios.count, { $0 + $1.storedAddresses.count })
         default:
             fatalError()
         }
-        
-//            var count = portfolios.count
-//
-//            for portfolio in portfolios {
-//                count = count + portfolio.storedAddresses.count
-//            }
-//
-//            return count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
