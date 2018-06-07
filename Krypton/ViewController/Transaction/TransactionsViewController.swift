@@ -18,6 +18,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
     private let dateFormatter: DateFormatter
     private let updateDateFormatter: DateFormatter
     private let currencyFormatter: CurrencyFormatter
+    private let taxAdviser: TaxAdviser
     
     private var addresses: [Address] {
         didSet {
@@ -73,7 +74,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
     }
     
     // MARK: - Initialization
-    init(viewFactory: ViewControllerFactory, addresses: [Address], portfolioManager: PortfolioManager, searchContext: NSManagedObjectContext, dateFormatter: DateFormatter, updateDateFormatter: DateFormatter, currencyFormatter: CurrencyFormatter) {
+    init(viewFactory: ViewControllerFactory, addresses: [Address], portfolioManager: PortfolioManager, searchContext: NSManagedObjectContext, dateFormatter: DateFormatter, updateDateFormatter: DateFormatter, currencyFormatter: CurrencyFormatter, taxAdviser: TaxAdviser) {
         self.viewFactory = viewFactory
         self.addresses = addresses
         self.portfolioManager = portfolioManager
@@ -81,6 +82,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
         self.dateFormatter = dateFormatter
         self.updateDateFormatter = updateDateFormatter
         self.currencyFormatter = currencyFormatter
+        self.taxAdviser = taxAdviser
         
         super.init(style: .plain)
         
@@ -465,7 +467,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
             textField.keyboardType = .decimalPad
             textField.addTarget(self, action: #selector(self.textFieldDidChange(_:)), for: .editingChanged)
             
-            let totalExchangeValue = selectedTransactions.compactMap({ $0.exchangeValue }).reduce(0, +)
+            let totalExchangeValue = selectedTransactions.compactMap({ self.taxAdviser.getExchangeValue(for: $0) }).reduce(0, +)
             textField.placeholder = self.currencyFormatter.getCurrencyFormatting(for: totalExchangeValue, currency: self.portfolioManager.quoteCurrency)
         })
         
@@ -567,7 +569,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
 //        let cell = tableView.dequeueReusableCell(withIdentifier: "transactionCell", for: indexPath) as! TransactionCell
 //        cell.configure(transaction: transaction)
         
-        if showsExchangeValue, let exchangeValue = transaction.exchangeValue {
+        if showsExchangeValue, let exchangeValue = taxAdviser.getExchangeValue(for: transaction) {
             cell.textLabel?.text = currencyFormatter.getCurrencyFormatting(for: exchangeValue, currency: transaction.owner!.quoteCurrency)
         } else {
             cell.textLabel?.text = currencyFormatter.getCurrencyFormatting(for: transaction.totalAmount, currency: transaction.owner!.blockchain)

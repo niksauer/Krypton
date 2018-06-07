@@ -8,7 +8,7 @@
 
 import UIKit
 
-class SettingsViewController: UITableViewController, KryptonDaemonDelegate, CurrencySelectorDelegate {
+class SettingsViewController: UITableViewController, CurrencySelectorDelegate {
     
     // MARK: - Private Properties
     private let viewFactory: ViewControllerFactory
@@ -31,21 +31,9 @@ class SettingsViewController: UITableViewController, KryptonDaemonDelegate, Curr
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: - Customization
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-//        kryptonDaemon.delegate = self
-    }
-    
     // MARK: - Private Methods
     @IBAction private func doneButtonPressed() {
         self.dismiss(animated: true, completion: nil)
-    }
-
-    // MARK: - KryptonDaemon Delegate
-    func kryptonDaemonDidUpdate(_ kryptonDaemon: KryptonDaemon) {
-
     }
     
     // MARK: - CurrencySelector Delegate

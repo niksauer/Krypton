@@ -29,6 +29,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
     private let blockchainDaemon: BlockchainDaemon
     private let currencyFormatter: CurrencyFormatter
     private let dateFormatter: DateFormatter
+    private let taxAdviser: TaxAdviser
     
     // MARK: - Public Properties
     var showsExchangeValue = true
@@ -37,7 +38,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
     var showsBlockNumber = true
     
     // MARK: - Initialization
-    init(viewFactory: ViewControllerFactory, transaction: Transaction, kryptonDaemon: KryptonDaemon, portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, blockchainDaemon: BlockchainDaemon, currencyFormatter: CurrencyFormatter, dateFormatter: DateFormatter) {
+    init(viewFactory: ViewControllerFactory, transaction: Transaction, kryptonDaemon: KryptonDaemon, portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, blockchainDaemon: BlockchainDaemon, currencyFormatter: CurrencyFormatter, dateFormatter: DateFormatter, taxAdviser: TaxAdviser) {
         self.viewFactory = viewFactory
         self.transaction = transaction
         self.kryptonDaemon = kryptonDaemon
@@ -46,6 +47,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
         self.blockchainDaemon = blockchainDaemon
         self.currencyFormatter = currencyFormatter
         self.dateFormatter = dateFormatter
+        self.taxAdviser = taxAdviser
         
         super.init(style: .grouped)
         
@@ -85,6 +87,13 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
         self.navigationController?.setToolbarHidden(false, animated: true)
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        kryptonDaemon.delegate = nil
+        tickerDaemon.delegate = nil
+        blockchainDaemon.delegate = nil
+    }
+    
     // MARK: - Private Methods
     // MARK: UI Initialization
     private func updateUI() {
@@ -158,7 +167,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
             textField.keyboardType = .decimalPad
             textField.addTarget(self, action: #selector(self.textFieldDidChange(_:)), for: .editingChanged)
             
-            if let exchangeValue = self.transaction.exchangeValue {
+            if let exchangeValue = self.taxAdviser.getExchangeValue(for: self.transaction) {
                 textField.placeholder = self.currencyFormatter.getCurrencyFormatting(for: exchangeValue, currency: self.transaction.owner!.quoteCurrency)
             } else {
                 textField.placeholder = "???"
@@ -261,7 +270,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
                 exchangeValueIndexPath = indexPath
                 let cell = UITableViewCell(style: .value1, reuseIdentifier: "InfoCell")
                 
-                guard let exchangeValue = transaction.exchangeValue, let currentExchangeValue = transaction.currentExchangeValue else {
+                guard let exchangeValue = taxAdviser.getExchangeValue(for: transaction), let currentExchangeValue = taxAdviser.getCurrentExchangeValue(for: transaction) else {
                     cell.textLabel?.text = "Value"
                     cell.detailTextLabel?.text = "???"
                     return cell
@@ -280,7 +289,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
                 profitIndexPath = indexPath
                 let cell = UITableViewCell(style: .value1, reuseIdentifier: "InfoCell")
                 
-                guard let profitStats = transaction.getProfitStats(timeframe: .allTime) else {
+                guard let profitStats = taxAdviser.getProfitStats(for: transaction, timeframe: .allTime) else {
                     cell.textLabel?.text = "Profit"
                     cell.detailTextLabel?.text = "???"
                     return cell
@@ -313,7 +322,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
                     cell.accessoryType = .detailButton
                 }
                 
-                guard let feeExchangeValue = transaction.feeExchangeValue else {
+                guard let feeExchangeValue = taxAdviser.getFeeExchangeValue(for: transaction) else {
                     cell.detailTextLabel?.text = "???"
                     break
                 }

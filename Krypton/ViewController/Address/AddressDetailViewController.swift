@@ -14,14 +14,16 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
     private let viewFactory: ViewControllerFactory
     private let address: Address
     private let currencyFormatter: CurrencyFormatter
+    private let taxAdviser: TaxAdviser
     
     private var alias: String?
     
     // MARK: - Initialization
-    init(viewFactory: ViewControllerFactory, address: Address, currencyFormatter: CurrencyFormatter) {
+    init(viewFactory: ViewControllerFactory, address: Address, currencyFormatter: CurrencyFormatter, taxAdviser: TaxAdviser) {
         self.viewFactory = viewFactory
         self.address = address
         self.currencyFormatter = currencyFormatter
+        self.taxAdviser = taxAdviser
         alias = address.alias
         
         super.init(style: .grouped)
@@ -112,6 +114,11 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if isEditing {
+            if section == 0 {
+                // address section (0)
+                return 2
+            }
+            
             if section == 1 {
                 // portfolio section (1)
                 return 1
@@ -122,6 +129,11 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
                 return 1
             }
         } else {
+            if section == 0 {
+                // address section (0)
+                return address.alias != nil ? 2 : 1
+            }
+            
             if section == 1 {
                 // blockchain section (1)
                 return 2
@@ -133,8 +145,7 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
             }
         }
         
-        // address section (0)
-        return 2
+        fatalError()
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -179,7 +190,7 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
                 // token section (2)
                 let token = tokenAddress.storedTokens[indexPath.row]
                 let cell = tableView.dequeueReusableCell(withIdentifier: "TokenCell", for: indexPath) as! TokenCell
-                cell.configure(token: token, currencyFormatter: currencyFormatter, showsBalance: true)
+                cell.configure(token: token, currencyFormatter: currencyFormatter, taxAdviser: taxAdviser, showsBalance: true)
                 return cell
             }
         }

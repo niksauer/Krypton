@@ -9,7 +9,7 @@
 import Foundation
 import CoreData
 
-class ExchangeRateManager {
+struct ExchangeRateManager {
     
     // MARK: - Private Properties
     private let context: NSManagedObjectContext

@@ -12,10 +12,10 @@ import CoreData
 struct DependencyContainer {
     
     // Mark: - Singletons
-    private let kryptonDaemon: KryptonDaemon
     private let portfolioManager: PortfolioManager
-    private let tickerDaemon: TickerDaemon = TickerDaemon.shared
+    private let tickerDaemon: TickerDaemon
     private let blockchainDaemom: BlockchainDaemon
+    private let kryptonDaemon: KryptonDaemon
     
     // Mark: - Private Properties
     private let viewContext: NSManagedObjectContext = CoreDataStack.shared.viewContext
@@ -47,6 +47,10 @@ struct DependencyContainer {
         return UpdateStatusDateFormatter()
     }
     
+    private var taxAdviser: TaxAdviser {
+        return TaxAdviser(exchangeRateManager: exchangeRateManager)
+    }
+    
     // Mark: - Initialization
     init() throws {
         do {
@@ -56,8 +60,10 @@ struct DependencyContainer {
             throw error
         }
         
+        tickerDaemon = TickerDaemon()
         blockchainDaemom = BlockchainDaemon()
-        kryptonDaemon = KryptonDaemon(portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, blockchainDaemon: blockchainDaemom)
+        let exchangeRateManager = ExchangeRateManager(context: viewContext, tickerDaemon: tickerDaemon)
+        kryptonDaemon = KryptonDaemon(portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, blockchainDaemon: blockchainDaemom, exchangeRateManager: exchangeRateManager)
     }
     
 }
@@ -66,7 +72,7 @@ extension DependencyContainer: ViewControllerFactory {
     
     // Main
     func makeAccountsViewController() -> AccountsViewController {
-        return AccountsViewController(viewFactory: self, kryptonDaemon: kryptonDaemon, portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, currencyFormatter: currencyFormatter)
+        return AccountsViewController(viewFactory: self, kryptonDaemon: kryptonDaemon, portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, currencyFormatter: currencyFormatter, taxAdviser: taxAdviser)
     }
     
     func makeWatchlistViewController() -> WatchlistViewController {
@@ -74,7 +80,7 @@ extension DependencyContainer: ViewControllerFactory {
     }
     
     func makeDashboardViewController() -> DashboardViewController {
-        return DashboardViewController(viewFactory: self, kryptonDaemon: kryptonDaemon, portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, currencyFormatter: currencyFormatter)
+        return DashboardViewController(viewFactory: self, kryptonDaemon: kryptonDaemon, portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, currencyFormatter: currencyFormatter, taxAdviser: taxAdviser)
     }
     
     // Portfolio
@@ -96,7 +102,7 @@ extension DependencyContainer: ViewControllerFactory {
     
     // Address
     func makeAddressDetailViewController(for address: Address) -> AddressDetailViewController {
-        return AddressDetailViewController(viewFactory: self, address: address, currencyFormatter: currencyFormatter)
+        return AddressDetailViewController(viewFactory: self, address: address, currencyFormatter: currencyFormatter, taxAdviser: taxAdviser)
     }
     
     func makeAddAdressViewController() -> AddAddressViewController {
@@ -109,11 +115,11 @@ extension DependencyContainer: ViewControllerFactory {
     
     // Transaction
     func makeTransactionsViewController(for addresses: [Address]) -> TransactionsViewController {
-        return TransactionsViewController(viewFactory: self, addresses: addresses, portfolioManager: portfolioManager, searchContext: viewContext, dateFormatter: mediumDateFormatter, updateDateFormatter: updateStatusDateFormatter, currencyFormatter: currencyFormatter)
+        return TransactionsViewController(viewFactory: self, addresses: addresses, portfolioManager: portfolioManager, searchContext: viewContext, dateFormatter: mediumDateFormatter, updateDateFormatter: updateStatusDateFormatter, currencyFormatter: currencyFormatter, taxAdviser: taxAdviser)
     }
     
     func makeTransactionDetailViewController(for transaction: Transaction) -> TransactionDetailViewController {
-        return TransactionDetailViewController(viewFactory: self, transaction: transaction, kryptonDaemon: kryptonDaemon, portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, blockchainDaemon: blockchainDaemom, currencyFormatter: currencyFormatter, dateFormatter: mediumDateFormatter)
+        return TransactionDetailViewController(viewFactory: self, transaction: transaction, kryptonDaemon: kryptonDaemon, portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, blockchainDaemon: blockchainDaemom, currencyFormatter: currencyFormatter, dateFormatter: mediumDateFormatter, taxAdviser: taxAdviser)
     }
     
     // Settings

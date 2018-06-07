@@ -18,6 +18,8 @@ protocol PortfolioDelegate {
     func portfolio(_ portfolio: Portfolio, didRemoveAddressWithCurrencyPair currencyPair: CurrencyPair, blockchain: Blockchain)
     func portfolio(_ portfolio: Portfolio, didNoticePortfolioChangeForAddress address: Address)
     func portfolio(_ portfolio: Portfolio, didNoticeUpdateForAddress address: Address)
+    func portfolio(_ portfolio: Portfolio, didReceiveExchangeRateHistoryUpdateRequestForAddress address: Address)
+    func portfolio(_ portfolio: Portfolio, didReceiveTokenExchangeRateHistoryUpdateRequestForAddress tokenAddress: TokenAddress)
 }
 
 class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
@@ -59,14 +61,6 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
     
     var logDescription: String {
         return "\(self.alias!), quoteCurrency: \(self.quoteCurrency.code)"
-    }
-    
-    var totalExchangeValue: Double? {
-        guard let balanceExchangeValue = getExchangeValue(for: .all, on: Date()), let tokenExchangeValue = getTokenExchangeValue(on: Date()) else {
-            return nil
-        }
-        
-        return balanceExchangeValue + tokenExchangeValue
     }
     
     // MARK: - Public Methods
@@ -169,73 +163,6 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
         }
     }
     
-    // MARK: Finance
-    /// returns exchange value of all stored addresses on speicfied date, nil if date is today or in the future
-    func getExchangeValue(for type: TransactionType, on date: Date) -> Double? {
-        var value = 0.0
-        
-        for address in storedAddresses {
-            if let addressValue = address.getExchangeValue(for: type, on: date)?.value {
-                value = value + addressValue
-            } else {
-                return nil
-            }
-        }
-        
-        return value
-    }
-    
-    func getTokenExchangeValue(on date: Date) -> Double? {
-        let storedTokens = (storedAddresses.filter({ $0 is TokenAddress }) as! [TokenAddress]).flatMap({ $0.storedTokens })
-        var value = 0.0
-
-        for token in storedTokens {
-            if let tokenValue = token.getExchangeValue(on: date) {
-                value = value + tokenValue
-            } else {
-                return nil
-            }
-        }
-
-        return value
-    }
-    
-    /// returns the absolute profit generated from all stored addresses
-    func getProfitStats(for type: TransactionType, timeframe: ProfitTimeframe) -> (startValue: Double, endValue: Double)? {
-        var startValue = 0.0
-        var endValue = 0.0
-        
-        for address in storedAddresses {
-            if let profitStats = address.getProfitStats(for: type, timeframe: timeframe) {
-                startValue = startValue + profitStats.startValue
-                endValue = endValue + profitStats.endValue
-            } else {
-                return nil
-            }
-        }
-        
-        return (startValue, endValue)
-    }
-    
-    /// returns absolute profit history of all stored addresses since specified date, nil if date is today or in the future
-    func getAbsoluteProfitHistory(for type: TransactionType, since date: Date) -> [(date: Date, profit: Double)]? {
-        guard !date.isToday, !date.isFuture else {
-            return nil
-        }
-        
-        var profitHistory: [(Date, Double)] = []
-        
-        for address in storedAddresses {
-            guard let absoluteProfitHistory = address.getAbsoluteProfitHistory(for: type, since: date) else {
-                return nil
-            }
-            
-            profitHistory = zip(profitHistory, absoluteProfitHistory).map { ($0.0, $0.1 + $1.1) }
-        }
-        
-        return profitHistory
-    }
-    
     // MARK: - Address Delegate
     /// notifies delegate that balance has changed for specified address
     func addressDidUpdateBalance(_ address: Address) {
@@ -263,7 +190,15 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
         delegate?.portfolio(self, didNoticePortfolioChangeForAddress: address)
     }
     
+    func addressDidRequestExchangeRateHistoryUpdate(_ address: Address) {
+        delegate?.portfolio(self, didReceiveExchangeRateHistoryUpdateRequestForAddress: address)
+    }
+    
     // MARK: - TokenAddress Delegate
+    func tokenAddressDidRequestTokenExchangeRateHistoryUpdate(_ tokenAddress: TokenAddress) {
+        delegate?.portfolio(self, didReceiveTokenExchangeRateHistoryUpdateRequestForAddress: tokenAddress)
+    }
+    
     func tokenAddress(_ tokenAddress: TokenAddress, didUpdateBalanceForToken token: Token) {
         delegate?.portfolio(self, didNoticeUpdateForAddress: tokenAddress)
     }

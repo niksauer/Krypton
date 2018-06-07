@@ -43,9 +43,7 @@ class Token: NSManagedObject, TokenFeatures {
         return token
     }
 
-    // MARK: - Private Properties
-    private let exchangeRateManager: ExchangeRateManager = ExchangeRateManager(context: CoreDataStack.shared.viewContext, tickerDaemon: TickerDaemon.shared)
-    
+    // MARK: - Private Properties    
     private var token: TokenFeatures {
         return owner!.blockchain.getToken(address: identifier!)!
     }
@@ -55,35 +53,8 @@ class Token: NSManagedObject, TokenFeatures {
         return CurrencyPair(base: self, quote: owner!.quoteCurrency)
     }
     
-    var currentExchangeValue: Double? {
-        return getExchangeValue(on: Date())
-    }
-    
     var logDescription: String {
         return "\(self.identifier!), code: \(code), owner: \(self.owner!.logDescription)"
-    }
-    
-    // MARK: - Public Methods
-    // MARK: Finance
-    func getExchangeValue(on date: Date) -> Double? {
-        guard !date.isFuture else {
-            return nil
-        }
-        
-        guard let exchangeRate = exchangeRateManager.getExchangeRate(for: currencyPair, on: date) else {
-            log.warning("Failed to get exchange value for token '\(self.logDescription)'.")
-            return nil
-        }
-        
-        return exchangeRate * balance
-    }
-    
-    func getProfitStats(timeframe: ProfitTimeframe) -> (startValue: Double, endValue: Double)? {
-        preconditionFailure("This method must be overridden")
-    }
-    
-    func getAbsoluteProfitHistory(since date: Date) -> [(date: Date, profit: Double)]? {
-        preconditionFailure("This method must be overridden")
     }
     
     // MARK: - Currency Protocol

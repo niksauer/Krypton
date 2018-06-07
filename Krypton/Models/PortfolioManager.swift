@@ -12,19 +12,20 @@ import CoreData
 protocol PortfolioManagerDelegate {
     func portfolioManagerDidReceivePortfolioUpdate(_ portfolioManager: PortfolioManager)
     func portfolioManagerDidChangeQuoteCurrency(_ portfolioManager: PortfolioManager)
+    func portfolioManagerDidRemovePortfolio(_ portfolioManager: PortfolioManager)
     
     func portfolioManager(_ portfolioManager: PortfolioManager, didNoticeNewAddress address: Address)
     func portfolioManager(_ portfolioManager: PortfolioManager, didNoticeAddressRemovalFromPortfolio portfolio: Portfolio, currencyPair: CurrencyPair, blockchain: Blockchain)
-    func portfolioManager(_ portfolioManager: PortfolioManager, didRemovePortfolio portfolio: Portfolio)
     func portfolioManager(_ portfolioManager: PortfolioManager, didAddCurrency currency: Currency)
     func portfolioManager(_ portfolioManager: PortfolioManager, didRemoveCurrency currency: Currency)
+    func portfolioManager(_ portfolioManager: PortfolioManager, didReceiveExchangeRateHistoryUpdateRequestForAddress address: Address)
+    func portfolioManager(_ portfolioManager: PortfolioManager, didReceiveTokenExchangeRateHistoryUpdateRequestForAddress tokenAddress: TokenAddress)
 }
 
 final class PortfolioManager: PortfolioDelegate {
     
     // MARK: - Private Properties
     private let context: NSManagedObjectContext
-    
     private let currencyManager: CurrencyManager
     
     // MARK: - Public Properties
@@ -72,11 +73,11 @@ final class PortfolioManager: PortfolioDelegate {
     /// loads all available portfolios, sets itself as their delegate,
     /// updates all stored addresses, requests continious ticker price updates for their trading pars
     init(context: NSManagedObjectContext, currencyManager: CurrencyManager) throws {
-//        deletePortfolios()
-//        deletePriceHistory()
-    
         self.context = context
         self.currencyManager = currencyManager
+        
+//        deletePortfolios()
+//        deleteExchangeRateHistory()
         
         do {
             storedPortfolios = try loadPortfolios()
@@ -220,7 +221,7 @@ final class PortfolioManager: PortfolioDelegate {
             context.delete(portfolio)
             try context.save()
             log.info("Deleted portfolio '\(alias)'.")
-            delegate?.portfolioManager(self, didRemovePortfolio: portfolio)
+            delegate?.portfolioManagerDidRemovePortfolio(self)
         } catch {
             log.error("Failed to delete portfolio: \(error)")
             throw error
@@ -267,58 +268,6 @@ final class PortfolioManager: PortfolioDelegate {
     func discardChanges() {
         log.debug("Discarded all unsaved changes made to CoreData.")
         context.rollback()
-    }
-    
-    // MARK: Finance
-    /// returns exchange value of selected addresses on specified date
-    func getExchangeValue(for type: TransactionType, on date: Date) -> Double? {
-        var value = 0.0
-        
-        for address in selectedAddresses {
-            if let addressValue = address.getExchangeValue(for: type, on: date)?.value {
-                value = value + addressValue
-            } else {
-                return nil
-            }
-        }
-        
-        return value
-    }
-    
-    /// returns the absolute profit generated from all selected addresses in specified timeframe
-    func getProfitStats(for type: TransactionType, timeframe: ProfitTimeframe) -> (startValue: Double, endValue: Double)? {
-        var startValue = 0.0
-        var endValue = 0.0
-        
-        for address in selectedAddresses {
-            if let profitStats = address.getProfitStats(for: type, timeframe: timeframe) {
-                startValue = startValue + profitStats.startValue
-                endValue = endValue + profitStats.endValue
-            } else {
-                return nil
-            }
-        }
-    
-        return (startValue, endValue)
-    }
-    
-    /// returns absolute profit history of selected addresses since specified date
-    func getAbsoluteProfitHistory(for type: TransactionType, since date: Date) -> [(date: Date, profit: Double)]? {
-        guard !date.isToday, !date.isFuture else {
-            return nil
-        }
-        
-        var profitHistory: [(Date, Double)] = []
-        
-        for address in selectedAddresses {
-            guard let absoluteProfitHistory = address.getAbsoluteProfitHistory(for: type, since: date) else {
-                return nil
-            }
-            
-            profitHistory = zip(profitHistory, absoluteProfitHistory).map { ($0.0, $0.1 + $1.1) }
-        }
-        
-        return profitHistory
     }
     
     // MARK: - Portfolio Delegate
@@ -380,6 +329,14 @@ final class PortfolioManager: PortfolioDelegate {
         delegate?.portfolioManagerDidReceivePortfolioUpdate(self)
     }
     
+    func portfolio(_ portfolio: Portfolio, didReceiveExchangeRateHistoryUpdateRequestForAddress address: Address) {
+        delegate?.portfolioManager(self, didReceiveExchangeRateHistoryUpdateRequestForAddress: address)
+    }
+    
+    func portfolio(_ portfolio: Portfolio, didReceiveTokenExchangeRateHistoryUpdateRequestForAddress tokenAddress: TokenAddress) {
+        delegate?.portfolioManager(self, didReceiveTokenExchangeRateHistoryUpdateRequestForAddress: tokenAddress)
+    }
+    
     // MARK: - Experimental
     private func deletePortfolios() {
         let request: NSFetchRequest<Portfolio> = Portfolio.fetchRequest()
@@ -417,7 +374,6 @@ final class PortfolioManager: PortfolioDelegate {
     }
 
 }
-
 
 //    ETH Wallet
 //    0xAA2F9BFAA9Ec168847216357b0856d776F34881f

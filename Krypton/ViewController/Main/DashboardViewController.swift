@@ -31,6 +31,7 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
     private let portfolioManager: PortfolioManager
     private let tickerDaemon: TickerDaemon
     private let currencyFormatter: CurrencyFormatter
+    private let taxAdviser: TaxAdviser
 
     private var comparisonDate = Calendar.current.date(byAdding: .day, value: -1, to: Date())! {
         didSet {
@@ -46,7 +47,7 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
     
     private var portfolioDisplay: PortfolioDisplayType = .currentExchangeValue {
         didSet {
-            guard let currentExchangeValue = portfolioManager.getExchangeValue(for: filter.transactionType, on: Date()), let profitStats = portfolioManager.getProfitStats(for: filter.transactionType, timeframe: .allTime) else {
+            guard let currentExchangeValue = taxAdviser.getExchangeValue(for: portfolioManager.selectedAddresses, for: filter.transactionType, on: Date()), let profitStats = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, for: filter.transactionType, timeframe: .allTime) else {
                 portfolioValueLabel.text = "???"
                 return
             }
@@ -67,7 +68,7 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
     
     private var showsRelativeProfit: Bool = true {
         didSet {
-            guard let profitStats = portfolioManager.getProfitStats(for: filter.transactionType, timeframe: .sinceDate(comparisonDate)) else {
+            guard let profitStats = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, for: filter.transactionType, timeframe: .sinceDate(comparisonDate)) else {
                 profitValueLabel.text = "???"
                 return
             }
@@ -83,12 +84,13 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
     }
     
     // MARK: - Initialization
-    init(viewFactory: ViewControllerFactory, kryptonDaemon: KryptonDaemon, portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, currencyFormatter: CurrencyFormatter) {
+    init(viewFactory: ViewControllerFactory, kryptonDaemon: KryptonDaemon, portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, currencyFormatter: CurrencyFormatter, taxAdviser: TaxAdviser) {
         self.viewFactory = viewFactory
         self.kryptonDaemon = kryptonDaemon
         self.portfolioManager = portfolioManager
         self.tickerDaemon = tickerDaemon
         self.currencyFormatter = currencyFormatter
+        self.taxAdviser = taxAdviser
         
         super.init(nibName: nil, bundle: nil)
         
@@ -122,6 +124,12 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
         tickerDaemon.delegate = self
         updateUI()
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        kryptonDaemon.delegate = nil
+        tickerDaemon.delegate = nil
+    }
 
     // MARK: - Private Methods
     @objc private func filterButtonPressed() {
@@ -137,7 +145,7 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
         portfolioDisplay = { portfolioDisplay }()
         showsRelativeProfit = { showsRelativeProfit }()
         
-        if let investmentValue = portfolioManager.getProfitStats(for: filter.transactionType, timeframe: .allTime)?.startValue {
+        if let investmentValue = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, for: filter.transactionType, timeframe: .allTime)?.startValue {
             investmentValueLabel.text = currencyFormatter.getCurrencyFormatting(for: investmentValue, currency: portfolioManager.quoteCurrency)
         } else {
             investmentValueLabel.text = "???"

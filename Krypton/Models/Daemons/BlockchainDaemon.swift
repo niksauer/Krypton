@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol BlockchainDaemonDelegate {
+protocol BlockchainDaemonDelegate: class {
     func blockchainDaemon(_ blockchainDaemon: BlockchainDaemon, didUpdateBlockCountForBlockchain blockchain: Blockchain)
 }
 
@@ -29,7 +29,7 @@ final class BlockchainDaemon {
     private var blockCountForBlockchain = [Blockchain: UInt64]()
     
     // MARK: - Public Properties
-    var delegate: BlockchainDaemonDelegate?
+    weak var delegate: BlockchainDaemonDelegate?
     
     // MARK: - Private Methods
     @objc private func startUpdateTimer() {

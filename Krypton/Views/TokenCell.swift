@@ -17,6 +17,7 @@ class TokenCell: UITableViewCell {
     // MARK: - Private Properties
     private var token: Token!
     private var currencyFormatter: CurrencyFormatter!
+    private var taxAdviser: TaxAdviser!
     
     // MARK: - Public Properties
     var showsBalance = true {
@@ -24,7 +25,7 @@ class TokenCell: UITableViewCell {
             if showsBalance {
                 tokenValueLabel.text = currencyFormatter.getCurrencyFormatting(for: token.balance, currency: token)
             } else {
-                if let exchangeValue = token.getExchangeValue(on: Date()) {
+                if let exchangeValue = taxAdviser.getExchangeValue(for: token, on: Date()) {
                     tokenValueLabel.text = currencyFormatter.getCurrencyFormatting(for: exchangeValue, currency: token.owner!.quoteCurrency)
                 } else {
                     tokenValueLabel.text = "???"
@@ -34,9 +35,10 @@ class TokenCell: UITableViewCell {
     }
     
     // MARK: - Public Methods
-    func configure(token: Token, currencyFormatter: CurrencyFormatter, showsBalance: Bool) {
+    func configure(token: Token, currencyFormatter: CurrencyFormatter, taxAdviser: TaxAdviser, showsBalance: Bool) {
         self.token = token
         self.currencyFormatter = currencyFormatter
+        self.taxAdviser = taxAdviser
         self.showsBalance = showsBalance
         
         tokenNameLabel.text = token.name

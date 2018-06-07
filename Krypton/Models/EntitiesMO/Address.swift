@@ -20,7 +20,8 @@ protocol AddressDelegate {
     func addressDidUpdateAlias(_ address: Address)
     func addressDidUpdateQuoteCurrency(_ address: Address)
     func addressDidUpdatePortfolio(_ address: Address)
-
+    func addressDidRequestExchangeRateHistoryUpdate(_ address: Address)
+    
     func address(_ address: Address, didNoticeUpdateForTransaction: Transaction)
 }
 
@@ -66,7 +67,6 @@ class Address: NSManagedObject, TransactionDelegate {
     
     // MARK: - Private Properties
     private let context: NSManagedObjectContext = CoreDataStack.shared.viewContext
-    private let exchangeRateManager: ExchangeRateManager = ExchangeRateManager(context: CoreDataStack.shared.viewContext, tickerDaemon: TickerDaemon.shared)
     private let currencyManager: CurrencyManager = CurrencyManager()
     
     // MARK: - Public Properties
@@ -109,8 +109,13 @@ class Address: NSManagedObject, TransactionDelegate {
         log.debug("Set portfolio '\(portfolio!.logDescription)' as delegate of address '\(logDescription)'.")
     }
     
-    // MARK: - Private Methods
-    private func getTransactions(of type: TransactionType) -> [Transaction] {
+    // MARK: - Public Methods
+    /// returns the oldest transaction associated with address
+    func getOldestTransaction() -> Transaction? {
+        return storedTransactions.max(by: { $0.date! < $1.date! })
+    }
+    
+    func getTransactions(of type: TransactionType) -> [Transaction] {
         switch type {
         case .investment:
             return storedTransactions.filter { $0.isInvestment }
@@ -118,26 +123,6 @@ class Address: NSManagedObject, TransactionDelegate {
             return storedTransactions.filter { !$0.isInvestment }
         case .all:
             return storedTransactions
-        }
-    }
-    
-    // MARK: - Public Methods
-    /// returns the oldest transaction associated with address
-    func getOldestTransaction() -> Transaction? {
-        let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
-        request.predicate = NSPredicate(format: "owner = %@", self)
-        request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: true)]
-        request.fetchLimit = 1
-        
-        do {
-            let matches = try context.fetch(request)
-            if matches.count > 0 {
-                return matches[0]
-            } else {
-                return nil
-            }
-        } catch {
-            return nil
         }
     }
     
@@ -189,14 +174,13 @@ class Address: NSManagedObject, TransactionDelegate {
             throw error
         }
     }
-    
+
     // MARK: Management
     func update(completion: (() -> Void)?) {
         self.updateTransactionHistory {
-            self.updateExchangeRateHistory {
-                self.updateBalance {
-                    completion?()
-                }
+            self.updateBalance {
+                self.delegate?.addressDidRequestExchangeRateHistoryUpdate(self)
+                completion?()
             }
         }
     }
@@ -277,15 +261,6 @@ class Address: NSManagedObject, TransactionDelegate {
         }
     }
     
-    /// asks ExchangeRate to update price history for set trading pair starting from oldest transaction date encountered, passes completion block to retrieval
-    func updateExchangeRateHistory(completion: (() -> Void)?) {
-        if let firstTransaction = getOldestTransaction() {
-            exchangeRateManager.updateExchangeRateHistory(for: currencyPair, since: firstTransaction.date! as Date, completion: completion)
-        } else {
-            completion?()
-        }
-    }
-    
     // MARK: Finance
     /// returns balance for specified transaction type on specified date
     func getBalance(for type: TransactionType, on date: Date) -> Double? {
@@ -305,53 +280,6 @@ class Address: NSManagedObject, TransactionDelegate {
         }
         
         return balance
-    }
-    
-    /// returns exchange value on speicfied date, nil if date is in the future
-    func getExchangeValue(for type: TransactionType, on date: Date) -> (balance: Double, value: Double)? {
-        guard !date.isFuture, let balance = getBalance(for: type, on: date), let exchangeRate = exchangeRateManager.getExchangeRate(for: currencyPair, on: date) else {
-            return nil
-        }
-        
-        return (balance, exchangeRate * balance)
-    }
-    
-    /// returns total value invested in address
-    func getProfitStats(for type: TransactionType, timeframe: ProfitTimeframe) -> (startValue: Double, endValue: Double)? {
-        var startValue = 0.0
-        var endValue = 0.0
-        let transactions = getTransactions(of: type)
-        
-        for transaction in transactions {
-            if let profitStats = transaction.getProfitStats(timeframe: timeframe) {
-                startValue = startValue + profitStats.startValue
-                endValue = endValue + profitStats.endValue
-            } else {
-                return nil
-            }
-        }
-        
-        return (startValue, endValue)
-    }
-    
-    /// returns absolute return history since specified date, nil if date is today or in the future
-    func getAbsoluteProfitHistory(for type: TransactionType, since date: Date) -> [(date: Date, profit: Double)]? {
-        guard !date.isToday, !date.isFuture, storedTransactions.count > 0 else {
-            return nil
-        }
-        
-        let transactions = getTransactions(of: type)
-        var profitHistory: [(Date, Double)] = []
-        
-        for transaction in transactions {
-            guard let absoluteReturnHistory = transaction.getAbsoluteProfitHistory(since: date) else {
-                return nil
-            }
-            
-            profitHistory = zip(profitHistory, absoluteReturnHistory).map { ($0.0, $0.1 + $1.1) }
-        }
-        
-        return profitHistory
     }
     
     // MARK: Cryptography

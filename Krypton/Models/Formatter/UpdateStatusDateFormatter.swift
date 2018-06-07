@@ -8,7 +8,7 @@
 
 import Foundation
 
-class UpdateStatusDateFormatter: DateFormatter {
+final class UpdateStatusDateFormatter: DateFormatter {
     override func string(from date: Date) -> String {
         let calendar = NSCalendar.current
         let unitFlags: Set<Calendar.Component> = [.minute, .hour, .day, .weekOfYear, .month, .year, .second]

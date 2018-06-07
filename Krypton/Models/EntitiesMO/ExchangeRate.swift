@@ -15,9 +15,6 @@ enum ExchangeRateError: Error {
 
 class ExchangeRate: NSManagedObject {
     
-    // MARK: - Private Properties
-    private let context: NSManagedObjectContext = CoreDataStack.shared.viewContext
-    
     // MARK: - Public Class Methods
     /// creates and returns ticker exchangeRate if non-existent in database, throws otherwise
     class func createExchangeRate(from prototype: TickerConnector.ExchangeRate, in context: NSManagedObjectContext) throws -> ExchangeRate {
@@ -47,5 +44,5 @@ class ExchangeRate: NSManagedObject {
         
         return exchangeRate
     }
-    
+        
 }

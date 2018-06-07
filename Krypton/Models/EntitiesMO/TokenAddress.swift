@@ -11,13 +11,11 @@ import CoreData
 import SwiftKeccak
 
 protocol TokenAddressDelegate {
+    func tokenAddressDidRequestTokenExchangeRateHistoryUpdate(_ tokenAddress: TokenAddress)
     func tokenAddress(_ tokenAddress: TokenAddress, didUpdateBalanceForToken token: Token)
 }
 
 class TokenAddress: Address {
-    
-    // MARK: - Private Properties
-    private let context: NSManagedObjectContext = CoreDataStack.shared.viewContext
     
     // MARK: - Public Properties
     var tokenDelegate: TokenAddressDelegate?
@@ -25,6 +23,9 @@ class TokenAddress: Address {
     var storedTokens: [Token] {
         return Array(tokens!) as! [Token]
     }
+    
+    // MARK: - Private Properties
+    private let context: NSManagedObjectContext = CoreDataStack.shared.viewContext
     
     // MARK: - Initialization
     override func awakeFromFetch() {
@@ -37,11 +38,8 @@ class TokenAddress: Address {
     override func update(completion: (() -> Void)?) {
         super.update {
             self.updateTokenBalance {
+                self.tokenDelegate?.tokenAddressDidRequestTokenExchangeRateHistoryUpdate(self)
                 completion?()
-                
-//                self.updateTokenExchangeRateHistory {
-//
-//                }
             }
         }
     }
@@ -126,21 +124,6 @@ class TokenAddress: Address {
         } else {
             completion?()
         }
-    }
-    
-    // MARK: Finance
-    func getTokenExchangeValue(on date: Date) -> Double? {
-        var value = 0.0
-        
-        for token in storedTokens {
-            if let exchangeValue = token.getExchangeValue(on: date) {
-                value = value + exchangeValue
-            } else {
-                return nil
-            }
-        }
-        
-        return value
     }
     
 }

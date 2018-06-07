@@ -8,14 +8,11 @@
 
 import Foundation
 
-protocol TickerDaemonDelegate {
+protocol TickerDaemonDelegate: class {
     func tickerDaemon(_ tickerDaemon: TickerDaemon, didUpdateCurrentExchangeRateForCurrencyPair currencyPair: CurrencyPair)
 }
 
 final class TickerDaemon {
-    
-    // MARK: - Singleton
-    static let shared = TickerDaemon()
     
     // MARK: - Private Properties
     /// timer used to continioulsy fetch price updates
@@ -34,11 +31,8 @@ final class TickerDaemon {
     
     // MARK: - Public Properties
     /// delegate who is notified of price updates
-    var delegate: TickerDaemonDelegate?
-    
-    // MARK: - Initialization
-    private init() {}
-    
+    weak var delegate: TickerDaemonDelegate?
+
     // MARK: - Private Methods
     /// starts unique timer to update current price in specified interval for all stored trading pairs
     /// timer stop if app enters background, starts/continues when becoming active again

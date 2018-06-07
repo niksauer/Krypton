@@ -20,6 +20,8 @@ class PortfolioDetailViewController: UITableViewController {
     private var alias: String?
     private var isDefault: Bool
     
+    private var isDeleted = false
+    
     // MARK: - Initialization
     init(viewFactory: ViewControllerFactory, portfolio: Portfolio, portfolioManager: PortfolioManager) {
         self.viewFactory = viewFactory
@@ -52,6 +54,12 @@ class PortfolioDetailViewController: UITableViewController {
     }
     
     override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        guard !isDeleted else {
+            return
+        }
+        
         if let alias = alias?.trimmingCharacters(in: .whitespacesAndNewlines), !alias.isEmpty, alias != portfolio.alias {
             do {
                 try portfolio.setAlias(alias)
@@ -87,6 +95,7 @@ class PortfolioDetailViewController: UITableViewController {
     private func deletePortfolio() {
         do {
             try portfolioManager.removePortfolio(portfolio)
+            isDeleted = true
             self.navigationController?.popViewController(animated: true)
         } catch {
             // TODO: present error

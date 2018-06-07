@@ -16,17 +16,19 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
     private let portfolioManager: PortfolioManager
     private let tickerDaemon: TickerDaemon
     private let currencyFormatter: CurrencyFormatter
+    private let taxAdviser: TaxAdviser
     
     private var portfolios = [Portfolio]()
     private var selectedAddresses: [Address]?
     
     // MARK: - Initialization
-    init(viewFactory: ViewControllerFactory, kryptonDaemon: KryptonDaemon, portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, currencyFormatter: CurrencyFormatter) {
+    init(viewFactory: ViewControllerFactory, kryptonDaemon: KryptonDaemon, portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, currencyFormatter: CurrencyFormatter, taxAdviser: TaxAdviser) {
         self.viewFactory = viewFactory
         self.kryptonDaemon = kryptonDaemon
         self.portfolioManager = portfolioManager
         self.tickerDaemon = tickerDaemon
         self.currencyFormatter = currencyFormatter
+        self.taxAdviser = taxAdviser
         
         super.init(style: .grouped)
         
@@ -57,16 +59,13 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
         tickerDaemon.delegate = self
         
         portfolios = portfolioManager.storedPortfolios.filter { $0.storedAddresses.count > 0 }
+        updateUI()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
-        do {
-            _ = try portfolioManager.saveChanges()
-        } catch {
-            // TODO: present error
-        }
+        kryptonDaemon.delegate = nil
+        tickerDaemon.delegate = nil
     }
     
     // MARK: - Private Methods
@@ -195,7 +194,7 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
                 cell.isCollapsed = portfolio.isCollapsed
                 cell.sectionTitleLabel.text = portfolio.alias?.uppercased()
                 
-                if let exchangeValue = portfolio.totalExchangeValue {
+                if let exchangeValue = taxAdviser.getTotalExchangeValue(for: portfolio) {
                     cell.rightDetailLabel.text = currencyFormatter.getCurrencyFormatting(for: exchangeValue, currency: portfolio.quoteCurrency)
                 } else {
                     cell.rightDetailLabel.text = nil
@@ -206,7 +205,7 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
                 let address = portfolios[section].storedAddresses[row-1]
                 let cell = UITableViewCell(style: .value1, reuseIdentifier: "AccountCell")
                 cell.accessoryType = .detailDisclosureButton
-                cell.textLabel?.text = address.alias
+                cell.textLabel?.text = portfolioManager.getAlias(for: address.identifier!)
                 cell.detailTextLabel?.text = currencyFormatter.getCurrencyFormatting(for: address.balance, currency: address.blockchain, customDigits: 2)
                 return cell
             }

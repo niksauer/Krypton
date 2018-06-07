@@ -83,6 +83,7 @@
 		24D71E3B20C88CE0000155FE /* UpdateStatusDateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D71E3A20C88CE0000155FE /* UpdateStatusDateFormatter.swift */; };
 		24D71E3C20C91DA1000155FE /* NetworkKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24B4A26A20C6FFFA007AEB28 /* NetworkKit.framework */; };
 		24D71E3D20C91DA1000155FE /* NetworkKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 24B4A26A20C6FFFA007AEB28 /* NetworkKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		24D71E8320C95584000155FE /* TaxAdviser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D71E8220C95584000155FE /* TaxAdviser.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -292,6 +293,7 @@
 		24D71E3420C88B70000155FE /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
 		24D71E3820C88BB6000155FE /* Misc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Misc.swift; sourceTree = "<group>"; };
 		24D71E3A20C88CE0000155FE /* UpdateStatusDateFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateStatusDateFormatter.swift; sourceTree = "<group>"; };
+		24D71E8220C95584000155FE /* TaxAdviser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaxAdviser.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -348,7 +350,6 @@
 			isa = PBXGroup;
 			children = (
 				24A9FA3420C7F6090058223D /* KryptonDaemon.swift */,
-				2458132E1F5F503B007795BC /* PortfolioManager.swift */,
 				24A007C31F538AD800EC0DCF /* TickerDaemon.swift */,
 				242016C01FA1F90E00A7FA17 /* BlockchainDaemon.swift */,
 			);
@@ -468,7 +469,6 @@
 		24CD00232073B0AE0094A9ED /* Currency */ = {
 			isa = PBXGroup;
 			children = (
-				24B4A27820C70900007AEB28 /* ExchangeRateManager.swift */,
 				24BB0DFD1F4E41B40042562C /* Currency.swift */,
 				247D1C0A1FBA261700B45941 /* Fiat.swift */,
 				247D1C161FBA265100B45941 /* Blockchain.swift */,
@@ -493,13 +493,15 @@
 		24CD00252073B0DB0094A9ED /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				24D71E3A20C88CE0000155FE /* UpdateStatusDateFormatter.swift */,
+				24CD00242073B0CC0094A9ED /* EntitiesMO */,
+				24CD00232073B0AE0094A9ED /* Currency */,
+				24A9FA3F20C80C310058223D /* Daemons */,
+				24D71E8420C95C8C000155FE /* Formatter */,
 				24B4A27A20C7152D007AEB28 /* DependencyContainer.swift */,
 				24B4A27620C700E0007AEB28 /* CoreDataStack.swift */,
-				24CD00232073B0AE0094A9ED /* Currency */,
-				24CD00242073B0CC0094A9ED /* EntitiesMO */,
-				24A9FA3F20C80C310058223D /* Daemons */,
-				24A226BD1F50ED9300907999 /* CurrencyFormatter.swift */,
+				2458132E1F5F503B007795BC /* PortfolioManager.swift */,
+				24B4A27820C70900007AEB28 /* ExchangeRateManager.swift */,
+				24D71E8220C95584000155FE /* TaxAdviser.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -605,6 +607,15 @@
 				24D71E3220C87F06000155FE /* ViewControllerFactory.swift */,
 			);
 			path = Protocols;
+			sourceTree = "<group>";
+		};
+		24D71E8420C95C8C000155FE /* Formatter */ = {
+			isa = PBXGroup;
+			children = (
+				24D71E3A20C88CE0000155FE /* UpdateStatusDateFormatter.swift */,
+				24A226BD1F50ED9300907999 /* CurrencyFormatter.swift */,
+			);
+			path = Formatter;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -809,6 +820,7 @@
 			files = (
 				2400D0961F424B5600833958 /* EtherscanAPI.swift in Sources */,
 				247D1C171FBA265100B45941 /* Blockchain.swift in Sources */,
+				24D71E8320C95584000155FE /* TaxAdviser.swift in Sources */,
 				24C033361FBDBA6B0040D972 /* CryptoCompareAPI.swift in Sources */,
 				240DF3E41FB5CB08003DED40 /* ERC20Token.swift in Sources */,
 				2458132F1F5F503B007795BC /* PortfolioManager.swift in Sources */,

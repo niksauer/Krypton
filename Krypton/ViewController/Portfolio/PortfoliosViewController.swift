@@ -47,11 +47,15 @@ class PortfoliosViewController: UITableViewController, KryptonDaemonDelegate, Po
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
         kryptonDaemon.delegate = self
         updateUI()
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        kryptonDaemon.delegate = nil
+    }
+    
     // MARK: - Private Methods
     private func updateUI() {
         portfolios = portfolioManager.storedPortfolios
@@ -84,6 +88,7 @@ class PortfoliosViewController: UITableViewController, KryptonDaemonDelegate, Po
     // MARK: - PortfolioCreator Delegate
     func portfolioCreator(_ portfolioCreator: AddPortfolioViewController, didCreatePortfolio portfolio: Portfolio) {
         selectedPortfolio = portfolio
+        delegate?.portfolioSelector(self, didChangeSelectedPortfolio: selectedPortfolio)
     }
     
     // MARK: - TableView DataSource
