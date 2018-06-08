@@ -49,7 +49,7 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
         
         tableView.register(UINib(nibName: "TextFieldCell", bundle: nil), forCellReuseIdentifier: "TextFieldCell")
         tableView.register(UINib(nibName: "DeleteCell", bundle: nil), forCellReuseIdentifier: "DeleteCell")
-        tableView.register(UINib(nibName: "TokenCell", bundle: nil), forCellReuseIdentifier: "TokenCell")
+        tableView.register(TokenCell.self, forCellReuseIdentifier: "TokenCell")
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -178,26 +178,28 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
         } else {
             if section == 1 {
                 // blockchain section (1)
-                let cell = UITableViewCell(style: .value1, reuseIdentifier: "PortfolioCell")
-                
-                if row == 0 {
+                switch row {
+                case 0:
+                    let cell = UITableViewCell(style: .value1, reuseIdentifier: "PortfolioCell")
                     cell.textLabel?.text = "Blockchain"
                     cell.detailTextLabel?.text = address.blockchain.name
-                }
-                
-                if row == 1 {
+                    cell.selectionStyle = .none
+                    return cell
+                case 1:
+                    let cell = UITableViewCell(style: .value1, reuseIdentifier: "BalanceCell")
                     cell.textLabel?.text = "Balance"
                     cell.detailTextLabel?.text = currencyFormatter.getCurrencyFormatting(for: address.balance, currency: address.blockchain)
+                    cell.selectionStyle = .none
+                    return cell
+                default:
+                    fatalError()
                 }
-                
-                return cell
             }
             
             if let tokenAddress = address as? TokenAddress, section == 2, tokenAddress.storedTokens.count > 0 {
                 // token section (2)
                 let token = tokenAddress.storedTokens[indexPath.row]
-                let cell = tableView.dequeueReusableCell(withIdentifier: "TokenCell", for: indexPath) as! TokenCell
-                cell.configure(token: token, currencyFormatter: currencyFormatter, taxAdviser: taxAdviser, showsBalance: true)
+                let cell = TokenCell(token: token, currencyFormatter: currencyFormatter, taxAdviser: taxAdviser, reuseIdentifier: "TokenCell")
                 return cell
             }
         }
@@ -231,19 +233,22 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
     
     // MARK: - TableView Delegate
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let section = indexPath.section
+        let row = indexPath.row
+        
         if isEditing {
-            if indexPath.section == 1 {
+            if section == 1 {
                 let portfolioSelector = viewFactory.makePortfolioSelectionViewController(selection: address.portfolio)
                 portfolioSelector.delegate = self
                 navigationController?.pushViewController(portfolioSelector, animated: true)
             }
             
-            if indexPath.section == 2 {
+            if section == 2 {
                 deleteAddress()
             }
         } else {
             if let tokenCell = tableView.cellForRow(at: indexPath) as? TokenCell {
-                tokenCell.showsBalance = !tokenCell.showsBalance
+                tokenCell.showsFirstDetailValue = !tokenCell.showsFirstDetailValue
             }
         }
     }
@@ -251,5 +256,5 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return false
     }
-
+    
 }

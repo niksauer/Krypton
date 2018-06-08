@@ -80,6 +80,13 @@ struct BlockchainConnector {
         let request = URLRequest(url: url)
 
         let task = session.dataTask(with: request) { (data, response, error) in
+            guard error == nil else {
+                OperationQueue.main.addOperation {
+                    completion(.failure(error!))
+                }
+                return
+            }
+            
             var result: TransactionHistoryResult
             
             guard let jsonData = data else {

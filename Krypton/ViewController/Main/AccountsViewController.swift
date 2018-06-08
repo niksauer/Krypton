@@ -295,5 +295,5 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
         let addressDetailViewController = viewFactory.makeAddressDetailViewController(for: selectedAddress)
         navigationController?.pushViewController(addressDetailViewController, animated: true)
     }
-    
+        
 }
