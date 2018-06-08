@@ -59,35 +59,29 @@ class PortfolioDetailViewController: UITableViewController {
             return
         }
         
-        if let alias = alias?.trimmingCharacters(in: .whitespacesAndNewlines), !alias.isEmpty, alias != portfolio.alias {
-            do {
-                try portfolio.setAlias(alias)
-            } catch {
-                // TODO: present error
-            }
-        }
-
-        if isDefault != portfolio.isDefault {
-            do {
-                try portfolio.setIsDefault(isDefault)
-            } catch {
-                // TODO: present error
-            }
+        do {
+            try portfolio.setIsDefault(isDefault)
+        } catch {
+            // TODO: present error
         }
     }
     
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
         
-        let deleteSection = IndexSet(integer: (portfolio.storedAddresses.count > 0) ? 2 : 1)
-        
-        if isEditing {
-            tableView.insertSections(deleteSection, with: .top)
-        } else {
-            tableView.deleteSections(deleteSection, with: .top)
+        guard !isDeleted else {
+            return
         }
         
-        tableView.reloadRows(at: [IndexPath(row: 1, section: 0)], with: .automatic)
+        if !isEditing {
+            do {
+                try portfolio.setAlias(alias)
+            } catch {
+                // TODO: present error
+            }
+        }
+        
+        tableView.reloadData()
     }
 
     // MARK: - Private Methods
@@ -144,8 +138,7 @@ class PortfolioDetailViewController: UITableViewController {
             switch row {
             case 0:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "TextFieldCell", for: indexPath) as! TextFieldCell
-                cell.configure(text: alias, placeholder: "Alias", isEnabled: isEditing, onChange: didChangeAlias)
-                cell.isEnabledClearButtonMode = .always
+                cell.configure(text: alias, placeholder: "Alias", isEnabled: isEditing, isEnabledClearButtonMode: .always, onChange: didChangeAlias)
                 return cell
             case 1:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "SwitchCell", for: indexPath) as! SwitchCell

@@ -126,13 +126,13 @@ class Address: NSManagedObject, TransactionDelegate {
         }
     }
     
-    func setAlias(_ alias: String) throws {
+    func setAlias(_ alias: String?) throws {
         guard self.alias != alias else {
             return
         }
         
         do {
-            self.alias = alias
+            self.alias = alias.nilIfEmpty?.trimmingCharacters(in: .whitespacesAndNewlines)
             try context.save()
             log.debug("Updated alias for address '\(logDescription)'.")
             delegate?.addressDidUpdateAlias(self)

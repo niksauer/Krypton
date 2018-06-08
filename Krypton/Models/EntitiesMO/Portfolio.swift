@@ -64,15 +64,15 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
     }
     
     // MARK: - Public Methods
-    func setAlias(_ alias: String) throws {
+    func setAlias(_ alias: String?) throws {
         guard self.alias != alias else {
             return
         }
         
         do {
-            self.alias = alias
+            self.alias = alias.nilIfEmpty?.trimmingCharacters(in: .whitespacesAndNewlines)
             try context.save()
-            log.debug("Updated alias (\(alias)) for portfolio '\(self.logDescription)'.")
+            log.debug("Updated alias for portfolio '\(self.logDescription)'.")
             delegate?.portfolioDidUpdateAlias(self)
         } catch {
             log.error("Failed to update alias for portfolio '\(self.logDescription)': \(error)")

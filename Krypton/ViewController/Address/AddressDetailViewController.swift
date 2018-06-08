@@ -52,24 +52,20 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
         tableView.register(TokenCell.self, forCellReuseIdentifier: "TokenCell")
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+    override func setEditing(_ editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: animated)
         
         guard !isDeleted else {
             return
         }
         
-        if let alias = alias?.trimmingCharacters(in: .whitespacesAndNewlines), alias != address.alias {
+        if !isEditing {
             do {
                 try address.setAlias(alias)
             } catch {
                 // TODO: present error
             }
         }
-    }
-    
-    override func setEditing(_ editing: Bool, animated: Bool) {
-        super.setEditing(editing, animated: animated)
         
         tableView.reloadData()
     }
@@ -212,8 +208,7 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
         }
         
         if row == 1 {
-            cell.configure(text: alias, placeholder: "Alias", isEnabled: isEditing, onChange: setAlias)
-            cell.isEnabledClearButtonMode = .always
+            cell.configure(text: alias, placeholder: "Alias", isEnabled: isEditing, isEnabledClearButtonMode: .always, onChange: setAlias)
         }
         
         return cell
@@ -234,7 +229,7 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
     // MARK: - TableView Delegate
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let section = indexPath.section
-        let row = indexPath.row
+//        let row = indexPath.row
         
         if isEditing {
             if section == 1 {
