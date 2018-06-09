@@ -1,5 +1,5 @@
 //
-//  PortfolioDetailController.swift
+//  PortfolioDetailViewController.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 16.09.17.
@@ -14,7 +14,6 @@ class PortfolioDetailViewController: UITableViewController {
     private let viewFactory: ViewControllerFactory
     private let portfolio: Portfolio
     private let portfolioManager: PortfolioManager
-    
     private var alias: String?
     private var isDefault: Bool
     
@@ -49,6 +48,7 @@ class PortfolioDetailViewController: UITableViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
         tableView.reloadData()
     }
     
@@ -103,16 +103,16 @@ class PortfolioDetailViewController: UITableViewController {
         self.isDefault = isDefault
     }
     
-    // MARK: - TableView Data Source
+    // MARK: - TableView DataSource
     override func numberOfSections(in tableView: UITableView) -> Int {
         var count = 1
     
         if portfolio.storedAddresses.count > 0 {
-            count = 2
+            count = count + 1
         }
         
         if isEditing {
-            return count + 1
+            count = count + 1
         }
         
         return count
@@ -138,7 +138,8 @@ class PortfolioDetailViewController: UITableViewController {
             switch row {
             case 0:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "TextFieldCell", for: indexPath) as! TextFieldCell
-                cell.configure(text: alias, placeholder: "Alias", isEnabled: isEditing, isEnabledClearButtonMode: .always, onChange: didChangeAlias)
+                cell.configure(text: alias, placeholder: "Alias", isEnabled: isEditing, onChange: didChangeAlias)
+                cell.isEnabledClearButtonMode = .always
                 return cell
             case 1:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "SwitchCell", for: indexPath) as! SwitchCell

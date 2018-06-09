@@ -56,8 +56,8 @@ class AddAddressViewController: UITableViewController, UITextFieldDelegate, UIPi
         self.portfolioManager = portfolioManager
         self.blockchains = blockchains
         
-        selectedPortfolio = portfolioManager.defaultPortfolio
         selectedBlockchain = blockchains.first
+        selectedPortfolio = portfolioManager.defaultPortfolio
         
         super.init(style: .grouped)
 
@@ -87,11 +87,9 @@ class AddAddressViewController: UITableViewController, UITextFieldDelegate, UIPi
     }
     
     @IBAction private func saveButtonPressed() {
-        guard let address = address, let selectedPortfolio = selectedPortfolio, let selectedBlockchain = selectedBlockchain else {
+        guard let address = address, let selectedBlockchain = selectedBlockchain, let selectedPortfolio = selectedPortfolio else {
             return
         }
-        
-        let alias = self.alias?.trimmingCharacters(in: .whitespacesAndNewlines)
         
         do {
             try selectedPortfolio.addAddress(address, alias: alias, blockchain: selectedBlockchain)

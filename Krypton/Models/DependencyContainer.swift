@@ -132,8 +132,8 @@ extension DependencyContainer: ViewControllerFactory {
         return CurrencySelectorViewController(type: type, selection: selection, currencyManager: currencyManager)
     }
     
-    func makeFilterViewController() -> FilterViewController {
-        return FilterViewController(portfolioManager: portfolioManager)
+    func makeFilterViewController(showsAdvancedProperties: Bool, isAddressSelector: Bool) -> FilterViewController {
+        return FilterViewController(portfolioManager: portfolioManager, showsAdvancedProperties: showsAdvancedProperties, isSelector: isAddressSelector)
     }
     
 }

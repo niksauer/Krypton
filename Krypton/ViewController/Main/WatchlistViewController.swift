@@ -17,10 +17,10 @@ class WatchlistViewController: UITableViewController, TickerDaemonDelegate {
     private let currencyFormatter: CurrencyFormatter
     
     // MARK: - Public Properties
-    var displayedCurrencies = [Currency]()
-    var requiredCurrencies = [Currency]()
-    var manualCurrencies = [Currency]()
-    var missingCurrencies = [Currency]()
+    private var requiredCurrencies = [Currency]()
+    private var manualCurrencies = [Currency]()
+    private var missingCurrencies = [Currency]()
+    private var displayedCurrencies = [Currency]()
 
     // MARK: - Initialization
     init(portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, currencyManager: CurrencyManager, currencyFormatter: CurrencyFormatter) {
@@ -33,6 +33,21 @@ class WatchlistViewController: UITableViewController, TickerDaemonDelegate {
         
         title = "Watchlist"
         navigationItem.rightBarButtonItem = editButtonItem
+        
+        requiredCurrencies = portfolioManager.requiredCurrencyPairs.map({ $0.base })
+        manualCurrencies = portfolioManager.manualCurrencies.filter({ optionalCurrency in
+            !requiredCurrencies.contains(where: { $0.isEqual(to: optionalCurrency )})
+        })
+        
+        for currency in currencyManager.getCurrencies(of: .Crypto) {
+            guard !requiredCurrencies.contains(where: { $0.isEqual(to: currency) }) && !manualCurrencies.contains(where: { $0.isEqual(to: currency) }) else {
+                continue
+            }
+            
+            missingCurrencies.append(currency)
+        }
+        
+        displayedCurrencies = requiredCurrencies + manualCurrencies
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -47,21 +62,6 @@ class WatchlistViewController: UITableViewController, TickerDaemonDelegate {
         
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(updateData), for: .valueChanged)
-        
-        requiredCurrencies = portfolioManager.requiredCurrencyPairs.map({ $0.base })
-        manualCurrencies = portfolioManager.manualCurrencies.filter({ optionalCurrency in
-            !requiredCurrencies.contains(where: { $0.isEqual(to: optionalCurrency )})
-        })
-    
-        for currency in currencyManager.getCurrencies(of: .Crypto) {
-            guard !requiredCurrencies.contains(where: { $0.isEqual(to: currency) }) && !manualCurrencies.contains(where: { $0.isEqual(to: currency) }) else {
-                continue
-            }
-            
-            missingCurrencies.append(currency)
-        }
-   
-        displayedCurrencies = requiredCurrencies + manualCurrencies
     }
 
     override func setEditing(_ editing: Bool, animated: Bool) {

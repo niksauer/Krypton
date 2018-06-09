@@ -19,7 +19,6 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
     private let taxAdviser: TaxAdviser
     
     private var portfolios = [Portfolio]()
-    private var selectedAddresses: [Address]?
     
     // MARK: - Initialization
     init(viewFactory: ViewControllerFactory, kryptonDaemon: KryptonDaemon, portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, currencyFormatter: CurrencyFormatter, taxAdviser: TaxAdviser) {
@@ -53,17 +52,20 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
         navigationController?.setToolbarHidden(true, animated: true)
         
         kryptonDaemon.delegate = self
         tickerDaemon.delegate = self
         
         portfolios = portfolioManager.storedPortfolios.filter { $0.storedAddresses.count > 0 }
+        
         updateUI()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        
         kryptonDaemon.delegate = nil
         tickerDaemon.delegate = nil
     }

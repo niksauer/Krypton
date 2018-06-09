@@ -9,12 +9,13 @@
 import UIKit
 
 @objc protocol FilterDelegate {
-    @objc optional func didChangeHasUserExchangeValue(state: Bool)
-    @objc optional func didChangeIsUnread(state: Bool)
-    @objc optional func didChangeIsError(state: Bool)
-    @objc optional func didChangeTransactionType(type: TransactionType)
-    @objc optional func didChangeSelectedAddresses()
-    @objc optional func didResetFilter()
+    @objc optional func filterControllerDidSetSelectedAddresses(_ filterController: FilterViewController)
+    @objc optional func filterControllerDidResetFilter(_ filterController: FilterViewController)
+    
+    @objc optional func filterController(_ filterController: FilterViewController, didSetHasUserExchangeValue hasUserExchangeValue: Bool)
+    @objc optional func filterController(_ filterController: FilterViewController, didSetIsUnread isUnread: Bool)
+    @objc optional func filterController(_ filterController: FilterViewController, didSetIsError isError: Bool)
+    @objc optional func filterController(_ filterController: FilterViewController, didSetTransactionType type: TransactionType)
 }
 
 class FilterViewController: UITableViewController {
@@ -22,21 +23,28 @@ class FilterViewController: UITableViewController {
     // MARK: - Private Properties
     private let portfolioManager: PortfolioManager
     private let portfolios: [Portfolio]
-    
-    private var filterSectionsCount = 2
-    private let transactionTypeIndexPath = IndexPath(row: 0, section: 0)
+    private let showsAdvancedProperties: Bool
+    private let filterSectionsCount: Int
+    private var isSelector: Bool
     
     // MARK: - Public Properties
     var delegate: FilterDelegate?
-    var isSelector = false
-    var showsAdvancedProperties = false
-    
     var filter = Filter()
 
     // MARK: - Initialization
-    init(portfolioManager: PortfolioManager) {
+    init(portfolioManager: PortfolioManager, showsAdvancedProperties: Bool, isSelector: Bool) {
         self.portfolioManager = portfolioManager
         self.portfolios = portfolioManager.storedPortfolios.filter { $0.storedAddresses.count > 0 }
+        
+        self.showsAdvancedProperties = showsAdvancedProperties
+        
+        if showsAdvancedProperties {
+            filterSectionsCount = 2
+        } else {
+            filterSectionsCount = 1
+        }
+        
+        self.isSelector = isSelector
         
         super.init(style: .grouped)
         
@@ -55,44 +63,37 @@ class FilterViewController: UITableViewController {
         
         tableView.register(UINib(nibName: "SegmentedControlCell", bundle: nil), forCellReuseIdentifier: "SegmentedControlCell")
         tableView.register(UINib(nibName: "SwitchCell", bundle: nil), forCellReuseIdentifier: "SwitchCell")
-        
-        if showsAdvancedProperties {
-            filterSectionsCount = 2
-        } else {
-            filterSectionsCount = 1
-        }
     }
     
-    // MARK: - Navigation
+    // MARK: - Public Methods
     @IBAction func cancelButtonPressed() {
         portfolioManager.discardChanges()
         dismiss(animated: true, completion: nil)
     }
     
     @IBAction func applyButtonPressed() {
-        delegate?.didChangeTransactionType?(type: filter.transactionType)
-        delegate?.didChangeIsUnread?(state: filter.isUnread)
-        delegate?.didChangeIsError?(state: filter.isError)
-        delegate?.didChangeHasUserExchangeValue?(state: filter.hasUserExchangeValue)
+        delegate?.filterController?(self, didSetTransactionType: filter.transactionType)
+        delegate?.filterController?(self, didSetIsUnread: filter.isUnread)
+        delegate?.filterController?(self, didSetIsError: filter.isError)
+        delegate?.filterController?(self, didSetHasUserExchangeValue: filter.hasUserExchangeValue)
         
         do {
             if try portfolioManager.saveChanges() {
-                delegate?.didChangeSelectedAddresses?()
+                delegate?.filterControllerDidSetSelectedAddresses?(self)
             } else {
                 portfolioManager.discardChanges()
             }
         } catch {
-            // present error
+            // TODO: present error
         }
         
         if !filter.isApplied {
-            delegate?.didResetFilter?()
+            delegate?.filterControllerDidResetFilter?(self)
         }
         
         dismiss(animated: true, completion: nil)
     }
     
-    // MARK: - Public Methods
     func setTransactionType(_ rawValue: Int) {
         filter.transactionType = TransactionType(rawValue: rawValue)!
     }
@@ -108,7 +109,7 @@ class FilterViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch section {
-        case _ where section == transactionTypeIndexPath.section:
+        case _ where section == 0:
             return 1
         case _ where section == 1 && showsAdvancedProperties:
             return 3
@@ -118,13 +119,16 @@ class FilterViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        switch indexPath {
-        case _ where indexPath == transactionTypeIndexPath:
+        let section = indexPath.section
+        let row = indexPath.row
+        
+        switch section {
+        case 0:
             let cell = tableView.dequeueReusableCell(withIdentifier: "SegmentedControlCell", for: indexPath) as! SegmentedControlCell
             cell.configure(segments: ["All", "Investment", "Other"], selectedSegment: filter.transactionType.rawValue, onChange: setTransactionType)
             return cell
-        case _ where indexPath.section == 1 && showsAdvancedProperties:
-            switch indexPath.row {
+        case 1 where showsAdvancedProperties:
+            switch row {
             case 0:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "SwitchCell", for: indexPath) as! SwitchCell
                 cell.configure(name: "Is Error", isOn: filter.isError, onChange: { state in
@@ -163,9 +167,9 @@ class FilterViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         switch section {
-        case _ where section == transactionTypeIndexPath.section:
+        case 0:
             return "Transaction Type"
-        case _ where section == 1 && showsAdvancedProperties:
+        case 1 where showsAdvancedProperties:
             return "Properties"
         default:
             let portfolio = portfolios[section-filterSectionsCount]
@@ -194,69 +198,6 @@ class FilterViewController: UITableViewController {
             cell.accessoryType = .checkmark
             address.isSelected = true
         }
-    }
-    
-}
-
-struct Filter {
-    
-    // MARK: - Private Properties
-    private static var displayNameForOption: [String : String] = [
-        "transactionType" : "Type",
-        "hasUserExchangeValue" : "Manual Value",
-        "isUnread" : "Unread",
-        "isError" : "Error"
-    ]
-    
-    // MARK: - Public Properties
-    var transactionType: TransactionType
-    var isUnread: Bool
-    var isError: Bool
-    var hasUserExchangeValue: Bool
-    
-    var isApplied: Bool {
-        return transactionType != .all || isUnread || isError || hasUserExchangeValue
-    }
-    
-    var description: String {
-        var activeProperties: [String] = []
-        
-        for option in allProperties() {
-            if let isActive = option.value as? Bool, isActive {
-                activeProperties.append(Filter.displayNameForOption[option.key]!)
-            }
-            
-            if let type = option.value as? TransactionType, type != .all {
-                activeProperties.append(Filter.displayNameForOption[option.key]!)
-            }
-        }
-        
-        return activeProperties.joined(separator: ", ")
-    }
-    
-    // MARK: - Initialization
-    init() {
-        self.transactionType = .all
-        self.isUnread = true
-        self.isError = false
-        self.hasUserExchangeValue = false
-    }
-    
-    // MARK: - Private Methods
-    private func allProperties() -> [String: Any] {
-        var result: [String: Any] = [:]
-        
-        let mirror = Mirror(reflecting: self)
-        
-        for (labelMaybe, valueMaybe) in mirror.children {
-            guard let label = labelMaybe else {
-                continue
-            }
-            
-            result[label] = valueMaybe
-        }
-        
-        return result
     }
     
 }

@@ -1,5 +1,5 @@
 //
-//  PortfolioTableController.swift
+//  PortfoliosViewController.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 16.09.17.
@@ -18,10 +18,10 @@ class PortfoliosViewController: UITableViewController, KryptonDaemonDelegate, Po
     private let viewFactory: ViewControllerFactory
     private let kryptonDaemon: KryptonDaemon
     private let portfolioManager: PortfolioManager
+    private var selectedPortfolio: Portfolio?
+    private let isSelector: Bool
     
     private var portfolios = [Portfolio]()
-    private var selectedPortfolio: Portfolio?
-    private var isSelector = false
     
     // MARK: - Public Properties
     var delegate: PortfolioSelectorDelegate?
@@ -47,12 +47,15 @@ class PortfoliosViewController: UITableViewController, KryptonDaemonDelegate, Po
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
         kryptonDaemon.delegate = self
+        
         updateUI()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        
         kryptonDaemon.delegate = nil
     }
     
@@ -130,14 +133,6 @@ class PortfoliosViewController: UITableViewController, KryptonDaemonDelegate, Po
             let portfolioDetailViewController = viewFactory.makePortfolioDetailViewController(for: selectedPortfolio)
             navigationController?.pushViewController(portfolioDetailViewController, animated: true)
         }
-    }
-    
-    override func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
-        return false
-    }
-    
-    override func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCellEditingStyle {
-        return .none
     }
     
 }

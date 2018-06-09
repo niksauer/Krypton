@@ -1,5 +1,5 @@
 //
-//  TransactionTableController.swift
+//  TransactionsViewController.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 22.08.17.
@@ -10,6 +10,9 @@ import UIKit
 import CoreData
 
 class TransactionsViewController: FetchedResultsTableViewController<Transaction>, UITextFieldDelegate, FilterDelegate {
+    
+    // MARK: - Views
+    private var saveExchangeValueAction: UIAlertAction!
     
     // MARK: - Private Properties
     private let viewFactory: ViewControllerFactory
@@ -26,9 +29,6 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
         }
     }
     
-    private var selectedTransaction: Transaction?
-    private var saveExchangeValueAction: UIAlertAction!
-    
     private var updateTimer: Timer?
     
     private var isUpdating = false {
@@ -42,32 +42,22 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
             return nil
         }
         
-        var selectedTransactions = [Transaction]()
-        
-        for indexPath in selectedIndexPaths {
-            let transaction = self.fetchedResultsController!.object(at: indexPath)
-            selectedTransactions.append(transaction)
-        }
-        
-        return selectedTransactions
+        return selectedIndexPaths.map { self.fetchedResultsController!.object(at: $0) }
     }
     
-    // MARK: - Public Properties
-    
-    
-    var isFilterActive = false {
+    private var isFilterActive = false {
         didSet {
             updateUI()
         }
     }
     
-    var filter = Filter() {
+    private var filter = Filter() {
         didSet {
             updateUI()
         }
     }
     
-    var showsExchangeValue = false {
+    private var showsExchangeValue = false {
         didSet {
             updateUI()
         }
@@ -98,11 +88,13 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
         super.viewDidLoad()
         
         refreshControl = UIRefreshControl()
-        refreshControl?.addTarget(self, action: #selector(updateAddresses), for: .valueChanged)
+        refreshControl?.addTarget(self, action: #selector(updateData), for: .valueChanged)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        navigationController?.setToolbarHidden(false, animated: true)
         
         updateUI()
         startUpdateTimer()
@@ -116,38 +108,41 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
     
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
+        
         updateToolbar()
     }
 
     // MARK: - Private Methods
     @objc private func showFilterPanel() {
-        let filterViewController = viewFactory.makeFilterViewController()
-        let filterNavigationController = UINavigationController(rootViewController: filterViewController)
-        
+        let filterViewController = viewFactory.makeFilterViewController(showsAdvancedProperties: true, isAddressSelector: false)
         filterViewController.delegate = self
-        filterViewController.isSelector = false
-        filterViewController.showsAdvancedProperties = true
-        filterViewController.filter.transactionType = filter.transactionType
-        filterViewController.filter.isUnread = filter.isUnread
-        filterViewController.filter.isError = filter.isError
-        filterViewController.filter.hasUserExchangeValue = filter.hasUserExchangeValue
-        
+        filterViewController.filter = filter
+        let filterNavigationController = UINavigationController(rootViewController: filterViewController)
         navigationController?.present(filterNavigationController, animated: true, completion: nil)
     }
     
     // MARK: UI Initialization
+    @objc private func updateData() {
+        isUpdating = true
+        
+        portfolioManager.updateAddresses(addresses) {
+            self.refreshControl?.endRefreshing()
+            self.isUpdating = false
+        }
+    }
+    
     private func updateUI() {
-        updateData()
+        updateResults()
         updateToolbar()
         
         if let transactions = fetchedResultsController?.fetchedObjects, transactions.count > 0 {
-            self.navigationItem.rightBarButtonItem = self.editButtonItem
+            self.navigationItem.rightBarButtonItem = editButtonItem
         } else {
             self.navigationItem.rightBarButtonItem = nil
         }
     }
     
-    private func updateData() {
+    private func updateResults() {
         let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
         
@@ -187,16 +182,9 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
         let applicablePredicates = [ownerPredicate, transactionTypePredicate, isUnreadPredicate, isErrorPredicate, hasUserExchangeValuePredicate].compactMap { $0 }
         request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: applicablePredicates)
         
-        fetchedResultsController = NSFetchedResultsController<Transaction>(
-            fetchRequest: request,
-            managedObjectContext: searchContext,
-            sectionNameKeyPath: nil,
-            cacheName: nil
-        )
-        
+        fetchedResultsController = NSFetchedResultsController<Transaction>(fetchRequest: request, managedObjectContext: searchContext, sectionNameKeyPath: nil, cacheName: nil)
         fetchedResultsController?.delegate = self
         try? fetchedResultsController?.performFetch()
-        tableView.reloadData()
     }
     
     private func updateToolbar() {
@@ -242,8 +230,6 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
             
             self.toolbarItems = [filterButton, flexibleSpacer, messageItem, flexibleSpacer, valueButton].compactMap { $0 }
         }
-        
-        navigationController?.setToolbarHidden(false, animated: true)
     }
     
     private func getToolbarMessage() -> UIBarButtonItem? {
@@ -319,7 +305,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
         let notificationCenter = NotificationCenter.default
         notificationCenter.setObserver(self, selector: #selector(stopUpdateTimer), name: Notification.Name.UIApplicationDidEnterBackground, object: nil)
         notificationCenter.setObserver(self, selector: #selector(startUpdateTimer), name: Notification.Name.UIApplicationDidBecomeActive, object: nil)
-        log.debug("Started timer for TransactionTable with 60 second intervall.")
+        log.debug("Started timer for TransactionsViewController with 60 second intervall.")
     }
     
     @objc func stopUpdateTimer() {
@@ -330,7 +316,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
         
         updateTimer?.invalidate()
         updateTimer = nil
-        log.debug("Stopped timer for TransactionTable.")
+        log.debug("Stopped timer for TransactionsViewController.")
     }
     
     // MARK: UI Modification
@@ -343,23 +329,6 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
     }
 
     // MARK: Content Interaction
-    @objc private func updateAddresses() {
-        isUpdating = true
-        
-        for (index, address) in addresses.enumerated() {
-            var updateCompletion: (() -> Void)? = nil
-            
-            if index == addresses.count-1 {
-                updateCompletion = {
-                    self.refreshControl?.endRefreshing()
-                    self.isUpdating = false
-                }
-            }
-            
-            address.update(completion: updateCompletion)
-        }
-    }
-    
     @objc private func setIsUnread() {
         guard let selectedTransactions = selectedTransactions else {
             return
@@ -393,7 +362,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
             }
         }
         
-        self.isEditing = false
+        isEditing = false
     }
 
     @objc private func showExchangeValueActionSheet() {
@@ -527,47 +496,32 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
         }
     }
     
-    // MARK: - Filter Delegate
-    func didChangeTransactionType(type: TransactionType) {
+    // MARK: - FilterController Delegate
+    func filterController(_ filterController: FilterViewController, didSetTransactionType type: TransactionType) {
         filter.transactionType = type
     }
     
-    func didChangeIsUnread(state: Bool) {
-        filter.isUnread = state
+    func filterController(_ filterController: FilterViewController, didSetIsUnread isUnread: Bool) {
+        filter.isUnread = isUnread
+    }
+
+    func filterController(_ filterController: FilterViewController, didSetIsError isError: Bool) {
+        filter.isError = isError
     }
     
-    func didChangeIsError(state: Bool) {
-        filter.isError = state
+    func filterController(_ filterController: FilterViewController, didSetHasUserExchangeValue hasUserExchangeValue: Bool) {
+        filter.hasUserExchangeValue = hasUserExchangeValue
     }
     
-    func didChangeHasUserExchangeValue(state: Bool) {
-        filter.hasUserExchangeValue = state
-    }
-    
-    func didResetFilter() {
+    func filterControllerDidResetFilter(_ filterController: FilterViewController) {
         isFilterActive = false
         filter = Filter()
     }
     
-    // MARK: - TableView Data Source
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return fetchedResultsController?.sections?.count ?? 1
-    }
-    
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if let sections = fetchedResultsController?.sections, sections.count > 0 {
-            return sections[section].numberOfObjects
-        } else {
-            return 0
-        }
-    }
-    
+    // MARK: - TableView DataSource
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let transaction = fetchedResultsController!.object(at: indexPath)
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "TransactionCell")
-        
-//        let cell = tableView.dequeueReusableCell(withIdentifier: "transactionCell", for: indexPath) as! TransactionCell
-//        cell.configure(transaction: transaction)
         
         if showsExchangeValue, let exchangeValue = taxAdviser.getExchangeValue(for: transaction) {
             cell.textLabel?.text = currencyFormatter.getCurrencyFormatting(for: exchangeValue, currency: transaction.owner!.quoteCurrency)
@@ -584,22 +538,6 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
         }
     
         return cell
-    }
-    
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        if let sections = fetchedResultsController?.sections, sections.count > 0 {
-            return sections[section].name
-        } else {
-            return nil
-        }
-    }
-    
-    override func sectionIndexTitles(for tableView: UITableView) -> [String]? {
-        return fetchedResultsController?.sectionIndexTitles
-    }
-    
-    override func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
-        return fetchedResultsController?.section(forSectionIndexTitle: title, at: index) ?? 0
     }
     
     // MARK: - TableView Delegate

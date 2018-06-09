@@ -1,5 +1,5 @@
 //
-//  AddressDetailController.swift
+//  AddressDetailViewController.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 18.09.17.
@@ -15,7 +15,6 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
     private let address: Address
     private let currencyFormatter: CurrencyFormatter
     private let taxAdviser: TaxAdviser
-    
     private var alias: String?
     
     private var isDeleted = false
@@ -99,7 +98,7 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
         }
     }
     
-    // MARK: - TableView Data Source
+    // MARK: - TableView DataSource
     override func numberOfSections(in tableView: UITableView) -> Int {
         if isEditing {
             // address + portfolio + delete
@@ -208,7 +207,8 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
         }
         
         if row == 1 {
-            cell.configure(text: alias, placeholder: "Alias", isEnabled: isEditing, isEnabledClearButtonMode: .always, onChange: setAlias)
+            cell.configure(text: alias, placeholder: "Alias", isEnabled: isEditing, onChange: setAlias)
+            cell.isEnabledClearButtonMode = .always
         }
         
         return cell
@@ -229,7 +229,6 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
     // MARK: - TableView Delegate
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let section = indexPath.section
-//        let row = indexPath.row
         
         if isEditing {
             if section == 1 {

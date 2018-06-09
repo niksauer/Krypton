@@ -1,5 +1,5 @@
 //
-//  AddPortfolioController.swift
+//  AddPortfolioViewController.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 17.09.17.

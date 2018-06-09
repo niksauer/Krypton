@@ -10,6 +10,9 @@ import UIKit
 
 class TransactionDetailViewController: UITableViewController, UITextFieldDelegate, KryptonDaemonDelegate, TickerDaemonDelegate, BlockchainDaemonDelegate {
    
+    // MARK: - Views
+    private var valueSaveAction: UIAlertAction!
+    
     // MARK: - Private Properties
     private var sendersIndexPath: IndexPath!
     private var receiversIndexPath: IndexPath!
@@ -17,8 +20,6 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
     private var profitIndexPath: IndexPath!
     private var feeIndexPath: IndexPath!
     private var blockIndexPath: IndexPath!
-    
-    private var valueSaveAction: UIAlertAction!
     
     // MARK: - Private Properties
     private let viewFactory: ViewControllerFactory

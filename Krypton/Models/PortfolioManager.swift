@@ -140,11 +140,11 @@ final class PortfolioManager: PortfolioDelegate {
     
     // MARK: - Public Methods
     /// returns alias for specified address string
-    func getAlias(for addressString: String) -> String {
-        if let alias = storedAddresses.first(where: { $0.identifier?.lowercased() == addressString.lowercased() })?.alias, !alias.isEmpty {
+    func getAlias(for identifier: String) -> String {
+        if let alias = storedAddresses.first(where: { $0.identifier?.lowercased() == identifier.lowercased() })?.alias, !alias.isEmpty {
             return alias
         } else {
-            return addressString
+            return identifier
         }
     }
     
@@ -194,6 +194,18 @@ final class PortfolioManager: PortfolioDelegate {
             }
             
             portfolio.update(completion: updateCompletion)
+        }
+    }
+    
+    func updateAddresses(_ addresses: [Address], completion: (() -> Void)?) {
+        for (index, address) in addresses.enumerated() {
+            var updateCompletion: (() -> Void)? = nil
+            
+            if index == addresses.count-1 {
+                updateCompletion = completion
+            }
+            
+            address.update(completion: updateCompletion)
         }
     }
     

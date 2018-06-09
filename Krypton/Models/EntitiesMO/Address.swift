@@ -59,7 +59,7 @@ class Address: NSManagedObject, TransactionDelegate {
             throw AddressError.invalidFormat
         }
         
-        address.alias = alias
+        address.alias = alias.nilIfEmpty?.trimmingCharacters(in: .whitespacesAndNewlines)
         address.quoteCurrencyCode = quoteCurrency.code
         
         return address

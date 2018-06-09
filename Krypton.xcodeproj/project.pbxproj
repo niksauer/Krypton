@@ -73,6 +73,7 @@
 		24CD000B2073AEFF0094A9ED /* SwiftKeccak.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 24CD00072073AEF30094A9ED /* SwiftKeccak.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		24CDFFFD2073AE0E0094A9ED /* SwiftyBeaver.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CDFFF42073AE050094A9ED /* SwiftyBeaver.framework */; };
 		24CDFFFE2073AE0E0094A9ED /* SwiftyBeaver.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 24CDFFF42073AE050094A9ED /* SwiftyBeaver.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		24D11B0A20CB5A03001C9135 /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D11B0920CB5A03001C9135 /* Filter.swift */; };
 		24D71E2520C861DA000155FE /* FetchedResultsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D71E2420C861DA000155FE /* FetchedResultsTableViewController.swift */; };
 		24D71E2A20C865D0000155FE /* TransactionHeaderCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 24D71E2820C865D0000155FE /* TransactionHeaderCell.xib */; };
 		24D71E2F20C8724C000155FE /* SegmentedControlCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 24D71E2D20C8724C000155FE /* SegmentedControlCell.xib */; };
@@ -285,6 +286,7 @@
 		24C63DB31F7F15DD0096A807 /* WatchlistViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchlistViewController.swift; sourceTree = "<group>"; };
 		24CD00012073AEF30094A9ED /* SwiftKeccak.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftKeccak.xcodeproj; path = Frameworks/SwiftKeccak/SwiftKeccak.xcodeproj; sourceTree = "<group>"; };
 		24CDFFEB2073AE040094A9ED /* SwiftyBeaver.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftyBeaver.xcodeproj; path = Frameworks/SwiftyBeaver/SwiftyBeaver.xcodeproj; sourceTree = "<group>"; };
+		24D11B0920CB5A03001C9135 /* Filter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filter.swift; sourceTree = "<group>"; };
 		24D71E2420C861DA000155FE /* FetchedResultsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FetchedResultsTableViewController.swift; path = Krypton/ViewController/Tools/FetchedResultsTableViewController.swift; sourceTree = SOURCE_ROOT; };
 		24D71E2820C865D0000155FE /* TransactionHeaderCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TransactionHeaderCell.xib; sourceTree = "<group>"; };
 		24D71E2D20C8724C000155FE /* SegmentedControlCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SegmentedControlCell.xib; sourceTree = "<group>"; };
@@ -493,6 +495,7 @@
 		24CD00252073B0DB0094A9ED /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				24D11B0920CB5A03001C9135 /* Filter.swift */,
 				24CD00242073B0CC0094A9ED /* EntitiesMO */,
 				24CD00232073B0AE0094A9ED /* Currency */,
 				24A9FA3F20C80C310058223D /* Daemons */,
@@ -834,6 +837,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2400D0961F424B5600833958 /* EtherscanAPI.swift in Sources */,
+				24D11B0A20CB5A03001C9135 /* Filter.swift in Sources */,
 				247D1C171FBA265100B45941 /* Blockchain.swift in Sources */,
 				24D71E8320C95584000155FE /* TaxAdviser.swift in Sources */,
 				2470BB0520CA7063000DEE4C /* TappableCell.swift in Sources */,

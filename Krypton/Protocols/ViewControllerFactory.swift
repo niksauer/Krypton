@@ -35,6 +35,6 @@ protocol ViewControllerFactory {
     
     // Shared
     func makeCurrencySelector(type: CurrencyType, selection: Currency?) -> CurrencySelectorViewController
-    func makeFilterViewController() -> FilterViewController
+    func makeFilterViewController(showsAdvancedProperties: Bool, isAddressSelector: Bool) -> FilterViewController
     
 }

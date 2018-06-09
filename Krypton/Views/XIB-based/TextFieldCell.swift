@@ -15,7 +15,6 @@ class TextFieldCell: UITableViewCell {
     
     // MARK: - Private Properties
     private var onChange: ((String?) -> Void)?
-    private var isEnabledClearButtonMode: UITextFieldViewMode = .whileEditing
     
     // MARK: - Public Properties
     var isEnabled: Bool = true {
@@ -30,6 +29,12 @@ class TextFieldCell: UITableViewCell {
         }
     }
     
+    var isEnabledClearButtonMode: UITextFieldViewMode = .whileEditing {
+        didSet {
+            isEnabled = { isEnabled }()
+        }
+    }
+    
     // MARK: - Initialization
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -37,10 +42,9 @@ class TextFieldCell: UITableViewCell {
     }
     
     // MARK: - Public Methods
-    func configure(text: String?, placeholder: String?, isEnabled: Bool, isEnabledClearButtonMode: UITextFieldViewMode = .whileEditing, onChange: ((String?) -> Void)?) {
+    func configure(text: String?, placeholder: String?, isEnabled: Bool, onChange: ((String?) -> Void)?) {
         textField.text = text
         textField.placeholder = placeholder
-        self.isEnabledClearButtonMode = isEnabledClearButtonMode
         self.isEnabled = isEnabled
         self.onChange = onChange
     }

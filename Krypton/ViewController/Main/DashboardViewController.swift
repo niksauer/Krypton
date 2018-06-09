@@ -1,5 +1,5 @@
 //
-//  DashboardController.swift
+//  DashboardViewController.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 13.08.17.
@@ -105,38 +105,42 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
     // MARK: - Customization
     override func viewDidLoad() {
         super.viewDidLoad()
-        investmentLabel.text = "Total Investment"
         
-        portfolioValueLabel.tag = 0
+        // portfolio
         portfolioValueLabel.isUserInteractionEnabled = true
         let portfolioValueTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(togglePortfolioDisplayType))
         portfolioValueLabel.addGestureRecognizer(portfolioValueTapRecognizer)
         
-        profitValueLabel.tag = 1
+        // profit
         profitValueLabel.isUserInteractionEnabled = true
         let profitValueTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(toggleProfitType))
         profitValueLabel.addGestureRecognizer(profitValueTapRecognizer)
+        
+        // investment
+        investmentLabel.text = "Total Investment"
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
         kryptonDaemon.delegate = self
         tickerDaemon.delegate = self
+        
         updateUI()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        
         kryptonDaemon.delegate = nil
         tickerDaemon.delegate = nil
     }
 
     // MARK: - Private Methods
     @objc private func filterButtonPressed() {
-        let filterViewController = viewFactory.makeFilterViewController()
+        let filterViewController = viewFactory.makeFilterViewController(showsAdvancedProperties: false, isAddressSelector: true)
         filterViewController.delegate = self
-        filterViewController.isSelector = true
-        filterViewController.filter.transactionType = filter.transactionType
+        filterViewController.filter = filter
         let filterNavigationController = UINavigationController(rootViewController: filterViewController)
         navigationController?.present(filterNavigationController, animated: true)
     }
@@ -177,13 +181,13 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
         updateUI()
     }
     
-    // MARK: - Filter Delegate
-    func didChangeSelectedAddresses() {
+    // MARK: - FilterController Delegate
+    func filterControllerDidSetSelectedAddresses(_ filterController: FilterViewController) {
         updateUI()
     }
-    
-    func didChangeTransactionType(type: TransactionType) {
+ 
+    func filterController(_ filterController: FilterViewController, didSetTransactionType type: TransactionType) {
         filter.transactionType = type
     }
-
+    
 }
