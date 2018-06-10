@@ -300,7 +300,6 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
                     cell.detailTextLabel?.text = currencyFormatter.getRelativeProfitFormatting(from: profitStats)
                 } else {
                     cell.textLabel?.text = "Absolute Profit"
-                    print(profitStats)
                     cell.detailTextLabel?.text = currencyFormatter.getAbsoluteProfitFormatting(from: profitStats, currency: transaction.owner!.quoteCurrency)
                 }
                 

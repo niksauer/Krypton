@@ -42,7 +42,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
             return nil
         }
         
-        return selectedIndexPaths.map { self.fetchedResultsController!.object(at: $0) }
+        return selectedIndexPaths.map { self.fetchedResultsController.object(at: $0) }
     }
     
     private var isFilterActive = false {
@@ -89,14 +89,16 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
         
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(updateData), for: .valueChanged)
+
+        updateUI()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         navigationController?.setToolbarHidden(false, animated: true)
-        
-        updateUI()
+    
+        updateToolbar()
         startUpdateTimer()
     }
     
@@ -124,7 +126,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
     // MARK: UI Initialization
     @objc private func updateData() {
         isUpdating = true
-        
+
         portfolioManager.updateAddresses(addresses) {
             self.refreshControl?.endRefreshing()
             self.isUpdating = false
@@ -134,7 +136,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
     private func updateUI() {
         updateResults()
         updateToolbar()
-        
+
         if let transactions = fetchedResultsController?.fetchedObjects, transactions.count > 0 {
             self.navigationItem.rightBarButtonItem = editButtonItem
         } else {
@@ -278,7 +280,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
                 if let unreadTransactions = fetchedResultsController?.fetchedObjects?.filter({ $0.isUnread }), unreadTransactions.count > 0 {
                     title.append(NSAttributedString(string: "\(unreadTransactions.count) unread", attributes: [
                         NSAttributedStringKey.foregroundColor : UIColor.gray
-                        ]))
+                    ]))
                 } else {
                     messageLabel.numberOfLines = 1
                 }

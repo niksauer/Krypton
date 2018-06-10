@@ -544,7 +544,6 @@
 			isa = PBXGroup;
 			children = (
 				24FA2C1820CA99EC00034D9D /* XIB-based */,
-				24A514D31F7DA5300003BD65 /* TransactionCell.swift */,
 				24FA2C1720CA99D100034D9D /* Programmatic */,
 			);
 			path = Views;
@@ -617,6 +616,7 @@
 		24FA2C1820CA99EC00034D9D /* XIB-based */ = {
 			isa = PBXGroup;
 			children = (
+				24A514D31F7DA5300003BD65 /* TransactionCell.swift */,
 				247665511F94CFB8000857B2 /* TransactionHeaderCell.swift */,
 				24D71E2820C865D0000155FE /* TransactionHeaderCell.xib */,
 				24A9FA4220C810690058223D /* SectionHeaderCell.swift */,
