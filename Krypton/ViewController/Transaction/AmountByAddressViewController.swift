@@ -46,6 +46,8 @@ class AmountByAddressViewController: UITableViewController {
         case .sender:
             title = "Senders"
         }
+        
+        tableView.allowsSelection = false
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -62,11 +64,8 @@ class AmountByAddressViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "infoCell", for: indexPath)
         let address = addresses[indexPath.row]
-        
-        cell.textLabel?.numberOfLines = 1;
-        cell.textLabel?.lineBreakMode = .byTruncatingTail
+        let cell = UITableViewCell(style: .value1, reuseIdentifier: "InfoCell")
         
         cell.textLabel?.text = portfolioManager.getAlias(for: address)
         cell.detailTextLabel?.text = currencyFormatter.getCurrencyFormatting(for: amountForAddress[address]!, currency: currency)

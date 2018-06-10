@@ -31,10 +31,29 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
     private var feeIndexPath: IndexPath!
     private var blockIndexPath: IndexPath!
     
-    private var showsExchangeValue = true
-    private var showsRelativeProfit = true
-    private var showsCryptoFees = true
-    private var showsBlockNumber = true
+    private var showsExchangeValue = true {
+        didSet {
+            updateUI()
+        }
+    }
+    
+    private var showsRelativeProfit = true {
+        didSet {
+            updateUI()
+        }
+    }
+    
+    private var showsCryptoFees = true {
+        didSet {
+            updateUI()
+        }
+    }
+    
+    private var showsBlockNumber = true {
+        didSet {
+            updateUI()
+        }
+    }
     
     // MARK: - Initialization
     init(viewFactory: ViewControllerFactory, transaction: Transaction, kryptonDaemon: KryptonDaemon, portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, blockchainDaemon: BlockchainDaemon, currencyFormatter: CurrencyFormatter, dateFormatter: DateFormatter, taxAdviser: TaxAdviser) {
@@ -83,15 +102,22 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
         let readButton = UIBarButtonItem(image: #imageLiteral(resourceName: "OT_double-tick"), style: .plain, target: self, action: #selector(toggleIsUnread))
         
         self.toolbarItems = [investmentButton, flexibleSpacer, exchangeValueButton, flexibleSpacer, readButton]
-        self.navigationController?.setToolbarHidden(false, animated: true)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        self.navigationController?.setToolbarHidden(false, animated: true)
+    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
         kryptonDaemon.delegate = nil
         tickerDaemon.delegate = nil
         blockchainDaemon.delegate = nil
+        
+        self.navigationController?.setToolbarHidden(true, animated: true)
     }
     
     // MARK: - Private Methods
@@ -202,18 +228,18 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch section {
-        case _ where section == 0:
+        case 0:
             return 1
-        case _ where section == 1:
+        case 1:
             switch transaction.owner! {
             case is Ethereum:
                 return 3
             default:
                 return 2
             }
-        case _ where section == 2:
+        case 2:
             return 2
-        case _ where section == 3:
+        case 3:
             return 3
         default:
             return 0
@@ -225,15 +251,15 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
         let row = indexPath.row
         
         switch section {
-        case _ where section == 0:
+        case 0:
             let cell = tableView.dequeueReusableCell(withIdentifier: "TransactionHeaderCell", for: indexPath) as! TransactionHeaderCell
             cell.configure(transaction: transaction, currencyFormatter: currencyFormatter, dateFormatter: dateFormatter)
             return cell
-        case _ where section == 1:
+        case 1:
             let cell = UITableViewCell(style: .value1, reuseIdentifier: "InfoCell")
             
             switch row {
-            case _ where row == 0:
+            case 0:
                 sendersIndexPath = indexPath
                 
                 if transaction.senders.count > 1 {
@@ -243,10 +269,10 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
                 } else {
                     cell.textLabel?.text = "Sender"
                     cell.detailTextLabel?.text = portfolioManager.getAlias(for: transaction.primarySender)
+                    cell.selectionStyle = .none
                 }
-            case _ where row == 1:
+            case 1:
                 receiversIndexPath = indexPath
-                
                 
                 if transaction.receivers.count > 1 {
                     cell.textLabel?.text = "Receivers"
@@ -255,20 +281,24 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
                 } else {
                     cell.textLabel?.text = "Receiver"
                     cell.detailTextLabel?.text = portfolioManager.getAlias(for: transaction.primaryReceiver)
+                    cell.selectionStyle = .none
                 }
-            case _ where row == 2 && transaction is EthereumTransaction:
+            case 2 where transaction is EthereumTransaction:
                 cell.textLabel?.text = "Type"
                 cell.detailTextLabel?.text = (transaction as! EthereumTransaction).type
+                cell.selectionStyle = .none
             default:
                 break
             }
             
             return cell
-        case _ where section == 2:
+        case 2:
+            let cell = UITableViewCell(style: .value1, reuseIdentifier: "InfoCell")
+            cell.selectionStyle = .none
+            
             switch row {
-            case _ where row == 0:
+            case 0:
                 exchangeValueIndexPath = indexPath
-                let cell = UITableViewCell(style: .value1, reuseIdentifier: "InfoCell")
                 
                 guard let exchangeValue = taxAdviser.getExchangeValue(for: transaction), let currentExchangeValue = taxAdviser.getCurrentExchangeValue(for: transaction) else {
                     cell.textLabel?.text = "Value"
@@ -285,9 +315,8 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
                 }
                 
                 return cell
-            case _ where row == 1:
+            case 1:
                 profitIndexPath = indexPath
-                let cell = UITableViewCell(style: .value1, reuseIdentifier: "InfoCell")
                 
                 guard let profitStats = taxAdviser.getProfitStats(for: transaction, timeframe: .allTime) else {
                     cell.textLabel?.text = "Profit"
@@ -306,13 +335,14 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
                 return cell
             default:
                 // not valid
-                return UITableViewCell()
+                fatalError()
             }
-        case _ where section == 3:
+        case 3:
             let cell = UITableViewCell(style: .value1, reuseIdentifier: "InfoCell")
+            cell.selectionStyle = .none
             
             switch row {
-            case _ where row == 0:
+            case 0:
                 feeIndexPath = indexPath
                 cell.textLabel?.text = "Fee"
                 
@@ -331,7 +361,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
                 } else {
                     cell.detailTextLabel?.text = currencyFormatter.getCurrencyFormatting(for: feeExchangeValue, currency: transaction.owner!.quoteCurrency)
                 }
-            case _ where row == 1:
+            case 1:
                 blockIndexPath = indexPath
                 
                 guard let blockCount = blockchainDaemon.getBlockCount(for: transaction.owner!.blockchain) else {
@@ -346,18 +376,18 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
                     cell.textLabel?.text = "Confirmations"
                     cell.detailTextLabel?.text = String(blockCount-UInt64(transaction.block))
                 }
-            case _ where row == 2:
+            case 2:
                 cell.textLabel?.text = "Hash"
                 cell.detailTextLabel?.text = transaction.identifier
             default:
                 // not valid
-                return UITableViewCell()
+                fatalError()
             }
     
             return cell
         default:
             // not valid
-            return UITableViewCell()
+            fatalError()
         }
     }
     
@@ -372,33 +402,31 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch indexPath {
-        case _ where indexPath == sendersIndexPath:
-            guard let transaction = transaction as? BitcoinTransaction else {
+        case sendersIndexPath:
+            guard let transaction = transaction as? BitcoinTransaction, transaction.senders.count > 1 else {
                 return
             }
         
             let amountByAddressViewController = viewFactory.makeAmountByAddressViewController(for: transaction, type: .sender)
             navigationController?.pushViewController(amountByAddressViewController, animated: true)
-        case _ where indexPath == receiversIndexPath:
-            guard let transaction = transaction as? BitcoinTransaction else {
+        case receiversIndexPath:
+            guard let transaction = transaction as? BitcoinTransaction, transaction.receivers.count > 1 else {
                 return
             }
             
             let amountByAddressViewController = viewFactory.makeAmountByAddressViewController(for: transaction, type: .receiver)
             navigationController?.pushViewController(amountByAddressViewController, animated: true)
-        case _ where indexPath == exchangeValueIndexPath:
+        case exchangeValueIndexPath:
             showsExchangeValue = !showsExchangeValue
-        case _ where indexPath == profitIndexPath:
+        case profitIndexPath:
             showsRelativeProfit = !showsRelativeProfit
-        case _ where indexPath == feeIndexPath:
+        case feeIndexPath:
             showsCryptoFees = !showsCryptoFees
-        case _ where indexPath == blockIndexPath:
+        case blockIndexPath:
             showsBlockNumber = !showsBlockNumber
         default:
             break
         }
-        
-        updateUI()
     }
     
     // MARK: - TextField Delegate

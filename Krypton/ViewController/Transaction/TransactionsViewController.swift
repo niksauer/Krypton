@@ -187,6 +187,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
         fetchedResultsController = NSFetchedResultsController<Transaction>(fetchRequest: request, managedObjectContext: searchContext, sectionNameKeyPath: nil, cacheName: nil)
         fetchedResultsController?.delegate = self
         try? fetchedResultsController?.performFetch()
+        tableView.reloadData()
     }
     
     private func updateToolbar() {
