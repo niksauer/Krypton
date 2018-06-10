@@ -150,13 +150,13 @@ final class PortfolioManager: PortfolioDelegate {
     
     func getQuoteCurrency() -> Currency {
         if let storedQuoteCurrencyCode = UserDefaults.standard.value(forKey: "quoteCurrency") as? String, let storedQuoteCurrency = currencyManager.getCurrency(from: storedQuoteCurrencyCode) {
-            log.debug("Loaded base currency '\(storedQuoteCurrency)' from UserDefaults.")
+            log.debug("Loaded quote currency '\(storedQuoteCurrency)' from UserDefaults.")
             return storedQuoteCurrency
         } else {
             let standardQuoteCurrency = Fiat.EUR
             UserDefaults.standard.setValue(standardQuoteCurrency.rawValue, forKey: "quoteCurrency")
             UserDefaults.standard.synchronize()
-            log.debug("Could not load base currency from UserDefaults. Set '\(standardQuoteCurrency)' as default.")
+            log.debug("Could not load quote currency from UserDefaults. Set '\(standardQuoteCurrency)' as default.")
             return standardQuoteCurrency
         }
     }
@@ -176,11 +176,11 @@ final class PortfolioManager: PortfolioDelegate {
             UserDefaults.standard.setValue(currency.code, forKey: "quoteCurrency")
             UserDefaults.standard.synchronize()
             quoteCurrency = currency
-            log.debug("Updated base currency (\(currency.code)) of PortfolioManager.")
+            log.debug("Updated quote currency (\(currency.code)) of PortfolioManager.")
             
             delegate?.portfolioManagerDidChangeQuoteCurrency(self)
         } catch {
-            log.error("Failed to update base currency of PortfolioManager: \(error)")
+            log.error("Failed to update quote currency of PortfolioManager: \(error)")
             throw error
         }
     }
@@ -210,14 +210,14 @@ final class PortfolioManager: PortfolioDelegate {
     }
     
     // MARK: Management
-    /// creates, saves and adds portfolio with specified base currency
+    /// creates, saves and adds portfolio with specified quote currency
     func addPortfolio(alias: String, quoteCurrency: Currency) throws -> Portfolio {
         do {
             let portfolio = Portfolio.createPortfolio(alias: alias, quoteCurrency: quoteCurrency, in: context)
             try context.save()
             portfolio.delegate = self
             storedPortfolios.append(portfolio)
-            log.info("Created portfolio '\(alias)' with base currency '\(quoteCurrency)'.")
+            log.info("Created portfolio '\(alias)' with quote currency '\(quoteCurrency)'.")
             delegate?.portfolioManagerDidReceivePortfolioUpdate(self)
             return portfolio
         } catch {

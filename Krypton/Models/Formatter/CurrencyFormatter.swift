@@ -25,7 +25,7 @@ struct CurrencyFormatter {
         }
     }
     
-    /// formats fiat currency values according to set base currency
+    /// formats fiat currency values according to set quote currency
     private func getFormatting(for value: Double, currency: Fiat) -> String? {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency

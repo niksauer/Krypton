@@ -17,10 +17,41 @@ class WatchlistViewController: UITableViewController, TickerDaemonDelegate {
     private let currencyFormatter: CurrencyFormatter
     
     // MARK: - Public Properties
-    private var requiredCurrencies = [Currency]()
-    private var manualCurrencies = [Currency]()
-    private var missingCurrencies = [Currency]()
-    private var displayedCurrencies = [Currency]()
+    private var requiredCurrencies: [Currency] {
+        return portfolioManager.requiredCurrencyPairs.map({ $0.base })
+    }
+    
+    private var manualCurrencies: [Currency] {
+        return portfolioManager.manualCurrencies.filter({ optionalCurrency in
+            !requiredCurrencies.contains(where: { $0.isEqual(to: optionalCurrency )})
+        })
+    }
+    
+    private var missingCurrencies: [Currency] {
+        var missingCurrencies = [Currency]()
+        
+        for currency in currencyManager.getCurrencies(of: .Crypto) {
+            guard !requiredCurrencies.contains(where: { $0.isEqual(to: currency) }) && !manualCurrencies.contains(where: { $0.isEqual(to: currency) }) else {
+                continue
+            }
+            
+            missingCurrencies.append(currency)
+        }
+        
+        return missingCurrencies.sorted(by: { $0.code < $1.code })
+    }
+    
+    private var displayedCurrencies: [Currency] {
+        var displayedCurrencies = requiredCurrencies + manualCurrencies
+        displayedCurrencies = displayedCurrencies.sorted(by: { $0.code < $1.code })
+        
+        if isEditing {
+            displayedCurrencies = displayedCurrencies + missingCurrencies
+            return displayedCurrencies
+        } else {
+            return displayedCurrencies
+        }
+    }
 
     // MARK: - Initialization
     init(portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, currencyManager: CurrencyManager, currencyFormatter: CurrencyFormatter) {
@@ -33,21 +64,6 @@ class WatchlistViewController: UITableViewController, TickerDaemonDelegate {
         
         title = "Watchlist"
         navigationItem.rightBarButtonItem = editButtonItem
-        
-        requiredCurrencies = portfolioManager.requiredCurrencyPairs.map({ $0.base })
-        manualCurrencies = portfolioManager.manualCurrencies.filter({ optionalCurrency in
-            !requiredCurrencies.contains(where: { $0.isEqual(to: optionalCurrency )})
-        })
-        
-        for currency in currencyManager.getCurrencies(of: .Crypto) {
-            guard !requiredCurrencies.contains(where: { $0.isEqual(to: currency) }) && !manualCurrencies.contains(where: { $0.isEqual(to: currency) }) else {
-                continue
-            }
-            
-            missingCurrencies.append(currency)
-        }
-        
-        displayedCurrencies = requiredCurrencies + manualCurrencies
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -58,27 +74,35 @@ class WatchlistViewController: UITableViewController, TickerDaemonDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tickerDaemon.delegate = self
-        
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(updateData), for: .valueChanged)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        tickerDaemon.delegate = self
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        tickerDaemon.delegate = nil
     }
 
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
         
-        var indexPaths = [IndexPath]()
-        
+        var missingCurrenciesIndexPaths = [IndexPath]()
+
         for index in 0..<missingCurrencies.count {
-            indexPaths.append(IndexPath(row: requiredCurrencies.count + manualCurrencies.count + index, section: 0))
+            missingCurrenciesIndexPaths.append(IndexPath(row: requiredCurrencies.count + manualCurrencies.count + index, section: 0))
         }
-        
+
         if isEditing {
-            displayedCurrencies = requiredCurrencies + manualCurrencies + missingCurrencies
-            tableView.insertRows(at: indexPaths, with: .top)
+            tableView.insertRows(at: missingCurrenciesIndexPaths, with: .top)
         } else {
-            displayedCurrencies = requiredCurrencies + manualCurrencies
-            tableView.deleteRows(at: indexPaths, with: .top)
+            tableView.deleteRows(at: missingCurrenciesIndexPaths, with: .top)
         }
     }
     
@@ -100,11 +124,7 @@ class WatchlistViewController: UITableViewController, TickerDaemonDelegate {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if isEditing {
-            return requiredCurrencies.count + manualCurrencies.count + missingCurrencies.count
-        } else {
-            return requiredCurrencies.count + manualCurrencies.count
-        }
+        return displayedCurrencies.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -128,8 +148,11 @@ class WatchlistViewController: UITableViewController, TickerDaemonDelegate {
     
     // MARK: - TableView Delegate
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        let currency = displayedCurrencies[indexPath.row]
-        return manualCurrencies.contains(where: { $0.isEqual(to: currency) }) || missingCurrencies.contains(where: { $0.isEqual(to: currency) })
+        guard let currency = displayedCurrencies[safe: indexPath.row] else {
+            return false
+        }
+        
+        return !requiredCurrencies.contains(where: { $0.isEqual(to: currency)})
     }
     
     override func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCellEditingStyle {
@@ -147,18 +170,15 @@ class WatchlistViewController: UITableViewController, TickerDaemonDelegate {
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         let currency = displayedCurrencies[indexPath.row]
 
-        if editingStyle == .delete, let index = manualCurrencies.index(where: { $0.isEqual(to: currency) }) {
-            manualCurrencies.remove(at: index)
-            missingCurrencies.append(currency)
+        switch editingStyle {
+        case .delete:
             portfolioManager.removeCurrency(currency)
-        }
-        
-        if editingStyle == .insert, let index = missingCurrencies.index(where: { $0.isEqual(to: currency) }) {
-            missingCurrencies.remove(at: index)
-            manualCurrencies.append(currency)
+        case .insert:
             portfolioManager.addCurrency(currency)
+        case .none:
+            break
         }
-        
+
         tableView.reloadData()
     }
     

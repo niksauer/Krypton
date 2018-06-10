@@ -25,7 +25,7 @@ protocol PortfolioDelegate {
 class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
     
     // MARK: - Public Class Methods
-    /// creates and returns portfolio with specified base currency
+    /// creates and returns portfolio with specified quote currency
     class func createPortfolio(alias: String?, quoteCurrency: Currency, in context: NSManagedObjectContext) -> Portfolio {
         let portfolio = Portfolio(context: context)
         portfolio.alias = alias
