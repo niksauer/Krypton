@@ -62,12 +62,12 @@ class AddPortfolioViewController: UITableViewController {
         validateSaveButton()
     }
     
-    // MARK: - Navigation
-    @IBAction func cancelButtonPressed() {
+    // MARK: - Public Methods
+    @objc private func cancelButtonPressed() {
         dismiss(animated: true, completion: nil)
     }
     
-    @IBAction func saveButtonPressed() {
+    @objc private func saveButtonPressed() {
         guard let alias = alias else {
             return
         }
@@ -82,7 +82,6 @@ class AddPortfolioViewController: UITableViewController {
         }
     }
     
-    // MARK: - Public Methods
     private func validateSaveButton() {
         guard let alias = alias?.trimmingCharacters(in: .whitespacesAndNewlines), !alias.isEmpty else {
             saveBarButtonItem.isEnabled = false

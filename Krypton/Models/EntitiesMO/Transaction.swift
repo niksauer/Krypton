@@ -187,4 +187,13 @@ class EthereumTransaction: Transaction {
 
 class BitcoinTransaction: Transaction {
     
+    // MARK: - Public Properties
+    var storedAmountFromSender: [String: Double] {
+        return amountFromSender as! [String: Double]
+    }
+    
+    var storedAmountForReceiver: [String: Double] {
+        return amountForReceiver as! [String: Double]
+    }
+    
 }

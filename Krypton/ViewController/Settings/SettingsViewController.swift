@@ -32,7 +32,7 @@ class SettingsViewController: UITableViewController, CurrencySelectorDelegate {
     }
     
     // MARK: - Private Methods
-    @IBAction private func doneButtonPressed() {
+    @objc private func doneButtonPressed() {
         self.dismiss(animated: true, completion: nil)
     }
     

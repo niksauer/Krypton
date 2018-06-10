@@ -82,11 +82,11 @@ class AddAddressViewController: UITableViewController, UITextFieldDelegate, UIPi
     }
     
     // MARK: - Private Methods
-    @IBAction private func cancelButtonPressed() {
+    @objc private func cancelButtonPressed() {
         dismiss(animated: true, completion: nil)
     }
     
-    @IBAction private func saveButtonPressed() {
+    @objc private func saveButtonPressed() {
         guard let address = address, let selectedBlockchain = selectedBlockchain, let selectedPortfolio = selectedPortfolio else {
             return
         }
@@ -210,7 +210,7 @@ class AddAddressViewController: UITableViewController, UITextFieldDelegate, UIPi
                 self.tableView.endUpdates()
             })
         case selectedPortfolioIndexPath:
-            let portfolioSelectionViewController = viewFactory.makePortfolioSelectionViewController(selection: selectedPortfolio)
+            let portfolioSelectionViewController = viewFactory.makePortfolioSelectorViewController(selection: selectedPortfolio)
             portfolioSelectionViewController.delegate = self
             navigationController?.pushViewController(portfolioSelectionViewController, animated: true)
         default:

@@ -232,7 +232,7 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
         
         if isEditing {
             if section == 1 {
-                let portfolioSelector = viewFactory.makePortfolioSelectionViewController(selection: address.portfolio)
+                let portfolioSelector = viewFactory.makePortfolioSelectorViewController(selection: address.portfolio)
                 portfolioSelector.delegate = self
                 navigationController?.pushViewController(portfolioSelector, animated: true)
             }

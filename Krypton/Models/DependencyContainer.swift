@@ -69,7 +69,7 @@ struct DependencyContainer {
 }
 
 extension DependencyContainer: ViewControllerFactory {
-    
+
     // Main
     func makeAccountsViewController() -> AccountsViewController {
         return AccountsViewController(viewFactory: self, kryptonDaemon: kryptonDaemon, portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, currencyFormatter: currencyFormatter, taxAdviser: taxAdviser)
@@ -88,7 +88,7 @@ extension DependencyContainer: ViewControllerFactory {
         return PortfoliosViewController(viewFactory: self, kryptonDaemon: kryptonDaemon, portfolioManager: portfolioManager, selectedPortfolio: nil, isSelector: false)
     }
     
-    func makePortfolioSelectionViewController(selection: Portfolio?) -> PortfoliosViewController {
+    func makePortfolioSelectorViewController(selection: Portfolio?) -> PortfoliosViewController {
         return PortfoliosViewController(viewFactory: self, kryptonDaemon: kryptonDaemon, portfolioManager: portfolioManager, selectedPortfolio: selection, isSelector: true)
     }
     
@@ -109,8 +109,8 @@ extension DependencyContainer: ViewControllerFactory {
         return AddAddressViewController(viewFactory: self, portfolioManager: portfolioManager, blockchains: blockchains)
     }
     
-    func makeAmountByAddressViewController(for transaction: Transaction) -> AmountByAddressViewController {
-        return AmountByAddressViewController(transaction: transaction, portfolioManager: portfolioManager, currencyFormatter: currencyFormatter)
+    func makeAmountByAddressViewController(for transaction: BitcoinTransaction, type: AmountByAddressType) -> AmountByAddressViewController {
+        return AmountByAddressViewController(transaction: transaction, portfolioManager: portfolioManager, currencyFormatter: currencyFormatter, type: type)
     }
     
     // Transaction

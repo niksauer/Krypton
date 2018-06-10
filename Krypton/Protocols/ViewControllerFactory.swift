@@ -17,7 +17,7 @@ protocol ViewControllerFactory {
     
     // Portfolio
     func makePortfoliosViewController() -> PortfoliosViewController
-    func makePortfolioSelectionViewController(selection: Portfolio?) -> PortfoliosViewController
+    func makePortfolioSelectorViewController(selection: Portfolio?) -> PortfoliosViewController
     func makeAddPortfolioViewController() -> AddPortfolioViewController
     func makePortfolioDetailViewController(for portfolio: Portfolio) -> PortfolioDetailViewController
     
@@ -28,7 +28,7 @@ protocol ViewControllerFactory {
     // Transaction
     func makeTransactionsViewController(for addresses: [Address]) -> TransactionsViewController
     func makeTransactionDetailViewController(for transaction: Transaction) -> TransactionDetailViewController
-    func makeAmountByAddressViewController(for transaction: Transaction) -> AmountByAddressViewController
+    func makeAmountByAddressViewController(for transaction: BitcoinTransaction, type: AmountByAddressType) -> AmountByAddressViewController
     
     // Settings
     func makeSettingsViewController() -> SettingsViewController

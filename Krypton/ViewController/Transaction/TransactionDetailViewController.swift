@@ -14,14 +14,6 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
     private var valueSaveAction: UIAlertAction!
     
     // MARK: - Private Properties
-    private var sendersIndexPath: IndexPath!
-    private var receiversIndexPath: IndexPath!
-    private var exchangeValueIndexPath: IndexPath!
-    private var profitIndexPath: IndexPath!
-    private var feeIndexPath: IndexPath!
-    private var blockIndexPath: IndexPath!
-    
-    // MARK: - Private Properties
     private let viewFactory: ViewControllerFactory
     private let transaction: Transaction
     private let kryptonDaemon: KryptonDaemon
@@ -32,11 +24,17 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
     private let dateFormatter: DateFormatter
     private let taxAdviser: TaxAdviser
     
-    // MARK: - Public Properties
-    var showsExchangeValue = true
-    var showsRelativeProfit = true
-    var showsCryptoFees = true
-    var showsBlockNumber = true
+    private var sendersIndexPath: IndexPath!
+    private var receiversIndexPath: IndexPath!
+    private var exchangeValueIndexPath: IndexPath!
+    private var profitIndexPath: IndexPath!
+    private var feeIndexPath: IndexPath!
+    private var blockIndexPath: IndexPath!
+    
+    private var showsExchangeValue = true
+    private var showsRelativeProfit = true
+    private var showsCryptoFees = true
+    private var showsBlockNumber = true
     
     // MARK: - Initialization
     init(viewFactory: ViewControllerFactory, transaction: Transaction, kryptonDaemon: KryptonDaemon, portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, blockchainDaemon: BlockchainDaemon, currencyFormatter: CurrencyFormatter, dateFormatter: DateFormatter, taxAdviser: TaxAdviser) {
@@ -75,7 +73,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
             do {
                 try transaction.setIsUnread(state: false)
             } catch {
-                // present error
+                // TODO: present error
             }
         }
         
@@ -90,6 +88,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        
         kryptonDaemon.delegate = nil
         tickerDaemon.delegate = nil
         blockchainDaemon.delegate = nil
@@ -106,7 +105,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
         do {
             try transaction.setIsInvestment(state: !transaction.isInvestment)
         } catch {
-            // present error
+            // TODO: present error
         }
     }
     
@@ -114,7 +113,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
         do {
             try transaction.setIsUnread(state: !transaction.isUnread)
         } catch {
-            // present error
+            // TODO: present error
         }
     }
     
@@ -196,7 +195,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
         updateUI()
     }
     
-    // MARK: - TableView Data Source
+    // MARK: - TableView DataSource
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 4
     }
@@ -379,22 +378,14 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
                 return
             }
         
-            let amountByAddressViewController = viewFactory.makeAmountByAddressViewController(for: transaction)
-            amountByAddressViewController.title = "Senders"
-            amountByAddressViewController.addresses = transaction.senders
-            amountByAddressViewController.amountForAddress = transaction.amountFromSender as! [String: Double]
-            
+            let amountByAddressViewController = viewFactory.makeAmountByAddressViewController(for: transaction, type: .sender)
             navigationController?.pushViewController(amountByAddressViewController, animated: true)
         case _ where indexPath == receiversIndexPath:
             guard let transaction = transaction as? BitcoinTransaction else {
                 return
             }
             
-            let amountByAddressViewController = viewFactory.makeAmountByAddressViewController(for: transaction)
-            amountByAddressViewController.title = "Receivers"
-            amountByAddressViewController.addresses = transaction.receivers
-            amountByAddressViewController.amountForAddress = transaction.amountForReceiver as! [String: Double]
-            
+            let amountByAddressViewController = viewFactory.makeAmountByAddressViewController(for: transaction, type: .receiver)
             navigationController?.pushViewController(amountByAddressViewController, animated: true)
         case _ where indexPath == exchangeValueIndexPath:
             showsExchangeValue = !showsExchangeValue

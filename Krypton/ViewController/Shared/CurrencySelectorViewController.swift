@@ -1,5 +1,5 @@
 //
-//  CurrencySelectionController.swift
+//  CurrencySelectorViewController.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 17.09.17.
@@ -18,8 +18,7 @@ class CurrencySelectorViewController: UITableViewController {
     private let type: CurrencyType
     private var selection: Currency?
     private let currencyManager: CurrencyManager
-    
-    private var currencies: [Currency]!
+    private let currencies: [Currency]
     
     // MARK: - Public Properties
     var delegate: CurrencySelectorDelegate?

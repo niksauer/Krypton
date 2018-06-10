@@ -1,5 +1,5 @@
 //
-//  AmountForAddressController.swift
+//  AmountByAddressViewController.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 25.10.17.
@@ -8,31 +8,51 @@
 
 import UIKit
 
+enum AmountByAddressType {
+    case sender
+    case receiver
+}
+
 class AmountByAddressViewController: UITableViewController {
     
     // MARK: - Private Properties
     private let portfolioManager: PortfolioManager
+    private let currencyFormatter: CurrencyFormatter
+    private let addresses: [String]
+    private let amountForAddress: [String: Double]
+    private var currency: Currency
     
-    // MARK: - Public Properties
-    var addresses: [String]!
-    var amountForAddress: [String: Double]!
-    var currency: Currency
-    var currencyFormatter: CurrencyFormatter
-
     // MARK: - Initialization
-    init(transaction: Transaction, portfolioManager: PortfolioManager, currencyFormatter: CurrencyFormatter) {
+    init(transaction: BitcoinTransaction, portfolioManager: PortfolioManager, currencyFormatter: CurrencyFormatter, type: AmountByAddressType) {
         self.portfolioManager = portfolioManager
         self.currencyFormatter = currencyFormatter
+        
+        switch type {
+        case .receiver:
+            self.addresses = transaction.receivers
+            self.amountForAddress = transaction.storedAmountForReceiver
+        case .sender:
+            self.addresses = transaction.senders
+            self.amountForAddress = transaction.storedAmountFromSender
+        }
+        
         currency = transaction.owner!.blockchain
         
         super.init(style: .plain)
+        
+        switch type {
+        case .receiver:
+            title = "Receivers"
+        case .sender:
+            title = "Senders"
+        }
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: - TableView Data Source
+    // MARK: - TableView DataSource
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }

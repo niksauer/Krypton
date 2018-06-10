@@ -66,12 +66,12 @@ class FilterViewController: UITableViewController {
     }
     
     // MARK: - Public Methods
-    @IBAction func cancelButtonPressed() {
+    @objc private func cancelButtonPressed() {
         portfolioManager.discardChanges()
         dismiss(animated: true, completion: nil)
     }
     
-    @IBAction func applyButtonPressed() {
+    @objc private func applyButtonPressed() {
         delegate?.filterController?(self, didSetTransactionType: filter.transactionType)
         delegate?.filterController?(self, didSetIsUnread: filter.isUnread)
         delegate?.filterController?(self, didSetIsError: filter.isError)
@@ -94,7 +94,7 @@ class FilterViewController: UITableViewController {
         dismiss(animated: true, completion: nil)
     }
     
-    func setTransactionType(_ rawValue: Int) {
+    private func setTransactionType(_ rawValue: Int) {
         filter.transactionType = TransactionType(rawValue: rawValue)!
     }
     

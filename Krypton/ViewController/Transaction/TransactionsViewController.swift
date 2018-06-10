@@ -292,7 +292,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
     }
     
     // MARK: UI Updating
-    @objc func startUpdateTimer() {
+    @objc private func startUpdateTimer() {
         guard updateTimer == nil else {
             // timer already running
             return
@@ -308,7 +308,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
         log.debug("Started timer for TransactionsViewController with 60 second intervall.")
     }
     
-    @objc func stopUpdateTimer() {
+    @objc private func stopUpdateTimer() {
         guard updateTimer != nil else {
             // no timer set
             return
