@@ -43,7 +43,7 @@ enum Blockchain: String, Currency {
         }
     }
     
-    // MARK: - Currency Protocol
+    // MARK: - Currency
     var code: String {
         return self.rawValue
     }

@@ -29,7 +29,7 @@ enum Fiat: String, Currency {
         return [EUR, USD]
     }
     
-    // MARK: - Currency Protocol
+    // MARK: - Currency
     var code: String {
         return self.rawValue
     }

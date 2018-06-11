@@ -51,6 +51,10 @@ struct DependencyContainer {
         return TaxAdviser(exchangeRateManager: exchangeRateManager)
     }
     
+    private var tickerService: CryptoCompareService {
+        return CryptoCompareService(hostname: "min-api.cryptocompare.com", port: nil, credentials: nil)
+    }
+    
     // Mark: - Initialization
     init() throws {
         do {
@@ -60,6 +64,7 @@ struct DependencyContainer {
             throw error
         }
         
+//        tickerDaemon = TickerDaemon(tickerService: CryptoCompareService(hostname: "min-api.cryptocompare.com", port: nil, credentials: nil))
         tickerDaemon = TickerDaemon()
         blockchainDaemom = BlockchainDaemon()
         let exchangeRateManager = ExchangeRateManager(context: viewContext, tickerDaemon: tickerDaemon)

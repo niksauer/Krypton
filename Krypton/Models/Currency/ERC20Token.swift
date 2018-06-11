@@ -52,7 +52,7 @@ enum ERC20Token: String, TokenFeatures {
         }
     }
     
-    // MARK: - Currency Protocol
+    // MARK: - Currency
     var code: String {
         return self.rawValue
     }
@@ -73,7 +73,7 @@ enum ERC20Token: String, TokenFeatures {
         return .Crypto
     }
     
-    // MARK: - TokenFeatures Protocol
+    // MARK: - TokenFeatures
     var address: String {
         get {
             return ERC20Token.addressForToken[self]!

@@ -65,7 +65,7 @@ struct CurrencyPair: Hashable {
         self.quote = quote
     }
         
-    // MARK: - Hashable Protocol
+    // MARK: - Hashable
     var hashValue: Int {
         return name.hashValue
     }
