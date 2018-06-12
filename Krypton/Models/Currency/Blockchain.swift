@@ -10,46 +10,47 @@ import Foundation
 
 enum Blockchain: String, Currency {
     
-    case ETH
-    case BTC
+    case Ethereum
+    case Bitcoin
+    
+    // MARK: - Public Type Properties
+    static var allValues: [Currency] {
+        return [Ethereum, Bitcoin]
+    }
     
     // MARK: - Private Properties
-    private static let nameForBlockchain: [Blockchain: String] = [
-        .ETH: "Ethereum",
-        .BTC: "Bitcoin"
+    private static let codeForBlockchain: [Blockchain: String] = [
+        .Ethereum: "ETH",
+        .Bitcoin: "BTC"
     ]
     
     private static let symbolForBlockchain: [Blockchain: String] = [
-        .ETH : "Ξ",
-        .BTC : "Ƀ"
+        .Ethereum : "Ξ",
+        .Bitcoin : "Ƀ"
     ]
     
     private static let decimalDigitsForBlockchain: [Blockchain: Int] = [
-        .ETH: 18,
-        .BTC: 8
+        .Ethereum: 18,
+        .Bitcoin: 8
     ]
     
     // MARK: - Public Properties
-    static var allValues: [Currency] {
-        return [ETH, BTC]
-    }
-    
     var associatedTokens: [TokenFeatures]? {
         switch self {
-        case .ETH:
+        case .Ethereum:
             return ERC20Token.allValues as? [TokenFeatures]
         default:
             return nil
         }
     }
     
-    // MARK: - Currency Protocol
+    // MARK: - Currency
     var code: String {
-        return self.rawValue
+        return Blockchain.codeForBlockchain[self]!
     }
     
     var name: String {
-        return Blockchain.nameForBlockchain[self]!
+        return rawValue
     }
     
     var symbol: String {
@@ -67,7 +68,7 @@ enum Blockchain: String, Currency {
     // MARK: - Public Methods
     func getToken(address: String) -> TokenFeatures? {
         switch self {
-        case .ETH:
+        case .Ethereum:
             return ERC20Token.init(address: address)
         default:
             return nil
@@ -76,7 +77,7 @@ enum Blockchain: String, Currency {
     
     func getToken(code: String) -> TokenFeatures? {
         switch self {
-        case .ETH:
+        case .Ethereum:
             return ERC20Token(rawValue: code)
         default:
             return nil

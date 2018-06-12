@@ -11,7 +11,7 @@ import Foundation
 struct Filter {
     
     // MARK: - Private Properties
-    private static var displayNameForOption: [String : String] = [
+    private var displayNameForOption: [String : String] = [
         "transactionType" : "Type",
         "hasUserExchangeValue" : "Manual Value",
         "isUnread" : "Unread",
@@ -33,11 +33,11 @@ struct Filter {
         
         for option in allProperties() {
             if let isActive = option.value as? Bool, isActive {
-                activeProperties.append(Filter.displayNameForOption[option.key]!)
+                activeProperties.append(displayNameForOption[option.key]!)
             }
             
             if let type = option.value as? TransactionType, type != .all {
-                activeProperties.append(Filter.displayNameForOption[option.key]!)
+                activeProperties.append(displayNameForOption[option.key]!)
             }
         }
         

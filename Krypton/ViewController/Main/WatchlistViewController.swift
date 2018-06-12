@@ -30,7 +30,7 @@ class WatchlistViewController: UITableViewController, TickerDaemonDelegate {
     private var missingCurrencies: [Currency] {
         var missingCurrencies = [Currency]()
         
-        for currency in currencyManager.getCurrencies(of: .Crypto) {
+        for currency in currencyManager.getCurrencies(type: .Crypto) {
             guard !requiredCurrencies.contains(where: { $0.isEqual(to: currency) }) && !manualCurrencies.contains(where: { $0.isEqual(to: currency) }) else {
                 continue
             }
@@ -64,6 +64,7 @@ class WatchlistViewController: UITableViewController, TickerDaemonDelegate {
         
         title = "Watchlist"
         navigationItem.rightBarButtonItem = editButtonItem
+        tableView.allowsSelection = false
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -108,8 +109,13 @@ class WatchlistViewController: UITableViewController, TickerDaemonDelegate {
     
     // MARK: - Private Methods
     @objc private func updateData() {
-        tickerDaemon.update {
+        tickerDaemon.update { error in
             self.refreshControl?.endRefreshing()
+            
+            guard error == nil else {
+                // TODO: present error
+                return
+            }
         }
     }
     

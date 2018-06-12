@@ -15,7 +15,7 @@ enum TokenError: Error {
 }
 
 class Token: NSManagedObject, TokenFeatures {
-    
+        
     // MARK: - Public Class Methods
     class func createToken(from tokenInfo: TokenFeatures, owner: TokenAddress, in context: NSManagedObjectContext) throws -> Token {
         guard owner.blockchain == tokenInfo.blockchain else {
@@ -57,7 +57,7 @@ class Token: NSManagedObject, TokenFeatures {
         return "\(self.identifier!), code: \(code), owner: \(self.owner!.logDescription)"
     }
     
-    // MARK: - Currency Protocol
+    // MARK: - Currency
     var code: String {
         return token.code
     }
@@ -78,7 +78,7 @@ class Token: NSManagedObject, TokenFeatures {
         return token.type
     }
     
-    // MARK: - TokenFeatures Protocol
+    // MARK: - TokenFeatures
     var address: String {
         get {
             return identifier!

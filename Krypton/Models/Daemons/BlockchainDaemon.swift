@@ -15,11 +15,13 @@ protocol BlockchainDaemonDelegate: class {
 final class BlockchainDaemon {
     
     // MARK: - Private Properties
+    private let blockchainConnector: BlockchainConnector
+    
     private var updateTimerForBlockchain = [Blockchain: Timer]()
     
     private var updateIntervallForBlockchain: [Blockchain: TimeInterval] = [
-        .BTC: 600,
-        .ETH: 60
+        .Bitcoin: 600,
+        .Ethereum: 60
     ]
     
     private var blockchains = Set<Blockchain>()
@@ -30,6 +32,11 @@ final class BlockchainDaemon {
     
     // MARK: - Public Properties
     weak var delegate: BlockchainDaemonDelegate?
+    
+    // MARK: - Initialization
+    init(blockchainConnector: BlockchainConnector) {
+        self.blockchainConnector = blockchainConnector
+    }
     
     // MARK: - Private Methods
     @objc private func startUpdateTimer() {
@@ -60,15 +67,15 @@ final class BlockchainDaemon {
     }
     
     private func updateBlockCount(for blockchain: Blockchain) {
-        BlockchainConnector.fetchBlockCount(for: blockchain) { result in
-            switch result {
-            case .success(let blockCount):
-                self.blockCountForBlockchain[blockchain] = blockCount
-                log.verbose("Updated block count for blockchain '\(blockchain.rawValue)': \(blockCount)")
-                self.delegate?.blockchainDaemon(self, didUpdateBlockCountForBlockchain: blockchain)
-            case .failure(let error):
-                log.error("Failed to fetch block count for blockchain '\(blockchain.rawValue)': \(error)")
+        blockchainConnector.fetchBlockCount(for: blockchain) { blockCount, error in
+            guard let blockCount = blockCount else {
+                log.error("Failed to fetch block count for blockchain '\(blockchain.rawValue)': \(error!)")
+                return
             }
+            
+            self.blockCountForBlockchain[blockchain] = blockCount
+            log.verbose("Updated block count for blockchain '\(blockchain.rawValue)': \(blockCount)")
+            self.delegate?.blockchainDaemon(self, didUpdateBlockCountForBlockchain: blockchain)
         }
     }
     

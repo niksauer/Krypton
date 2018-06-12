@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="13533" systemVersion="17B48" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14135" systemVersion="17F77" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Address" representedClassName=".Address" isAbstract="YES" syncable="YES" codeGenerationType="category">
         <attribute name="alias" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="balance" optional="YES" attributeType="Double" defaultValueString="-1" usesScalarValueType="YES" syncable="YES"/>
@@ -12,12 +12,12 @@
         <relationship name="portfolio" maxCount="1" deletionRule="Nullify" destinationEntity="Portfolio" inverseName="addresses" inverseEntity="Portfolio" syncable="YES"/>
         <relationship name="transactions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Transaction" inverseName="owner" inverseEntity="Transaction" syncable="YES"/>
     </entity>
-    <entity name="Bitcoin" representedClassName=".Bitcoin" parentEntity="Address" syncable="YES" codeGenerationType="category"/>
+    <entity name="BitcoinAddress" representedClassName=".BitcoinAddress" parentEntity="Address" syncable="YES" codeGenerationType="category"/>
     <entity name="BitcoinTransaction" representedClassName=".BitcoinTransaction" parentEntity="Transaction" syncable="YES" codeGenerationType="category">
         <attribute name="amountForReceiver" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="amountFromSender" optional="YES" attributeType="Transformable" syncable="YES"/>
     </entity>
-    <entity name="Ethereum" representedClassName=".Ethereum" parentEntity="TokenAddress" syncable="YES" codeGenerationType="category"/>
+    <entity name="EthereumAddress" representedClassName=".EthereumAddress" parentEntity="TokenAddress" syncable="YES" codeGenerationType="category"/>
     <entity name="EthereumTransaction" representedClassName=".EthereumTransaction" parentEntity="Transaction" syncable="YES" codeGenerationType="category">
         <attribute name="type" attributeType="String" syncable="YES"/>
     </entity>
@@ -59,9 +59,9 @@
     </entity>
     <elements>
         <element name="Address" positionX="-153" positionY="-333" width="128" height="28"/>
-        <element name="Bitcoin" positionX="43" positionY="-153" width="128" height="43"/>
+        <element name="BitcoinAddress" positionX="43" positionY="-153" width="128" height="45"/>
         <element name="BitcoinTransaction" positionX="-171" positionY="-495" width="128" height="73"/>
-        <element name="Ethereum" positionX="216" positionY="-238" width="128" height="43"/>
+        <element name="EthereumAddress" positionX="216" positionY="-238" width="128" height="45"/>
         <element name="EthereumTransaction" positionX="-171" positionY="-603" width="128" height="58"/>
         <element name="ExchangeRate" positionX="-270" positionY="-63" width="128" height="103"/>
         <element name="Portfolio" positionX="-396" positionY="-153" width="128" height="120"/>

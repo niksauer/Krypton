@@ -532,7 +532,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
             cell.textLabel?.text = currencyFormatter.getCurrencyFormatting(for: transaction.totalAmount, currency: transaction.owner!.blockchain)
         }
         
-        cell.detailTextLabel?.text = dateFormatter.string(from: transaction.date! as Date)
+        cell.detailTextLabel?.text = dateFormatter.string(from: transaction.date!)
 
         if transaction.isOutbound {
             cell.textLabel?.textColor = UIColor.red

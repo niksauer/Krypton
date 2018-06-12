@@ -110,4 +110,10 @@ final class KryptonDaemon: PortfolioManagerDelegate {
         // TODO
     }
     
+    func portfolioManager(_ portfolioManager: PortfolioManager, didNoticeNewTokenForAddress address: TokenAddress, token: Token) {
+        let currencyPair = CurrencyPair(base: token, quote: portfolioManager.quoteCurrency)
+        tickerDaemom.addCurrencyPair(currencyPair)
+        delegate?.kryptonDaemonDidUpdate(self)
+    }
+    
 }

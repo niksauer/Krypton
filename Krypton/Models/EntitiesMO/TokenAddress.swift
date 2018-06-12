@@ -13,6 +13,7 @@ import SwiftKeccak
 protocol TokenAddressDelegate {
     func tokenAddressDidRequestTokenExchangeRateHistoryUpdate(_ tokenAddress: TokenAddress)
     func tokenAddress(_ tokenAddress: TokenAddress, didUpdateBalanceForToken token: Token)
+    func tokenAddress(_ tokenAddress: TokenAddress, didCreateNewToken token: Token)
 }
 
 class TokenAddress: Address {
@@ -26,6 +27,7 @@ class TokenAddress: Address {
     
     // MARK: - Private Properties
     private let context: NSManagedObjectContext = CoreDataStack.shared.viewContext
+    private let blockchainConnector: BlockchainConnector = BlockchainService(bitcoinBlockExplorer: BlockExplorerService(hostURL: "https://blockexplorer.com", port: nil, credentials: nil), ethereumBlockExplorer: EtherscanService(hostURL: "https://api.etherscan.io", port: nil, credentials: nil))
     
     // MARK: - Initialization
     override func awakeFromFetch() {
@@ -33,7 +35,7 @@ class TokenAddress: Address {
         tokenDelegate = portfolio
         log.debug("Set portfolio '\(portfolio!.logDescription)' as delegate of address '\(logDescription)'.")
     }
-    
+        
     // MARK: Management
     override func update(completion: (() -> Void)?) {
         super.update {
@@ -59,46 +61,47 @@ class TokenAddress: Address {
                 }
             }
             
-            BlockchainConnector.fetchTokenBalance(for: self, token: associatedToken) { result in
-                switch result {
-                case .success(let balance):
-                    let token = self.storedTokens.filter({ $0.isEqual(to: associatedToken) }).first
-                    
-                    guard balance > 0 else {
+            blockchainConnector.fetchTokenBalance(for: self, token: associatedToken) { balance, error in
+                guard let balance = balance else {
+                    log.error("Failed to fetch balance of token '\(associatedToken.name)' for address '\(self.logDescription)': \(error!)")
+                    updateCompletion?()
+                    return
+                }
+
+                let token = self.storedTokens.filter({ $0.isEqual(to: associatedToken) }).first
+
+                guard balance > 0 else {
+                    updateCompletion?()
+                    return
+                }
+
+                if let token = token {
+                    do {
+                        guard token.balance != balance else {
+                            log.verbose("Balance of token '\(associatedToken.name)' for address '\(self.logDescription)' is already up-to-date.")
+                            updateCompletion?()
+                            return
+                        }
+
+                        token.balance = balance
+                        try self.context.save()
+                        log.debug("Updated balance (\(balance) \(associatedToken.code) of token '\(associatedToken.name)' for address '\(self.logDescription)'.")
+                        self.tokenDelegate?.tokenAddress(self, didUpdateBalanceForToken: token)
                         updateCompletion?()
-                        return
+                    } catch {
+                        log.error("Failed to save fetched balance of token '\(associatedToken.name)' for address '\(self.logDescription)': \(error)")
                     }
-                    
-                    if let token = token {
-                        do {
-                            guard token.balance != balance else {
-                                log.verbose("Balance of token '\(associatedToken.name)' for address '\(self.logDescription)' is already up-to-date.")
-                                updateCompletion?()
-                                return
-                            }
-                            
-                            token.balance = balance
-                            try self.context.save()
-                            log.debug("Updated balance (\(balance) \(associatedToken.code) of token '\(associatedToken.name)' for address '\(self.logDescription)'.")
-                            self.tokenDelegate?.tokenAddress(self, didUpdateBalanceForToken: token)
-                            updateCompletion?()
-                        } catch {
-                            log.error("Failed to save fetched balance of token '\(associatedToken.name)' for address '\(self.logDescription)': \(error)")
-                        }
-                    } else {
-                        do {
-                            let token = try Token.createToken(from: associatedToken, owner: self, in: self.context)
-                            token.balance = balance
-                            try self.context.save()
-                            log.info("Created token '\(associatedToken.name)' for address '\(self.logDescription)' with balance: \(balance) \(associatedToken.code)")
-                            self.tokenDelegate?.tokenAddress(self, didUpdateBalanceForToken: token)
-                            updateCompletion?()
-                        } catch {
-                            log.error("Failed to create token '\(associatedToken.name)' for address '\(self.logDescription)': \(error)")
-                        }
+                } else {
+                    do {
+                        let token = try Token.createToken(from: associatedToken, owner: self, in: self.context)
+                        token.balance = balance
+                        try self.context.save()
+                        log.info("Created token '\(associatedToken.name)' for address '\(self.logDescription)' with balance: \(balance) \(associatedToken.code)")
+                        self.tokenDelegate?.tokenAddress(self, didCreateNewToken: token)
+                        updateCompletion?()
+                    } catch {
+                        log.error("Failed to create token '\(associatedToken.name)' for address '\(self.logDescription)': \(error)")
                     }
-                case .failure(let error):
-                    log.error("Failed to fetch balance of token '\(associatedToken.name)' for address '\(self.logDescription)': \(error)")
                 }
             }
         }
@@ -128,12 +131,12 @@ class TokenAddress: Address {
     
 }
 
-class Ethereum: TokenAddress {
+class EthereumAddress: TokenAddress {
     
     // MARK: - Initializers
     override func awakeFromInsert() {
         super.awakeFromInsert()
-        setPrimitiveValue(Blockchain.ETH.rawValue, forKey: "blockchainRaw")
+        setPrimitiveValue(Blockchain.Ethereum.rawValue, forKey: "blockchainRaw")
     }
     
     // MARK: - Public Methods

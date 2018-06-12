@@ -232,7 +232,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
             return 1
         case 1:
             switch transaction.owner! {
-            case is Ethereum:
+            case is EthereumAddress:
                 return 3
             default:
                 return 2

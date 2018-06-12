@@ -46,10 +46,10 @@ class Address: NSManagedObject, TransactionDelegate {
         let address: Address
         
         switch blockchain {
-        case .ETH:
-            address = Ethereum(context: context)
-        case .BTC:
-            address = Bitcoin(context: context)
+        case .Ethereum:
+            address = EthereumAddress(context: context)
+        case .Bitcoin:
+            address = BitcoinAddress(context: context)
         }
     
         address.identifier = addressString
@@ -68,6 +68,7 @@ class Address: NSManagedObject, TransactionDelegate {
     // MARK: - Private Properties
     private let context: NSManagedObjectContext = CoreDataStack.shared.viewContext
     private let currencyManager: CurrencyManager = CurrencyManager()
+    private let blockchainConnector: BlockchainConnector = BlockchainService(bitcoinBlockExplorer: BlockExplorerService(hostURL: "https://blockexplorer.com", port: nil, credentials: nil), ethereumBlockExplorer: EtherscanService(hostURL: "https://api.etherscan.io", port: nil, credentials: nil))
     
     // MARK: - Public Properties
     /// delegate who gets notified of changes in balance, transaction history and all associated transactions' userExchangeValue, isInvestment properties
@@ -112,7 +113,7 @@ class Address: NSManagedObject, TransactionDelegate {
     // MARK: - Public Methods
     /// returns the oldest transaction associated with address
     func getOldestTransaction() -> Transaction? {
-        return storedTransactions.max(by: { $0.date! < $1.date! })
+        return storedTransactions.min(by: { $0.date! < $1.date! })
     }
     
     func getTransactions(of type: TransactionType) -> [Transaction] {
@@ -179,7 +180,6 @@ class Address: NSManagedObject, TransactionDelegate {
     func update(completion: (() -> Void)?) {
         self.updateTransactionHistory {
             self.updateBalance {
-                self.delegate?.addressDidRequestExchangeRateHistoryUpdate(self)
                 completion?()
             }
         }
@@ -187,26 +187,26 @@ class Address: NSManagedObject, TransactionDelegate {
     
     /// fetches and saves balance if it has changed, notifies delegate
     func updateBalance(completion: (() -> Void)?) {
-        BlockchainConnector.fetchBalance(for: self) { result in
-            switch result {
-            case .success(let balance):
-                guard balance != self.balance else {
-                    log.verbose("Balance for address '\(self.logDescription)' is already-up-to-date.")
-                    completion?()
-                    return
-                }
-                
-                do {
-                    self.balance = balance
-                    try self.context.save()
-                    log.debug("Updated balance (\(balance) \(self.blockchain.code)) for address '\(self.logDescription)'.")
-                    self.delegate?.addressDidUpdateBalance(self)
-                    completion?()
-                } catch {
-                    log.error("Failed to save fetched balance for address '\(self.logDescription)': \(error).")
-                }
-            case .failure(let error):
-                log.error("Failed to fetch balance for address '\(self.logDescription)': \(error)")
+        blockchainConnector.fetchBalance(for: self) { balance, error in
+            guard let balance = balance else {
+                log.error("Failed to fetch balance for address '\(self.logDescription)': \(error!)")
+                return
+            }
+            
+            guard balance != self.balance else {
+                log.verbose("Balance for address '\(self.logDescription)' is already-up-to-date.")
+                completion?()
+                return
+            }
+            
+            do {
+                self.balance = balance
+                try self.context.save()
+                log.debug("Updated balance (\(balance) \(self.blockchain.code)) for address '\(self.logDescription)'.")
+                self.delegate?.addressDidUpdateBalance(self)
+                completion?()
+            } catch {
+                log.error("Failed to save fetched balance for address '\(self.logDescription)': \(error).")
             }
         }
     }
@@ -221,42 +221,43 @@ class Address: NSManagedObject, TransactionDelegate {
             timeframe = .sinceBlock(Int(lastBlock))
         }
         
-        BlockchainConnector.fetchTransactionHistory(for: self, timeframe: timeframe) { result in
-            switch result {
-            case .success(let txs):
-                var newTxCount = 0
-                
-                for txInfo in txs {
-                    do {
-                        let transaction = try Transaction.createTransaction(from: txInfo, owner: self, in: self.context)
-                        newTxCount = newTxCount + 1
-                        
-                        if transaction.block > self.lastBlock {
-                            self.lastBlock = transaction.block + 1
-                        }
-                    } catch {
-                        log.error("Failed to create transaction '\(txInfo.identifier)' for address '\(self.logDescription)': \(error)")
-                    }
-                }
-                
-                self.lastUpdate = Date()
-                
+        blockchainConnector.fetchTransactionHistory(for: self, timeframe: timeframe) { history, error in
+            guard let history = history else {
+                log.error("Failed to fetch transaction history for address '\(self.logDescription)': \(error!)")
+                return
+            }
+        
+            var newTxCount = 0
+            
+            for txInfo in history {
                 do {
-                    if self.context.hasChanges, newTxCount > 0 {
-                        try self.context.save()
-                        let multiple = (newTxCount >= 2) || (newTxCount == 0)
-                        log.debug("Updated transaction history for address '\(self.logDescription)' with \(newTxCount) new transaction\(multiple ? "s" : "").")
-                    } else {
-                        log.verbose("Transaction history for address '\(self.logDescription)' is already up-to-date.")
-                    }
+                    let transaction = try Transaction.createTransaction(from: txInfo, owner: self, in: self.context)
+                    newTxCount = newTxCount + 1
                     
-                    self.delegate?.addressDidUpdateTransactionHistory(self)
-                    completion?()
+                    if transaction.block > self.lastBlock {
+                        self.lastBlock = transaction.block + 1
+                    }
                 } catch {
-                    log.error("Failed to save fetched transaction history for address '\(self.logDescription)': \(error)")
+                    log.error("Failed to create transaction '\(txInfo.identifier)' for address '\(self.logDescription)': \(error)")
                 }
-            case .failure(let error):
-                log.error("Failed to fetch transaction history for address '\(self.logDescription)': \(error)")
+            }
+            
+            self.lastUpdate = Date()
+            
+            do {
+                if self.context.hasChanges, newTxCount > 0 {
+                    try self.context.save()
+                    let multiple = (newTxCount >= 2) || (newTxCount == 0)
+                    log.debug("Updated transaction history for address '\(self.logDescription)' with \(newTxCount) new transaction\(multiple ? "s" : "").")
+                } else {
+                    log.verbose("Transaction history for address '\(self.logDescription)' is already up-to-date.")
+                }
+                
+                self.delegate?.addressDidUpdateTransactionHistory(self)
+                self.delegate?.addressDidRequestExchangeRateHistoryUpdate(self)
+                completion?()
+            } catch {
+                log.error("Failed to save fetched transaction history for address '\(self.logDescription)': \(error)")
             }
         }
     }
@@ -298,12 +299,12 @@ class Address: NSManagedObject, TransactionDelegate {
     
 }
 
-class Bitcoin: Address {
+class BitcoinAddress: Address {
 
     // MARK: - Initializers
     override func awakeFromInsert() {
         super.awakeFromInsert()
-        setPrimitiveValue(Blockchain.BTC.rawValue, forKey: "blockchainRaw")
+        setPrimitiveValue(Blockchain.Bitcoin.rawValue, forKey: "blockchainRaw")
     }
     
     // MARK: - Public Methods    

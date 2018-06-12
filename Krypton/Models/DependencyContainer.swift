@@ -32,8 +32,16 @@ struct DependencyContainer {
         return CurrencyFormatter()
     }
     
+    private var exchange: Exchange {
+        return CryptoCompareService(hostURL: "https://min-api.cryptocompare.com", port: nil, credentials: nil)
+    }
+    
     private var exchangeRateManager: ExchangeRateManager {
-        return ExchangeRateManager(context: viewContext, tickerDaemon: tickerDaemon)
+        return ExchangeRateManager(context: viewContext, tickerDaemon: tickerDaemon, exchange: exchange)
+    }
+    
+    private var taxAdviser: TaxAdviser {
+        return TaxAdviser(exchangeRateManager: exchangeRateManager)
     }
     
     private var mediumDateFormatter: DateFormatter = {
@@ -47,10 +55,6 @@ struct DependencyContainer {
         return UpdateStatusDateFormatter()
     }
     
-    private var taxAdviser: TaxAdviser {
-        return TaxAdviser(exchangeRateManager: exchangeRateManager)
-    }
-    
     // Mark: - Initialization
     init() throws {
         do {
@@ -60,9 +64,15 @@ struct DependencyContainer {
             throw error
         }
         
-        tickerDaemon = TickerDaemon()
-        blockchainDaemom = BlockchainDaemon()
-        let exchangeRateManager = ExchangeRateManager(context: viewContext, tickerDaemon: tickerDaemon)
+        let bitcoinBlockExplorer: BitcoinBlockExplorer = BlockExplorerService(hostURL: "https://blockexplorer.com", port: nil, credentials: nil)
+        let ethereumBlockExplorer: EthereumBlockExplorer = EtherscanService(hostURL: "https://api.etherscan.io", port: nil, credentials: nil)
+        let blockchainConnector: BlockchainConnector = BlockchainService(bitcoinBlockExplorer: bitcoinBlockExplorer, ethereumBlockExplorer: ethereumBlockExplorer)
+
+        let exchange = CryptoCompareService(hostURL: "https://min-api.cryptocompare.com", port: nil, credentials: nil)
+        
+        tickerDaemon = TickerDaemon(exchange: exchange)
+        blockchainDaemom = BlockchainDaemon(blockchainConnector: blockchainConnector)
+        let exchangeRateManager = ExchangeRateManager(context: viewContext, tickerDaemon: tickerDaemon, exchange: exchange)
         kryptonDaemon = KryptonDaemon(portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, blockchainDaemon: blockchainDaemom, exchangeRateManager: exchangeRateManager)
     }
     

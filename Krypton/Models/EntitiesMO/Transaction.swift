@@ -31,7 +31,7 @@ class Transaction: NSManagedObject {
         let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
         
         switch owner {
-        case is Ethereum:
+        case is EthereumAddress:
             guard let prototype = prototype as? EthereumTransactionPrototype else {
                 throw TransactionError.invalidPrototype
             }
@@ -44,7 +44,7 @@ class Transaction: NSManagedObject {
         let transaction: Transaction
         
         switch owner {
-        case is Ethereum:
+        case is EthereumAddress:
             guard let prototype = prototype as? EthereumTransactionPrototype, prototype.from.count == 1, prototype.to.count == 1 else {
                 throw TransactionError.invalidPrototype
             }
@@ -54,7 +54,7 @@ class Transaction: NSManagedObject {
             ethereumTransaction.isError = prototype.isError
             
             transaction = ethereumTransaction
-        case is Bitcoin:
+        case is BitcoinAddress:
             guard let prototype = prototype as? BitcoinTransactionPrototype else {
                 throw TransactionError.invalidPrototype
             }

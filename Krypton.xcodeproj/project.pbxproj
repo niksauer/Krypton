@@ -12,18 +12,22 @@
 		2400D0831F40715900833958 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2400D0811F40715900833958 /* Main.storyboard */; };
 		2400D0851F40715900833958 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2400D0841F40715900833958 /* Assets.xcassets */; };
 		2400D0881F40715900833958 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2400D0861F40715900833958 /* LaunchScreen.storyboard */; };
-		2400D0901F40720500833958 /* KrakenAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D08F1F40720500833958 /* KrakenAPI.swift */; };
-		2400D0921F40D6E700833958 /* TickerConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0911F40D6E700833958 /* TickerConnector.swift */; };
+		2400D0921F40D6E700833958 /* Exchange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0911F40D6E700833958 /* Exchange.swift */; };
 		2400D0941F40D90900833958 /* ExchangeRate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0931F40D90900833958 /* ExchangeRate.swift */; };
-		2400D0961F424B5600833958 /* EtherscanAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0951F424B5600833958 /* EtherscanAPI.swift */; };
 		2400D0981F42508100833958 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0971F42508100833958 /* Transaction.swift */; };
-		2400D09A1F42511800833958 /* BlockchainConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0991F42511800833958 /* BlockchainConnector.swift */; };
+		2400D09A1F42511800833958 /* BlockchainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400D0991F42511800833958 /* BlockchainService.swift */; };
 		240C63B11F47A88300728B8B /* Portfolio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240C63B01F47A88300728B8B /* Portfolio.swift */; };
 		240C63B31F47A88E00728B8B /* Address.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240C63B21F47A88E00728B8B /* Address.swift */; };
 		240DF3E41FB5CB08003DED40 /* ERC20Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240DF3E31FB5CB08003DED40 /* ERC20Token.swift */; };
 		24150D431F88E3E1003B7091 /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24150D421F88E3E1003B7091 /* Token.swift */; };
+		2417238C20CE788000A6EBE8 /* NetworkKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2417235520CDF27100A6EBE8 /* NetworkKit.framework */; };
+		2417238D20CE788000A6EBE8 /* NetworkKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2417235520CDF27100A6EBE8 /* NetworkKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		2417241220CF2FB600A6EBE8 /* EtherscanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2417241120CF2FB600A6EBE8 /* EtherscanService.swift */; };
+		241B7E6C20D0833100E6355C /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 241B7E6B20D0833100E6355C /* Currency.swift */; };
+		241B7E7620D0835700E6355C /* CurrencyPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = 241B7E7520D0835700E6355C /* CurrencyPair.swift */; };
 		242016C11FA1F90E00A7FA17 /* BlockchainDaemon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242016C01FA1F90E00A7FA17 /* BlockchainDaemon.swift */; };
 		242729A41F7075CC00E5231D /* AddressDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242729A31F7075CC00E5231D /* AddressDetailViewController.swift */; };
+		2429B4B120CDE8DB00A71298 /* CryptoCompareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2429B4B020CDE8DB00A71298 /* CryptoCompareService.swift */; };
 		242E1D531F9395F700BB95E3 /* SegmentedControlCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242E1D521F9395F700BB95E3 /* SegmentedControlCell.swift */; };
 		242E1D551F939C4500BB95E3 /* DeleteCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242E1D541F939C4500BB95E3 /* DeleteCell.swift */; };
 		243194D41FBE50DE00C56A22 /* TokenCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243194D31FBE50DE00C56A22 /* TokenCell.swift */; };
@@ -46,11 +50,13 @@
 		247665521F94CFB8000857B2 /* TransactionHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247665511F94CFB8000857B2 /* TransactionHeaderCell.swift */; };
 		247D1C0B1FBA261700B45941 /* Fiat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247D1C0A1FBA261700B45941 /* Fiat.swift */; };
 		247D1C171FBA265100B45941 /* Blockchain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247D1C161FBA265100B45941 /* Blockchain.swift */; };
-		248F62311FB500EB003D213A /* BittrexAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248F62301FB500EB003D213A /* BittrexAPI.swift */; };
+		248E796420D02817000BF17C /* BitcoinBlockExplorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248E796320D02817000BF17C /* BitcoinBlockExplorer.swift */; };
+		248E796E20D02987000BF17C /* EthereumBlockExplorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248E796D20D02987000BF17C /* EthereumBlockExplorer.swift */; };
+		248E797020D02C1E000BF17C /* BlockchainConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248E796F20D02C1E000BF17C /* BlockchainConnector.swift */; };
 		24935C691FA0B81B00F4F291 /* AmountByAddressViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24935C681FA0B81B00F4F291 /* AmountByAddressViewController.swift */; };
 		24A007C41F538AD800EC0DCF /* TickerDaemon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A007C31F538AD800EC0DCF /* TickerDaemon.swift */; };
 		24A226BE1F50ED9300907999 /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A226BD1F50ED9300907999 /* CurrencyFormatter.swift */; };
-		24A3D32F1F7DAF250081BF09 /* BlockExplorerAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A3D32E1F7DAF250081BF09 /* BlockExplorerAPI.swift */; };
+		24A3D32F1F7DAF250081BF09 /* BlockExplorerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A3D32E1F7DAF250081BF09 /* BlockExplorerService.swift */; };
 		24A514D41F7DA5300003BD65 /* TransactionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A514D31F7DA5300003BD65 /* TransactionCell.swift */; };
 		24A9FA3520C7F6090058223D /* KryptonDaemon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A9FA3420C7F6090058223D /* KryptonDaemon.swift */; };
 		24A9FA4420C810690058223D /* SectionHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A9FA4220C810690058223D /* SectionHeaderCell.swift */; };
@@ -61,13 +67,12 @@
 		24A9FA5120C82F980058223D /* SwitchCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 24A9FA4F20C82F980058223D /* SwitchCell.xib */; };
 		24A9FA5520C83CF40058223D /* AddressCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 24A9FA5320C83CF40058223D /* AddressCell.xib */; };
 		24A9FA5920C83D620058223D /* DeleteCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 24A9FA5720C83D620058223D /* DeleteCell.xib */; };
-		24B1B17C1FF67D7E0054F088 /* EthplorerAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24B1B17B1FF67D7E0054F088 /* EthplorerAPI.swift */; };
+		24B1B17C1FF67D7E0054F088 /* EthplorerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24B1B17B1FF67D7E0054F088 /* EthplorerService.swift */; };
 		24B4A27720C700E0007AEB28 /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24B4A27620C700E0007AEB28 /* CoreDataStack.swift */; };
 		24B4A27920C70900007AEB28 /* ExchangeRateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24B4A27820C70900007AEB28 /* ExchangeRateManager.swift */; };
 		24B4A27B20C7152D007AEB28 /* DependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24B4A27A20C7152D007AEB28 /* DependencyContainer.swift */; };
-		24BB0DFE1F4E41B40042562C /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BB0DFD1F4E41B40042562C /* Currency.swift */; };
+		24BB0DFE1F4E41B40042562C /* CurrencyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BB0DFD1F4E41B40042562C /* CurrencyManager.swift */; };
 		24BF8C811FAA4EDD0070C178 /* AccountsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BF8C801FAA4EDD0070C178 /* AccountsViewController.swift */; };
-		24C033361FBDBA6B0040D972 /* CryptoCompareAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C033351FBDBA6B0040D972 /* CryptoCompareAPI.swift */; };
 		24C63DB41F7F15DD0096A807 /* WatchlistViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C63DB31F7F15DD0096A807 /* WatchlistViewController.swift */; };
 		24CD000A2073AEFF0094A9ED /* SwiftKeccak.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CD00072073AEF30094A9ED /* SwiftKeccak.framework */; };
 		24CD000B2073AEFF0094A9ED /* SwiftKeccak.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 24CD00072073AEF30094A9ED /* SwiftKeccak.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -82,12 +87,45 @@
 		24D71E3520C88B70000155FE /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D71E3420C88B70000155FE /* Date.swift */; };
 		24D71E3920C88BB6000155FE /* Misc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D71E3820C88BB6000155FE /* Misc.swift */; };
 		24D71E3B20C88CE0000155FE /* UpdateStatusDateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D71E3A20C88CE0000155FE /* UpdateStatusDateFormatter.swift */; };
-		24D71E3C20C91DA1000155FE /* NetworkKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24B4A26A20C6FFFA007AEB28 /* NetworkKit.framework */; };
-		24D71E3D20C91DA1000155FE /* NetworkKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 24B4A26A20C6FFFA007AEB28 /* NetworkKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		24D71E8320C95584000155FE /* TaxAdviser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D71E8220C95584000155FE /* TaxAdviser.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		2417235420CDF27100A6EBE8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2417234D20CDF27100A6EBE8 /* NetworkKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 24B4A1AC20C6E259007AEB28;
+			remoteInfo = NetworkKit_iOS;
+		};
+		2417235620CDF27100A6EBE8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2417234D20CDF27100A6EBE8 /* NetworkKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 24B4A1BC20C6E286007AEB28;
+			remoteInfo = NetworkKit_macOS;
+		};
+		2417235820CDF27100A6EBE8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2417234D20CDF27100A6EBE8 /* NetworkKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 24B4A1C920C6E29D007AEB28;
+			remoteInfo = NetworkKit_watchOS;
+		};
+		2417235A20CDF27100A6EBE8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2417234D20CDF27100A6EBE8 /* NetworkKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 24B4A1D620C6E2AE007AEB28;
+			remoteInfo = NetworkKit_tvOS;
+		};
+		2417238E20CE788000A6EBE8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2417234D20CDF27100A6EBE8 /* NetworkKit.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 24B4A1AB20C6E258007AEB28;
+			remoteInfo = NetworkKit_iOS;
+		};
 		24AF7B261F83130500400007 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 24AF7B211F83130500400007 /* SwiftKeccak.xcodeproj */;
@@ -101,34 +139,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = 64BF753B1F1FC45D00DBBADF;
 			remoteInfo = SwiftKeccakTests;
-		};
-		24B4A26920C6FFFA007AEB28 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 24B4A26220C6FFFA007AEB28 /* NetworkKit.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 24B4A1AC20C6E259007AEB28;
-			remoteInfo = NetworkKit_iOS;
-		};
-		24B4A26B20C6FFFA007AEB28 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 24B4A26220C6FFFA007AEB28 /* NetworkKit.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 24B4A1BC20C6E286007AEB28;
-			remoteInfo = NetworkKit_macOS;
-		};
-		24B4A26D20C6FFFA007AEB28 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 24B4A26220C6FFFA007AEB28 /* NetworkKit.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 24B4A1C920C6E29D007AEB28;
-			remoteInfo = NetworkKit_watchOS;
-		};
-		24B4A26F20C6FFFA007AEB28 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 24B4A26220C6FFFA007AEB28 /* NetworkKit.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 24B4A1D620C6E2AE007AEB28;
-			remoteInfo = NetworkKit_tvOS;
 		};
 		24CD00062073AEF30094A9ED /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -193,13 +203,6 @@
 			remoteGlobalIDString = 9EDCE3E31C09D211002FA4A7;
 			remoteInfo = "SwiftyBeaver (iOS)";
 		};
-		24D71E3E20C91DA1000155FE /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 24B4A26220C6FFFA007AEB28 /* NetworkKit.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 24B4A1AB20C6E258007AEB28;
-			remoteInfo = NetworkKit_iOS;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -211,7 +214,7 @@
 			files = (
 				24CD000B2073AEFF0094A9ED /* SwiftKeccak.framework in CopyFiles */,
 				24CDFFFE2073AE0E0094A9ED /* SwiftyBeaver.framework in CopyFiles */,
-				24D71E3D20C91DA1000155FE /* NetworkKit.framework in CopyFiles */,
+				2417238D20CE788000A6EBE8 /* NetworkKit.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -225,18 +228,21 @@
 		2400D0841F40715900833958 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2400D0871F40715900833958 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2400D0891F40715900833958 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		2400D08F1F40720500833958 /* KrakenAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KrakenAPI.swift; sourceTree = "<group>"; };
-		2400D0911F40D6E700833958 /* TickerConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TickerConnector.swift; sourceTree = "<group>"; };
+		2400D0911F40D6E700833958 /* Exchange.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Exchange.swift; sourceTree = "<group>"; };
 		2400D0931F40D90900833958 /* ExchangeRate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeRate.swift; sourceTree = "<group>"; };
-		2400D0951F424B5600833958 /* EtherscanAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EtherscanAPI.swift; sourceTree = "<group>"; };
 		2400D0971F42508100833958 /* Transaction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
-		2400D0991F42511800833958 /* BlockchainConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockchainConnector.swift; sourceTree = "<group>"; };
+		2400D0991F42511800833958 /* BlockchainService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockchainService.swift; sourceTree = "<group>"; };
 		240C63B01F47A88300728B8B /* Portfolio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Portfolio.swift; sourceTree = "<group>"; };
 		240C63B21F47A88E00728B8B /* Address.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Address.swift; sourceTree = "<group>"; };
 		240DF3E31FB5CB08003DED40 /* ERC20Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ERC20Token.swift; sourceTree = "<group>"; };
 		24150D421F88E3E1003B7091 /* Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Token.swift; sourceTree = "<group>"; };
+		2417234D20CDF27100A6EBE8 /* NetworkKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = NetworkKit.xcodeproj; path = Frameworks/NetworkKit/NetworkKit.xcodeproj; sourceTree = "<group>"; };
+		2417241120CF2FB600A6EBE8 /* EtherscanService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtherscanService.swift; sourceTree = "<group>"; };
+		241B7E6B20D0833100E6355C /* Currency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
+		241B7E7520D0835700E6355C /* CurrencyPair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyPair.swift; sourceTree = "<group>"; };
 		242016C01FA1F90E00A7FA17 /* BlockchainDaemon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainDaemon.swift; sourceTree = "<group>"; };
 		242729A31F7075CC00E5231D /* AddressDetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressDetailViewController.swift; sourceTree = "<group>"; };
+		2429B4B020CDE8DB00A71298 /* CryptoCompareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoCompareService.swift; sourceTree = "<group>"; };
 		242E1D521F9395F700BB95E3 /* SegmentedControlCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedControlCell.swift; sourceTree = "<group>"; };
 		242E1D541F939C4500BB95E3 /* DeleteCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteCell.swift; sourceTree = "<group>"; };
 		243194D31FBE50DE00C56A22 /* TokenCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenCell.swift; sourceTree = "<group>"; };
@@ -259,11 +265,13 @@
 		247665511F94CFB8000857B2 /* TransactionHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHeaderCell.swift; sourceTree = "<group>"; };
 		247D1C0A1FBA261700B45941 /* Fiat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fiat.swift; sourceTree = "<group>"; };
 		247D1C161FBA265100B45941 /* Blockchain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Blockchain.swift; sourceTree = "<group>"; };
-		248F62301FB500EB003D213A /* BittrexAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BittrexAPI.swift; sourceTree = "<group>"; };
+		248E796320D02817000BF17C /* BitcoinBlockExplorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinBlockExplorer.swift; sourceTree = "<group>"; };
+		248E796D20D02987000BF17C /* EthereumBlockExplorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumBlockExplorer.swift; sourceTree = "<group>"; };
+		248E796F20D02C1E000BF17C /* BlockchainConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainConnector.swift; sourceTree = "<group>"; };
 		24935C681FA0B81B00F4F291 /* AmountByAddressViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountByAddressViewController.swift; sourceTree = "<group>"; };
 		24A007C31F538AD800EC0DCF /* TickerDaemon.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TickerDaemon.swift; sourceTree = "<group>"; };
 		24A226BD1F50ED9300907999 /* CurrencyFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrencyFormatter.swift; sourceTree = "<group>"; };
-		24A3D32E1F7DAF250081BF09 /* BlockExplorerAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockExplorerAPI.swift; sourceTree = "<group>"; };
+		24A3D32E1F7DAF250081BF09 /* BlockExplorerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockExplorerService.swift; sourceTree = "<group>"; };
 		24A514D31F7DA5300003BD65 /* TransactionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionCell.swift; sourceTree = "<group>"; };
 		24A9FA3420C7F6090058223D /* KryptonDaemon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KryptonDaemon.swift; sourceTree = "<group>"; };
 		24A9FA4220C810690058223D /* SectionHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeaderCell.swift; sourceTree = "<group>"; };
@@ -275,14 +283,12 @@
 		24A9FA5320C83CF40058223D /* AddressCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddressCell.xib; sourceTree = "<group>"; };
 		24A9FA5720C83D620058223D /* DeleteCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DeleteCell.xib; sourceTree = "<group>"; };
 		24AF7B211F83130500400007 /* SwiftKeccak.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftKeccak.xcodeproj; path = SwiftKeccak/SwiftKeccak.xcodeproj; sourceTree = "<group>"; };
-		24B1B17B1FF67D7E0054F088 /* EthplorerAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthplorerAPI.swift; sourceTree = "<group>"; };
-		24B4A26220C6FFFA007AEB28 /* NetworkKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = NetworkKit.xcodeproj; path = Frameworks/NetworkKit/NetworkKit.xcodeproj; sourceTree = "<group>"; };
+		24B1B17B1FF67D7E0054F088 /* EthplorerService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthplorerService.swift; sourceTree = "<group>"; };
 		24B4A27620C700E0007AEB28 /* CoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
 		24B4A27820C70900007AEB28 /* ExchangeRateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeRateManager.swift; sourceTree = "<group>"; };
 		24B4A27A20C7152D007AEB28 /* DependencyContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependencyContainer.swift; sourceTree = "<group>"; };
-		24BB0DFD1F4E41B40042562C /* Currency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
+		24BB0DFD1F4E41B40042562C /* CurrencyManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrencyManager.swift; sourceTree = "<group>"; };
 		24BF8C801FAA4EDD0070C178 /* AccountsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsViewController.swift; sourceTree = "<group>"; };
-		24C033351FBDBA6B0040D972 /* CryptoCompareAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoCompareAPI.swift; sourceTree = "<group>"; };
 		24C63DB31F7F15DD0096A807 /* WatchlistViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchlistViewController.swift; sourceTree = "<group>"; };
 		24CD00012073AEF30094A9ED /* SwiftKeccak.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftKeccak.xcodeproj; path = Frameworks/SwiftKeccak/SwiftKeccak.xcodeproj; sourceTree = "<group>"; };
 		24CDFFEB2073AE040094A9ED /* SwiftyBeaver.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftyBeaver.xcodeproj; path = Frameworks/SwiftyBeaver/SwiftyBeaver.xcodeproj; sourceTree = "<group>"; };
@@ -305,7 +311,7 @@
 			files = (
 				24CD000A2073AEFF0094A9ED /* SwiftKeccak.framework in Frameworks */,
 				24CDFFFD2073AE0E0094A9ED /* SwiftyBeaver.framework in Frameworks */,
-				24D71E3C20C91DA1000155FE /* NetworkKit.framework in Frameworks */,
+				2417238C20CE788000A6EBE8 /* NetworkKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -315,7 +321,7 @@
 		2400D06F1F40715900833958 = {
 			isa = PBXGroup;
 			children = (
-				24B4A26220C6FFFA007AEB28 /* NetworkKit.xcodeproj */,
+				2417234D20CDF27100A6EBE8 /* NetworkKit.xcodeproj */,
 				24CDFFEB2073AE040094A9ED /* SwiftyBeaver.xcodeproj */,
 				24CD00012073AEF30094A9ED /* SwiftKeccak.xcodeproj */,
 				2400D07A1F40715900833958 /* Krypton */,
@@ -343,9 +349,20 @@
 				24CD001A2073B0060094A9ED /* ViewController */,
 				24CD00292073B1350094A9ED /* Views */,
 				24CD00252073B0DB0094A9ED /* Models */,
-				24CD00282073B11D0094A9ED /* Backend */,
+				24CD00282073B11D0094A9ED /* Services */,
 			);
 			path = Krypton;
+			sourceTree = "<group>";
+		};
+		2417234E20CDF27100A6EBE8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2417235520CDF27100A6EBE8 /* NetworkKit.framework */,
+				2417235720CDF27100A6EBE8 /* NetworkKit.framework */,
+				2417235920CDF27100A6EBE8 /* NetworkKit.framework */,
+				2417235B20CDF27100A6EBE8 /* NetworkKit.framework */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		24A9FA3F20C80C310058223D /* Daemons */ = {
@@ -371,17 +388,6 @@
 			children = (
 				24AF7B271F83130500400007 /* SwiftKeccak.framework */,
 				24AF7B291F83130500400007 /* SwiftKeccakTests.xctest */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		24B4A26320C6FFFA007AEB28 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				24B4A26A20C6FFFA007AEB28 /* NetworkKit.framework */,
-				24B4A26C20C6FFFA007AEB28 /* NetworkKit.framework */,
-				24B4A26E20C6FFFA007AEB28 /* NetworkKit.framework */,
-				24B4A27020C6FFFA007AEB28 /* NetworkKit.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -471,7 +477,8 @@
 		24CD00232073B0AE0094A9ED /* Currency */ = {
 			isa = PBXGroup;
 			children = (
-				24BB0DFD1F4E41B40042562C /* Currency.swift */,
+				241B7E7520D0835700E6355C /* CurrencyPair.swift */,
+				24BB0DFD1F4E41B40042562C /* CurrencyManager.swift */,
 				247D1C0A1FBA261700B45941 /* Fiat.swift */,
 				247D1C161FBA265100B45941 /* Blockchain.swift */,
 				240DF3E31FB5CB08003DED40 /* ERC20Token.swift */,
@@ -512,10 +519,7 @@
 		24CD00262073B0FD0094A9ED /* Exchange */ = {
 			isa = PBXGroup;
 			children = (
-				2400D0911F40D6E700833958 /* TickerConnector.swift */,
-				24C033351FBDBA6B0040D972 /* CryptoCompareAPI.swift */,
-				2400D08F1F40720500833958 /* KrakenAPI.swift */,
-				248F62301FB500EB003D213A /* BittrexAPI.swift */,
+				2429B4B020CDE8DB00A71298 /* CryptoCompareService.swift */,
 			);
 			path = Exchange;
 			sourceTree = "<group>";
@@ -523,21 +527,21 @@
 		24CD00272073B1110094A9ED /* Blockchain */ = {
 			isa = PBXGroup;
 			children = (
-				2400D0991F42511800833958 /* BlockchainConnector.swift */,
-				2400D0951F424B5600833958 /* EtherscanAPI.swift */,
-				24B1B17B1FF67D7E0054F088 /* EthplorerAPI.swift */,
-				24A3D32E1F7DAF250081BF09 /* BlockExplorerAPI.swift */,
+				2400D0991F42511800833958 /* BlockchainService.swift */,
+				2417241120CF2FB600A6EBE8 /* EtherscanService.swift */,
+				24B1B17B1FF67D7E0054F088 /* EthplorerService.swift */,
+				24A3D32E1F7DAF250081BF09 /* BlockExplorerService.swift */,
 			);
 			path = Blockchain;
 			sourceTree = "<group>";
 		};
-		24CD00282073B11D0094A9ED /* Backend */ = {
+		24CD00282073B11D0094A9ED /* Services */ = {
 			isa = PBXGroup;
 			children = (
 				24CD00272073B1110094A9ED /* Blockchain */,
 				24CD00262073B0FD0094A9ED /* Exchange */,
 			);
-			path = Backend;
+			path = Services;
 			sourceTree = "<group>";
 		};
 		24CD00292073B1350094A9ED /* Views */ = {
@@ -590,6 +594,11 @@
 		24D71E3720C88B7A000155FE /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
+				241B7E6B20D0833100E6355C /* Currency.swift */,
+				248E796D20D02987000BF17C /* EthereumBlockExplorer.swift */,
+				248E796F20D02C1E000BF17C /* BlockchainConnector.swift */,
+				248E796320D02817000BF17C /* BitcoinBlockExplorer.swift */,
+				2400D0911F40D6E700833958 /* Exchange.swift */,
 				24D71E3220C87F06000155FE /* ViewControllerFactory.swift */,
 			);
 			path = Protocols;
@@ -654,7 +663,7 @@
 			dependencies = (
 				24CD00002073AE0E0094A9ED /* PBXTargetDependency */,
 				24CD000D2073AEFF0094A9ED /* PBXTargetDependency */,
-				24D71E3F20C91DA1000155FE /* PBXTargetDependency */,
+				2417238F20CE788000A6EBE8 /* PBXTargetDependency */,
 			);
 			name = Krypton;
 			productName = Krypton;
@@ -692,8 +701,8 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 24B4A26320C6FFFA007AEB28 /* Products */;
-					ProjectRef = 24B4A26220C6FFFA007AEB28 /* NetworkKit.xcodeproj */;
+					ProductGroup = 2417234E20CDF27100A6EBE8 /* Products */;
+					ProjectRef = 2417234D20CDF27100A6EBE8 /* NetworkKit.xcodeproj */;
 				},
 				{
 					ProductGroup = 24CD00022073AEF30094A9ED /* Products */;
@@ -716,6 +725,34 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		2417235520CDF27100A6EBE8 /* NetworkKit.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = NetworkKit.framework;
+			remoteRef = 2417235420CDF27100A6EBE8 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		2417235720CDF27100A6EBE8 /* NetworkKit.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = NetworkKit.framework;
+			remoteRef = 2417235620CDF27100A6EBE8 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		2417235920CDF27100A6EBE8 /* NetworkKit.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = NetworkKit.framework;
+			remoteRef = 2417235820CDF27100A6EBE8 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		2417235B20CDF27100A6EBE8 /* NetworkKit.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = NetworkKit.framework;
+			remoteRef = 2417235A20CDF27100A6EBE8 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		24AF7B271F83130500400007 /* SwiftKeccak.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
@@ -728,34 +765,6 @@
 			fileType = wrapper.cfbundle;
 			path = SwiftKeccakTests.xctest;
 			remoteRef = 24AF7B281F83130500400007 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		24B4A26A20C6FFFA007AEB28 /* NetworkKit.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = NetworkKit.framework;
-			remoteRef = 24B4A26920C6FFFA007AEB28 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		24B4A26C20C6FFFA007AEB28 /* NetworkKit.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = NetworkKit.framework;
-			remoteRef = 24B4A26B20C6FFFA007AEB28 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		24B4A26E20C6FFFA007AEB28 /* NetworkKit.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = NetworkKit.framework;
-			remoteRef = 24B4A26D20C6FFFA007AEB28 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		24B4A27020C6FFFA007AEB28 /* NetworkKit.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = NetworkKit.framework;
-			remoteRef = 24B4A26F20C6FFFA007AEB28 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		24CD00072073AEF30094A9ED /* SwiftKeccak.framework */ = {
@@ -836,18 +845,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2400D0961F424B5600833958 /* EtherscanAPI.swift in Sources */,
 				24D11B0A20CB5A03001C9135 /* Filter.swift in Sources */,
 				247D1C171FBA265100B45941 /* Blockchain.swift in Sources */,
 				24D71E8320C95584000155FE /* TaxAdviser.swift in Sources */,
 				2470BB0520CA7063000DEE4C /* TappableCell.swift in Sources */,
-				24C033361FBDBA6B0040D972 /* CryptoCompareAPI.swift in Sources */,
 				240DF3E41FB5CB08003DED40 /* ERC20Token.swift in Sources */,
 				2458132F1F5F503B007795BC /* PortfolioManager.swift in Sources */,
 				24A007C41F538AD800EC0DCF /* TickerDaemon.swift in Sources */,
-				24A3D32F1F7DAF250081BF09 /* BlockExplorerAPI.swift in Sources */,
+				24A3D32F1F7DAF250081BF09 /* BlockExplorerService.swift in Sources */,
 				247D1C0B1FBA261700B45941 /* Fiat.swift in Sources */,
-				2400D0901F40720500833958 /* KrakenAPI.swift in Sources */,
 				2449F4371F6D5711006E21C8 /* PortfolioDetailViewController.swift in Sources */,
 				2400D0981F42508100833958 /* Transaction.swift in Sources */,
 				240C63B11F47A88300728B8B /* Portfolio.swift in Sources */,
@@ -855,9 +861,12 @@
 				242016C11FA1F90E00A7FA17 /* BlockchainDaemon.swift in Sources */,
 				247665521F94CFB8000857B2 /* TransactionHeaderCell.swift in Sources */,
 				243194D41FBE50DE00C56A22 /* TokenCell.swift in Sources */,
+				241B7E7620D0835700E6355C /* CurrencyPair.swift in Sources */,
 				242E1D551F939C4500BB95E3 /* DeleteCell.swift in Sources */,
-				2400D09A1F42511800833958 /* BlockchainConnector.swift in Sources */,
+				248E796E20D02987000BF17C /* EthereumBlockExplorer.swift in Sources */,
+				2400D09A1F42511800833958 /* BlockchainService.swift in Sources */,
 				24935C691FA0B81B00F4F291 /* AmountByAddressViewController.swift in Sources */,
+				2417241220CF2FB600A6EBE8 /* EtherscanService.swift in Sources */,
 				24B4A27920C70900007AEB28 /* ExchangeRateManager.swift in Sources */,
 				24C63DB41F7F15DD0096A807 /* WatchlistViewController.swift in Sources */,
 				24D71E3320C87F06000155FE /* ViewControllerFactory.swift in Sources */,
@@ -871,18 +880,21 @@
 				2449F4481F6F1D1F006E21C8 /* CurrencySelectorViewController.swift in Sources */,
 				24A9FA4420C810690058223D /* SectionHeaderCell.swift in Sources */,
 				24150D431F88E3E1003B7091 /* Token.swift in Sources */,
-				24B1B17C1FF67D7E0054F088 /* EthplorerAPI.swift in Sources */,
-				24BB0DFE1F4E41B40042562C /* Currency.swift in Sources */,
+				248E796420D02817000BF17C /* BitcoinBlockExplorer.swift in Sources */,
+				24B1B17C1FF67D7E0054F088 /* EthplorerService.swift in Sources */,
+				24BB0DFE1F4E41B40042562C /* CurrencyManager.swift in Sources */,
 				24BF8C811FAA4EDD0070C178 /* AccountsViewController.swift in Sources */,
 				2449F43A1F6D59F5006E21C8 /* TextFieldCell.swift in Sources */,
 				24D71E2520C861DA000155FE /* FetchedResultsTableViewController.swift in Sources */,
-				2400D0921F40D6E700833958 /* TickerConnector.swift in Sources */,
+				2400D0921F40D6E700833958 /* Exchange.swift in Sources */,
 				2446F5DC1F8EAD1E00DF385B /* TokenAddress.swift in Sources */,
 				2449F43C1F6D5AFA006E21C8 /* SwitchCell.swift in Sources */,
 				24B4A27B20C7152D007AEB28 /* DependencyContainer.swift in Sources */,
+				241B7E6C20D0833100E6355C /* Currency.swift in Sources */,
 				240C63B31F47A88E00728B8B /* Address.swift in Sources */,
 				24D71E3520C88B70000155FE /* Date.swift in Sources */,
 				242E1D531F9395F700BB95E3 /* SegmentedControlCell.swift in Sources */,
+				2429B4B120CDE8DB00A71298 /* CryptoCompareService.swift in Sources */,
 				246874F61F464B4E009BB60A /* Krypton.xcdatamodeld in Sources */,
 				2449F4441F6F0D3A006E21C8 /* AddPortfolioViewController.swift in Sources */,
 				24B4A27720C700E0007AEB28 /* CoreDataStack.swift in Sources */,
@@ -893,15 +905,20 @@
 				2438599B1F6C890600D67791 /* PortfoliosViewController.swift in Sources */,
 				2400D07E1F40715900833958 /* DashboardViewController.swift in Sources */,
 				2400D0941F40D90900833958 /* ExchangeRate.swift in Sources */,
+				248E797020D02C1E000BF17C /* BlockchainConnector.swift in Sources */,
 				24D71E3B20C88CE0000155FE /* UpdateStatusDateFormatter.swift in Sources */,
 				24A9FA3520C7F6090058223D /* KryptonDaemon.swift in Sources */,
-				248F62311FB500EB003D213A /* BittrexAPI.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		2417238F20CE788000A6EBE8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = NetworkKit_iOS;
+			targetProxy = 2417238E20CE788000A6EBE8 /* PBXContainerItemProxy */;
+		};
 		24CD00002073AE0E0094A9ED /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "SwiftyBeaver (iOS)";
@@ -911,11 +928,6 @@
 			isa = PBXTargetDependency;
 			name = SwiftKeccak;
 			targetProxy = 24CD000C2073AEFF0094A9ED /* PBXContainerItemProxy */;
-		};
-		24D71E3F20C91DA1000155FE /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = NetworkKit_iOS;
-			targetProxy = 24D71E3E20C91DA1000155FE /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

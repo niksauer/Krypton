@@ -28,7 +28,7 @@ class CurrencySelectorViewController: UITableViewController {
         self.type = type
         self.selection = selection
         self.currencyManager = currencyManager
-        currencies = currencyManager.getCurrencies(of: type)
+        currencies = currencyManager.getCurrencies(type: type)
         
         super.init(style: .grouped)
     }
