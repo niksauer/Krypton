@@ -33,7 +33,7 @@ struct DependencyContainer {
     }
     
     private var exchangeRateManager: ExchangeRateManager {
-        return ExchangeRateManager(context: viewContext, tickerDaemon: tickerDaemon)
+        return ExchangeRateManager(context: viewContext, tickerDaemon: tickerDaemon, exchange: exchange)
     }
     
     private var mediumDateFormatter: DateFormatter = {
@@ -51,8 +51,12 @@ struct DependencyContainer {
         return TaxAdviser(exchangeRateManager: exchangeRateManager)
     }
     
-    private var tickerService: CryptoCompareService {
-        return CryptoCompareService(hostname: "min-api.cryptocompare.com", port: nil, credentials: nil)
+    private var exchange: Exchange {
+        return CryptoCompareService(hostURL: "https://min-api.cryptocompare.com", port: nil, credentials: nil)
+    }
+
+    private var etherscanService: EtherscanService {
+        return EtherscanService(hostURL: "https://api.etherscan.io", port: nil, credentials: nil)
     }
     
     // Mark: - Initialization
@@ -64,10 +68,15 @@ struct DependencyContainer {
             throw error
         }
         
-//        tickerDaemon = TickerDaemon(tickerService: CryptoCompareService(hostname: "min-api.cryptocompare.com", port: nil, credentials: nil))
-        tickerDaemon = TickerDaemon()
-        blockchainDaemom = BlockchainDaemon()
-        let exchangeRateManager = ExchangeRateManager(context: viewContext, tickerDaemon: tickerDaemon)
+        let exchange = CryptoCompareService(hostURL: "https://min-api.cryptocompare.com", port: nil, credentials: nil)
+        let etherscanService = EtherscanService(hostURL: "https://api.etherscan.io", port: nil, credentials: nil)
+        let blockExplorerService = BlockExplorerService(hostURL: "https://blockexplorer.com", port: nil, credentials: nil)
+        
+        let blockchainConnector = BlockchainConnector(etherscanService: etherscanService, blockExplorer: blockExplorerService)
+    
+        tickerDaemon = TickerDaemon(exchange: exchange)
+        blockchainDaemom = BlockchainDaemon(blockchainConnector: blockchainConnector)
+        let exchangeRateManager = ExchangeRateManager(context: viewContext, tickerDaemon: tickerDaemon, exchange: exchange)
         kryptonDaemon = KryptonDaemon(portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, blockchainDaemon: blockchainDaemom, exchangeRateManager: exchangeRateManager)
     }
     

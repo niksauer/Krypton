@@ -17,7 +17,7 @@ class ExchangeRate: NSManagedObject {
     
     // MARK: - Public Class Methods
     /// creates and returns ticker exchangeRate if non-existent in database, throws otherwise
-    class func createExchangeRate(from prototype: TickerConnector.ExchangeRate, in context: NSManagedObjectContext) throws -> ExchangeRate {
+    class func createExchangeRate(from prototype: ExchangeRatePrototype, in context: NSManagedObjectContext) throws -> ExchangeRate {
         let request: NSFetchRequest<ExchangeRate> = ExchangeRate.fetchRequest()
         
         let startDate = prototype.date.UTCStart as NSDate

@@ -17,21 +17,6 @@ enum TransactionHistoryTimeframe {
     case sinceBlock(Int)
 }
 
-enum TransactionHistoryResult {
-    case success([TransactionPrototype])
-    case failure(Error)
-}
-
-enum BalanceResult {
-    case success(Double)
-    case failure(Error)
-}
-
-enum BlockCountResult {
-    case success(UInt64)
-    case failure(Error)
-}
-
 protocol TransactionPrototype {
     var identifier: String { get }
     var date: Date { get }
@@ -43,222 +28,84 @@ protocol TransactionPrototype {
     var isOutbound: Bool { get }
 }
 
-protocol EthereumTransactionPrototype: TransactionPrototype {
-    var type: EthereumTransactionHistoryType { get }
-    var isError: Bool { get }
-}
-
-protocol BitcoinTransactionPrototype: TransactionPrototype {
-    var amountFromSender: [String: Double] { get }
-    var amountForReceiver: [String: Double] { get }
-}
-
-enum EthereumTransactionHistoryType: String {
-    case normal
-    case `internal`
-}
-
 struct BlockchainConnector {
     
     // MARK: - Private Properties
-    private static let session = URLSession(configuration: .default)
+    private let etherscanService: EtherscanService
+    private let blockExplorer: BlockExplorerService
+    
+    // MARK: - Initialization
+    init(etherscanService: EtherscanService, blockExplorer: BlockExplorerService) {
+        self.etherscanService = etherscanService
+        self.blockExplorer = blockExplorer
+    }
     
     // MARK: - Public Methods
-    static func fetchTransactionHistory(for address: Address, timeframe: TransactionHistoryTimeframe, completion: @escaping (TransactionHistoryResult) -> Void) {
-        let url: URL
-        
-        switch address {
-        case is Bitcoin:
-            url = BlockExplorerAPI.transactionHistoryURL(for: address.identifier!)
-        case is Ethereum:
-            url = EtherscanAPI.transactionHistoryURL(for: address.identifier!, type: .normal, timeframe: timeframe)
-        default:
-            completion(.failure(BlockchainConnectorError.invalidBlockchain))
-            return
-        }
-        
-        let request = URLRequest(url: url)
-
-        let task = session.dataTask(with: request) { (data, response, error) in
-            guard error == nil else {
-                OperationQueue.main.addOperation {
-                    completion(.failure(error!))
-                }
-                return
-            }
-            
-            var result: TransactionHistoryResult
-            
-            guard let jsonData = data else {
-                OperationQueue.main.addOperation {
-                    completion(.failure(error!))
-                }
-                return
-            }
-            
-            switch address {
-            case is Bitcoin:
-                result = BlockExplorerAPI.transactionHistory(fromJSON: jsonData, for: address.identifier!)
-                
-                if case TransactionHistoryResult.success(let transactions) = result, case TransactionHistoryTimeframe.sinceBlock(let blockNumber) = timeframe {
-                    result = .success(transactions.filter { $0.block >= blockNumber })
-                }
-                
-                OperationQueue.main.addOperation {
-                    completion(result)
-                }
-            case is Ethereum:
-                result = EtherscanAPI.transactionHistory(fromJSON: jsonData, for: address.identifier!, type: .normal)
-                
-                switch result {
-                case .success(let normalTransactions):
-                    let url = EtherscanAPI.transactionHistoryURL(for: address.identifier!, type: .internal, timeframe: timeframe)
-                    let request = URLRequest(url: url)
-                    
-                    let task = session.dataTask(with: request) { (data, response, error) in
-                        if let jsonData = data {
-                            result = EtherscanAPI.transactionHistory(fromJSON: jsonData, for: address.identifier!, type: .internal)
-                            
-                            if case TransactionHistoryResult.success(let internalTransactions) = result {
-                                result = .success(normalTransactions + internalTransactions)
-                            }
-                        } else {
-                            result = .failure(error!)
-                        }
-                        
-                        OperationQueue.main.addOperation {
-                            completion(result)
-                        }
-                    }
-                    
-                    task.resume()
-                case .failure(let error):
-                    OperationQueue.main.addOperation {
-                        completion(.failure(error))
-                    }
-                }
-            default:
-                return
-            }
-        }
-        
-        task.resume()
-    }
-    
-    static func fetchBalance(for address: Address, completion: @escaping (BalanceResult) -> Void) {
-        let url: URL
-        
-        switch address {
-        case is Bitcoin:
-            url = BlockExplorerAPI.balanceURL(for: address.identifier!)
-        case is Ethereum:
-            url = EtherscanAPI.balanceURL(for: address.identifier!)
-        default:
-            completion(.failure(BlockchainConnectorError.invalidBlockchain))
-            return
-        }
-        
-        let request = URLRequest(url: url)
-        
-        let task = session.dataTask(with: request) { (data, response, error) -> Void in
-            let result: BalanceResult
-            
-            if let jsonData = data {
-                switch address {
-                case is Bitcoin:
-                    result = BlockExplorerAPI.balance(fromJSON: jsonData)
-                case is Ethereum:
-                    result = EtherscanAPI.balance(fromJSON: jsonData)
-                default:
-                    return
-                }
-            } else {
-                result = .failure(error!)
-            }
-            
-            OperationQueue.main.addOperation {
-                completion(result)
-            }
-        }
-        
-        task.resume()
-    }
-
-    static func fetchTokenBalance(for address: TokenAddress, token: TokenFeatures, completion: @escaping (BalanceResult) -> Void) {
-        let url: URL
-        
-        switch address {
-        case is Ethereum:
-            url = EtherscanAPI.tokenBalanceURL(for: address.identifier!, contractAddress: token.address)
-        default:
-            OperationQueue.main.addOperation {
-                completion(.failure(BlockchainConnectorError.invalidBlockchain))
-            }
-            
-            return
-        }
-        
-        let request = URLRequest(url: url)
-        
-        let task = session.dataTask(with: request) { (data, response, error) -> Void in
-            let result: BalanceResult
-            
-            if let jsonData = data {
-                switch address {
-                case is Ethereum:
-                    switch EtherscanAPI.tokenBalance(fromJSON: jsonData) {
-                    case let .success(balance):
-                        result = .success(balance * (pow(10, -Double(token.decimalDigits))))
-                    case let .failure(error):
-                        result = .failure(error)
-                    }
-                default:
-                    return
-                }
-            } else {
-                result = .failure(error!)
-            }
-            
-            OperationQueue.main.addOperation {
-                completion(result)
-            }
-        }
-        
-        task.resume()
-    }
-    
-    static func fetchBlockCount(for blockchain: Blockchain, completion: @escaping (BlockCountResult) -> Void) {
-        let url: URL
-        
+    func fetchBlockCount(for blockchain: Blockchain, completion: @escaping (UInt64?, Error?) -> Void) {
         switch blockchain {
         case .BTC:
-            url = BlockExplorerAPI.blockCountURL()
+            blockExplorer.getBlockCount(completion: completion)
         case .ETH:
-            url = EtherscanAPI.blockCountURL()
+            etherscanService.getBlockCount(completion: completion)
         }
-        
-        let request = URLRequest(url: url)
-        
-        let task = session.dataTask(with: request) { (data, response, error) -> Void in
-            let result: BlockCountResult
-            
-            if let jsonData = data {
-                switch blockchain {
-                case .BTC:
-                    result = BlockExplorerAPI.blockCount(fromJSON: jsonData)
-                case .ETH:
-                    result = EtherscanAPI.blockCount(fromJSON: jsonData)
+    }
+    
+    func fetchBalance(for address: Address, completion: @escaping (Double?, Error?) -> Void) {
+        switch address {
+        case let address as Bitcoin:
+            blockExplorer.getBalance(for: address, completion: completion)
+        case let address as Ethereum:
+            etherscanService.getBalance(for: address, completion: completion)
+        default:
+            completion(nil, BlockchainConnectorError.invalidBlockchain)
+        }
+    }
+
+    func fetchTokenBalance(for address: TokenAddress, token: TokenFeatures, completion: @escaping (Double?, Error?) -> Void) {
+        switch address {
+        case let address as Ethereum:
+            etherscanService.getTokenBalance(for: address, contractAddress: token.address, completion: completion)
+        default:
+            completion(nil, BlockchainConnectorError.invalidBlockchain)
+        }
+    }
+    
+    func fetchTransactionHistory(for address: Address, timeframe: TransactionHistoryTimeframe, completion: @escaping ([TransactionPrototype]?, Error?) -> Void) {
+        switch address {
+        case let address as Bitcoin:
+            blockExplorer.getTransactionHistory(for: address) { history, error in
+                guard let history = history else {
+                    completion(nil, error!)
+                    return
                 }
-            } else {
-                result = .failure(error!)
+                
+                switch timeframe {
+                case .sinceBlock(let blockNumber):
+                    completion(history.filter({ $0.block >= blockNumber }), nil)
+                default:
+                    completion(history, nil)
+                }
             }
-            
-            OperationQueue.main.addOperation {
-                completion(result)
+        case let address as Ethereum:
+            etherscanService.getTransactionHistory(for: address, type: .normal, timeframe: timeframe) { normalHistory, error in
+                guard let normalHistory = normalHistory else {
+                    completion(nil, error!)
+                    return
+                }
+                
+                self.etherscanService.getTransactionHistory(for: address, type: .internal, timeframe: timeframe) { internalHistory, error in
+                    guard let internalHistory = internalHistory else {
+                        completion(nil, error!)
+                        return
+                    }
+                    
+                    completion(normalHistory + internalHistory, nil)
+                }
             }
+        default:
+            completion(nil, BlockchainConnectorError.invalidBlockchain)
+            return
         }
-        
-        task.resume()
     }
     
 }

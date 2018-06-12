@@ -14,11 +14,13 @@ struct ExchangeRateManager {
     // MARK: - Private Properties
     private let context: NSManagedObjectContext
     private let tickerDaemon: TickerDaemon
+    private let exchange: Exchange
     
     // MARK: - Initialization
-    init(context: NSManagedObjectContext, tickerDaemon: TickerDaemon) {
+    init(context: NSManagedObjectContext, tickerDaemon: TickerDaemon, exchange: Exchange) {
         self.context = context
         self.tickerDaemon = tickerDaemon
+        self.exchange = exchange
     }
     
     // MARK: - Private Methods
@@ -87,44 +89,44 @@ struct ExchangeRateManager {
             return
         }
         
-        TickerConnector.fetchExchangeRateHistory(for: currencyPair, since: startDate) { result in
-            switch result {
-            case let .success(history):
-                var count = 0
-                var duplicateCount = 0
-                
-                for exchangeRate in history {
-                    do {
-                        let date = exchangeRate.date as Date
-                        
-                        // leave out result for today
-                        if !date.isUTCToday {
-                            _ = try ExchangeRate.createExchangeRate(from: exchangeRate, in: self.context)
-                            count = count + 1
-                        }
-                    } catch {
-                        switch error {
-                        case ExchangeRateError.duplicate:
-                            duplicateCount = duplicateCount + 1
-                        default:
-                            log.error("Failed to create exchange rate for currency pair '\(currencyPair.name)': \(error)")
-                        }
-                    }
-                }
-                
+        exchange.fetchExchangeRateHistory(for: currencyPair, since: startDate) { history, error in
+            guard let history = history else {
+                log.error("Failed to fetch exchange rate history for currency pair '\(currencyPair.name)': \(error!)")
+                return
+            }
+            
+            var count = 0
+            var duplicateCount = 0
+            
+            for exchangeRate in history {
                 do {
-                    if self.context.hasChanges {
-                        try self.context.save()
-                        let multiple = count >= 2 || count == 0
-                        log.debug("Saved exchange rate history for currency pair '\(currencyPair.name)' with \(count) new value\(multiple ? "s" : "") since \(startDate)).")
-                    }
+                    let date = exchangeRate.date as Date
                     
-                    completion?()
+                    // leave out result for today
+                    if !date.isUTCToday {
+                        _ = try ExchangeRate.createExchangeRate(from: exchangeRate, in: self.context)
+                        count = count + 1
+                    }
                 } catch {
-                    log.error("Failed to save fetched exchange rate history for currency pair '\(currencyPair.name)': \(error)")
+                    switch error {
+                    case ExchangeRateError.duplicate:
+                        duplicateCount = duplicateCount + 1
+                    default:
+                        log.error("Failed to create exchange rate for currency pair '\(currencyPair.name)': \(error)")
+                    }
                 }
-            case .failure(let error):
-                log.error("Failed to fetch exchange rate history for currency pair '\(currencyPair.name)': \(error)")
+            }
+            
+            do {
+                if self.context.hasChanges {
+                    try self.context.save()
+                    let multiple = count >= 2 || count == 0
+                    log.debug("Saved exchange rate history for currency pair '\(currencyPair.name)' with \(count) new value\(multiple ? "s" : "") since \(startDate)).")
+                }
+                
+                completion?()
+            } catch {
+                log.error("Failed to save fetched exchange rate history for currency pair '\(currencyPair.name)': \(error)")
             }
         }
     }
