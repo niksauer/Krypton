@@ -15,7 +15,7 @@ enum TokenError: Error {
 }
 
 class Token: NSManagedObject, TokenFeatures {
-    
+        
     // MARK: - Public Class Methods
     class func createToken(from tokenInfo: TokenFeatures, owner: TokenAddress, in context: NSManagedObjectContext) throws -> Token {
         guard owner.blockchain == tokenInfo.blockchain else {

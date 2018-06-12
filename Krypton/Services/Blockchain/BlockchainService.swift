@@ -23,18 +23,18 @@ struct BlockchainService: BlockchainConnector {
     // MARK: - BlockchainConnector
     func fetchBlockCount(for blockchain: Blockchain, completion: @escaping (UInt64?, Error?) -> Void) {
         switch blockchain {
-        case .BTC:
+        case .Bitcoin:
             bitcoinBlockExplorer.fetchBlockCount(completion: completion)
-        case .ETH:
+        case .Ethereum:
             ethereumBlockExplorer.fetchBlockCount(completion: completion)
         }
     }
     
     func fetchBalance(for address: Address, completion: @escaping (Double?, Error?) -> Void) {
         switch address {
-        case let address as Bitcoin:
+        case let address as BitcoinAddress:
             bitcoinBlockExplorer.fetchBalance(for: address, completion: completion)
-        case let address as Ethereum:
+        case let address as EthereumAddress:
             ethereumBlockExplorer.fetchBalance(for: address, completion: completion)
         default:
             completion(nil, BlockchainConnectorError.invalidBlockchain)
@@ -43,7 +43,7 @@ struct BlockchainService: BlockchainConnector {
 
     func fetchTokenBalance(for address: TokenAddress, token: TokenFeatures, completion: @escaping (Double?, Error?) -> Void) {
         switch (address, token) {
-        case let (address as Ethereum, token as ERC20Token):
+        case let (address as EthereumAddress, token as ERC20Token):
             ethereumBlockExplorer.fetchTokenBalance(for: address, token: token, completion: completion)
         default:
             completion(nil, BlockchainConnectorError.invalidBlockchain)
@@ -52,7 +52,7 @@ struct BlockchainService: BlockchainConnector {
     
     func fetchTransactionHistory(for address: Address, timeframe: TransactionHistoryTimeframe, completion: @escaping ([TransactionPrototype]?, Error?) -> Void) {
         switch address {
-        case let address as Bitcoin:
+        case let address as BitcoinAddress:
             bitcoinBlockExplorer.fetchTransactionHistory(for: address) { history, error in
                 guard let history = history else {
                     completion(nil, error!)
@@ -66,7 +66,7 @@ struct BlockchainService: BlockchainConnector {
                     completion(history, nil)
                 }
             }
-        case let address as Ethereum:
+        case let address as EthereumAddress:
             ethereumBlockExplorer.fetchTransactionHistory(for: address, type: .normal, timeframe: timeframe) { normalHistory, error in
                 guard let normalHistory = normalHistory else {
                     completion(nil, error!)

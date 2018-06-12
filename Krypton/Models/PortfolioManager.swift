@@ -20,6 +20,7 @@ protocol PortfolioManagerDelegate {
     func portfolioManager(_ portfolioManager: PortfolioManager, didRemoveCurrency currency: Currency)
     func portfolioManager(_ portfolioManager: PortfolioManager, didReceiveExchangeRateHistoryUpdateRequestForAddress address: Address)
     func portfolioManager(_ portfolioManager: PortfolioManager, didReceiveTokenExchangeRateHistoryUpdateRequestForAddress tokenAddress: TokenAddress)
+    func portfolioManager(_ portfolioManager: PortfolioManager, didNoticeNewTokenForAddress address: TokenAddress, token: Token)
 }
 
 final class PortfolioManager: PortfolioDelegate {
@@ -117,11 +118,7 @@ final class PortfolioManager: PortfolioDelegate {
     private func loadPortfolios() throws -> [Portfolio] {
         let request: NSFetchRequest<Portfolio> = Portfolio.fetchRequest()
     
-        do {
-            return try context.fetch(request)
-        } catch {
-            throw error
-        }
+        return try context.fetch(request)
     }
     
     private func loadManualCurrencies() -> [Currency] {
@@ -132,10 +129,10 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
-    private func saveManualCurrencies() {
+    private func saveManualCurrencies() -> Bool {
         let currencyCodes = manualCurrencies.map { $0.code }
         UserDefaults.standard.setValue(currencyCodes, forKey: "manualCurrencies")
-        UserDefaults.standard.synchronize()
+        return UserDefaults.standard.synchronize()
     }
     
     // MARK: - Public Methods
@@ -153,10 +150,10 @@ final class PortfolioManager: PortfolioDelegate {
             log.debug("Loaded quote currency '\(storedQuoteCurrency)' from UserDefaults.")
             return storedQuoteCurrency
         } else {
-            let standardQuoteCurrency = Fiat.EUR
+            let standardQuoteCurrency = Fiat.USD
             UserDefaults.standard.setValue(standardQuoteCurrency.rawValue, forKey: "quoteCurrency")
+            log.debug("Could not load quote currency from UserDefaults. Will attempt to set '\(standardQuoteCurrency)' as default.")
             UserDefaults.standard.synchronize()
-            log.debug("Could not load quote currency from UserDefaults. Set '\(standardQuoteCurrency)' as default.")
             return standardQuoteCurrency
         }
     }
@@ -177,7 +174,6 @@ final class PortfolioManager: PortfolioDelegate {
             UserDefaults.standard.synchronize()
             quoteCurrency = currency
             log.debug("Updated quote currency (\(currency.code)) of PortfolioManager.")
-            
             delegate?.portfolioManagerDidChangeQuoteCurrency(self)
         } catch {
             log.error("Failed to update quote currency of PortfolioManager: \(error)")
@@ -246,8 +242,14 @@ final class PortfolioManager: PortfolioDelegate {
         }
 
         manualCurrencies.append(currency)
+        
+        guard saveManualCurrencies() else {
+            let index = manualCurrencies.index(where: { $0.isEqual(to: currency) })!
+            manualCurrencies.remove(at: index)
+            return
+        }
+        
         log.debug("Manually added currency '\(currency.code)' to PortfolioManager.")
-        saveManualCurrencies()
         delegate?.portfolioManager(self, didAddCurrency: currency)
     }
 
@@ -257,8 +259,13 @@ final class PortfolioManager: PortfolioDelegate {
         }
         
         manualCurrencies.remove(at: index)
+    
+        guard saveManualCurrencies() else {
+            manualCurrencies.append(currency)
+            return
+        }
+        
         log.debug("Removed manually added currency '\(currency.code)' from PortfolioManager.")
-        saveManualCurrencies()
         delegate?.portfolioManager(self, didRemoveCurrency: currency)
     }
     
@@ -278,8 +285,8 @@ final class PortfolioManager: PortfolioDelegate {
     }
     
     func discardChanges() {
-        log.debug("Discarded all unsaved changes made to CoreData.")
         context.rollback()
+        log.debug("Discarded all unsaved changes made to CoreData.")
     }
     
     // MARK: - Portfolio Delegate
@@ -288,17 +295,19 @@ final class PortfolioManager: PortfolioDelegate {
     }
     
     func portfolioDidUpdateIsDefault(_ portfolio: Portfolio) {
-        guard portfolio.isDefault == true else {
+        guard portfolio.isDefault else {
             return
         }
         
         var count = 0
         
         for storedPortfolio in storedPortfolios {
-            if storedPortfolio != portfolio, storedPortfolio.isDefault {
-                storedPortfolio.isDefault = false
-                count = count + 1
+            guard storedPortfolio != portfolio, storedPortfolio.isDefault else {
+                continue
             }
+            
+            storedPortfolio.isDefault = false
+            count = count + 1
         }
         
         do {
@@ -349,16 +358,22 @@ final class PortfolioManager: PortfolioDelegate {
         delegate?.portfolioManager(self, didReceiveTokenExchangeRateHistoryUpdateRequestForAddress: tokenAddress)
     }
     
+    func portfolio(_ portfolio: Portfolio, didNoticeNewTokenForAddress address: TokenAddress, token: Token) {
+        delegate?.portfolioManager(self, didNoticeNewTokenForAddress: address, token: token)
+    }
+    
     // MARK: - Experimental
     private func deletePortfolios() {
         let request: NSFetchRequest<Portfolio> = Portfolio.fetchRequest()
         
-        if let portfolios = try? context.fetch(request) {
-            for portfolio in portfolios {
-                context.delete(portfolio)
-            }
+        guard let portfolios = try? context.fetch(request) else {
+            return
         }
-
+        
+        for portfolio in portfolios {
+            context.delete(portfolio)
+        }
+    
         do {
             try context.save()
             log.info("Deleted all portfolios, addresses and transactions from CoreData.")
@@ -370,10 +385,12 @@ final class PortfolioManager: PortfolioDelegate {
     private func deleteExchangeRateHistory() {
         let request: NSFetchRequest<ExchangeRate> = ExchangeRate.fetchRequest()
         
-        if let history = try? context.fetch(request) {
-            for exchangeRate in history {
-                context.delete(exchangeRate)
-            }
+        guard let history = try? context.fetch(request) else {
+            return
+        }
+        
+        for exchangeRate in history {
+            context.delete(exchangeRate)
         }
         
         do {
@@ -382,18 +399,6 @@ final class PortfolioManager: PortfolioDelegate {
         } catch {
             log.error("Failed to delete all exchange rates from CoreData: \(error)")
         }
-        
     }
 
 }
-
-//    ETH Wallet
-//    0xAA2F9BFAA9Ec168847216357b0856d776F34881f
-//    0xB15E9Ca894b6134Ac7C22B70b20Fd30De87451B2
-
-//    ETH Ledger
-//    0x273c1144e0531D9c5762f7F1569e600b827Aff4A
-
-//    BTC
-//    1eCjtYU5Fzmjs7P1iHGeYj6Tn86YdEmnY
-//    3QJmV3qfvL9SuYo34YihAf3sRCW3qSinyC

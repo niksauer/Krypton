@@ -31,7 +31,7 @@ struct EthplorerService: JSONService {
     private let apiKey = "freekey"
     
     // MARK: - Public Methods
-    func getInfo(address: Ethereum) {
+    func getInfo(address: EthereumAddress) {
         client.makeGETRequest(to: "getAddressInfo", params: [
             "apiKey": apiKey,
             "address": address.identifier!
@@ -49,7 +49,7 @@ struct EthplorerService: JSONService {
         }
     }
     
-    func getTokenBalance(for address: Ethereum, contractAddress: String) {
+    func getTokenBalance(for address: EthereumAddress, contractAddress: String) {
         client.makeGETRequest(to: "getAddressHistory", params: [
             "apiKey": apiKey,
             "address": address.identifier!,

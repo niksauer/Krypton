@@ -94,7 +94,7 @@ struct EtherscanService: JSONService, EthereumBlockExplorer {
         }
     }
     
-    func fetchBalance(for address: Ethereum, completion: @escaping (Double?, Error?) -> Void) {
+    func fetchBalance(for address: EthereumAddress, completion: @escaping (Double?, Error?) -> Void) {
         client.makeGETRequest(params: [
             "module": "account",
             "action": "balance",
@@ -113,7 +113,7 @@ struct EtherscanService: JSONService, EthereumBlockExplorer {
         }
     }
     
-    func fetchTokenBalance(for address: Ethereum, token: ERC20Token, completion: @escaping (Double?, Error?) -> Void) {
+    func fetchTokenBalance(for address: EthereumAddress, token: ERC20Token, completion: @escaping (Double?, Error?) -> Void) {
         client.makeGETRequest(params: [
             "module": "account",
             "action": "tokenbalance",
@@ -135,7 +135,7 @@ struct EtherscanService: JSONService, EthereumBlockExplorer {
         }
     }
 
-    func fetchTransactionHistory(for address: Ethereum, type: EthereumTransactionHistoryType, timeframe: TransactionHistoryTimeframe, completion: @escaping ([EthereumTransactionPrototype]?, Error?) -> Void) {
+    func fetchTransactionHistory(for address: EthereumAddress, type: EthereumTransactionHistoryType, timeframe: TransactionHistoryTimeframe, completion: @escaping ([EthereumTransactionPrototype]?, Error?) -> Void) {
         let method: String
         
         switch type {

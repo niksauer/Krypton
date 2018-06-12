@@ -71,18 +71,18 @@ final class TickerDaemon {
     }
     
     /// updates current price for specified trading pair, notifies delegate of change
-    private func updateExchangeRate(for currencyPair: CurrencyPair, completion: (() -> Void)?) {
+    private func updateExchangeRate(for currencyPair: CurrencyPair, completion: ((Error?) -> Void)?) {
         exchange.fetchCurrentExchangeRate(for: currencyPair) { exchangeRate, error in
             guard let exchangeRate = exchangeRate else {
                 log.error("Failed to fetch current exchange rate for currency pair '\(currencyPair.name)': \(error!)")
-                completion?()
+                completion?(error!)
                 return
             }
             
             self.currentExchangeRateForCurrencyPair[currencyPair] = exchangeRate.value
             log.verbose("Updated current exchange rate for currency pair '\(currencyPair.name)': \(exchangeRate.value)")
             self.delegate?.tickerDaemon(self, didUpdateCurrentExchangeRateForCurrencyPair: currencyPair)
-            completion?()
+            completion?(nil)
         }
     }
     
@@ -138,9 +138,9 @@ final class TickerDaemon {
         log.debug("Reset TickerDaemon.")
     }
     
-    func update(completion: (() -> Void)?) {
+    func update(completion: ((Error?) -> Void)?) {
         for (index, currencyPair) in currencyPairs.enumerated() {
-            var updateCompletion: (() -> Void)? = nil
+            var updateCompletion: ((Error?) -> Void)? = nil
             
             if index == currencyPairs.count-1 {
                 updateCompletion = completion

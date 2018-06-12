@@ -299,3 +299,14 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
     }
         
 }
+
+//    ETH Wallet
+//    0xAA2F9BFAA9Ec168847216357b0856d776F34881f
+//    0xB15E9Ca894b6134Ac7C22B70b20Fd30De87451B2
+
+//    ETH Ledger
+//    0x273c1144e0531D9c5762f7F1569e600b827Aff4A
+
+//    BTC
+//    1eCjtYU5Fzmjs7P1iHGeYj6Tn86YdEmnY
+//    3QJmV3qfvL9SuYo34YihAf3sRCW3qSinyC

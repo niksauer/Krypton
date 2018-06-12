@@ -84,7 +84,7 @@ enum ERC20Token: String, TokenFeatures {
     }
     
     var blockchain: Blockchain {
-        return .ETH
+        return .Ethereum
     }
     
 }

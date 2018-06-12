@@ -46,10 +46,10 @@ class Address: NSManagedObject, TransactionDelegate {
         let address: Address
         
         switch blockchain {
-        case .ETH:
-            address = Ethereum(context: context)
-        case .BTC:
-            address = Bitcoin(context: context)
+        case .Ethereum:
+            address = EthereumAddress(context: context)
+        case .Bitcoin:
+            address = BitcoinAddress(context: context)
         }
     
         address.identifier = addressString
@@ -113,7 +113,7 @@ class Address: NSManagedObject, TransactionDelegate {
     // MARK: - Public Methods
     /// returns the oldest transaction associated with address
     func getOldestTransaction() -> Transaction? {
-        return storedTransactions.max(by: { $0.date! < $1.date! })
+        return storedTransactions.min(by: { $0.date! < $1.date! })
     }
     
     func getTransactions(of type: TransactionType) -> [Transaction] {
@@ -180,7 +180,6 @@ class Address: NSManagedObject, TransactionDelegate {
     func update(completion: (() -> Void)?) {
         self.updateTransactionHistory {
             self.updateBalance {
-                self.delegate?.addressDidRequestExchangeRateHistoryUpdate(self)
                 completion?()
             }
         }
@@ -255,6 +254,7 @@ class Address: NSManagedObject, TransactionDelegate {
                 }
                 
                 self.delegate?.addressDidUpdateTransactionHistory(self)
+                self.delegate?.addressDidRequestExchangeRateHistoryUpdate(self)
                 completion?()
             } catch {
                 log.error("Failed to save fetched transaction history for address '\(self.logDescription)': \(error)")
@@ -299,12 +299,12 @@ class Address: NSManagedObject, TransactionDelegate {
     
 }
 
-class Bitcoin: Address {
+class BitcoinAddress: Address {
 
     // MARK: - Initializers
     override func awakeFromInsert() {
         super.awakeFromInsert()
-        setPrimitiveValue(Blockchain.BTC.rawValue, forKey: "blockchainRaw")
+        setPrimitiveValue(Blockchain.Bitcoin.rawValue, forKey: "blockchainRaw")
     }
     
     // MARK: - Public Methods    

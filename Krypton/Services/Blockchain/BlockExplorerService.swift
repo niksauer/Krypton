@@ -101,7 +101,7 @@ struct BlockExplorerService: JSONService, BitcoinBlockExplorer {
         }
     }
     
-    func fetchBalance(for address: Bitcoin, completion: @escaping (Double?, Error?) -> Void) {
+    func fetchBalance(for address: BitcoinAddress, completion: @escaping (Double?, Error?) -> Void) {
         client.ignoreJSONFormat = true
         
         client.makeGETRequest(to: "/addr/\(address.identifier!)/balance") { result in
@@ -121,7 +121,7 @@ struct BlockExplorerService: JSONService, BitcoinBlockExplorer {
         }
     }
     
-    func fetchTransactionHistory(for address: Bitcoin, completion: @escaping ([BitcoinTransactionPrototype]?, Error?) -> Void) {
+    func fetchTransactionHistory(for address: BitcoinAddress, completion: @escaping ([BitcoinTransactionPrototype]?, Error?) -> Void) {
         client.makeGETRequest(to: "/txs", params: [
             "address": address.identifier!
         ]) { result in

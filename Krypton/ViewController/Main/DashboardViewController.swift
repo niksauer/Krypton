@@ -47,7 +47,7 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
     
     private var portfolioDisplay: PortfolioDisplayType = .currentExchangeValue {
         didSet {
-            guard let currentExchangeValue = taxAdviser.getExchangeValue(for: portfolioManager.selectedAddresses, for: filter.transactionType, on: Date()), let profitStats = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, for: filter.transactionType, timeframe: .allTime) else {
+            guard let currentExchangeValue = taxAdviser.getExchangeValue(for: portfolioManager.selectedAddresses, on: Date(), type: filter.transactionType), let profitStats = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, timeframe: .allTime, type: filter.transactionType) else {
                 portfolioValueLabel.text = "???"
                 return
             }
@@ -68,7 +68,7 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
     
     private var showsRelativeProfit: Bool = true {
         didSet {
-            guard let profitStats = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, for: filter.transactionType, timeframe: .sinceDate(comparisonDate)) else {
+            guard let profitStats = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, timeframe: .sinceDate(comparisonDate), type: filter.transactionType) else {
                 profitValueLabel.text = "???"
                 return
             }
@@ -149,7 +149,7 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
         portfolioDisplay = { portfolioDisplay }()
         showsRelativeProfit = { showsRelativeProfit }()
         
-        if let investmentValue = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, for: filter.transactionType, timeframe: .allTime)?.startValue {
+        if let investmentValue = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, timeframe: .allTime, type: filter.transactionType)?.startValue {
             investmentValueLabel.text = currencyFormatter.getCurrencyFormatting(for: investmentValue, currency: portfolioManager.quoteCurrency)
         } else {
             investmentValueLabel.text = "???"

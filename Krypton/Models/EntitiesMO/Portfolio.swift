@@ -20,6 +20,7 @@ protocol PortfolioDelegate {
     func portfolio(_ portfolio: Portfolio, didNoticeUpdateForAddress address: Address)
     func portfolio(_ portfolio: Portfolio, didReceiveExchangeRateHistoryUpdateRequestForAddress address: Address)
     func portfolio(_ portfolio: Portfolio, didReceiveTokenExchangeRateHistoryUpdateRequestForAddress tokenAddress: TokenAddress)
+    func portfolio(_ portfolio: Portfolio, didNoticeNewTokenForAddress: TokenAddress, token: Token)
 }
 
 class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
@@ -138,7 +139,15 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
             let address = try Address.createAddress(addressString, alias: alias, blockchain: blockchain, quoteCurrency: quoteCurrency, in: context)
             self.addToAddresses(address)
             try context.save()
-            address.delegate = self
+            
+            switch address {
+            case let tokenAddress as TokenAddress:
+                tokenAddress.tokenDelegate = self
+                fallthrough
+            default:
+                address.delegate = self
+            }
+            
             log.info("Created and added address '\(address.logDescription)' to portfolio '\(self.logDescription)'.")
             delegate?.portfolio(self, didAddAddress: address)
             address.update(completion: nil)
@@ -201,6 +210,10 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
     
     func tokenAddress(_ tokenAddress: TokenAddress, didUpdateBalanceForToken token: Token) {
         delegate?.portfolio(self, didNoticeUpdateForAddress: tokenAddress)
+    }
+    
+    func tokenAddress(_ tokenAddress: TokenAddress, didCreateNewToken token: Token) {
+        delegate?.portfolio(self, didNoticeNewTokenForAddress: tokenAddress, token: token)
     }
     
 }
