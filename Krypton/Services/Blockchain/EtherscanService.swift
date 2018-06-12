@@ -9,17 +9,7 @@
 import Foundation
 import NetworkKit
 
-enum EthereumTransactionHistoryType: String {
-    case normal
-    case `internal`
-}
-
-protocol EthereumTransactionPrototype: TransactionPrototype {
-    var type: EthereumTransactionHistoryType { get }
-    var isError: Bool { get }
-}
-
-struct EtherscanService: JSONService {
+struct EtherscanService: JSONService, EthereumBlockExplorer {
     
     // MARK: - Public Types
     struct Transaction: EthereumTransactionPrototype {
@@ -86,8 +76,8 @@ struct EtherscanService: JSONService {
         return Transaction(identifier: hashString, date: Date(timeIntervalSince1970: time), totalAmount: amount, feeAmount: feeAmount, block: block, from: [fromString], to: [toString], isOutbound: isOutbound, isError: isError, type: type)
     }
     
-    // MARK: - Public Methods
-    func getBlockCount(completion: @escaping (UInt64?, Error?) -> Void) {
+    // MARK: - EthereumBlockExplorer
+    func fetchBlockCount(completion: @escaping (UInt64?, Error?) -> Void) {
         client.makeGETRequest(params: [
             "module": "proxy",
             "action": "eth_blockNumber",
@@ -104,7 +94,7 @@ struct EtherscanService: JSONService {
         }
     }
     
-    func getBalance(for address: Ethereum, completion: @escaping (Double?, Error?) -> Void) {
+    func fetchBalance(for address: Ethereum, completion: @escaping (Double?, Error?) -> Void) {
         client.makeGETRequest(params: [
             "module": "account",
             "action": "balance",
@@ -123,27 +113,29 @@ struct EtherscanService: JSONService {
         }
     }
     
-    func getTokenBalance(for address: Ethereum, contractAddress: String, completion: @escaping (Double?, Error?) -> Void) {
+    func fetchTokenBalance(for address: Ethereum, token: ERC20Token, completion: @escaping (Double?, Error?) -> Void) {
         client.makeGETRequest(params: [
             "module": "account",
             "action": "tokenbalance",
             "apikey": apiKey,
-            "contractaddress": contractAddress,
+            "contractaddress": token.address,
             "address": address.identifier!,
             "tag": "latest",
         ]) { result in
             let result = self.decode(String.self, from: result, at: "result")
             
-            guard let balanceString = result.instance, let balance = Double(balanceString) else {
+            guard let balanceString = result.instance, var balance = Double(balanceString) else {
                 completion(nil, result.error!)
                 return
             }
+            
+            balance = balance * (pow(10, -Double(token.decimalDigits)))
             
             completion(balance, nil)
         }
     }
 
-    func getTransactionHistory(for address: Ethereum, type: EthereumTransactionHistoryType, timeframe: TransactionHistoryTimeframe, completion: @escaping ([TransactionPrototype]?, Error?) -> Void) {
+    func fetchTransactionHistory(for address: Ethereum, type: EthereumTransactionHistoryType, timeframe: TransactionHistoryTimeframe, completion: @escaping ([EthereumTransactionPrototype]?, Error?) -> Void) {
         let method: String
         
         switch type {

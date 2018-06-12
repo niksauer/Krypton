@@ -68,7 +68,7 @@ class Address: NSManagedObject, TransactionDelegate {
     // MARK: - Private Properties
     private let context: NSManagedObjectContext = CoreDataStack.shared.viewContext
     private let currencyManager: CurrencyManager = CurrencyManager()
-    private let blockchainConnector: BlockchainConnector = BlockchainConnector(etherscanService: EtherscanService(hostURL: "https://api.etherscan.io", port: nil, credentials: nil), blockExplorer: BlockExplorerService(hostURL: "https://blockexplorer.com", port: nil, credentials: nil))
+    private let blockchainConnector: BlockchainConnector = BlockchainService(bitcoinBlockExplorer: BlockExplorerService(hostURL: "https://blockexplorer.com", port: nil, credentials: nil), ethereumBlockExplorer: EtherscanService(hostURL: "https://api.etherscan.io", port: nil, credentials: nil))
     
     // MARK: - Public Properties
     /// delegate who gets notified of changes in balance, transaction history and all associated transactions' userExchangeValue, isInvestment properties

@@ -9,12 +9,7 @@
 import Foundation
 import NetworkKit
 
-protocol BitcoinTransactionPrototype: TransactionPrototype {
-    var amountFromSender: [String: Double] { get }
-    var amountForReceiver: [String: Double] { get }
-}
-
-struct BlockExplorerService: JSONService {
+struct BlockExplorerService: JSONService, BitcoinBlockExplorer {
     
     // MARK: - Public Types
     struct Transaction: BitcoinTransactionPrototype {
@@ -90,8 +85,8 @@ struct BlockExplorerService: JSONService {
         return Transaction(identifier: hash, date: Date(timeIntervalSince1970: time), totalAmount: amount, feeAmount: feeAmount, block: block, from: senders, to: receivers, isOutbound: isOutbound, amountFromSender: amountFromSender, amountForReceiver: amountForReceiver)
     }
     
-    // MARK: - Public Methods
-    func getBlockCount(completion: @escaping (UInt64?, Error?) -> Void) {
+    // MARK: - BitcoinBlockExplorer
+    func fetchBlockCount(completion: @escaping (UInt64?, Error?) -> Void) {
         client.makeGETRequest(to: "/status", params: [
             "q": "getBlockCount"
         ]) { result in
@@ -106,19 +101,27 @@ struct BlockExplorerService: JSONService {
         }
     }
     
-    func getBalance(for address: Bitcoin, completion: @escaping (Double?, Error?) -> Void) {
+    func fetchBalance(for address: Bitcoin, completion: @escaping (Double?, Error?) -> Void) {
+        client.ignoreJSONFormat = true
+        
         client.makeGETRequest(to: "/addr/\(address.identifier!)/balance") { result in
-            print(self.getJSON(from: result))
+            let result = self.getData(from: result)
             
-//            guard let balanceString = String(data: data, encoding: .ascii), let balance = Double(balanceString) else {
-//                return .failure(BlockExplorerError.invalidJSONData)
-//            }
-//
-//            return .success(balance)
+            guard let data = result.instance else {
+                completion(nil, result.error)
+                return
+            }
+        
+            guard let balanceString = String(data: data, encoding: .ascii), let balance = Double(balanceString) else {
+                completion(nil, JSONAPIError.invalidData)
+                return
+            }
+
+            completion(balance, nil)
         }
     }
     
-    func getTransactionHistory(for address: Bitcoin, completion: @escaping ([TransactionPrototype]?, Error?) -> Void) {
+    func fetchTransactionHistory(for address: Bitcoin, completion: @escaping ([BitcoinTransactionPrototype]?, Error?) -> Void) {
         client.makeGETRequest(to: "/txs", params: [
             "address": address.identifier!
         ]) { result in

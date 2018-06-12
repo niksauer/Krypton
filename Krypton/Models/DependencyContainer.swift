@@ -32,8 +32,16 @@ struct DependencyContainer {
         return CurrencyFormatter()
     }
     
+    private var exchange: Exchange {
+        return CryptoCompareService(hostURL: "https://min-api.cryptocompare.com", port: nil, credentials: nil)
+    }
+    
     private var exchangeRateManager: ExchangeRateManager {
         return ExchangeRateManager(context: viewContext, tickerDaemon: tickerDaemon, exchange: exchange)
+    }
+    
+    private var taxAdviser: TaxAdviser {
+        return TaxAdviser(exchangeRateManager: exchangeRateManager)
     }
     
     private var mediumDateFormatter: DateFormatter = {
@@ -47,18 +55,6 @@ struct DependencyContainer {
         return UpdateStatusDateFormatter()
     }
     
-    private var taxAdviser: TaxAdviser {
-        return TaxAdviser(exchangeRateManager: exchangeRateManager)
-    }
-    
-    private var exchange: Exchange {
-        return CryptoCompareService(hostURL: "https://min-api.cryptocompare.com", port: nil, credentials: nil)
-    }
-
-    private var etherscanService: EtherscanService {
-        return EtherscanService(hostURL: "https://api.etherscan.io", port: nil, credentials: nil)
-    }
-    
     // Mark: - Initialization
     init() throws {
         do {
@@ -68,12 +64,12 @@ struct DependencyContainer {
             throw error
         }
         
+        let bitcoinBlockExplorer: BitcoinBlockExplorer = BlockExplorerService(hostURL: "https://blockexplorer.com", port: nil, credentials: nil)
+        let ethereumBlockExplorer: EthereumBlockExplorer = EtherscanService(hostURL: "https://api.etherscan.io", port: nil, credentials: nil)
+        let blockchainConnector: BlockchainConnector = BlockchainService(bitcoinBlockExplorer: bitcoinBlockExplorer, ethereumBlockExplorer: ethereumBlockExplorer)
+
         let exchange = CryptoCompareService(hostURL: "https://min-api.cryptocompare.com", port: nil, credentials: nil)
-        let etherscanService = EtherscanService(hostURL: "https://api.etherscan.io", port: nil, credentials: nil)
-        let blockExplorerService = BlockExplorerService(hostURL: "https://blockexplorer.com", port: nil, credentials: nil)
         
-        let blockchainConnector = BlockchainConnector(etherscanService: etherscanService, blockExplorer: blockExplorerService)
-    
         tickerDaemon = TickerDaemon(exchange: exchange)
         blockchainDaemom = BlockchainDaemon(blockchainConnector: blockchainConnector)
         let exchangeRateManager = ExchangeRateManager(context: viewContext, tickerDaemon: tickerDaemon, exchange: exchange)

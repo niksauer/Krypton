@@ -1,5 +1,5 @@
 //
-//  BlockchainConnector.swift
+//  BlockchainService.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 13.08.17.
@@ -8,63 +8,43 @@
 
 import Foundation
 
-enum BlockchainConnectorError: Error {
-    case invalidBlockchain
-}
-
-enum TransactionHistoryTimeframe {
-    case allTime
-    case sinceBlock(Int)
-}
-
-protocol TransactionPrototype {
-    var identifier: String { get }
-    var date: Date { get }
-    var totalAmount: Double { get }
-    var feeAmount: Double { get }
-    var block: Int { get }
-    var from: [String] { get }
-    var to: [String] { get }
-    var isOutbound: Bool { get }
-}
-
-struct BlockchainConnector {
+struct BlockchainService: BlockchainConnector {
     
     // MARK: - Private Properties
-    private let etherscanService: EtherscanService
-    private let blockExplorer: BlockExplorerService
+    private let bitcoinBlockExplorer: BitcoinBlockExplorer
+    private let ethereumBlockExplorer: EthereumBlockExplorer
     
     // MARK: - Initialization
-    init(etherscanService: EtherscanService, blockExplorer: BlockExplorerService) {
-        self.etherscanService = etherscanService
-        self.blockExplorer = blockExplorer
+    init(bitcoinBlockExplorer: BitcoinBlockExplorer, ethereumBlockExplorer: EthereumBlockExplorer) {
+        self.bitcoinBlockExplorer = bitcoinBlockExplorer
+        self.ethereumBlockExplorer = ethereumBlockExplorer
     }
     
-    // MARK: - Public Methods
+    // MARK: - BlockchainConnector
     func fetchBlockCount(for blockchain: Blockchain, completion: @escaping (UInt64?, Error?) -> Void) {
         switch blockchain {
         case .BTC:
-            blockExplorer.getBlockCount(completion: completion)
+            bitcoinBlockExplorer.fetchBlockCount(completion: completion)
         case .ETH:
-            etherscanService.getBlockCount(completion: completion)
+            ethereumBlockExplorer.fetchBlockCount(completion: completion)
         }
     }
     
     func fetchBalance(for address: Address, completion: @escaping (Double?, Error?) -> Void) {
         switch address {
         case let address as Bitcoin:
-            blockExplorer.getBalance(for: address, completion: completion)
+            bitcoinBlockExplorer.fetchBalance(for: address, completion: completion)
         case let address as Ethereum:
-            etherscanService.getBalance(for: address, completion: completion)
+            ethereumBlockExplorer.fetchBalance(for: address, completion: completion)
         default:
             completion(nil, BlockchainConnectorError.invalidBlockchain)
         }
     }
 
     func fetchTokenBalance(for address: TokenAddress, token: TokenFeatures, completion: @escaping (Double?, Error?) -> Void) {
-        switch address {
-        case let address as Ethereum:
-            etherscanService.getTokenBalance(for: address, contractAddress: token.address, completion: completion)
+        switch (address, token) {
+        case let (address as Ethereum, token as ERC20Token):
+            ethereumBlockExplorer.fetchTokenBalance(for: address, token: token, completion: completion)
         default:
             completion(nil, BlockchainConnectorError.invalidBlockchain)
         }
@@ -73,7 +53,7 @@ struct BlockchainConnector {
     func fetchTransactionHistory(for address: Address, timeframe: TransactionHistoryTimeframe, completion: @escaping ([TransactionPrototype]?, Error?) -> Void) {
         switch address {
         case let address as Bitcoin:
-            blockExplorer.getTransactionHistory(for: address) { history, error in
+            bitcoinBlockExplorer.fetchTransactionHistory(for: address) { history, error in
                 guard let history = history else {
                     completion(nil, error!)
                     return
@@ -87,13 +67,13 @@ struct BlockchainConnector {
                 }
             }
         case let address as Ethereum:
-            etherscanService.getTransactionHistory(for: address, type: .normal, timeframe: timeframe) { normalHistory, error in
+            ethereumBlockExplorer.fetchTransactionHistory(for: address, type: .normal, timeframe: timeframe) { normalHistory, error in
                 guard let normalHistory = normalHistory else {
                     completion(nil, error!)
                     return
                 }
                 
-                self.etherscanService.getTransactionHistory(for: address, type: .internal, timeframe: timeframe) { internalHistory, error in
+                self.ethereumBlockExplorer.fetchTransactionHistory(for: address, type: .internal, timeframe: timeframe) { internalHistory, error in
                     guard let internalHistory = internalHistory else {
                         completion(nil, error!)
                         return

@@ -26,7 +26,7 @@ class TokenAddress: Address {
     
     // MARK: - Private Properties
     private let context: NSManagedObjectContext = CoreDataStack.shared.viewContext
-    private let blockchainConnector: BlockchainConnector = BlockchainConnector(etherscanService: EtherscanService(hostURL: "https://api.etherscan.io", port: nil, credentials: nil), blockExplorer: BlockExplorerService(hostURL: "https://blockexplorer.com", port: nil, credentials: nil))
+    private let blockchainConnector: BlockchainConnector = BlockchainService(bitcoinBlockExplorer: BlockExplorerService(hostURL: "https://blockexplorer.com", port: nil, credentials: nil), ethereumBlockExplorer: EtherscanService(hostURL: "https://api.etherscan.io", port: nil, credentials: nil))
     
     // MARK: - Initialization
     override func awakeFromFetch() {
@@ -66,14 +66,14 @@ class TokenAddress: Address {
                     updateCompletion?()
                     return
                 }
-                
+
                 let token = self.storedTokens.filter({ $0.isEqual(to: associatedToken) }).first
-                
+
                 guard balance > 0 else {
                     updateCompletion?()
                     return
                 }
-                
+
                 if let token = token {
                     do {
                         guard token.balance != balance else {
@@ -81,7 +81,7 @@ class TokenAddress: Address {
                             updateCompletion?()
                             return
                         }
-                        
+
                         token.balance = balance
                         try self.context.save()
                         log.debug("Updated balance (\(balance) \(associatedToken.code) of token '\(associatedToken.name)' for address '\(self.logDescription)'.")
