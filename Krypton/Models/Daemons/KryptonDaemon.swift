@@ -81,8 +81,8 @@ final class KryptonDaemon: PortfolioManagerDelegate {
     }
     
     func portfolioManager(_ portfolioManager: PortfolioManager, didNoticeAddressRemovalFromPortfolio portfolio: Portfolio, currencyPair: CurrencyPair, blockchain: Blockchain) {
-        tickerDaemom.removeCurrencyPair(currencyPair)
-        blockchainDaemon.removeBlockchain(blockchain)
+        prepareTickerDaemon()
+        prepareBlockchainDaemon()
         delegate?.kryptonDaemonDidUpdate(self)
     }
     
@@ -111,7 +111,7 @@ final class KryptonDaemon: PortfolioManagerDelegate {
     }
     
     func portfolioManager(_ portfolioManager: PortfolioManager, didNoticeNewTokenForAddress address: TokenAddress, token: Token) {
-        let currencyPair = CurrencyPair(base: token, quote: portfolioManager.quoteCurrency)
+        let currencyPair = CurrencyPair(base: token.storedToken, quote: portfolioManager.quoteCurrency)
         tickerDaemom.addCurrencyPair(currencyPair)
         delegate?.kryptonDaemonDidUpdate(self)
     }

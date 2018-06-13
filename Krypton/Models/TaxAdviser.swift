@@ -201,7 +201,7 @@ struct TaxAdviser {
     // MARK: Address
     /// returns balance for specified transaction type on specified date
     func getExchangeValue(for address: Address, on date: Date, type: TransactionType) -> (balance: Double, value: Double)? {
-        guard !date.isFuture, let balance = address.getBalance(for: type, on: date), let exchangeRate = exchangeRateManager.getExchangeRate(for: address.currencyPair, on: date) else {
+        guard !date.isFuture, let balance = address.getBalance(on: date, type: type), let exchangeRate = exchangeRateManager.getExchangeRate(for: address.currencyPair, on: date) else {
             return nil
         }
         
@@ -212,7 +212,7 @@ struct TaxAdviser {
     func getProfitStats(for address: Address, timeframe: ProfitTimeframe, type: TransactionType) -> (startValue: Double, endValue: Double)? {
         var startValue = 0.0
         var endValue = 0.0
-        let transactions = address.getTransactions(of: type)
+        let transactions = address.getTransactions(type: type)
         
         for transaction in transactions {
             guard let profitStats = getProfitStats(for: transaction, timeframe: timeframe) else {
@@ -232,7 +232,7 @@ struct TaxAdviser {
             return nil
         }
         
-        let transactions = address.getTransactions(of: type)
+        let transactions = address.getTransactions(type: type)
         var profitHistory: [(Date, Double)] = []
         
         for transaction in transactions {

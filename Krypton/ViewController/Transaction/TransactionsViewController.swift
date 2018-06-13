@@ -341,7 +341,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
         
         for transaction in selectedTransactions {
             do {
-                try transaction.setIsUnread(state: isUnread)
+                try transaction.setIsUnread(isUnread)
             } catch {
                 // present error
             }
@@ -359,7 +359,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
         
         for transaction in selectedTransactions {
             do {
-                try transaction.setIsInvestment(state: isInvestment)
+                try transaction.setIsInvestment(isInvestment)
             } catch {
                 // present error
             }
@@ -422,7 +422,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
             for transaction in selectedTransactions {
                 do {
                     let value = totalExchangeValue / totalAmount * transaction.totalAmount
-                    try transaction.setUserExchangeValue(value: value)
+                    try transaction.setUserExchangeValue(value)
                 } catch {
                     // present error
                 }

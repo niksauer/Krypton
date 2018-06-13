@@ -8,7 +8,6 @@
 
 import Foundation
 import CoreData
-import SwiftKeccak
 
 protocol TokenAddressDelegate {
     func tokenAddressDidRequestTokenExchangeRateHistoryUpdate(_ tokenAddress: TokenAddress)
@@ -17,6 +16,10 @@ protocol TokenAddressDelegate {
 }
 
 class TokenAddress: Address {
+
+    // MARK: - Private Properties
+    private let context: NSManagedObjectContext = CoreDataStack.shared.viewContext
+    private let blockchainConnector: BlockchainConnector = BlockchainService(bitcoinBlockExplorer: BlockExplorerService(hostURL: "https://blockexplorer.com", port: nil, credentials: nil), ethereumBlockExplorer: EtherscanService(hostURL: "https://api.etherscan.io", port: nil, credentials: nil))
     
     // MARK: - Public Properties
     var tokenDelegate: TokenAddressDelegate?
@@ -25,22 +28,17 @@ class TokenAddress: Address {
         return Array(tokens!) as! [Token]
     }
     
-    // MARK: - Private Properties
-    private let context: NSManagedObjectContext = CoreDataStack.shared.viewContext
-    private let blockchainConnector: BlockchainConnector = BlockchainService(bitcoinBlockExplorer: BlockExplorerService(hostURL: "https://blockexplorer.com", port: nil, credentials: nil), ethereumBlockExplorer: EtherscanService(hostURL: "https://api.etherscan.io", port: nil, credentials: nil))
-    
     // MARK: - Initialization
     override func awakeFromFetch() {
         super.awakeFromFetch()
         tokenDelegate = portfolio
         log.debug("Set portfolio '\(portfolio!.logDescription)' as delegate of address '\(logDescription)'.")
     }
-        
+
     // MARK: Management
     override func update(completion: (() -> Void)?) {
         super.update {
             self.updateTokenBalance {
-                self.tokenDelegate?.tokenAddressDidRequestTokenExchangeRateHistoryUpdate(self)
                 completion?()
             }
         }
@@ -68,9 +66,19 @@ class TokenAddress: Address {
                     return
                 }
 
-                let token = self.storedTokens.filter({ $0.isEqual(to: associatedToken) }).first
+                let token = self.storedTokens.filter({ $0.storedToken.isEqual(to: associatedToken) }).first
 
                 guard balance > 0 else {
+                    if let token = token {
+                        do {
+                            self.context.delete(token)
+                            try self.context.save()
+                            log.debug("Deleted token '\(associatedToken.name)' for address '\(self.logDescription)'.")
+                        } catch {
+                            log.debug("Failed to delete token '\(associatedToken.name)' for address '\(self.logDescription)': \(error)")
+                        }
+                    }
+                    
                     updateCompletion?()
                     return
                 }
@@ -90,6 +98,7 @@ class TokenAddress: Address {
                         updateCompletion?()
                     } catch {
                         log.error("Failed to save fetched balance of token '\(associatedToken.name)' for address '\(self.logDescription)': \(error)")
+                        updateCompletion?()
                     }
                 } else {
                     do {
@@ -101,77 +110,34 @@ class TokenAddress: Address {
                         updateCompletion?()
                     } catch {
                         log.error("Failed to create token '\(associatedToken.name)' for address '\(self.logDescription)': \(error)")
+                        updateCompletion?()
                     }
                 }
             }
         }
     }
     
-    func updateTokenExchangeRateHistory(completion: (() -> Void)?) {
-        if storedTokens.count > 0 {
-            for (index, _) in storedTokens.enumerated() {
-                var updateCompletion: (() -> Void)? = nil
-                
-                if index == storedTokens.count-1 {
-                    updateCompletion = {
-                        log.verbose("Updated token exchange rate histories for address '\(self.logDescription)'.")
-                        completion?()
-                    }
-                }
-                
-                updateCompletion?()
-                
-                // use token transfer date
-//                ExchangeRate.updateExchangeRateHistory(for: token.currencyPair, since: firstTransaction.date!, completion: updateCompletion)
-            }
-        } else {
-            completion?()
-        }
-    }
+//    func updateTokenExchangeRateHistory(completion: (() -> Void)?) {
+//        guard storedTokens.count > 0 else {
+//            completion?()
+//            return
+//        }
+//        
+//        for (index, _) in storedTokens.enumerated() {
+//            var updateCompletion: (() -> Void)? = nil
+//            
+//            if index == storedTokens.count-1 {
+//                updateCompletion = {
+//                    log.verbose("Updated token exchange rate histories for address '\(self.logDescription)'.")
+//                    completion?()
+//                }
+//            }
+//            
+//            updateCompletion?()
+//            
+//            // use token transfer date
+//            tokenDelegate?.tokenAddressDidRequestTokenExchangeRateHistoryUpdate(self)
+//        }
+//    }
     
-}
-
-class EthereumAddress: TokenAddress {
-    
-    // MARK: - Initializers
-    override func awakeFromInsert() {
-        super.awakeFromInsert()
-        setPrimitiveValue(Blockchain.Ethereum.rawValue, forKey: "blockchainRaw")
-    }
-    
-    // MARK: - Public Methods
-    // MARK: Cryptography
-    override func isValidAddress() -> Bool {
-        let allLowerCapsTest = NSPredicate(format: "SELF MATCHES %@", "(0x)?[0-9a-f]{40}")
-        let allUpperCapsTest = NSPredicate(format: "SELF MATCHES %@", "(0x)?[0-9A-F]{40}")
-        
-        if !allLowerCapsTest.evaluate(with: identifier!.lowercased()) {
-            // basic requirements
-            return false
-        } else if allLowerCapsTest.evaluate(with: identifier!) || allUpperCapsTest.evaluate(with: identifier!) {
-            // either all lower or upper case
-            return true
-        } else {
-            // checksum address
-            let address = identifier!.replacingOccurrences(of: "0x", with: "")
-            let addressHash = keccak256(address.lowercased()).hexEncodedString()
-            
-            for (index, character) in address.enumerated() {
-                guard let hashDigit = Int(String(addressHash[index]), radix: 16) else {
-                    return false
-                }
-                
-                let digit = String(character)
-                let uppercaseDigit = String(digit).uppercased()
-                let lowercaseDigit = String(digit).lowercased()
-                
-                if hashDigit > 7 && uppercaseDigit != digit || hashDigit <= 7 && lowercaseDigit != digit {
-                    return false
-                }
-            }
-            
-            return true
-        }
-    }
-        
 }

@@ -90,7 +90,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
         
         if transaction.isUnread {
             do {
-                try transaction.setIsUnread(state: false)
+                try transaction.setIsUnread(false)
             } catch {
                 // TODO: present error
             }
@@ -129,7 +129,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
     // MARK: Content Interaction
     @objc private func toggleIsInvestment() {
         do {
-            try transaction.setIsInvestment(state: !transaction.isInvestment)
+            try transaction.setIsInvestment(!transaction.isInvestment)
         } catch {
             // TODO: present error
         }
@@ -137,7 +137,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
     
     @objc private func toggleIsUnread() {
         do {
-            try transaction.setIsUnread(state: !transaction.isUnread)
+            try transaction.setIsUnread(!transaction.isUnread)
         } catch {
             // TODO: present error
         }
@@ -178,7 +178,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
             let valueField = alertController.textFields![0]
             if let valueString = valueField.text?.trimmingCharacters(in: .whitespacesAndNewlines), let value = Double(valueString) {
                 do {
-                    try self.transaction.setUserExchangeValue(value: value)
+                    try self.transaction.setUserExchangeValue(value)
                 } catch {
                     // present error
                 }

@@ -20,19 +20,16 @@ class ExchangeRate: NSManagedObject {
     class func createExchangeRate(from prototype: ExchangeRatePrototype, in context: NSManagedObjectContext) throws -> ExchangeRate {
         let request: NSFetchRequest<ExchangeRate> = ExchangeRate.fetchRequest()
         
-        let startDate = prototype.date.UTCStart as NSDate
-        let endDate = prototype.date.UTCEnd as NSDate
+        let startDate = prototype.date.UTCStart
+        let endDate = prototype.date.UTCEnd
         
-        request.predicate = NSPredicate(format: "base = %@ AND quote = %@ AND date >= %@ AND date < %@", prototype.currencyPair.base.code, prototype.currencyPair.quote.code, startDate, endDate)
+        request.predicate = NSPredicate(format: "base = %@ AND quote = %@ AND date >= %@ AND date < %@", prototype.currencyPair.base.code, prototype.currencyPair.quote.code, startDate as NSDate, endDate as NSDate)
         
-        do {
-            let matches = try context.fetch(request)
-            if matches.count > 0 {
-                assert(matches.count >= 1, "ExchangeRate.createExchangeRate -- Database Inconsistency")
-                throw ExchangeRateError.duplicate
-            }
-        } catch {
-            throw error
+        let matches = try context.fetch(request)
+        
+        if matches.count > 0 {
+            assert(matches.count >= 1, "ExchangeRate.createExchangeRate -- Database Inconsistency")
+            throw ExchangeRateError.duplicate
         }
         
         let exchangeRate = ExchangeRate(context: context)

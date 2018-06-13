@@ -19,10 +19,10 @@ struct Filter {
     ]
     
     // MARK: - Public Properties
-    var transactionType: TransactionType
-    var isUnread: Bool
-    var isError: Bool
-    var hasUserExchangeValue: Bool
+    var transactionType: TransactionType = .all
+    var isUnread: Bool = true
+    var isError: Bool = false
+    var hasUserExchangeValue: Bool = false
     
     var isApplied: Bool {
         return transactionType != .all || isUnread || isError || hasUserExchangeValue
@@ -42,14 +42,6 @@ struct Filter {
         }
         
         return activeProperties.joined(separator: ", ")
-    }
-    
-    // MARK: - Initialization
-    init() {
-        self.transactionType = .all
-        self.isUnread = true
-        self.isError = false
-        self.hasUserExchangeValue = false
     }
     
     // MARK: - Private Methods

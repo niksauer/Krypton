@@ -18,7 +18,7 @@ class TokenCell: TappableCell {
     // MARK: - Public Properties
     override var firstDetailValue: String? {
         get {
-            return currencyFormatter.getCurrencyFormatting(for: token.balance, currency: token)
+            return currencyFormatter.getCurrencyFormatting(for: token.balance, currency: token.storedToken)
         }
         set {
             self.firstDetailValue = newValue
@@ -46,7 +46,7 @@ class TokenCell: TappableCell {
         
         super.init(style: .value1, reuseIdentifier: reuseIdentifier)
         
-        textLabel?.text = token.name
+        textLabel?.text = token.storedToken.name
         showsFirstDetailValue = true
     }
     

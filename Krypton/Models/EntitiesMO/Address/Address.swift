@@ -25,7 +25,7 @@ protocol AddressDelegate {
     func address(_ address: Address, didNoticeUpdateForTransaction: Transaction)
 }
 
-class Address: NSManagedObject, TransactionDelegate {
+class Address: NSManagedObject, TransactionDelegate, Reportable {
     
     // MARK: - Public Class Methods
     /// creates and returns address if non-existent in database, throws otherwise
@@ -33,14 +33,11 @@ class Address: NSManagedObject, TransactionDelegate {
         let request: NSFetchRequest<Address> = Address.fetchRequest()
         request.predicate = NSPredicate(format: "identifier = %@", addressString)
         
-        do {
-            let matches = try context.fetch(request)
-            if matches.count > 0 {
-                assert(matches.count >= 1, "Address.createAddress -- Database Inconsistency")
-                throw AddressError.duplicate
-            }
-        } catch {
-            throw error
+        let matches = try context.fetch(request)
+        
+        if matches.count > 0 {
+            assert(matches.count >= 1, "Address.createAddress -- Database Inconsistency")
+            throw AddressError.duplicate
         }
         
         let address: Address
@@ -80,7 +77,7 @@ class Address: NSManagedObject, TransactionDelegate {
         }
     }
     
-    private(set) public var quoteCurrency: Currency {
+    private(set) var quoteCurrency: Currency {
         get {
             return currencyManager.getCurrency(from: quoteCurrencyCode!)!
         }
@@ -99,6 +96,7 @@ class Address: NSManagedObject, TransactionDelegate {
         return Array(transactions!) as! [Transaction]
     }
     
+    // MARK: - Reportable
     var logDescription: String {
         return "\(self.identifier!), alias: \(self.alias ?? "None")"
     }
@@ -116,7 +114,7 @@ class Address: NSManagedObject, TransactionDelegate {
         return storedTransactions.min(by: { $0.date! < $1.date! })
     }
     
-    func getTransactions(of type: TransactionType) -> [Transaction] {
+    func getTransactions(type: TransactionType) -> [Transaction] {
         switch type {
         case .investment:
             return storedTransactions.filter { $0.isInvestment }
@@ -144,14 +142,14 @@ class Address: NSManagedObject, TransactionDelegate {
     }
     
     func setQuoteCurrency(_ currency: Currency) throws {
-        guard self.quoteCurrency.code != currency.code else {
+        guard !self.quoteCurrency.isEqual(to: currency) else {
             return
         }
         
         do {
-            self.quoteCurrencyCode = currency.code
+            self.quoteCurrency = currency
             try context.save()
-            log.debug("Updated quote currency (\(currency.code)) for address '\(logDescription)'.")
+            log.debug("Updated quote currency (\(currency)) for address '\(logDescription)'.")
             delegate?.addressDidUpdateQuoteCurrency(self)
         } catch {
             log.error("Failed to update quote currency for address '\(logDescription)': \(error)")
@@ -190,6 +188,7 @@ class Address: NSManagedObject, TransactionDelegate {
         blockchainConnector.fetchBalance(for: self) { balance, error in
             guard let balance = balance else {
                 log.error("Failed to fetch balance for address '\(self.logDescription)': \(error!)")
+                completion?()
                 return
             }
             
@@ -207,6 +206,7 @@ class Address: NSManagedObject, TransactionDelegate {
                 completion?()
             } catch {
                 log.error("Failed to save fetched balance for address '\(self.logDescription)': \(error).")
+                completion?()
             }
         }
     }
@@ -224,52 +224,55 @@ class Address: NSManagedObject, TransactionDelegate {
         blockchainConnector.fetchTransactionHistory(for: self, timeframe: timeframe) { history, error in
             guard let history = history else {
                 log.error("Failed to fetch transaction history for address '\(self.logDescription)': \(error!)")
+                completion?()
                 return
             }
         
             var newTxCount = 0
             
-            for txInfo in history {
+            for transactionPrototype in history {
                 do {
-                    let transaction = try Transaction.createTransaction(from: txInfo, owner: self, in: self.context)
+                    let transaction = try Transaction.createTransaction(from: transactionPrototype, owner: self, in: self.context)
                     newTxCount = newTxCount + 1
                     
                     if transaction.block > self.lastBlock {
                         self.lastBlock = transaction.block + 1
                     }
                 } catch {
-                    log.error("Failed to create transaction '\(txInfo.identifier)' for address '\(self.logDescription)': \(error)")
+                    log.error("Failed to create transaction '\(transactionPrototype.identifier)' for address '\(self.logDescription)': \(error)")
                 }
             }
             
             self.lastUpdate = Date()
             
             do {
-                if self.context.hasChanges, newTxCount > 0 {
-                    try self.context.save()
-                    let multiple = (newTxCount >= 2) || (newTxCount == 0)
-                    log.debug("Updated transaction history for address '\(self.logDescription)' with \(newTxCount) new transaction\(multiple ? "s" : "").")
-                } else {
+                guard newTxCount > 0 else {
                     log.verbose("Transaction history for address '\(self.logDescription)' is already up-to-date.")
+                    completion?()
+                    return
                 }
                 
+                try self.context.save()
+                let multiple = (newTxCount >= 2) || (newTxCount == 0)
+                log.debug("Updated transaction history for address '\(self.logDescription)' with \(newTxCount) new transaction\(multiple ? "s" : "").")
                 self.delegate?.addressDidUpdateTransactionHistory(self)
                 self.delegate?.addressDidRequestExchangeRateHistoryUpdate(self)
                 completion?()
             } catch {
                 log.error("Failed to save fetched transaction history for address '\(self.logDescription)': \(error)")
+                completion?()
             }
         }
     }
     
     // MARK: Finance
     /// returns balance for specified transaction type on specified date
-    func getBalance(for type: TransactionType, on date: Date) -> Double? {
+    func getBalance(on date: Date, type: TransactionType) -> Double? {
         guard storedTransactions.count > 0 else {
             return 0.0
         }
         
-        let transactions = getTransactions(of: type).filter { $0.date! <= date }
+        let transactions = getTransactions(type: type).filter { $0.date! <= date }
         var balance = 0.0
     
         for transaction in transactions {
@@ -299,19 +302,4 @@ class Address: NSManagedObject, TransactionDelegate {
     
 }
 
-class BitcoinAddress: Address {
 
-    // MARK: - Initializers
-    override func awakeFromInsert() {
-        super.awakeFromInsert()
-        setPrimitiveValue(Blockchain.Bitcoin.rawValue, forKey: "blockchainRaw")
-    }
-    
-    // MARK: - Public Methods    
-    // MARK: Cryptography
-    override func isValidAddress() -> Bool {
-        let regex = NSPredicate(format: "SELF MATCHES %@", "^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$")
-        return regex.evaluate(with: identifier!)
-    }
-
-}

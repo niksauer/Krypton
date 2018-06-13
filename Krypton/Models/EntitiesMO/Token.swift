@@ -11,85 +11,47 @@ import CoreData
 
 enum TokenError: Error {
     case duplicate
-    case invalidBlockchain
+    case invalidOwner
 }
 
-class Token: NSManagedObject, TokenFeatures {
+class Token: NSManagedObject, Reportable {
         
     // MARK: - Public Class Methods
-    class func createToken(from tokenInfo: TokenFeatures, owner: TokenAddress, in context: NSManagedObjectContext) throws -> Token {
-        guard owner.blockchain == tokenInfo.blockchain else {
-            throw TokenError.invalidBlockchain
+    class func createToken(from prototype: TokenFeatures, owner: TokenAddress, in context: NSManagedObjectContext) throws -> Token {
+        guard owner.blockchain == prototype.blockchain else {
+            throw TokenError.invalidOwner
         }
         
         let request: NSFetchRequest<Token> = Token.fetchRequest()
-        request.predicate = NSPredicate(format: "identifier = %@ AND owner = %@", tokenInfo.address, owner)
+        request.predicate = NSPredicate(format: "identifier = %@ AND owner = %@", prototype.address, owner)
         
-        do {
-            let matches = try context.fetch(request)
-            if matches.count > 0 {
-                assert(matches.count >= 1, "Token.createToken -- Database Inconsistency")
-                throw TokenError.duplicate
-            }
-        } catch {
-            throw error
+        let matches = try context.fetch(request)
+        
+        if matches.count > 0 {
+            assert(matches.count >= 1, "Token.createToken -- Database Inconsistency")
+            throw TokenError.duplicate
         }
         
         let token = Token(context: context)
         
-        token.identifier = tokenInfo.address
+        token.identifier = prototype.address
         token.owner = owner
         
         return token
     }
 
-    // MARK: - Private Properties    
-    private var token: TokenFeatures {
+    // MARK: - Public Properties
+    var storedToken: TokenFeatures {
         return owner!.blockchain.getToken(address: identifier!)!
     }
     
-    // MARK: - Public Properties
     var currencyPair: CurrencyPair {
-        return CurrencyPair(base: self, quote: owner!.quoteCurrency)
+        return CurrencyPair(base: storedToken, quote: owner!.quoteCurrency)
     }
     
+    // MARK: - Reportable
     var logDescription: String {
-        return "\(self.identifier!), code: \(code), owner: \(self.owner!.logDescription)"
-    }
-    
-    // MARK: - Currency
-    var code: String {
-        return token.code
-    }
-    
-    var name: String {
-        return token.name
-    }
-    
-    var symbol: String {
-        return token.symbol
-    }
-    
-    var decimalDigits: Int {
-        return token.decimalDigits
-    }
-    
-    var type: CurrencyType {
-        return token.type
-    }
-    
-    // MARK: - TokenFeatures
-    var address: String {
-        get {
-            return identifier!
-        }
-        set {
-            self.identifier = newValue
-        }
-    }
-    
-    var blockchain: Blockchain {
-        return token.blockchain
+        return "\(self.identifier!), code: \(storedToken.code), owner: \(self.owner!.logDescription)"
     }
     
 }

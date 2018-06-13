@@ -19,17 +19,14 @@ protocol TransactionDelegate {
     func transactionDidUpdateInvestmentStatus(_ transaction: Transaction)
 }
 
-class Transaction: NSManagedObject {
+class Transaction: NSManagedObject, Reportable {
     
     // MARK: - Public Class Methods
     /// creates and returns transaction if non-existent in database, throws otherwise
     class func createTransaction(from prototype: TransactionPrototype, owner: Address, in context: NSManagedObjectContext) throws -> Transaction {
-        guard prototype.from.count >= 1, prototype.to.count >= 1 else {
-            throw TransactionError.invalidPrototype
-        }
-        
         let request: NSFetchRequest<Transaction> = Transaction.fetchRequest()
         
+        // set search terms appropriate to provided blockchain
         switch owner {
         case is EthereumAddress:
             guard let prototype = prototype as? EthereumTransactionPrototype else {
@@ -37,10 +34,25 @@ class Transaction: NSManagedObject {
             }
             
             request.predicate = NSPredicate(format: "identifier = %@ AND owner = %@ AND type = %@ ", prototype.identifier, owner, prototype.type.rawValue)
-        default:
+        case is BitcoinAddress:
+            guard prototype is BitcoinTransactionPrototype else {
+                throw TransactionError.invalidPrototype
+            }
+            
             request.predicate = NSPredicate(format: "identifier = %@ AND owner = %@", prototype.identifier, owner)
+        default:
+            preconditionFailure("This method has not been implemented.")
         }
     
+        // check whether transaction exists already
+        let matches = try context.fetch(request)
+        
+        if matches.count > 0 {
+            assert(matches.count >= 1, "Token.createToken -- Database Inconsistency")
+            throw TransactionError.duplicate
+        }
+        
+        // create transaction appropriate to provided blockchain
         let transaction: Transaction
         
         switch owner {
@@ -55,7 +67,7 @@ class Transaction: NSManagedObject {
             
             transaction = ethereumTransaction
         case is BitcoinAddress:
-            guard let prototype = prototype as? BitcoinTransactionPrototype else {
+            guard let prototype = prototype as? BitcoinTransactionPrototype, prototype.from.count >= 1, prototype.to.count >= 1 else {
                 throw TransactionError.invalidPrototype
             }
             
@@ -65,7 +77,7 @@ class Transaction: NSManagedObject {
             
             transaction = bitcoinTransaction
         default:
-            transaction = Transaction(context: context)
+            preconditionFailure("This method has not been implemented.")
         }
         
         transaction.identifier = prototype.identifier
@@ -109,18 +121,19 @@ class Transaction: NSManagedObject {
         return receivers.contains(self.owner!.identifier!) ? self.owner!.identifier! : receivers.first!
     }
     
-    var logDescription: String {
-        return "\(self.identifier!), owner: \(self.owner!.logDescription)"
-    }
-    
     var hasUserExchangeValue: Bool {
         return userExchangeValue != -1
     }
     
+    // MARK: - Reportable
+    var logDescription: String {
+        return "\(self.identifier!), owner: \(self.owner!.logDescription)"
+    }
+    
     // MARK: - Public Methods
     /// replaces exchange value as encountered on execution date by user specified value, notifies owner's delegate if change occurred
-    func setUserExchangeValue(value newValue: Double) throws {
-        guard newValue != userExchangeValue else {
+    func setUserExchangeValue(_ newValue: Double) throws {
+        guard newValue != userExchangeValue, newValue >= 0 else {
             return
         }
         
@@ -136,7 +149,7 @@ class Transaction: NSManagedObject {
     }
     
     /// updates isInvestment status as specified by user, notifies owner's delegate if change occurred
-    func setIsInvestment(state newValue: Bool) throws {
+    func setIsInvestment(_ newValue: Bool) throws {
         guard newValue != isInvestment else {
             return
         }
@@ -152,7 +165,7 @@ class Transaction: NSManagedObject {
         }
     }
     
-    func setIsUnread(state newValue: Bool) throws {
+    func setIsUnread(_ newValue: Bool) throws {
         guard newValue != isUnread else {
             return
         }
@@ -177,23 +190,6 @@ class Transaction: NSManagedObject {
             log.error("Failed to reset user exchange value for transaction '\(self.logDescription)': \(error)")
             throw error
         }
-    }
-    
-}
-
-class EthereumTransaction: Transaction {
-    
-}
-
-class BitcoinTransaction: Transaction {
-    
-    // MARK: - Public Properties
-    var storedAmountFromSender: [String: Double] {
-        return amountFromSender as! [String: Double]
-    }
-    
-    var storedAmountForReceiver: [String: Double] {
-        return amountForReceiver as! [String: Double]
     }
     
 }

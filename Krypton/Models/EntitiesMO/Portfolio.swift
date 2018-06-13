@@ -23,13 +23,13 @@ protocol PortfolioDelegate {
     func portfolio(_ portfolio: Portfolio, didNoticeNewTokenForAddress: TokenAddress, token: Token)
 }
 
-class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
+class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate, Reportable {
     
     // MARK: - Public Class Methods
     /// creates and returns portfolio with specified quote currency
     class func createPortfolio(alias: String?, quoteCurrency: Currency, in context: NSManagedObjectContext) -> Portfolio {
         let portfolio = Portfolio(context: context)
-        portfolio.alias = alias
+        portfolio.alias = alias.nilIfEmpty?.trimmingCharacters(in: .whitespacesAndNewlines)
         portfolio.quoteCurrencyCode = quoteCurrency.code
         return portfolio
     }
@@ -42,7 +42,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
     /// delegate who gets notified of changes in portfolio, i.e., balance, transaction history and all associated transactions' userExchangeValue, isInvestment properties
     var delegate: PortfolioDelegate?
     
-    private(set) public var quoteCurrency: Currency {
+    private(set) var quoteCurrency: Currency {
         get {
             return currencyManager.getCurrency(from: quoteCurrencyCode!)!
         }
@@ -60,6 +60,7 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
         return storedAddresses.filter { $0.isSelected }
     }
     
+    // MARK: - Reportable
     var logDescription: String {
         return "\(self.alias!), quoteCurrency: \(self.quoteCurrency.code)"
     }
@@ -98,19 +99,19 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
     }
     
     func setQuoteCurrency(_ currency: Currency) throws {
-        guard self.quoteCurrency.code != currency.code else {
+        guard !self.quoteCurrency.isEqual(to: currency) else {
             return
         }
         
         do {
-            self.quoteCurrencyCode = currency.code
+            self.quoteCurrency = currency
             try context.save()
             
             for address in storedAddresses {
                 try address.setQuoteCurrency(currency)
+                address.update(completion: nil)
             }
             
-            self.update(completion: nil)
             log.debug("Updated quote currency (\(currency.code)) for portfolio '\(self.logDescription)'.")
             delegate?.portfolioDidUpdateQuoteCurrency(self)
         } catch {
@@ -159,12 +160,12 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate {
     
     func removeAddress(address: Address) throws {
         do {
-            let addressIdentifier = address.identifier!
+            let identifier = address.identifier!
             let currencyPair = address.currencyPair
             let blockchain = address.blockchain
             context.delete(address)
             try context.save()
-            log.info("Removed address '\(addressIdentifier)' from portfolio '\(self.logDescription)'.")
+            log.info("Removed address '\(identifier)' from portfolio '\(self.logDescription)'.")
             delegate?.portfolio(self, didRemoveAddressWithCurrencyPair: currencyPair, blockchain: blockchain)
         } catch {
             log.error("Failed to remove address '\(address.identifier!)' from from portfolio '\(self.logDescription)': \(error)")

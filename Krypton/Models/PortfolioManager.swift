@@ -34,12 +34,21 @@ final class PortfolioManager: PortfolioDelegate {
     var delegate: PortfolioManagerDelegate?
     
     /// fiat currency used to calculate exchange values of all stored portfolios
-    private(set) public lazy var quoteCurrency: Currency = {
-        return getQuoteCurrency()
+    private(set) lazy var quoteCurrency: Currency = {
+        if let storedQuoteCurrencyCode = UserDefaults.standard.value(forKey: "quoteCurrency") as? String, let storedQuoteCurrency = currencyManager.getCurrency(from: storedQuoteCurrencyCode) {
+            log.debug("Loaded quote currency '\(storedQuoteCurrency)' from UserDefaults.")
+            return storedQuoteCurrency
+        } else {
+            let standardQuoteCurrency = Fiat.USD
+            UserDefaults.standard.setValue(standardQuoteCurrency.rawValue, forKey: "quoteCurrency")
+            log.debug("Could not load quote currency from UserDefaults. Will attempt to set '\(standardQuoteCurrency)' as default.")
+            UserDefaults.standard.synchronize()
+            return standardQuoteCurrency
+        }
     }()
     
     /// returns all stored portfolios
-    private(set) public var storedPortfolios = [Portfolio]()
+    private(set) var storedPortfolios = [Portfolio]()
     
     /// returns default portfolio used to add addresses
     var defaultPortfolio: Portfolio? {
@@ -68,7 +77,7 @@ final class PortfolioManager: PortfolioDelegate {
         return Set(storedAddresses.map { $0.currencyPair } + storedTokens.map { $0.currencyPair })
     }
     
-    private(set) public var manualCurrencies = [Currency]()
+    private(set) var manualCurrencies = [Currency]()
     
     // MARK: - Initialization
     /// loads all available portfolios, sets itself as their delegate,
@@ -91,7 +100,7 @@ final class PortfolioManager: PortfolioDelegate {
         
         if storedPortfolios.count == 0 {
             do {
-                let quoteCurrency = getQuoteCurrency()
+                let quoteCurrency = self.quoteCurrency
                 let portfolio = try addPortfolio(alias: "Personal", quoteCurrency: quoteCurrency)
                 try portfolio.setIsDefault(true)
                 log.info("Created empty default portfolio '\(portfolio.alias!)'.")
@@ -117,7 +126,6 @@ final class PortfolioManager: PortfolioDelegate {
     /// loads and returns all addresses stored in Core Data
     private func loadPortfolios() throws -> [Portfolio] {
         let request: NSFetchRequest<Portfolio> = Portfolio.fetchRequest()
-    
         return try context.fetch(request)
     }
     
@@ -145,35 +153,26 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
-    func getQuoteCurrency() -> Currency {
-        if let storedQuoteCurrencyCode = UserDefaults.standard.value(forKey: "quoteCurrency") as? String, let storedQuoteCurrency = currencyManager.getCurrency(from: storedQuoteCurrencyCode) {
-            log.debug("Loaded quote currency '\(storedQuoteCurrency)' from UserDefaults.")
-            return storedQuoteCurrency
-        } else {
-            let standardQuoteCurrency = Fiat.USD
-            UserDefaults.standard.setValue(standardQuoteCurrency.rawValue, forKey: "quoteCurrency")
-            log.debug("Could not load quote currency from UserDefaults. Will attempt to set '\(standardQuoteCurrency)' as default.")
-            UserDefaults.standard.synchronize()
-            return standardQuoteCurrency
-        }
-    }
-    
     func setQuoteCurrency(_ currency: Currency) throws {
-        let currentQuoteCurrency = getQuoteCurrency()
-        
-        guard currency.code != currentQuoteCurrency.code else {
+        guard !quoteCurrency.isEqual(to: currency) else {
             return
         }
         
         do {
+            UserDefaults.standard.setValue(currency.code, forKey: "quoteCurrency")
+            
+            guard UserDefaults.standard.synchronize() else {
+                log.error("Failed to update quote currency of PortfolioManager: Could not synchronize UserDefaults.")
+                return
+            }
+            
+            quoteCurrency = currency
+            log.debug("Updated quote currency (\(currency.code)) of PortfolioManager.")
+            
             for portfolio in storedPortfolios {
                 try portfolio.setQuoteCurrency(currency)
             }
             
-            UserDefaults.standard.setValue(currency.code, forKey: "quoteCurrency")
-            UserDefaults.standard.synchronize()
-            quoteCurrency = currency
-            log.debug("Updated quote currency (\(currency.code)) of PortfolioManager.")
             delegate?.portfolioManagerDidChangeQuoteCurrency(self)
         } catch {
             log.error("Failed to update quote currency of PortfolioManager: \(error)")
@@ -225,9 +224,10 @@ final class PortfolioManager: PortfolioDelegate {
     func removePortfolio(_ portfolio: Portfolio) throws {
         do {
             let alias = portfolio.alias!
-            storedPortfolios.remove(at: storedPortfolios.index(of: portfolio)!)
+            let index = storedPortfolios.index(of: portfolio)!
             context.delete(portfolio)
             try context.save()
+            storedPortfolios.remove(at: index)
             log.info("Deleted portfolio '\(alias)'.")
             delegate?.portfolioManagerDidRemovePortfolio(self)
         } catch {
@@ -320,7 +320,7 @@ final class PortfolioManager: PortfolioDelegate {
             
             delegate?.portfolioManagerDidReceivePortfolioUpdate(self)
         } catch {
-            log.error("Failed to unset previous default portfolio: \(error)")
+            log.error("Failed to unset previous default portfolio(s): \(error)")
             
             do {
                 try portfolio.setIsDefault(false)
@@ -363,12 +363,9 @@ final class PortfolioManager: PortfolioDelegate {
     }
     
     // MARK: - Experimental
-    private func deletePortfolios() {
+    private func deletePortfolios() throws {
         let request: NSFetchRequest<Portfolio> = Portfolio.fetchRequest()
-        
-        guard let portfolios = try? context.fetch(request) else {
-            return
-        }
+        let portfolios = try context.fetch(request)
         
         for portfolio in portfolios {
             context.delete(portfolio)
@@ -379,15 +376,13 @@ final class PortfolioManager: PortfolioDelegate {
             log.info("Deleted all portfolios, addresses and transactions from CoreData.")
         } catch {
             log.error("Failed to delete all portfolios from CoreData: \(error)")
+            throw error
         }
     }
     
-    private func deleteExchangeRateHistory() {
+    private func deleteExchangeRateHistory() throws {
         let request: NSFetchRequest<ExchangeRate> = ExchangeRate.fetchRequest()
-        
-        guard let history = try? context.fetch(request) else {
-            return
-        }
+        let history = try context.fetch(request)
         
         for exchangeRate in history {
             context.delete(exchangeRate)
@@ -398,6 +393,7 @@ final class PortfolioManager: PortfolioDelegate {
             log.info("Deleted all exchange rates from CoreData.")
         } catch {
             log.error("Failed to delete all exchange rates from CoreData: \(error)")
+            throw error
         }
     }
 
