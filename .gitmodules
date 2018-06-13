@@ -1,12 +1,16 @@
 [submodule "Frameworks/SwiftyBeaver"]
 	path = Frameworks/SwiftyBeaver
 	url = git@github.com:SwiftyBeaver/SwiftyBeaver.git
+	ignore = dirty
 [submodule "Frameworks/SwiftKeccak"]
 	path = Frameworks/SwiftKeccak
 	url = git@github.com:uport-project/SwiftKeccak.git
+	ignore = dirty
 [submodule "Frameworks/NetworkKit"]
 	path = Frameworks/NetworkKit
 	url = git@github.com:niksauer/NetworkKit.git
+	ignore = dirty
 [submodule "Frameworks/ToolKit"]
 	path = Frameworks/ToolKit
 	url = git@github.com:niksauer/ToolKit.git
+	ignore = dirty
