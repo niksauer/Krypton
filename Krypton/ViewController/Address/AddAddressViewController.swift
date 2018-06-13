@@ -110,12 +110,12 @@ class AddAddressViewController: UITableViewController, UITextFieldDelegate, UIPi
         saveBarButtonItem.isEnabled = true
     }
     
-    private func didChangeAddress(_ address: String?) {
-        self.address = address
+    @objc private func didChangeAddress(_ sender: UITextField) {
+        self.address = sender.text
     }
     
-    @objc private func didChangeAlias(_ alias: String?) {
-        self.alias = alias
+    @objc private func didChangeAlias(_ sender: UITextField) {
+        self.alias = sender.text
     }
     
     // MARK: - PortfolioSelector Delegate
@@ -153,7 +153,7 @@ class AddAddressViewController: UITableViewController, UITextFieldDelegate, UIPi
             case 0:
                 cell.textField.placeholder = "Address"
                 cell.isEnabled = true
-                cell.textField.addTarget(self, action: #selector(didChangeAlias(_:)), for: .editingChanged)
+                cell.textField.addTarget(self, action: #selector(didChangeAddress(_:)), for: .editingChanged)
             case 1:
                 cell.textField.placeholder = "Alias"
                 cell.isEnabled = true
