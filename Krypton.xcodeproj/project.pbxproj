@@ -40,7 +40,6 @@
 		2458132F1F5F503B007795BC /* PortfolioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2458132E1F5F503B007795BC /* PortfolioManager.swift */; };
 		246737651F4B9255003277B8 /* TransactionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246737641F4B9255003277B8 /* TransactionsViewController.swift */; };
 		246874F61F464B4E009BB60A /* Krypton.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 246874F41F464B4E009BB60A /* Krypton.xcdatamodeld */; };
-		2470332620D13C2F002B5F5D /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2470332520D13C2F002B5F5D /* UIView.swift */; };
 		247033FF20D19132002B5F5D /* ToolKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 247033FA20D1912B002B5F5D /* ToolKit.framework */; };
 		2470340020D19132002B5F5D /* ToolKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 247033FA20D1912B002B5F5D /* ToolKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2474F68820D10BA1001E5799 /* Reportable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2474F68720D10BA1001E5799 /* Reportable.swift */; };
@@ -74,12 +73,10 @@
 		24CDFFFD2073AE0E0094A9ED /* SwiftyBeaver.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CDFFF42073AE050094A9ED /* SwiftyBeaver.framework */; };
 		24CDFFFE2073AE0E0094A9ED /* SwiftyBeaver.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 24CDFFF42073AE050094A9ED /* SwiftyBeaver.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		24D11B0A20CB5A03001C9135 /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D11B0920CB5A03001C9135 /* Filter.swift */; };
-		24D71E2520C861DA000155FE /* FetchedResultsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D71E2420C861DA000155FE /* FetchedResultsTableViewController.swift */; };
 		24D71E2A20C865D0000155FE /* TransactionHeaderCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 24D71E2820C865D0000155FE /* TransactionHeaderCell.xib */; };
 		24D71E3120C87A76000155FE /* DashboardViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 24D71E3020C87A76000155FE /* DashboardViewController.xib */; };
 		24D71E3320C87F06000155FE /* ViewControllerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D71E3220C87F06000155FE /* ViewControllerFactory.swift */; };
-		24D71E3520C88B70000155FE /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D71E3420C88B70000155FE /* Date.swift */; };
-		24D71E3920C88BB6000155FE /* Misc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D71E3820C88BB6000155FE /* Misc.swift */; };
+		24D71E3920C88BB6000155FE /* NotificationCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D71E3820C88BB6000155FE /* NotificationCenter.swift */; };
 		24D71E3B20C88CE0000155FE /* UpdateStatusDateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D71E3A20C88CE0000155FE /* UpdateStatusDateFormatter.swift */; };
 		24D71E8320C95584000155FE /* TaxAdviser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D71E8220C95584000155FE /* TaxAdviser.swift */; };
 /* End PBXBuildFile section */
@@ -285,7 +282,6 @@
 		2458132E1F5F503B007795BC /* PortfolioManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PortfolioManager.swift; sourceTree = "<group>"; };
 		246737641F4B9255003277B8 /* TransactionsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionsViewController.swift; sourceTree = "<group>"; };
 		246874F51F464B4E009BB60A /* Krypton.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Krypton.xcdatamodel; sourceTree = "<group>"; };
-		2470332520D13C2F002B5F5D /* UIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIView.swift; sourceTree = "<group>"; };
 		247033F020D1912A002B5F5D /* ToolKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ToolKit.xcodeproj; path = Frameworks/ToolKit/ToolKit.xcodeproj; sourceTree = "<group>"; };
 		2474F68720D10BA1001E5799 /* Reportable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reportable.swift; sourceTree = "<group>"; };
 		2474F69120D110C5001E5799 /* BitcoinTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinTransaction.swift; sourceTree = "<group>"; };
@@ -317,12 +313,10 @@
 		24CD00012073AEF30094A9ED /* SwiftKeccak.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftKeccak.xcodeproj; path = Frameworks/SwiftKeccak/SwiftKeccak.xcodeproj; sourceTree = "<group>"; };
 		24CDFFEB2073AE040094A9ED /* SwiftyBeaver.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftyBeaver.xcodeproj; path = Frameworks/SwiftyBeaver/SwiftyBeaver.xcodeproj; sourceTree = "<group>"; };
 		24D11B0920CB5A03001C9135 /* Filter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filter.swift; sourceTree = "<group>"; };
-		24D71E2420C861DA000155FE /* FetchedResultsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FetchedResultsTableViewController.swift; path = Krypton/ViewController/Tools/FetchedResultsTableViewController.swift; sourceTree = SOURCE_ROOT; };
 		24D71E2820C865D0000155FE /* TransactionHeaderCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TransactionHeaderCell.xib; sourceTree = "<group>"; };
 		24D71E3020C87A76000155FE /* DashboardViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DashboardViewController.xib; sourceTree = "<group>"; };
 		24D71E3220C87F06000155FE /* ViewControllerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllerFactory.swift; sourceTree = "<group>"; };
-		24D71E3420C88B70000155FE /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
-		24D71E3820C88BB6000155FE /* Misc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Misc.swift; sourceTree = "<group>"; };
+		24D71E3820C88BB6000155FE /* NotificationCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCenter.swift; sourceTree = "<group>"; };
 		24D71E3A20C88CE0000155FE /* UpdateStatusDateFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateStatusDateFormatter.swift; sourceTree = "<group>"; };
 		24D71E8220C95584000155FE /* TaxAdviser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaxAdviser.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -471,7 +465,6 @@
 		24CD001A2073B0060094A9ED /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
-				24D71E2620C861DF000155FE /* Tools */,
 				24CD001C2073B0350094A9ED /* Main */,
 				24CD001E2073B0530094A9ED /* Portfolio */,
 				24D71E2B20C86B43000155FE /* Address */,
@@ -620,14 +613,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		24D71E2620C861DF000155FE /* Tools */ = {
-			isa = PBXGroup;
-			children = (
-				24D71E2420C861DA000155FE /* FetchedResultsTableViewController.swift */,
-			);
-			path = Tools;
-			sourceTree = "<group>";
-		};
 		24D71E2B20C86B43000155FE /* Address */ = {
 			isa = PBXGroup;
 			children = (
@@ -640,9 +625,7 @@
 		24D71E3620C88B75000155FE /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				2470332520D13C2F002B5F5D /* UIView.swift */,
-				24D71E3820C88BB6000155FE /* Misc.swift */,
-				24D71E3420C88B70000155FE /* Date.swift */,
+				24D71E3820C88BB6000155FE /* NotificationCenter.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -921,7 +904,6 @@
 				240DF3E41FB5CB08003DED40 /* ERC20Token.swift in Sources */,
 				2458132F1F5F503B007795BC /* PortfolioManager.swift in Sources */,
 				2474F69620D116CE001E5799 /* EthereumAddress.swift in Sources */,
-				2470332620D13C2F002B5F5D /* UIView.swift in Sources */,
 				24A007C41F538AD800EC0DCF /* TickerDaemon.swift in Sources */,
 				24A3D32F1F7DAF250081BF09 /* BlockExplorerService.swift in Sources */,
 				247D1C0B1FBA261700B45941 /* Fiat.swift in Sources */,
@@ -943,7 +925,7 @@
 				2449F4351F6CB30D006E21C8 /* TransactionDetailViewController.swift in Sources */,
 				246737651F4B9255003277B8 /* TransactionsViewController.swift in Sources */,
 				2474F69220D110C5001E5799 /* BitcoinTransaction.swift in Sources */,
-				24D71E3920C88BB6000155FE /* Misc.swift in Sources */,
+				24D71E3920C88BB6000155FE /* NotificationCenter.swift in Sources */,
 				243859941F6BE01F00D67791 /* FilterViewController.swift in Sources */,
 				24A226BE1F50ED9300907999 /* CurrencyFormatter.swift in Sources */,
 				2449F4481F6F1D1F006E21C8 /* CurrencySelectorViewController.swift in Sources */,
@@ -953,13 +935,11 @@
 				24B1B17C1FF67D7E0054F088 /* EthplorerService.swift in Sources */,
 				24BB0DFE1F4E41B40042562C /* CurrencyManager.swift in Sources */,
 				24BF8C811FAA4EDD0070C178 /* AccountsViewController.swift in Sources */,
-				24D71E2520C861DA000155FE /* FetchedResultsTableViewController.swift in Sources */,
 				2400D0921F40D6E700833958 /* Exchange.swift in Sources */,
 				2446F5DC1F8EAD1E00DF385B /* TokenAddress.swift in Sources */,
 				24B4A27B20C7152D007AEB28 /* DependencyContainer.swift in Sources */,
 				241B7E6C20D0833100E6355C /* Currency.swift in Sources */,
 				240C63B31F47A88E00728B8B /* Address.swift in Sources */,
-				24D71E3520C88B70000155FE /* Date.swift in Sources */,
 				2429B4B120CDE8DB00A71298 /* CryptoCompareService.swift in Sources */,
 				246874F61F464B4E009BB60A /* Krypton.xcdatamodeld in Sources */,
 				2474F69820D116E2001E5799 /* BitcoinAddress.swift in Sources */,

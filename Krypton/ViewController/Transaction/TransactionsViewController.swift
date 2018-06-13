@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreData
+import ToolKit
 
 class TransactionsViewController: FetchedResultsTableViewController<Transaction>, UITextFieldDelegate, FilterDelegate {
     
