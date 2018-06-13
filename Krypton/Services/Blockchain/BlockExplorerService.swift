@@ -102,7 +102,7 @@ struct BlockExplorerService: JSONService, BitcoinBlockExplorer {
     }
     
     func fetchBalance(for address: BitcoinAddress, completion: @escaping (Double?, Error?) -> Void) {
-        client.ignoreJSONFormat = true
+//        client.ignoreJSONFormat = true
         
         client.makeGETRequest(to: "/addr/\(address.identifier!)/balance") { result in
             let result = self.getData(from: result)

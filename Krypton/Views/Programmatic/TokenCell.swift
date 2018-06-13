@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import ToolKit
 
 class TokenCell: TappableDetailCell {
     

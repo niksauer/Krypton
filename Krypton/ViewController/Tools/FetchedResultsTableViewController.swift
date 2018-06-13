@@ -5,6 +5,7 @@
 //  Created by Niklas Sauer on 10.03.18.
 //  Copyright © 2018 Niklas Sauer. All rights reserved.
 //
+
 import UIKit
 import CoreData
 
@@ -13,7 +14,7 @@ class FetchedResultsTableViewController<T: NSManagedObject>: UITableViewControll
     // MARK: - Public Properties
     var fetchedResultsController: NSFetchedResultsController<T>!
     
-    // MARK: - Table View Data Source
+    // MARK: - TableView DataSource
     override func numberOfSections(in tableView: UITableView) -> Int {
         return fetchedResultsController.sections?.count ?? 0
     }
@@ -38,7 +39,7 @@ class FetchedResultsTableViewController<T: NSManagedObject>: UITableViewControll
         return fetchedResultsController.section(forSectionIndexTitle: title, at: index)
     }
     
-    // MARK: - FetchedResultsControllerDelegate
+    // MARK: - FetchedResultsController Delegate
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView.beginUpdates()
     }

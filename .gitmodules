@@ -7,3 +7,6 @@
 [submodule "Frameworks/NetworkKit"]
 	path = Frameworks/NetworkKit
 	url = git@github.com:niksauer/NetworkKit.git
+[submodule "Frameworks/ToolKit"]
+	path = Frameworks/ToolKit
+	url = git@github.com:niksauer/ToolKit.git

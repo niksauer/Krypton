@@ -20,15 +20,12 @@ extension NotificationCenter {
 }
 
 extension Data {
-    
     func hexEncodedString() -> String {
         return map({ String(format: "%02hhx", $0) }).joined()
     }
-    
 }
 
 extension String {
-    
     subscript (i: Int) -> Character {
         return self[index(startIndex, offsetBy: i)]
     }
@@ -36,7 +33,6 @@ extension String {
     subscript (i: Int) -> String {
         return String(self[i] as Character)
     }
-    
 }
 
 extension Optional where Wrapped == String {

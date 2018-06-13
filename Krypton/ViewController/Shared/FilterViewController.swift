@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import ToolKit
 
 @objc protocol FilterDelegate {
     @objc optional func filterControllerDidSetSelectedAddresses(_ filterController: FilterViewController)
