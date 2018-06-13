@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="retina4_7" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
     <dependencies>
-        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -55,8 +51,8 @@
             <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
             <connections>
                 <outlet property="collapseImage" destination="F66-fJ-ekS" id="Bja-v6-dhT"/>
-                <outlet property="rightDetailLabel" destination="UMk-0A-3pQ" id="XRv-tz-xn3"/>
-                <outlet property="sectionTitleLabel" destination="Z0C-ex-QDM" id="2lu-Sz-tli"/>
+                <outlet property="detailLabel" destination="UMk-0A-3pQ" id="XRv-tz-xn3"/>
+                <outlet property="sectionLabel" destination="Z0C-ex-QDM" id="2lu-Sz-tli"/>
             </connections>
         </tableViewCell>
     </objects>

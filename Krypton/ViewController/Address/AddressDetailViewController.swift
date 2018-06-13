@@ -46,8 +46,8 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tableView.register(UINib(nibName: "TextFieldCell", bundle: nil), forCellReuseIdentifier: "TextFieldCell")
-        tableView.register(UINib(nibName: "DeleteCell", bundle: nil), forCellReuseIdentifier: "DeleteCell")
+        tableView.register(TextFieldCell.self, forCellReuseIdentifier: "TextFieldCell")
+        tableView.register(DeleteCell.self, forCellReuseIdentifier: "DeleteCell")
         tableView.register(TokenCell.self, forCellReuseIdentifier: "TokenCell")
     }
     
@@ -70,8 +70,8 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
     }
     
     // MARK: - Private Methods
-    private func setAlias(_ alias: String?) {
-        self.alias = alias
+    @objc private func didChangeAlias(_ sender: UITextField) {
+        self.alias = sender.text
     }
     
     private func deleteAddress() {
@@ -167,7 +167,7 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
             if section == 2 {
                 // delete section (2)
                 let cell = tableView.dequeueReusableCell(withIdentifier: "DeleteCell", for: indexPath) as! DeleteCell
-                cell.configure(actionText: "Delete Address")
+                cell.label.text = "Delete Address"
                 return cell
             }
         } else {
@@ -203,11 +203,16 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
         let cell = tableView.dequeueReusableCell(withIdentifier: "TextFieldCell", for: indexPath) as! TextFieldCell
         
         if row == 0 {
-            cell.configure(text: address.identifier, placeholder: "Address", isEnabled: false, onChange: nil)
+            cell.textField.text = address.identifier
+            cell.textField.placeholder = "Address"
+            cell.isEnabled = false
         }
         
         if row == 1 {
-            cell.configure(text: alias, placeholder: "Alias", isEnabled: isEditing, onChange: setAlias)
+            cell.textField.text = alias
+            cell.textField.placeholder = "Alias"
+            cell.isEnabled = isEditing
+            cell.textField.addTarget(self, action: #selector(didChangeAlias(_:)), for: .editingChanged)
             cell.isEnabledClearButtonMode = .always
         }
         

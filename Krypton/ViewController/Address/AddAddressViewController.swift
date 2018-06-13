@@ -75,8 +75,8 @@ class AddAddressViewController: UITableViewController, UITextFieldDelegate, UIPi
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tableView.register(UINib(nibName: "TextFieldCell", bundle: nil), forCellReuseIdentifier: "TextFieldCell")
-        tableView.register(UINib(nibName: "PickerViewCell", bundle: nil), forCellReuseIdentifier: "PickerViewCell")
+        tableView.register(TextFieldCell.self, forCellReuseIdentifier: "TextFieldCell")
+        tableView.register(PickerViewCell.self, forCellReuseIdentifier: "PickerViewCell")
         
         validateSaveButton()
     }
@@ -113,7 +113,7 @@ class AddAddressViewController: UITableViewController, UITextFieldDelegate, UIPi
         self.address = address
     }
     
-    private func didChangeAlias(_ alias: String?) {
+    @objc private func didChangeAlias(_ alias: String?) {
         self.alias = alias
     }
     
@@ -150,9 +150,13 @@ class AddAddressViewController: UITableViewController, UITextFieldDelegate, UIPi
             
             switch row {
             case 0:
-                cell.configure(text: nil, placeholder: "Address", isEnabled: true, onChange: didChangeAddress(_:))
+                cell.textField.placeholder = "Address"
+                cell.isEnabled = true
+                cell.textField.addTarget(self, action: #selector(didChangeAlias(_:)), for: .editingChanged)
             case 1:
-                cell.configure(text: nil, placeholder: "Alias", isEnabled: true, onChange: didChangeAlias(_:))
+                cell.textField.placeholder = "Alias"
+                cell.isEnabled = true
+                cell.textField.addTarget(self, action: #selector(didChangeAlias(_:)), for: .editingChanged)
             default:
                 fatalError()
             }

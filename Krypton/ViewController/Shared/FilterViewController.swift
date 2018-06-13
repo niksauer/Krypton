@@ -61,8 +61,8 @@ class FilterViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tableView.register(UINib(nibName: "SegmentedControlCell", bundle: nil), forCellReuseIdentifier: "SegmentedControlCell")
-        tableView.register(UINib(nibName: "SwitchCell", bundle: nil), forCellReuseIdentifier: "SwitchCell")
+        tableView.register(SegmentedControlCell.self, forCellReuseIdentifier: "SegmentedControlCell")
+        tableView.register(SwitchCell.self, forCellReuseIdentifier: "SwitchCell")
     }
     
     // MARK: - Public Methods
@@ -94,8 +94,20 @@ class FilterViewController: UITableViewController {
         dismiss(animated: true, completion: nil)
     }
     
-    private func setTransactionType(_ rawValue: Int) {
-        filter.transactionType = TransactionType(rawValue: rawValue)!
+    @objc private func didChangeTransactionType(_ sender: UISegmentedControl) {
+        filter.transactionType = TransactionType(rawValue: sender.selectedSegmentIndex)!
+    }
+    
+    @objc private func didChangeIsError(_ sender: UISwitch) {
+        filter.isError = sender.isOn
+    }
+    
+    @objc private func didChangeHasUserExchangeValue(_ sender: UISwitch) {
+        filter.hasUserExchangeValue = sender.isOn
+    }
+    
+    @objc private func didChangeIsUnread(_ sender: UISwitch) {
+        filter.isUnread = sender.isOn
     }
     
     // MARK: - TableView Data Source
@@ -125,27 +137,28 @@ class FilterViewController: UITableViewController {
         switch section {
         case 0:
             let cell = tableView.dequeueReusableCell(withIdentifier: "SegmentedControlCell", for: indexPath) as! SegmentedControlCell
-            cell.configure(segments: ["All", "Investment", "Other"], selectedSegment: filter.transactionType.rawValue, onChange: setTransactionType)
+            cell.setup(segments: ["All", "Investment", "Other"], selectedSegment: filter.transactionType.rawValue)
+            cell.segmentedControl.addTarget(self, action: #selector(didChangeTransactionType(_:)), for: .valueChanged)
             return cell
         case 1 where showsAdvancedProperties:
             switch row {
             case 0:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "SwitchCell", for: indexPath) as! SwitchCell
-                cell.configure(name: "Is Error", isOn: filter.isError, onChange: { state in
-                    self.filter.isError = state
-                })
+                cell.label.text = "Is Error"
+                cell.switchControl.isOn = filter.isError
+                cell.switchControl.addTarget(self, action: #selector(didChangeIsError(_:)), for: .valueChanged)
                 return cell
             case 1:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "SwitchCell", for: indexPath) as! SwitchCell
-                cell.configure(name: "Manual Exchange Value", isOn: filter.hasUserExchangeValue, onChange: { state in
-                    self.filter.hasUserExchangeValue = state
-                })
+                cell.label.text = "Manual Exchange Value"
+                cell.switchControl.isOn = filter.hasUserExchangeValue
+                cell.switchControl.addTarget(self, action: #selector(didChangeHasUserExchangeValue(_:)), for: .valueChanged)
                 return cell
             case 2:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "SwitchCell", for: indexPath) as! SwitchCell
-                cell.configure(name: "Unread", isOn: filter.isUnread, onChange: { state in
-                    self.filter.isUnread = state
-                })
+                cell.label.text = "Unread"
+                cell.switchControl.isOn = filter.isUnread
+                cell.switchControl.addTarget(self, action: #selector(didChangeIsUnread(_:)), for: .valueChanged)
                 return cell
             default:
                 // invalid configuration

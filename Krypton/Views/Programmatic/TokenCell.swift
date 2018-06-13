@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TokenCell: TappableCell {
+class TokenCell: TappableDetailCell {
     
     // MARK: - Private Properties
     private var token: Token!

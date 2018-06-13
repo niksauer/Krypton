@@ -41,9 +41,9 @@ class PortfolioDetailViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tableView.register(UINib(nibName: "TextFieldCell", bundle: nil), forCellReuseIdentifier: "TextFieldCell")
-        tableView.register(UINib(nibName: "SwitchCell", bundle: nil), forCellReuseIdentifier: "SwitchCell")
-        tableView.register(UINib(nibName: "DeleteCell", bundle: nil), forCellReuseIdentifier: "DeleteCell")
+        tableView.register(TextFieldCell.self, forCellReuseIdentifier: "TextFieldCell")
+        tableView.register(SwitchCell.self, forCellReuseIdentifier: "SwitchCell")
+        tableView.register(DeleteCell.self, forCellReuseIdentifier: "DeleteCell")
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -95,12 +95,12 @@ class PortfolioDetailViewController: UITableViewController {
         }
     }
     
-    private func didChangeAlias(_ alias: String?) {
-        self.alias = alias
+    @objc private func didChangeAlias(_ sender: UITextField) {
+        self.alias = sender.text
     }
     
-    private func didChangeIsDefault(_ isDefault: Bool) {
-        self.isDefault = isDefault
+    @objc private func didChangeIsDefault(_ sender: UISwitch) {
+        self.isDefault = sender.isOn
     }
     
     // MARK: - TableView DataSource
@@ -138,12 +138,17 @@ class PortfolioDetailViewController: UITableViewController {
             switch row {
             case 0:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "TextFieldCell", for: indexPath) as! TextFieldCell
-                cell.configure(text: alias, placeholder: "Alias", isEnabled: isEditing, onChange: didChangeAlias)
+                cell.textField.text = alias
+                cell.textField.placeholder = "Alias"
                 cell.isEnabledClearButtonMode = .always
+                cell.isEnabled = isEditing
+                cell.textField.addTarget(self, action: #selector(didChangeAlias(_:)), for: .editingChanged)
                 return cell
             case 1:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "SwitchCell", for: indexPath) as! SwitchCell
-                cell.configure(name: "Use as default", isOn: isDefault, onChange: didChangeIsDefault)
+                cell.label.text = "Use as default"
+                cell.switchControl.isOn = isDefault
+                cell.switchControl.addTarget(self, action: #selector(didChangeIsDefault(_:)), for: .valueChanged)
                 return cell
             default:
                 fatalError()
@@ -157,7 +162,7 @@ class PortfolioDetailViewController: UITableViewController {
             return cell
         default:
             let cell = tableView.dequeueReusableCell(withIdentifier: "DeleteCell", for: indexPath) as! DeleteCell
-            cell.configure(actionText: "Delete Portfolio")
+            cell.label.text = "Delete Portfolio"
             return cell
         }
     }

@@ -12,8 +12,8 @@ class SectionHeaderCell: UITableViewCell {
 
     // MARK: - Outlets
     @IBOutlet weak var collapseImage: UIImageView!
-    @IBOutlet weak var sectionTitleLabel: UILabel!
-    @IBOutlet weak var rightDetailLabel: UILabel!
+    @IBOutlet weak var sectionLabel: UILabel!
+    @IBOutlet weak var detailLabel: UILabel!
     
     // MARK: - Public Properties
     var isCollapsed: Bool = false {

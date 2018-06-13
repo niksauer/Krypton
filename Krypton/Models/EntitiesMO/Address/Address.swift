@@ -271,15 +271,26 @@ class Address: NSManagedObject, TransactionDelegate, Reportable {
         guard storedTransactions.count > 0 else {
             return 0.0
         }
-        
+    
         let transactions = getTransactions(type: type).filter { $0.date! <= date }
+    
         var balance = 0.0
     
         for transaction in transactions {
+            guard !transaction.isError else {
+                // fee is paid nevertheless
+                if transaction.isOutbound {
+                    balance = balance - transaction.feeAmount
+                }
+                
+                continue
+            }
+            
             if transaction.isOutbound {
                 balance = balance - transaction.totalAmount
             } else {
-                balance = balance + transaction.totalAmount
+                // fee is only paid by sender
+                balance = balance + transaction.totalAmount - transaction.feeAmount
             }
         }
         
@@ -301,5 +312,3 @@ class Address: NSManagedObject, TransactionDelegate, Reportable {
     }
     
 }
-
-

@@ -1,5 +1,5 @@
 //
-//  TappableCell.swift
+//  TappableDetailCell.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 08.06.18.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TappableCell: UITableViewCell {
+class TappableDetailCell: DetailCell {
     
     // Mark: - Public Properties
     var firstDetailValue: String?
@@ -17,9 +17,9 @@ class TappableCell: UITableViewCell {
     var showsFirstDetailValue = true {
         didSet {
             if showsFirstDetailValue {
-                detailTextLabel?.text = firstDetailValue
+                detailLabel.text = firstDetailValue
             } else {
-                detailTextLabel?.text = secondDetailValue
+                detailLabel.text = secondDetailValue
             }
         }
     }
@@ -35,3 +35,5 @@ class TappableCell: UITableViewCell {
     }
     
 }
+
+

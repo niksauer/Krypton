@@ -45,6 +45,7 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
         super.viewDidLoad()
         
         tableView.register(UINib(nibName: "SectionHeaderCell", bundle: nil), forCellReuseIdentifier: "SectionHeaderCell")
+        tableView.register(DetailCell.self, forCellReuseIdentifier: "DetailCell")
         
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(updateData), for: .valueChanged)
@@ -194,21 +195,21 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
                 let portfolio = portfolios[section]
                 let cell = tableView.dequeueReusableCell(withIdentifier: "SectionHeaderCell", for: indexPath) as! SectionHeaderCell
                 cell.isCollapsed = portfolio.isCollapsed
-                cell.sectionTitleLabel.text = portfolio.alias?.uppercased()
+                cell.sectionLabel.text = portfolio.alias?.uppercased()
                 
                 if let exchangeValue = taxAdviser.getTotalExchangeValue(for: portfolio) {
-                    cell.rightDetailLabel.text = currencyFormatter.getCurrencyFormatting(for: exchangeValue, currency: portfolio.quoteCurrency)
+                    cell.detailLabel.text = currencyFormatter.getCurrencyFormatting(for: exchangeValue, currency: portfolio.quoteCurrency)
                 } else {
-                    cell.rightDetailLabel.text = nil
+                    cell.detailLabel.text = nil
                 }
                 
                 return cell
             default:
                 let address = portfolios[section].storedAddresses[row-1]
-                let cell = UITableViewCell(style: .value1, reuseIdentifier: "AccountCell")
+                let cell = tableView.dequeueReusableCell(withIdentifier: "DetailCell") as! DetailCell
+                cell.label.text = portfolioManager.getAlias(for: address.identifier!)
+                cell.detailLabel.text = currencyFormatter.getCurrencyFormatting(for: address.balance, currency: address.blockchain, customDigits: 2)
                 cell.accessoryType = .detailDisclosureButton
-                cell.textLabel?.text = portfolioManager.getAlias(for: address.identifier!)
-                cell.detailTextLabel?.text = currencyFormatter.getCurrencyFormatting(for: address.balance, currency: address.blockchain, customDigits: 2)
                 return cell
             }
         default:
