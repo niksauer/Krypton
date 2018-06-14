@@ -55,7 +55,7 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
             switch portfolioDisplay {
             case .currentExchangeValue:
                 portfolioLabel.text = "Total Portfolio Value"
-                portfolioValueLabel.text = currencyFormatter.getCurrencyFormatting(for: currentExchangeValue, currency: portfolioManager.quoteCurrency)
+                portfolioValueLabel.text = currencyFormatter.getFormatting(for: currentExchangeValue, currency: portfolioManager.quoteCurrency)
             case .relativeProfit:
                 portfolioLabel.text = "Total Relative Profit"
                 portfolioValueLabel.text = currencyFormatter.getRelativeProfitFormatting(from: profitStats)
@@ -150,7 +150,7 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
         showsRelativeProfit = { showsRelativeProfit }()
         
         if let investmentValue = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, timeframe: .allTime, type: filter.transactionType)?.startValue {
-            investmentValueLabel.text = currencyFormatter.getCurrencyFormatting(for: investmentValue, currency: portfolioManager.quoteCurrency)
+            investmentValueLabel.text = currencyFormatter.getFormatting(for: investmentValue, currency: portfolioManager.quoteCurrency)
         } else {
             investmentValueLabel.text = "???"
         }

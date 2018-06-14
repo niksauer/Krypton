@@ -12,6 +12,9 @@ import CoreData
 struct DependencyContainer {
     
     // Mark: - Singletons
+    typealias BlockchainConnector = BlockExplorer & TokenExplorer
+    
+    // Mark: - Singletons
     private let portfolioManager: PortfolioManager
     private let tickerDaemon: TickerDaemon
     private let blockchainDaemom: BlockchainDaemon
@@ -65,14 +68,11 @@ struct DependencyContainer {
             throw error
         }
         
-        let bitcoinBlockExplorer: BitcoinBlockExplorer = BlockExplorerService(hostURL: "https://blockexplorer.com", port: nil, credentials: nil)
-        let ethereumBlockExplorer: EthereumBlockExplorer = EtherscanService(hostURL: "https://api.etherscan.io", port: nil, credentials: nil)
-        let blockchainConnector: BlockchainConnector = BlockchainService(bitcoinBlockExplorer: bitcoinBlockExplorer, ethereumBlockExplorer: ethereumBlockExplorer)
-
-        let exchange = CryptoCompareService(hostURL: "https://min-api.cryptocompare.com", port: nil, credentials: nil)
+        let exchange: Exchange = CryptoCompareService(hostURL: "https://min-api.cryptocompare.com", port: nil, credentials: nil)
+        let blockchainConnector: BlockchainConnector = BlockchainService()
         
         tickerDaemon = TickerDaemon(exchange: exchange)
-        blockchainDaemom = BlockchainDaemon(blockchainConnector: blockchainConnector)
+        blockchainDaemom = BlockchainDaemon(blockExplorer: blockchainConnector)
         let exchangeRateManager = ExchangeRateManager(context: viewContext, tickerDaemon: tickerDaemon, exchange: exchange)
         kryptonDaemon = KryptonDaemon(portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, blockchainDaemon: blockchainDaemom, exchangeRateManager: exchangeRateManager)
     }

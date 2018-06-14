@@ -8,19 +8,15 @@
 
 import Foundation
 
-struct BlockchainService: BlockchainConnector {
+struct BlockchainService: BlockExplorer, TokenExplorer {
     
     // MARK: - Private Properties
-    private let bitcoinBlockExplorer: BitcoinBlockExplorer
-    private let ethereumBlockExplorer: EthereumBlockExplorer
+    private let bitcoinBlockExplorer: BitcoinBlockExplorer = BlockExplorerService()
+    private let ethereumBlockExplorer: EthereumBlockExplorer = EtherscanService()
+    private let ethereumTokenExplorer: EthereumTokenExplorer = EthplorerService()
+    private let ethereumTokenOperationExplorer: EthereumTokenOperationExplorer = EtherscanService()
     
-    // MARK: - Initialization
-    init(bitcoinBlockExplorer: BitcoinBlockExplorer, ethereumBlockExplorer: EthereumBlockExplorer) {
-        self.bitcoinBlockExplorer = bitcoinBlockExplorer
-        self.ethereumBlockExplorer = ethereumBlockExplorer
-    }
-    
-    // MARK: - BlockchainConnector
+    // MARK: - BlockExplorer
     func fetchBlockCount(for blockchain: Blockchain, completion: @escaping (UInt64?, Error?) -> Void) {
         switch blockchain {
         case .Bitcoin:
@@ -31,60 +27,66 @@ struct BlockchainService: BlockchainConnector {
     }
     
     func fetchBalance(for address: Address, completion: @escaping (Double?, Error?) -> Void) {
-        switch address {
-        case let address as BitcoinAddress:
-            bitcoinBlockExplorer.fetchBalance(for: address, completion: completion)
-        case let address as EthereumAddress:
-            ethereumBlockExplorer.fetchBalance(for: address, completion: completion)
-        default:
-            completion(nil, BlockchainConnectorError.invalidBlockchain)
-        }
-    }
-
-    func fetchTokenBalance(for address: TokenAddress, token: TokenFeatures, completion: @escaping (Double?, Error?) -> Void) {
-        switch (address, token) {
-        case let (address as EthereumAddress, token as ERC20Token):
-            ethereumBlockExplorer.fetchTokenBalance(for: address, token: token, completion: completion)
-        default:
-            completion(nil, BlockchainConnectorError.invalidBlockchain)
+        switch address.blockchain {
+        case .Bitcoin:
+            bitcoinBlockExplorer.fetchBalance(for: address as! BitcoinAddress, completion: completion)
+        case .Ethereum:
+            ethereumBlockExplorer.fetchBalance(for: address as! EthereumAddress, completion: completion)
         }
     }
     
-    func fetchTransactionHistory(for address: Address, timeframe: TransactionHistoryTimeframe, completion: @escaping ([TransactionPrototype]?, Error?) -> Void) {
-        switch address {
-        case let address as BitcoinAddress:
-            bitcoinBlockExplorer.fetchTransactionHistory(for: address) { history, error in
-                guard let history = history else {
+    func fetchTransactionHistory(for address: Address, timeframe: Timeframe, completion: @escaping ([TransactionPrototype]?, Error?) -> Void) {
+        switch address.blockchain {
+        case .Bitcoin:
+            bitcoinBlockExplorer.fetchTransactionHistory(for: address as! BitcoinAddress) { transactions, error in
+                guard let transactions = transactions else {
                     completion(nil, error!)
                     return
                 }
                 
                 switch timeframe {
                 case .sinceBlock(let blockNumber):
-                    completion(history.filter({ $0.block >= blockNumber }), nil)
+                    completion(transactions.filter({ $0.block >= blockNumber }), nil)
                 default:
-                    completion(history, nil)
+                    completion(transactions, nil)
                 }
             }
-        case let address as EthereumAddress:
-            ethereumBlockExplorer.fetchTransactionHistory(for: address, type: .normal, timeframe: timeframe) { normalHistory, error in
-                guard let normalHistory = normalHistory else {
+        case .Ethereum:
+            ethereumBlockExplorer.fetchTransactionHistory(for: address as! EthereumAddress, type: .normal, timeframe: timeframe) { normalTransactions, error in
+                guard let normalTransactions = normalTransactions else {
                     completion(nil, error!)
                     return
                 }
                 
-                self.ethereumBlockExplorer.fetchTransactionHistory(for: address, type: .internal, timeframe: timeframe) { internalHistory, error in
-                    guard let internalHistory = internalHistory else {
+                self.ethereumBlockExplorer.fetchTransactionHistory(for: address as! EthereumAddress, type: .internal, timeframe: timeframe) { internalTransactions, error in
+                    guard let internalTransactions = internalTransactions else {
                         completion(nil, error!)
                         return
                     }
                     
-                    completion(normalHistory + internalHistory, nil)
+                    completion(normalTransactions + internalTransactions, nil)
                 }
             }
+        }
+    }
+    
+    // MARK: - TokenExplorer
+    func fetchTokens(for address: TokenAddress, completion: @escaping ([TokenProtoype]?, Error?) -> Void) {
+        switch address.blockchain {
+        case .Ethereum:
+            ethereumTokenExplorer.fetchTokens(for: address as! EthereumAddress, completion: completion)
         default:
-            completion(nil, BlockchainConnectorError.invalidBlockchain)
-            return
+            fatalError()
+        }
+    }
+    
+    func fetchTokenOperations(for address: TokenAddress, token: Token, type: TokenOperationType, timeframe: Timeframe, completion: @escaping ([TokenOperationPrototype]?, Error?) -> Void) {
+        switch address.blockchain {
+        case .Ethereum:
+            ethereumTokenOperationExplorer.fetchTokenOperations(for: address as! EthereumAddress, token: token, type: type, timeframe: timeframe, completion: completion)
+            break
+        default:
+            fatalError()
         }
     }
     

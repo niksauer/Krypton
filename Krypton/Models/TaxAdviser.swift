@@ -203,6 +203,7 @@ struct TaxAdviser {
         }
         
         guard let exchangeRate = exchangeRateManager.getExchangeRate(for: token.currencyPair, on: date) else {
+            // token is probaby not listed on exchange
             log.warning("Failed to get exchange value for token '\(token.logDescription)'.")
             return nil
         }
@@ -267,12 +268,13 @@ struct TaxAdviser {
     }
     
     // MARK: TokenAddress
-    func getTokenExchangeValue(for tokenAddress: TokenAddress, on date: Date) -> Double? {
+    func getTokenExchangeValue(for tokenAddress: TokenAddress, on date: Date) -> Double {
         var value = 0.0
         
         for token in tokenAddress.storedTokens {
             guard let exchangeValue = getExchangeValue(for: token, on: date) else {
-                return nil
+                // token probably not listed on exchange yet
+                continue
             }
             
             value = value + exchangeValue
@@ -286,7 +288,7 @@ struct TaxAdviser {
         guard let balanceExchangeValue = getExchangeValue(for: portfolio, on: Date(), type: .all), let tokenExchangeValue = getTokenExchangeValue(for: portfolio, on: Date()) else {
             return nil
         }
-        
+
         return balanceExchangeValue + tokenExchangeValue
     }
     
@@ -306,18 +308,8 @@ struct TaxAdviser {
     }
     
     func getTokenExchangeValue(for portfolio: Portfolio, on date: Date) -> Double? {
-        let storedTokens = (portfolio.storedAddresses.filter({ $0 is TokenAddress }) as! [TokenAddress]).flatMap({ $0.storedTokens })
-        var value = 0.0
-        
-        for token in storedTokens {
-            guard let tokenValue = getExchangeValue(for: token, on: date) else {
-                return nil
-            }
-            
-            value = value + tokenValue
-        }
-        
-        return value
+        let storedTokenAddresses = (portfolio.storedAddresses.filter({ $0 is TokenAddress }) as! [TokenAddress])
+        return storedTokenAddresses.reduce(0, { $0 + getTokenExchangeValue(for: $1, on: date)})
     }
     
     /// returns the absolute profit generated from all stored addresses

@@ -194,7 +194,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
             textField.addTarget(self, action: #selector(self.textFieldDidChange(_:)), for: .editingChanged)
             
             if let exchangeValue = self.taxAdviser.getExchangeValue(for: self.transaction) {
-                textField.placeholder = self.currencyFormatter.getCurrencyFormatting(for: exchangeValue, currency: self.transaction.owner!.quoteCurrency)
+                textField.placeholder = self.currencyFormatter.getFormatting(for: exchangeValue, currency: self.transaction.owner!.quoteCurrency)
             } else {
                 textField.placeholder = "???"
             }
@@ -285,7 +285,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
                 }
             case 2 where transaction is EthereumTransaction:
                 cell.textLabel?.text = "Type"
-                cell.detailTextLabel?.text = (transaction as! EthereumTransaction).type
+                cell.detailTextLabel?.text = (transaction as! EthereumTransaction).typeRaw
                 cell.selectionStyle = .none
             default:
                 break
@@ -308,10 +308,10 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
                 
                 if showsExchangeValue {
                     cell.textLabel?.text = "Value"
-                    cell.detailTextLabel?.text = currencyFormatter.getCurrencyFormatting(for: exchangeValue, currency: transaction.owner!.quoteCurrency)
+                    cell.detailTextLabel?.text = currencyFormatter.getFormatting(for: exchangeValue, currency: transaction.owner!.quoteCurrency)
                 } else {
                     cell.textLabel?.text = "Current Value"
-                    cell.detailTextLabel?.text = currencyFormatter.getCurrencyFormatting(for: currentExchangeValue, currency: transaction.owner!.quoteCurrency)
+                    cell.detailTextLabel?.text = currencyFormatter.getFormatting(for: currentExchangeValue, currency: transaction.owner!.quoteCurrency)
                 }
                 
                 return cell
@@ -357,9 +357,9 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
                 }
                 
                 if showsCryptoFees {
-                    cell.detailTextLabel?.text = currencyFormatter.getCurrencyFormatting(for: transaction.feeAmount, currency: transaction.owner!.blockchain)
+                    cell.detailTextLabel?.text = currencyFormatter.getFormatting(for: transaction.feeAmount, currency: transaction.owner!.blockchain)
                 } else {
-                    cell.detailTextLabel?.text = currencyFormatter.getCurrencyFormatting(for: feeExchangeValue, currency: transaction.owner!.quoteCurrency)
+                    cell.detailTextLabel?.text = currencyFormatter.getFormatting(for: feeExchangeValue, currency: transaction.owner!.quoteCurrency)
                 }
             case 1:
                 blockIndexPath = indexPath

@@ -1,5 +1,5 @@
 //
-//  BlockchainConnector.swift
+//  BlockExplorer.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 12.06.18.
@@ -12,7 +12,7 @@ enum BlockchainConnectorError: Error {
     case invalidBlockchain
 }
 
-enum TransactionHistoryTimeframe {
+enum Timeframe {
     case allTime
     case sinceBlock(Int)
 }
@@ -28,9 +28,10 @@ protocol TransactionPrototype {
     var isOutbound: Bool { get }
 }
 
-protocol BlockchainConnector {
+protocol BlockExplorer {
     func fetchBlockCount(for blockchain: Blockchain, completion: @escaping (UInt64?, Error?) -> Void)
     func fetchBalance(for address: Address, completion: @escaping (Double?, Error?) -> Void)
-    func fetchTokenBalance(for address: TokenAddress, token: TokenFeatures, completion: @escaping (Double?, Error?) -> Void)
-    func fetchTransactionHistory(for address: Address, timeframe: TransactionHistoryTimeframe, completion: @escaping ([TransactionPrototype]?, Error?) -> Void)
+    func fetchTransactionHistory(for address: Address, timeframe: Timeframe, completion: @escaping ([TransactionPrototype]?, Error?) -> Void)
 }
+
+

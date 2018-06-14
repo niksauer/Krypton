@@ -19,7 +19,7 @@ class TokenCell: TappableDetailCell {
     // MARK: - Public Properties
     override var firstDetailValue: String? {
         get {
-            return currencyFormatter.getCurrencyFormatting(for: token.balance, currency: token.storedToken)
+            return currencyFormatter.getFormatting(for: token.balance, currency: token)
         }
         set {
             self.firstDetailValue = newValue
@@ -29,7 +29,7 @@ class TokenCell: TappableDetailCell {
     override var secondDetailValue: String? {
         get {
             if let exchangeValue = taxAdviser.getExchangeValue(for: token, on: Date()) {
-                return currencyFormatter.getCurrencyFormatting(for: exchangeValue, currency: token.owner!.quoteCurrency)
+                return currencyFormatter.getFormatting(for: exchangeValue, currency: token.owner!.quoteCurrency)
             } else {
                 return "???"
             }
@@ -47,7 +47,7 @@ class TokenCell: TappableDetailCell {
         
         super.init(style: .value1, reuseIdentifier: reuseIdentifier)
         
-        textLabel?.text = token.storedToken.name
+        textLabel?.text = token.name
         showsFirstDetailValue = true
     }
     

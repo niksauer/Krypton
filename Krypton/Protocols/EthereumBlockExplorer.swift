@@ -21,6 +21,13 @@ protocol EthereumTransactionPrototype: TransactionPrototype {
 protocol EthereumBlockExplorer {
     func fetchBlockCount(completion: @escaping (UInt64?, Error?) -> Void)
     func fetchBalance(for address: EthereumAddress, completion: @escaping (Double?, Error?) -> Void)
-    func fetchTokenBalance(for address: EthereumAddress, token: ERC20Token, completion: @escaping (Double?, Error?) -> Void)
-    func fetchTransactionHistory(for address: EthereumAddress, type: EthereumTransactionHistoryType, timeframe: TransactionHistoryTimeframe, completion: @escaping ([EthereumTransactionPrototype]?, Error?) -> Void)
+    func fetchTransactionHistory(for address: EthereumAddress, type: EthereumTransactionHistoryType, timeframe: Timeframe, completion: @escaping ([EthereumTransactionPrototype]?, Error?) -> Void)
+}
+
+protocol EthereumTokenExplorer {
+    func fetchTokens(for address: EthereumAddress, completion: @escaping ([TokenProtoype]?, Error?) -> Void)
+}
+
+protocol EthereumTokenOperationExplorer {
+    func fetchTokenOperations(for address: EthereumAddress, token: Token, type: TokenOperationType, timeframe: Timeframe, completion: @escaping ([TokenOperationPrototype]?, Error?) -> Void)
 }

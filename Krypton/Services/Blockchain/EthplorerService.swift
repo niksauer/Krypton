@@ -9,55 +9,41 @@
 import Foundation
 import NetworkKit
 
-struct EthplorerService: JSONService {
-    
-    // MARK: - Public Types
-    struct TokenTransfer {
-        var identifier: String
-        var from: String
-        var to: String
-        var amount: Double
-    }
-    
+struct EthplorerService: JSONService, EthereumTokenExplorer {
+
     // MARK: - Service
     let client: JSONAPIClient
+    
+    init() {
+        self.init(hostURL: "http://api.ethplorer.io", port: nil, credentials: nil)
+    }
     
     init(hostURL: String, port: Int?, credentials: APICredentialStore?) {
         self.client = JSONAPIClient(hostURL: hostURL, port: port, basePath: nil, credentials: credentials)
     }
     
     // MARK: - Private Properties
-//    private let baseURL = "https://api.ethplorer.io/"
     private let apiKey = "freekey"
     
-    // MARK: - Public Methods
-    func getInfo(address: EthereumAddress) {
-        client.makeGETRequest(to: "getAddressInfo", params: [
+    // MARK: - EthereumTokenExplorer
+    func fetchTokens(for address: EthereumAddress, completion: @escaping ([TokenProtoype]?, Error?) -> Void) {
+        client.makeGETRequest(to: "/getAddressInfo/\(address.identifier!)", params: [
             "apiKey": apiKey,
-            "address": address.identifier!
         ]) { result in
-            
+            let result = self.decode([EthplorerToken].self, from: result, at: "tokens")
+            completion(result.instance, result.error)
         }
     }
-    
-    func getInfo(contractAddress: String) {
-        client.makeGETRequest(to: "getTokenInfo", params: [
+
+    func fetchTokenOperations(for address: EthereumAddress, token: Token, type: TokenOperationType, completion: @escaping ([TokenOperationPrototype]?, Error?) -> Void) {
+        client.makeGETRequest(to: "/getAddressHistory/\(address.identifier!)", params: [
             "apiKey": apiKey,
-            "address": contractAddress
-        ]) { result in
-            
-        }
-    }
-    
-    func getTokenBalance(for address: EthereumAddress, contractAddress: String) {
-        client.makeGETRequest(to: "getAddressHistory", params: [
-            "apiKey": apiKey,
-            "address": address.identifier!,
-            "token": contractAddress,
-            "type": "transfer",
+            "token": token.address,
+            "type": type.rawValue,
             "limit:": "10"
         ]) { result in
-            
+            let result = self.decode([EthplorerTokenOperation].self, from: result, at: "operations")
+            completion(result.instance, result.error)
         }
     }
    

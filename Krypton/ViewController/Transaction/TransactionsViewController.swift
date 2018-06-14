@@ -441,7 +441,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
             textField.addTarget(self, action: #selector(self.textFieldDidChange(_:)), for: .editingChanged)
             
             let totalExchangeValue = selectedTransactions.compactMap({ self.taxAdviser.getExchangeValue(for: $0) }).reduce(0, +)
-            textField.placeholder = self.currencyFormatter.getCurrencyFormatting(for: totalExchangeValue, currency: self.portfolioManager.quoteCurrency)
+            textField.placeholder = self.currencyFormatter.getFormatting(for: totalExchangeValue, currency: self.portfolioManager.quoteCurrency)
         })
         
         alertController.addAction(cancelAction)
@@ -528,9 +528,9 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "TransactionCell")
         
         if showsExchangeValue, let exchangeValue = taxAdviser.getExchangeValue(for: transaction) {
-            cell.textLabel?.text = currencyFormatter.getCurrencyFormatting(for: exchangeValue, currency: transaction.owner!.quoteCurrency)
+            cell.textLabel?.text = currencyFormatter.getFormatting(for: exchangeValue, currency: transaction.owner!.quoteCurrency)
         } else {
-            cell.textLabel?.text = currencyFormatter.getCurrencyFormatting(for: transaction.totalAmount, currency: transaction.owner!.blockchain)
+            cell.textLabel?.text = currencyFormatter.getFormatting(for: transaction.totalAmount, currency: transaction.owner!.blockchain)
         }
         
         cell.detailTextLabel?.text = dateFormatter.string(from: transaction.date!)

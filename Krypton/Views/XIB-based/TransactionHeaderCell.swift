@@ -18,7 +18,7 @@ class TransactionHeaderCell: UITableViewCell {
     
     // MARK: - Public Methods
     func configure(transaction: Transaction, currencyFormatter: CurrencyFormatter, dateFormatter: DateFormatter) {
-        amountLabel.text = currencyFormatter.getCurrencyFormatting(for: transaction.totalAmount, currency: transaction.owner!.blockchain)
+        amountLabel.text = currencyFormatter.getFormatting(for: transaction.totalAmount, currency: transaction.owner!.blockchain)
         
         if transaction.isOutbound {
             amountLabel.textColor = UIColor.red

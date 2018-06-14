@@ -16,10 +16,10 @@ protocol TokenAddressDelegate {
 }
 
 class TokenAddress: Address {
-
+    
     // MARK: - Private Properties
     private let context: NSManagedObjectContext = CoreDataStack.shared.viewContext
-    private let blockchainConnector: BlockchainConnector = BlockchainService(bitcoinBlockExplorer: BlockExplorerService(hostURL: "https://blockexplorer.com", port: nil, credentials: nil), ethereumBlockExplorer: EtherscanService(hostURL: "https://api.etherscan.io", port: nil, credentials: nil))
+    private let tokenExplorer: TokenExplorer = BlockchainService()
     
     // MARK: - Public Properties
     var tokenDelegate: TokenAddressDelegate?
@@ -38,106 +38,128 @@ class TokenAddress: Address {
     // MARK: Management
     override func update(completion: (() -> Void)?) {
         super.update {
-            self.updateTokenBalance {
+            self.updateTokens {
+                self.updateTokenOperations {
+                    self.tokenDelegate?.tokenAddressDidRequestTokenExchangeRateHistoryUpdate(self)
+                    completion?()
+                }
+            }
+        }
+    }
+    
+    func updateTokens(completion: (() -> Void)?) {
+        tokenExplorer.fetchTokens(for: self) { tokens, error in
+            guard let tokens = tokens else {
+                log.error("Failed to fetch tokens for address '\(self.logDescription)': \(error!)")
+                completion?()
+                return
+            }
+            
+            let tokenResults: [(token: Token, isNew: Bool)] = tokens.compactMap({
+                do {
+                    let tokenResult = try Token.createOrUpdate(from: $0, owner: self, in: self.context)
+                    
+                    if tokenResult.token.balance == 0 {
+                        self.context.delete(tokenResult.token)
+                        return nil
+                    } else {
+                        return tokenResult
+                    }
+                } catch {
+                    log.error("Failed to create token '\($0.address)' for address '\(self.logDescription)': \(error)")
+                    return nil
+                }
+            })
+
+            let coreTokens = tokenResults.compactMap({ $0.token })
+            self.addToTokens(NSSet(array: coreTokens))
+            
+            do {
+                try self.context.save()
+                log.debug("Updates tokens for address '\(self.logDescription)'.")
+                
+                for result in tokenResults {
+                    guard result.isNew else {
+                        continue
+                    }
+                    
+                    self.tokenDelegate?.tokenAddress(self, didCreateNewToken: result.token)
+                }
+                
+                completion?()
+            } catch {
+                log.error("Failed to save updated/created tokens for address '\(self.logDescription)': \(error)")
                 completion?()
             }
         }
     }
     
-    func updateTokenBalance(completion: (() -> Void)?) {
-        guard let associatedTokens = self.blockchain.associatedTokens else {
+    func updateTokenOperations(completion: (() -> Void)?) {
+        guard storedTokens.count > 0 else {
+            completion?()
             return
         }
         
-        for (index, associatedToken) in associatedTokens.enumerated() {
+        for (index, token) in storedTokens.enumerated() {
             var updateCompletion: (() -> Void)? = nil
             
-            if index == associatedTokens.count-1 {
+            if index == storedTokens.count-1 {
                 updateCompletion = {
-                    log.verbose("Updated tokens for address '\(self.logDescription)'.")
+                    log.verbose("Updated token operations for address '\(self.logDescription)'.")
                     completion?()
                 }
             }
             
-            blockchainConnector.fetchTokenBalance(for: self, token: associatedToken) { balance, error in
-                guard let balance = balance else {
-                    log.error("Failed to fetch balance of token '\(associatedToken.name)' for address '\(self.logDescription)': \(error!)")
+            let timeframe: Timeframe
+            
+            if lastBlock == 0 {
+                timeframe = .allTime
+            } else {
+                timeframe = .sinceBlock(Int(lastTokenBlock))
+            }
+            
+            tokenExplorer.fetchTokenOperations(for: self, token: token, type: .transfer, timeframe: timeframe) { operations, error in
+                guard let operations = operations else {
+                    log.error("Failed to fetch operations of token '\(token.logDescription)' for address '\(self.logDescription)': \(error!)")
                     updateCompletion?()
                     return
                 }
-
-                let token = self.storedTokens.filter({ $0.storedToken.isEqual(to: associatedToken) }).first
-
-                guard balance > 0 else {
-                    if let token = token {
-                        do {
-                            self.context.delete(token)
-                            try self.context.save()
-                            log.debug("Deleted token '\(associatedToken.name)' for address '\(self.logDescription)'.")
-                        } catch {
-                            log.debug("Failed to delete token '\(associatedToken.name)' for address '\(self.logDescription)': \(error)")
+                
+                var newOperationsCount = 0
+                
+                for operationPrototype in operations {
+                    do {
+                        let _ = try TokenOperation.create(from: operationPrototype, token: token, in: self.context)
+                        newOperationsCount = newOperationsCount + 1
+                        
+                        if operationPrototype.block > self.lastTokenBlock {
+                            self.lastBlock = Int64(operationPrototype.block + 1)
                         }
+                    } catch {
+                        log.error("Failed to create operation '\(operationPrototype.identifier)' of token '\(token.logDescription)' for address '\(self.logDescription)': \(error)")
+                    }
+                }
+                
+                token.lastUpdate = Date()
+                
+                do {
+                    guard newOperationsCount > 0 else {
+                        log.verbose("Operations of token \(token.logDescription)' for address '\(self.logDescription)' is already up-to-date.")
+                        completion?()
+                        return
                     }
                     
-                    updateCompletion?()
-                    return
-                }
-
-                if let token = token {
-                    do {
-                        guard token.balance != balance else {
-                            log.verbose("Balance of token '\(associatedToken.name)' for address '\(self.logDescription)' is already up-to-date.")
-                            updateCompletion?()
-                            return
-                        }
-
-                        token.balance = balance
-                        try self.context.save()
-                        log.debug("Updated balance (\(balance) \(associatedToken.code) of token '\(associatedToken.name)' for address '\(self.logDescription)'.")
-                        self.tokenDelegate?.tokenAddress(self, didUpdateBalanceForToken: token)
-                        updateCompletion?()
-                    } catch {
-                        log.error("Failed to save fetched balance of token '\(associatedToken.name)' for address '\(self.logDescription)': \(error)")
-                        updateCompletion?()
-                    }
-                } else {
-                    do {
-                        let token = try Token.createToken(from: associatedToken, owner: self, in: self.context)
-                        token.balance = balance
-                        try self.context.save()
-                        log.info("Created token '\(associatedToken.name)' for address '\(self.logDescription)' with balance: \(balance) \(associatedToken.code)")
-                        self.tokenDelegate?.tokenAddress(self, didCreateNewToken: token)
-                        updateCompletion?()
-                    } catch {
-                        log.error("Failed to create token '\(associatedToken.name)' for address '\(self.logDescription)': \(error)")
-                        updateCompletion?()
-                    }
+                    try self.context.save()
+                    let multiple = (newOperationsCount >= 2) || (newOperationsCount == 0)
+                    log.debug("Updated operations of token \(token.logDescription)' for address '\(self.logDescription)' with \(newOperationsCount) new transaction\(multiple ? "s" : "").")
+                    completion?()
+                } catch {
+                    log.error("Failed to save fetched operations of token \(token.logDescription)' for address '\(self.logDescription)': \(error)")
+                    completion?()
                 }
             }
         }
+
     }
-    
-//    func updateTokenExchangeRateHistory(completion: (() -> Void)?) {
-//        guard storedTokens.count > 0 else {
-//            completion?()
-//            return
-//        }
-//        
-//        for (index, _) in storedTokens.enumerated() {
-//            var updateCompletion: (() -> Void)? = nil
-//            
-//            if index == storedTokens.count-1 {
-//                updateCompletion = {
-//                    log.verbose("Updated token exchange rate histories for address '\(self.logDescription)'.")
-//                    completion?()
-//                }
-//            }
-//            
-//            updateCompletion?()
-//            
-//            // use token transfer date
-//            tokenDelegate?.tokenAddressDidRequestTokenExchangeRateHistoryUpdate(self)
-//        }
-//    }
     
 }

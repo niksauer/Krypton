@@ -18,7 +18,7 @@ class TransactionCell: UITableViewCell {
     // MARK: - Public Methods
     func configure(transaction: Transaction, dateFormatter: DateFormatter, currencyFormatter: CurrencyFormatter) {
         dateLabel.text = dateFormatter.string(from: transaction.date!)
-        amountLabel.text = currencyFormatter.getCurrencyFormatting(for: transaction.totalAmount, currency: transaction.owner!.blockchain)
+        amountLabel.text = currencyFormatter.getFormatting(for: transaction.totalAmount, currency: transaction.owner!.blockchain)
         
         if transaction.isOutbound {
             addressLabel.text = transaction.primaryReceiver
