@@ -9,7 +9,7 @@
 The most advanced crypto currency tracker that uses public data only and requires no private keys.
 
 ### Preview
-<img src="https://github.com/niksauer/Krypton/blob/master/Docs/PreviewScreenshot.png" width="300">
+<img src="https://github.com/niksauer/Krypton/blob/master/Docs/Krypton_Promo.png">
 
 ### Setup 
 1. `git clone <url>`
@@ -19,6 +19,7 @@ The most advanced crypto currency tracker that uses public data only and require
 - [NetworkKit](https://github.com/niksauer/NetworkKit)
 - [SwiftyBeaver](https://github.com/SwiftyBeaver/SwiftyBeaver)
 - [SwiftKeccak](https://github.com/uport-project/SwiftKeccak)
+- [ToolKit](https://github.com/niksauer/ToolKit)
 
 ### Submodules
 This project uses `git submodules` to manage its dependencies. Therefore, setup becomes a two-step process. To **update to** the **newest availble commit** from the tracked branch of each submodule, run: `git submodule update --recursive --remote`.
