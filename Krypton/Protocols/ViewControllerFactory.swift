@@ -32,6 +32,7 @@ protocol ViewControllerFactory {
     
     // Settings
     func makeSettingsViewController() -> SettingsViewController
+    func makeLogDataViewController() -> LogDataViewController?
     
     // Shared
     func makeCurrencySelector(type: CurrencyType, selection: Currency?) -> CurrencySelectorViewController

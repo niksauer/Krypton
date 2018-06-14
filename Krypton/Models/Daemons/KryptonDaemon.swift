@@ -107,7 +107,7 @@ final class KryptonDaemon: PortfolioManagerDelegate {
     }
     
     func portfolioManager(_ portfolioManager: PortfolioManager, didReceiveTokenExchangeRateHistoryUpdateRequestForAddress tokenAddress: TokenAddress) {
-        // TODO
+        // TODO: update token exchange rate history
     }
     
     func portfolioManager(_ portfolioManager: PortfolioManager, didNoticeNewTokenForAddress address: TokenAddress, token: Token) {

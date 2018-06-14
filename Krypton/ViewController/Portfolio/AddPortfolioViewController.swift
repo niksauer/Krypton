@@ -57,8 +57,14 @@ class AddPortfolioViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // prototype cells
         tableView.register(TextFieldCell.self, forCellReuseIdentifier: "TextFieldCell")
         tableView.register(SwitchCell.self, forCellReuseIdentifier: "SwitchCell")
+        
+        // keyboard dismissal
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard(_:)))
+        tapGestureRecognizer.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGestureRecognizer)
         
         validateSaveButton()
     }
@@ -79,7 +85,7 @@ class AddPortfolioViewController: UITableViewController {
             delegate?.portfolioCreator(self, didCreatePortfolio: portfolio)
             dismiss(animated: true, completion: nil)
         } catch {
-            // TODO: present error
+            displayAlert(title: "Error", message: "Failed to create portfolio: \(error)", completion: nil)
         }
     }
     
@@ -98,6 +104,10 @@ class AddPortfolioViewController: UITableViewController {
     
     @objc private func didChangeIsDefault(_ sender: UISwitch) {
         self.isDefault = sender.isOn
+    }
+    
+    @objc private func dismissKeyboard(_ sender: UITapGestureRecognizer) {
+        view.endEditing(true)
     }
     
     // MARK: - TableView DataSource

@@ -92,7 +92,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
             do {
                 try transaction.setIsUnread(false)
             } catch {
-                // TODO: present error
+                displayAlert(title: "Error", message: "Failed to set transaction as read: \(error)", completion: nil)
             }
         }
         
@@ -131,7 +131,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
         do {
             try transaction.setIsInvestment(!transaction.isInvestment)
         } catch {
-            // TODO: present error
+            displayAlert(title: "Error", message: "Failed to toggle investment status of transaction: \(error)", completion: nil)
         }
     }
     
@@ -139,7 +139,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
         do {
             try transaction.setIsUnread(!transaction.isUnread)
         } catch {
-            // TODO: present error
+            displayAlert(title: "Error", message: "Failed to toggle is unread status of transaction: \(error)", completion: nil)
         }
     }
     

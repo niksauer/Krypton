@@ -42,9 +42,15 @@ class PortfolioDetailViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // prototype cells
         tableView.register(TextFieldCell.self, forCellReuseIdentifier: "TextFieldCell")
         tableView.register(SwitchCell.self, forCellReuseIdentifier: "SwitchCell")
         tableView.register(DeleteCell.self, forCellReuseIdentifier: "DeleteCell")
+        
+        // keyboard dismissal
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard(_:)))
+        tapGestureRecognizer.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGestureRecognizer)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -63,7 +69,7 @@ class PortfolioDetailViewController: UITableViewController {
         do {
             try portfolio.setIsDefault(isDefault)
         } catch {
-            // TODO: present error
+            displayAlert(title: "Error", message: "Failed to set portfolio as default: \(error)", completion: nil)
         }
     }
     
@@ -78,7 +84,7 @@ class PortfolioDetailViewController: UITableViewController {
             do {
                 try portfolio.setAlias(alias)
             } catch {
-                // TODO: present error
+                displayAlert(title: "Error", message: "Failed to set new portfolio alias: \(error)", completion: nil)
             }
         }
         
@@ -92,7 +98,7 @@ class PortfolioDetailViewController: UITableViewController {
             isDeleted = true
             self.navigationController?.popViewController(animated: true)
         } catch {
-            // TODO: present error
+            displayAlert(title: "Error", message: "Failed to delete portfolio: \(error)", completion: nil)
         }
     }
     
@@ -102,6 +108,10 @@ class PortfolioDetailViewController: UITableViewController {
     
     @objc private func didChangeIsDefault(_ sender: UISwitch) {
         self.isDefault = sender.isOn
+    }
+    
+    @objc private func dismissKeyboard(_ sender: UITapGestureRecognizer) {
+        view.endEditing(true)
     }
     
     // MARK: - TableView DataSource

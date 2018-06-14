@@ -54,6 +54,7 @@
 		248E796E20D02987000BF17C /* EthereumBlockExplorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248E796D20D02987000BF17C /* EthereumBlockExplorer.swift */; };
 		248E797020D02C1E000BF17C /* BlockchainConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248E796F20D02C1E000BF17C /* BlockchainConnector.swift */; };
 		24935C691FA0B81B00F4F291 /* AmountByAddressViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24935C681FA0B81B00F4F291 /* AmountByAddressViewController.swift */; };
+		2493FCC320D26FD300F33996 /* LogDataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2493FCC220D26FD300F33996 /* LogDataViewController.swift */; };
 		24A007C41F538AD800EC0DCF /* TickerDaemon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A007C31F538AD800EC0DCF /* TickerDaemon.swift */; };
 		24A226BE1F50ED9300907999 /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A226BD1F50ED9300907999 /* CurrencyFormatter.swift */; };
 		24A3D32F1F7DAF250081BF09 /* BlockExplorerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A3D32E1F7DAF250081BF09 /* BlockExplorerService.swift */; };
@@ -295,6 +296,7 @@
 		248E796D20D02987000BF17C /* EthereumBlockExplorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumBlockExplorer.swift; sourceTree = "<group>"; };
 		248E796F20D02C1E000BF17C /* BlockchainConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainConnector.swift; sourceTree = "<group>"; };
 		24935C681FA0B81B00F4F291 /* AmountByAddressViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountByAddressViewController.swift; sourceTree = "<group>"; };
+		2493FCC220D26FD300F33996 /* LogDataViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogDataViewController.swift; sourceTree = "<group>"; };
 		24A007C31F538AD800EC0DCF /* TickerDaemon.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TickerDaemon.swift; sourceTree = "<group>"; };
 		24A226BD1F50ED9300907999 /* CurrencyFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrencyFormatter.swift; sourceTree = "<group>"; };
 		24A3D32E1F7DAF250081BF09 /* BlockExplorerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockExplorerService.swift; sourceTree = "<group>"; };
@@ -519,6 +521,7 @@
 			isa = PBXGroup;
 			children = (
 				2449F4491F6F1F40006E21C8 /* SettingsViewController.swift */,
+				2493FCC220D26FD300F33996 /* LogDataViewController.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -939,6 +942,7 @@
 				2446F5DC1F8EAD1E00DF385B /* TokenAddress.swift in Sources */,
 				24B4A27B20C7152D007AEB28 /* DependencyContainer.swift in Sources */,
 				241B7E6C20D0833100E6355C /* Currency.swift in Sources */,
+				2493FCC320D26FD300F33996 /* LogDataViewController.swift in Sources */,
 				240C63B31F47A88E00728B8B /* Address.swift in Sources */,
 				2429B4B120CDE8DB00A71298 /* CryptoCompareService.swift in Sources */,
 				246874F61F464B4E009BB60A /* Krypton.xcdatamodeld in Sources */,

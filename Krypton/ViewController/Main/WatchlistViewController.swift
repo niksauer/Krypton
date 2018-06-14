@@ -113,7 +113,7 @@ class WatchlistViewController: UITableViewController, TickerDaemonDelegate {
             self.refreshControl?.endRefreshing()
             
             guard error == nil else {
-                // TODO: present error
+                self.displayAlert(title: "Error", message: "Failed to update data: \(error!)", completion: nil)
                 return
             }
         }

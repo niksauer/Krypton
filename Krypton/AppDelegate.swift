@@ -26,6 +26,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         console.minLevel = .verbose
         log.addDestination(console)
         
+        let file = FileDestination()
+        let _ = file.deleteLogFile()
+        file.format = "$DHH:mm:ss$d $L:\n$M\n"
+        log.addDestination(file)
+        
         // non-storyboard UI configuration
         window = UIWindow(frame: UIScreen.main.bounds)
         
