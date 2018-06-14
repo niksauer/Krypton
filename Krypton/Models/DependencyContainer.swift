@@ -18,6 +18,7 @@ struct DependencyContainer {
     private let kryptonDaemon: KryptonDaemon
     
     // Mark: - Private Properties
+    private let logDataPath: URL = FileManager().urls(for: .cachesDirectory, in: .userDomainMask).first!.appendingPathComponent("swiftybeaver.log")
     private let viewContext: NSManagedObjectContext = CoreDataStack.shared.viewContext
     
     private var blockchains: [Blockchain] {
@@ -135,6 +136,10 @@ extension DependencyContainer: ViewControllerFactory {
     // Settings
     func makeSettingsViewController() -> SettingsViewController {
         return SettingsViewController(viewFactory: self, kryptonDaemon: kryptonDaemon, portfolioManager: portfolioManager)
+    }
+    
+    func makeLogDataViewController() -> LogDataViewController? {
+        return LogDataViewController(path: logDataPath)
     }
     
     // Shared

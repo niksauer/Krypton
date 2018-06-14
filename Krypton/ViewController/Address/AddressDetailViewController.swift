@@ -63,7 +63,7 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
             do {
                 try address.setAlias(alias)
             } catch {
-                // TODO: present error
+                displayAlert(title: "Error", message: "Failed to set new alias of address: \(error)", completion: nil)
             }
         }
         
@@ -81,7 +81,7 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
             isDeleted = true
             self.navigationController?.popViewController(animated: true)
         } catch {
-            // TODO: present error
+            displayAlert(title: "Error", message: "Failed to delete address: \(error)", completion: nil)
         }
     }
 
@@ -95,7 +95,7 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
             try address.setPortfolio(selection)
             tableView.reloadRows(at: [IndexPath(row: 0, section: 1)], with: .automatic)
         } catch {
-            // TODO: present error
+            displayAlert(title: "Error", message: "Failed to change portfolio of address: \(error)", completion: nil)
         }
     }
     

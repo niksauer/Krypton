@@ -85,7 +85,7 @@ class FilterViewController: UITableViewController {
                 portfolioManager.discardChanges()
             }
         } catch {
-            // TODO: present error
+            displayAlert(title: "Error", message: "Failed to save selected addresses: \(error)", completion: nil)
         }
         
         if !filter.isApplied {

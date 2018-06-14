@@ -42,13 +42,13 @@ class SettingsViewController: UITableViewController, CurrencySelectorDelegate {
             try portfolioManager.setQuoteCurrency(currency)
             tableView.reloadRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
         } catch {
-            // TODO: present error
+            displayAlert(title: "Error", message: "Failed to set quote currency: \(error)", completion: nil)
         }
     }
     
     // MARK: - TableView DataSource
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
+        return 3
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -56,6 +56,8 @@ class SettingsViewController: UITableViewController, CurrencySelectorDelegate {
         case 0:
             return 1
         case 1:
+            return 1
+        case 2:
             return 1
         default:
             fatalError()
@@ -88,8 +90,27 @@ class SettingsViewController: UITableViewController, CurrencySelectorDelegate {
             default:
                 fatalError()
             }
+        case 2:
+            switch row {
+            case 0:
+                let cell = UITableViewCell(style: .default, reuseIdentifier: "LogDataCell")
+                cell.textLabel?.text = "Log Data"
+                cell.accessoryType = .disclosureIndicator
+                return cell
+            default:
+                fatalError()
+            }
         default:
             fatalError()
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        switch section {
+        case 2:
+            return "Developer"
+        default:
+            return nil
         }
     }
 
@@ -117,8 +138,19 @@ class SettingsViewController: UITableViewController, CurrencySelectorDelegate {
             default:
                 fatalError()
             }
+        case 2:
+            switch row {
+            case 0:
+                guard let logDataViewController = viewFactory.makeLogDataViewController() else {
+                    return
+                }
+                
+                navigationController?.pushViewController(logDataViewController, animated: true)
+            default:
+                fatalError()
+            }
         default:
-            fatalError()
+            break
         }
     }
     

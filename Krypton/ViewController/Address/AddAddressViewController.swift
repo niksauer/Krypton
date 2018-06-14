@@ -76,8 +76,14 @@ class AddAddressViewController: UITableViewController, UITextFieldDelegate, UIPi
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // prototype cells
         tableView.register(TextFieldCell.self, forCellReuseIdentifier: "TextFieldCell")
         tableView.register(PickerViewCell.self, forCellReuseIdentifier: "PickerViewCell")
+        
+        // keyboard dismissal
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard(_:)))
+        tapGestureRecognizer.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGestureRecognizer)
         
         validateSaveButton()
     }
@@ -96,7 +102,7 @@ class AddAddressViewController: UITableViewController, UITextFieldDelegate, UIPi
             try selectedPortfolio.addAddress(address, alias: alias, blockchain: selectedBlockchain)
             dismiss(animated: true, completion: nil)
         } catch {
-            // TODO: present error
+            displayAlert(title: "Error", message: "Failed to add address to portfolio: \(error)", completion: nil)
         }
     }
     
@@ -116,6 +122,10 @@ class AddAddressViewController: UITableViewController, UITextFieldDelegate, UIPi
     
     @objc private func didChangeAlias(_ sender: UITextField) {
         self.alias = sender.text
+    }
+    
+    @objc private func dismissKeyboard(_ sender: UITapGestureRecognizer) {
+        view.endEditing(true)
     }
     
     // MARK: - PortfolioSelector Delegate
