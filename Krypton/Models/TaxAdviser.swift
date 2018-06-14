@@ -28,10 +28,12 @@ struct TaxAdviser {
     
     // MARK: - Private Properties
     private let exchangeRateManager: ExchangeRateManager
+    private let currencyManager: CurrencyManager
     
     // MARK: - Initialization
-    init(exchangeRateManager: ExchangeRateManager) {
+    init(exchangeRateManager: ExchangeRateManager, currencyManager: CurrencyManager) {
         self.exchangeRateManager = exchangeRateManager
+        self.currencyManager = currencyManager
     }
     
     // MARK: - Public Methods
@@ -59,8 +61,26 @@ struct TaxAdviser {
             return nil
         }
         
-        if date.UTCStart == transaction.date?.UTCStart, transaction.hasUserExchangeValue {
-            return transaction.userExchangeValue
+        if transaction.hasUserExchangeValue, date.UTCStart == transaction.date!.UTCStart {
+            guard let userExchangeValueQuoteCurrencyCode = transaction.userExchangeValueQuoteCurrencyCode else {
+                return nil
+            }
+            
+            guard transaction.owner!.quoteCurrency.code != userExchangeValueQuoteCurrencyCode else {
+                return transaction.userExchangeValue
+            }
+            
+            let userExchangeValueQuoteCurrency = currencyManager.getCurrency(from: userExchangeValueQuoteCurrencyCode)!
+            let userExchangeValueCurrencyPair = CurrencyPair(base: transaction.owner!.blockchain, quote: userExchangeValueQuoteCurrency)
+            let newUserExchangeValueCurrencyPair = transaction.owner!.currencyPair
+            
+            guard let userExchangeValueRate = exchangeRateManager.getExchangeRate(for: userExchangeValueCurrencyPair, on: transaction.date!), let newUserExchangeValueRate = exchangeRateManager.getExchangeRate(for: newUserExchangeValueCurrencyPair, on: transaction.date!) else {
+                return nil
+            }
+            
+            let conversionRate = newUserExchangeValueRate / userExchangeValueRate
+            
+            return transaction.userExchangeValue * conversionRate
         }
         
         guard let exchangeRate = exchangeRateManager.getExchangeRate(for: transaction.owner!.currencyPair, on: date) else {

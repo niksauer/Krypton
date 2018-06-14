@@ -41,7 +41,7 @@ struct DependencyContainer {
     }
     
     private var taxAdviser: TaxAdviser {
-        return TaxAdviser(exchangeRateManager: exchangeRateManager)
+        return TaxAdviser(exchangeRateManager: exchangeRateManager, currencyManager: currencyManager)
     }
     
     private var mediumDateFormatter: DateFormatter = {

@@ -139,6 +139,7 @@ class Transaction: NSManagedObject, Reportable {
         
         do {
             userExchangeValue = newValue
+            userExchangeValueQuoteCurrencyCode = owner!.quoteCurrency.code
             try context.save()
             log.debug("Updated user exchange value (\(newValue)) for transaction '\(self.logDescription)'.")
             self.delegate?.transactionDidUpdateUserExchangeValue(self)
@@ -183,6 +184,7 @@ class Transaction: NSManagedObject, Reportable {
     func resetUserExchangeValue() throws {
         do {
             userExchangeValue = -1
+            userExchangeValueQuoteCurrencyCode = nil
             try context.save()
             log.debug("Reset user exchange value for transaction '\(self.logDescription)'.")
             self.delegate?.transactionDidUpdateUserExchangeValue(self)

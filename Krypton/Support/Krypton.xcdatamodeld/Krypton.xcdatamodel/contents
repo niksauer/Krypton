@@ -54,7 +54,8 @@
         <attribute name="isUnread" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="to" attributeType="Transformable" syncable="YES"/>
         <attribute name="totalAmount" attributeType="Double" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="userExchangeValue" optional="YES" attributeType="Double" defaultValueString="-1" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="userExchangeValue" attributeType="Double" defaultValueString="-1" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="userExchangeValueQuoteCurrencyCode" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="owner" maxCount="1" deletionRule="Deny" destinationEntity="Address" inverseName="transactions" inverseEntity="Address" syncable="YES"/>
     </entity>
     <elements>
@@ -67,6 +68,6 @@
         <element name="Portfolio" positionX="-396" positionY="-153" width="128" height="120"/>
         <element name="Token" positionX="27" positionY="-403" width="128" height="90"/>
         <element name="TokenAddress" positionX="36" positionY="-252" width="128" height="58"/>
-        <element name="Transaction" positionX="-342" positionY="-531" width="128" height="240"/>
+        <element name="Transaction" positionX="-342" positionY="-531" width="128" height="255"/>
     </elements>
 </model>

@@ -151,6 +151,7 @@ class Address: NSManagedObject, TransactionDelegate, Reportable {
             try context.save()
             log.debug("Updated quote currency (\(currency)) for address '\(logDescription)'.")
             delegate?.addressDidUpdateQuoteCurrency(self)
+            delegate?.addressDidRequestExchangeRateHistoryUpdate(self)
         } catch {
             log.error("Failed to update quote currency for address '\(logDescription)': \(error)")
             throw error
@@ -178,6 +179,7 @@ class Address: NSManagedObject, TransactionDelegate, Reportable {
     func update(completion: (() -> Void)?) {
         self.updateTransactionHistory {
             self.updateBalance {
+                self.delegate?.addressDidRequestExchangeRateHistoryUpdate(self)
                 completion?()
             }
         }
@@ -256,7 +258,6 @@ class Address: NSManagedObject, TransactionDelegate, Reportable {
                 let multiple = (newTxCount >= 2) || (newTxCount == 0)
                 log.debug("Updated transaction history for address '\(self.logDescription)' with \(newTxCount) new transaction\(multiple ? "s" : "").")
                 self.delegate?.addressDidUpdateTransactionHistory(self)
-                self.delegate?.addressDidRequestExchangeRateHistoryUpdate(self)
                 completion?()
             } catch {
                 log.error("Failed to save fetched transaction history for address '\(self.logDescription)': \(error)")

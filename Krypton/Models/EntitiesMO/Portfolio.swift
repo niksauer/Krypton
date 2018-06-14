@@ -109,7 +109,6 @@ class Portfolio: NSManagedObject, AddressDelegate, TokenAddressDelegate, Reporta
             
             for address in storedAddresses {
                 try address.setQuoteCurrency(currency)
-                address.update(completion: nil)
             }
             
             log.debug("Updated quote currency (\(currency.code)) for portfolio '\(self.logDescription)'.")
