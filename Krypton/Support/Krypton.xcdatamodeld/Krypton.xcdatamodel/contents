@@ -6,7 +6,7 @@
         <attribute name="blockchainRaw" attributeType="String" syncable="YES"/>
         <attribute name="identifier" attributeType="String" syncable="YES"/>
         <attribute name="isSelected" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="lastBlock" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="lastBlock" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="lastUpdate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="quoteCurrencyCode" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="portfolio" maxCount="1" deletionRule="Nullify" destinationEntity="Portfolio" inverseName="addresses" inverseEntity="Portfolio" syncable="YES"/>
@@ -19,7 +19,7 @@
     </entity>
     <entity name="EthereumAddress" representedClassName=".EthereumAddress" parentEntity="TokenAddress" syncable="YES" codeGenerationType="category"/>
     <entity name="EthereumTransaction" representedClassName=".EthereumTransaction" parentEntity="Transaction" syncable="YES" codeGenerationType="category">
-        <attribute name="type" attributeType="String" syncable="YES"/>
+        <attribute name="typeRaw" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="ExchangeRate" representedClassName=".ExchangeRate" syncable="YES" codeGenerationType="category">
         <attribute name="base" attributeType="String" syncable="YES"/>
@@ -37,16 +37,30 @@
     <entity name="Token" representedClassName=".Token" syncable="YES" codeGenerationType="category">
         <attribute name="balance" attributeType="Double" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="identifier" attributeType="String" syncable="YES"/>
+        <attribute name="lastUpdate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="storedDecimalDigits" attributeType="Integer 16" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="storedName" attributeType="String" syncable="YES"/>
         <attribute name="storedSymbol" attributeType="String" syncable="YES"/>
+        <relationship name="operations" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TokenOperation" inverseName="token" inverseEntity="TokenOperation" syncable="YES"/>
         <relationship name="owner" maxCount="1" deletionRule="Nullify" destinationEntity="TokenAddress" inverseName="tokens" inverseEntity="TokenAddress" syncable="YES"/>
     </entity>
     <entity name="TokenAddress" representedClassName=".TokenAddress" isAbstract="YES" parentEntity="Address" syncable="YES" codeGenerationType="category">
+        <attribute name="lastTokenBlock" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <relationship name="tokens" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Token" inverseName="owner" inverseEntity="Token" syncable="YES"/>
     </entity>
+    <entity name="TokenOperation" representedClassName=".TokenOperation" syncable="YES" codeGenerationType="category">
+        <attribute name="amount" attributeType="Double" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="block" attributeType="Integer 64" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="date" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="from" attributeType="String" syncable="YES"/>
+        <attribute name="identifier" attributeType="String" syncable="YES"/>
+        <attribute name="isOutbound" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="to" attributeType="String" syncable="YES"/>
+        <attribute name="typeRaw" attributeType="String" syncable="YES"/>
+        <relationship name="token" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Token" inverseName="operations" inverseEntity="Token" syncable="YES"/>
+    </entity>
     <entity name="Transaction" representedClassName=".Transaction" isAbstract="YES" syncable="YES" codeGenerationType="category">
-        <attribute name="block" attributeType="Integer 32" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="block" attributeType="Integer 64" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="date" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="feeAmount" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="from" attributeType="Transformable" valueTransformerName="" syncable="YES"/>
@@ -62,15 +76,16 @@
         <relationship name="owner" maxCount="1" deletionRule="Deny" destinationEntity="Address" inverseName="transactions" inverseEntity="Address" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Address" positionX="-153" positionY="-333" width="128" height="28"/>
+        <element name="Address" positionX="-153" positionY="-333" width="128" height="195"/>
         <element name="BitcoinAddress" positionX="43" positionY="-153" width="128" height="45"/>
         <element name="BitcoinTransaction" positionX="-171" positionY="-495" width="128" height="73"/>
         <element name="EthereumAddress" positionX="216" positionY="-238" width="128" height="45"/>
-        <element name="EthereumTransaction" positionX="-171" positionY="-603" width="128" height="58"/>
+        <element name="EthereumTransaction" positionX="-171" positionY="-603" width="128" height="60"/>
         <element name="ExchangeRate" positionX="-270" positionY="-63" width="128" height="103"/>
         <element name="Portfolio" positionX="-396" positionY="-153" width="128" height="120"/>
-        <element name="Token" positionX="27" positionY="-403" width="128" height="135"/>
-        <element name="TokenAddress" positionX="36" positionY="-252" width="128" height="58"/>
+        <element name="Token" positionX="27" positionY="-403" width="128" height="165"/>
+        <element name="TokenAddress" positionX="36" positionY="-252" width="128" height="75"/>
         <element name="Transaction" positionX="-342" positionY="-531" width="128" height="255"/>
+        <element name="TokenOperation" positionX="-189" positionY="-450" width="128" height="180"/>
     </elements>
 </model>

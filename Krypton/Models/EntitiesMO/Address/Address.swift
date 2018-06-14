@@ -65,7 +65,7 @@ class Address: NSManagedObject, TransactionDelegate, Reportable {
     // MARK: - Private Properties
     private let context: NSManagedObjectContext = CoreDataStack.shared.viewContext
     private let currencyManager: CurrencyManager = CurrencyManager()
-    private let blockchainConnector: BlockchainConnector = BlockchainService()
+    private let blockExplorer: BlockExplorer = BlockchainService()
     
     // MARK: - Public Properties
     /// delegate who gets notified of changes in balance, transaction history and all associated transactions' userExchangeValue, isInvestment properties
@@ -110,11 +110,11 @@ class Address: NSManagedObject, TransactionDelegate, Reportable {
     
     // MARK: - Public Methods
     /// returns the oldest transaction associated with address
-    func getOldestTransaction() -> Transaction? {
+    final func getOldestTransaction() -> Transaction? {
         return storedTransactions.min(by: { $0.date! < $1.date! })
     }
     
-    func getTransactions(type: TransactionType) -> [Transaction] {
+    final func getTransactions(type: TransactionType) -> [Transaction] {
         switch type {
         case .investment:
             return storedTransactions.filter { $0.isInvestment }
@@ -125,7 +125,7 @@ class Address: NSManagedObject, TransactionDelegate, Reportable {
         }
     }
     
-    func setAlias(_ alias: String?) throws {
+    final func setAlias(_ alias: String?) throws {
         guard self.alias != alias else {
             return
         }
@@ -141,7 +141,7 @@ class Address: NSManagedObject, TransactionDelegate, Reportable {
         }
     }
     
-    func setQuoteCurrency(_ currency: Currency) throws {
+    final func setQuoteCurrency(_ currency: Currency) throws {
         guard !self.quoteCurrency.isEqual(to: currency) else {
             return
         }
@@ -158,7 +158,7 @@ class Address: NSManagedObject, TransactionDelegate, Reportable {
         }
     }
     
-    func setPortfolio(_ portfolio: Portfolio) throws {
+    final func setPortfolio(_ portfolio: Portfolio) throws {
         guard self.portfolio != portfolio else {
             return
         }
@@ -186,8 +186,8 @@ class Address: NSManagedObject, TransactionDelegate, Reportable {
     }
     
     /// fetches and saves balance if it has changed, notifies delegate
-    func updateBalance(completion: (() -> Void)?) {
-        blockchainConnector.fetchBalance(for: self) { balance, error in
+    final func updateBalance(completion: (() -> Void)?) {
+        blockExplorer.fetchBalance(for: self) { balance, error in
             guard let balance = balance else {
                 log.error("Failed to fetch balance for address '\(self.logDescription)': \(error!)")
                 completion?()
@@ -214,8 +214,8 @@ class Address: NSManagedObject, TransactionDelegate, Reportable {
     }
     
     /// fetches and saves transaction history since last retrieved block, executes completion block if no error is thrown during retrieval and saving
-    func updateTransactionHistory(completion: (() -> Void)?) {
-        let timeframe: TransactionHistoryTimeframe
+    final func updateTransactionHistory(completion: (() -> Void)?) {
+        let timeframe: Timeframe
         
         if lastBlock == 0 {
             timeframe = .allTime
@@ -223,22 +223,22 @@ class Address: NSManagedObject, TransactionDelegate, Reportable {
             timeframe = .sinceBlock(Int(lastBlock))
         }
         
-        blockchainConnector.fetchTransactionHistory(for: self, timeframe: timeframe) { transactions, error in
+        blockExplorer.fetchTransactionHistory(for: self, timeframe: timeframe) { transactions, error in
             guard let transactions = transactions else {
                 log.error("Failed to fetch transaction history for address '\(self.logDescription)': \(error!)")
                 completion?()
                 return
             }
         
-            var newTxCount = 0
+            var newTransactionsCount = 0
             
             for transactionPrototype in transactions {
                 do {
-                    let transaction = try Transaction.createTransaction(from: transactionPrototype, owner: self, in: self.context)
-                    newTxCount = newTxCount + 1
+                    let _ = try Transaction.createTransaction(from: transactionPrototype, owner: self, in: self.context)
+                    newTransactionsCount = newTransactionsCount + 1
                     
-                    if transaction.block > self.lastBlock {
-                        self.lastBlock = transaction.block + 1
+                    if transactionPrototype.block > self.lastBlock {
+                        self.lastBlock = Int64(transactionPrototype.block + 1)
                     }
                 } catch {
                     log.error("Failed to create transaction '\(transactionPrototype.identifier)' for address '\(self.logDescription)': \(error)")
@@ -248,15 +248,15 @@ class Address: NSManagedObject, TransactionDelegate, Reportable {
             self.lastUpdate = Date()
             
             do {
-                guard newTxCount > 0 else {
+                guard newTransactionsCount > 0 else {
                     log.verbose("Transaction history for address '\(self.logDescription)' is already up-to-date.")
                     completion?()
                     return
                 }
                 
                 try self.context.save()
-                let multiple = (newTxCount >= 2) || (newTxCount == 0)
-                log.debug("Updated transaction history for address '\(self.logDescription)' with \(newTxCount) new transaction\(multiple ? "s" : "").")
+                let multiple = (newTransactionsCount >= 2) || (newTransactionsCount == 0)
+                log.debug("Updated transaction history for address '\(self.logDescription)' with \(newTransactionsCount) new transaction\(multiple ? "s" : "").")
                 self.delegate?.addressDidUpdateTransactionHistory(self)
                 completion?()
             } catch {
@@ -268,7 +268,7 @@ class Address: NSManagedObject, TransactionDelegate, Reportable {
     
     // MARK: Finance
     /// returns balance for specified transaction type on specified date
-    func getBalance(on date: Date, type: TransactionType) -> Double? {
+    final func getBalance(on date: Date, type: TransactionType) -> Double? {
         guard storedTransactions.count > 0 else {
             return 0.0
         }

@@ -12,6 +12,9 @@ import CoreData
 struct DependencyContainer {
     
     // Mark: - Singletons
+    typealias BlockchainConnector = BlockExplorer & TokenExplorer
+    
+    // Mark: - Singletons
     private let portfolioManager: PortfolioManager
     private let tickerDaemon: TickerDaemon
     private let blockchainDaemom: BlockchainDaemon
@@ -69,7 +72,7 @@ struct DependencyContainer {
         let blockchainConnector: BlockchainConnector = BlockchainService()
         
         tickerDaemon = TickerDaemon(exchange: exchange)
-        blockchainDaemom = BlockchainDaemon(blockchainConnector: blockchainConnector)
+        blockchainDaemom = BlockchainDaemon(blockExplorer: blockchainConnector)
         let exchangeRateManager = ExchangeRateManager(context: viewContext, tickerDaemon: tickerDaemon, exchange: exchange)
         kryptonDaemon = KryptonDaemon(portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, blockchainDaemon: blockchainDaemom, exchangeRateManager: exchangeRateManager)
     }

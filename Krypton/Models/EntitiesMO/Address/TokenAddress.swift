@@ -16,10 +16,10 @@ protocol TokenAddressDelegate {
 }
 
 class TokenAddress: Address {
-
+    
     // MARK: - Private Properties
     private let context: NSManagedObjectContext = CoreDataStack.shared.viewContext
-    private let blockchainConnector: BlockchainConnector = BlockchainService()
+    private let tokenExplorer: TokenExplorer = BlockchainService()
     
     // MARK: - Public Properties
     var tokenDelegate: TokenAddressDelegate?
@@ -39,13 +39,16 @@ class TokenAddress: Address {
     override func update(completion: (() -> Void)?) {
         super.update {
             self.updateTokens {
-                completion?()
+                self.updateTokenOperations {
+                    self.tokenDelegate?.tokenAddressDidRequestTokenExchangeRateHistoryUpdate(self)
+                    completion?()
+                }
             }
         }
     }
     
     func updateTokens(completion: (() -> Void)?) {
-        blockchainConnector.fetchTokens(for: self) { tokens, error in
+        tokenExplorer.fetchTokens(for: self) { tokens, error in
             guard let tokens = tokens else {
                 log.error("Failed to fetch tokens for address '\(self.logDescription)': \(error!)")
                 completion?()
@@ -91,27 +94,72 @@ class TokenAddress: Address {
         }
     }
     
-//    func updateTokenExchangeRateHistory(completion: (() -> Void)?) {
-//        guard storedTokens.count > 0 else {
-//            completion?()
-//            return
-//        }
-//        
-//        for (index, _) in storedTokens.enumerated() {
-//            var updateCompletion: (() -> Void)? = nil
-//            
-//            if index == storedTokens.count-1 {
-//                updateCompletion = {
-//                    log.verbose("Updated token exchange rate histories for address '\(self.logDescription)'.")
-//                    completion?()
-//                }
-//            }
-//            
-//            updateCompletion?()
-//            
-//            // use token transfer date
-//            tokenDelegate?.tokenAddressDidRequestTokenExchangeRateHistoryUpdate(self)
-//        }
-//    }
+    func updateTokenOperations(completion: (() -> Void)?) {
+        guard storedTokens.count > 0 else {
+            completion?()
+            return
+        }
+        
+        for (index, token) in storedTokens.enumerated() {
+            var updateCompletion: (() -> Void)? = nil
+            
+            if index == storedTokens.count-1 {
+                updateCompletion = {
+                    log.verbose("Updated token operations for address '\(self.logDescription)'.")
+                    completion?()
+                }
+            }
+            
+            let timeframe: Timeframe
+            
+            if lastBlock == 0 {
+                timeframe = .allTime
+            } else {
+                timeframe = .sinceBlock(Int(lastTokenBlock))
+            }
+            
+            tokenExplorer.fetchTokenOperations(for: self, token: token, type: .transfer, timeframe: timeframe) { operations, error in
+                guard let operations = operations else {
+                    log.error("Failed to fetch operations of token '\(token.logDescription)' for address '\(self.logDescription)': \(error!)")
+                    updateCompletion?()
+                    return
+                }
+                
+                var newOperationsCount = 0
+                
+                for operationPrototype in operations {
+                    do {
+                        let _ = try TokenOperation.create(from: operationPrototype, token: token, in: self.context)
+                        newOperationsCount = newOperationsCount + 1
+                        
+                        if operationPrototype.block > self.lastTokenBlock {
+                            self.lastBlock = Int64(operationPrototype.block + 1)
+                        }
+                    } catch {
+                        log.error("Failed to create operation '\(operationPrototype.identifier)' of token '\(token.logDescription)' for address '\(self.logDescription)': \(error)")
+                    }
+                }
+                
+                token.lastUpdate = Date()
+                
+                do {
+                    guard newOperationsCount > 0 else {
+                        log.verbose("Operations of token \(token.logDescription)' for address '\(self.logDescription)' is already up-to-date.")
+                        completion?()
+                        return
+                    }
+                    
+                    try self.context.save()
+                    let multiple = (newOperationsCount >= 2) || (newOperationsCount == 0)
+                    log.debug("Updated operations of token \(token.logDescription)' for address '\(self.logDescription)' with \(newOperationsCount) new transaction\(multiple ? "s" : "").")
+                    completion?()
+                } catch {
+                    log.error("Failed to save fetched operations of token \(token.logDescription)' for address '\(self.logDescription)': \(error)")
+                    completion?()
+                }
+            }
+        }
+
+    }
     
 }

@@ -9,21 +9,7 @@
 import Foundation
 import NetworkKit
 
-struct EtherscanTransaction: EthereumTransactionPrototype {
-    var identifier: String
-    var date: Date
-    var totalAmount: Double
-    var feeAmount: Double
-    var block: Int
-    var from: [String]
-    var to: [String]
-    var isOutbound: Bool
-    
-    var isError: Bool
-    var type: EthereumTransactionHistoryType
-}
-
-struct EtherscanService: JSONService, EthereumBlockExplorer {
+struct EtherscanService: JSONService, EthereumBlockExplorer, EthereumTokenOperationExplorer {
     
     // MARK: - Service
     let client: JSONAPIClient
@@ -115,30 +101,8 @@ struct EtherscanService: JSONService, EthereumBlockExplorer {
             completion(balance, nil)
         }
     }
-    
-//    func fetchTokenBalance(for address: EthereumAddress, token: ERC20Token, completion: @escaping (Double?, Error?) -> Void) {
-//        client.makeGETRequest(params: [
-//            "module": "account",
-//            "action": "tokenbalance",
-//            "apikey": apiKey,
-//            "contractaddress": token.address,
-//            "address": address.identifier!,
-//            "tag": "latest",
-//        ]) { result in
-//            let result = self.decode(String.self, from: result, at: "result")
-//
-//            guard let balanceString = result.instance, var balance = Double(balanceString) else {
-//                completion(nil, result.error!)
-//                return
-//            }
-//
-//            balance = balance * (pow(10, -Double(token.decimalDigits)))
-//
-//            completion(balance, nil)
-//        }
-//    }
 
-    func fetchTransactionHistory(for address: EthereumAddress, type: EthereumTransactionHistoryType, timeframe: TransactionHistoryTimeframe, completion: @escaping ([EthereumTransactionPrototype]?, Error?) -> Void) {
+    func fetchTransactionHistory(for address: EthereumAddress, type: EthereumTransactionHistoryType, timeframe: Timeframe, completion: @escaping ([EthereumTransactionPrototype]?, Error?) -> Void) {
         let method: String
         
         switch type {
@@ -163,7 +127,7 @@ struct EtherscanService: JSONService, EthereumBlockExplorer {
             "apikey": apiKey,
             "address": address.identifier!,
             "startblock": String(startBlock),
-            "endblock": "99999999",
+            "offset": 100,
             "sort": "asc",
         ]) { result in
             let result = self.getJSON(from: result)
@@ -192,6 +156,32 @@ struct EtherscanService: JSONService, EthereumBlockExplorer {
             }
             
             completion(transactions, nil)
+        }
+    }
+ 
+    // MARK: - EthereumTokenOperationExplorer
+    func fetchTokenOperations(for address: EthereumAddress, token: Token, type: TokenOperationType, timeframe: Timeframe, completion: @escaping ([TokenOperationPrototype]?, Error?) -> Void) {
+        let startBlock: Int
+        
+        switch timeframe {
+        case .allTime:
+            startBlock = 0
+        case .sinceBlock(let blockNumber):
+            startBlock = blockNumber
+        }
+        
+        client.makeGETRequest(params: [
+            "module": "account",
+            "action": "tokentx",
+            "apikey": apiKey,
+            "address": address.identifier!,
+            "contractaddress": token.address,
+            "startblock": String(startBlock),
+            "offset": 100,
+            "sort": "asc",
+        ]) { result in
+            let result = self.decode([EtherscanTokenOperation].self, from: result, at: "result")
+            completion(result.instance, result.error)
         }
     }
     

@@ -285,7 +285,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
                 }
             case 2 where transaction is EthereumTransaction:
                 cell.textLabel?.text = "Type"
-                cell.detailTextLabel?.text = (transaction as! EthereumTransaction).type
+                cell.detailTextLabel?.text = (transaction as! EthereumTransaction).typeRaw
                 cell.selectionStyle = .none
             default:
                 break

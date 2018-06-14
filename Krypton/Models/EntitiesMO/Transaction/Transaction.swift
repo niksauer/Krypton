@@ -33,7 +33,7 @@ class Transaction: NSManagedObject, Reportable {
                 throw TransactionError.invalidPrototype
             }
             
-            request.predicate = NSPredicate(format: "identifier = %@ AND owner = %@ AND type = %@ ", prototype.identifier, owner, prototype.type.rawValue)
+            request.predicate = NSPredicate(format: "identifier = %@ AND owner = %@ AND typeRaw = %@ ", prototype.identifier, owner, prototype.type.rawValue)
         case is BitcoinAddress:
             guard prototype is BitcoinTransactionPrototype else {
                 throw TransactionError.invalidPrototype
@@ -62,7 +62,7 @@ class Transaction: NSManagedObject, Reportable {
             }
             
             let ethereumTransaction = EthereumTransaction(context: context)
-            ethereumTransaction.type = prototype.type.rawValue
+            ethereumTransaction.typeRaw = prototype.type.rawValue
             ethereumTransaction.isError = prototype.isError
             
             transaction = ethereumTransaction
@@ -84,7 +84,7 @@ class Transaction: NSManagedObject, Reportable {
         transaction.date = prototype.date
         transaction.totalAmount = prototype.totalAmount
         transaction.feeAmount = prototype.feeAmount
-        transaction.block = Int32(prototype.block)
+        transaction.block = Int64(prototype.block)
         transaction.to = prototype.to as NSObject
         transaction.from = prototype.from as NSObject
         transaction.isOutbound = prototype.isOutbound

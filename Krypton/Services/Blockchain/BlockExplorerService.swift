@@ -9,20 +9,6 @@
 import Foundation
 import NetworkKit
 
-struct BlockExplorerTransaction: BitcoinTransactionPrototype {
-    var identifier: String
-    var date: Date
-    var totalAmount: Double
-    var feeAmount: Double
-    var block: Int
-    var from: [String]
-    var to: [String]
-    var isOutbound: Bool
-    
-    var amountFromSender: [String: Double]
-    var amountForReceiver: [String: Double]
-}
-
 struct BlockExplorerService: JSONService, BitcoinBlockExplorer {
 
     // MARK: - Service
@@ -94,13 +80,7 @@ struct BlockExplorerService: JSONService, BitcoinBlockExplorer {
             "q": "getBlockCount"
         ]) { result in
             let result = self.decode(UInt64.self, from: result, at: "blockcount")
-            
-            guard let blockCount = result.instance else {
-                completion(nil, result.error!)
-                return
-            }
-            
-            completion(blockCount, nil)
+            completion(result.instance, result.error)
         }
     }
     

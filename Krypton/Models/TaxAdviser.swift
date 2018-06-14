@@ -203,6 +203,7 @@ struct TaxAdviser {
         }
         
         guard let exchangeRate = exchangeRateManager.getExchangeRate(for: token.currencyPair, on: date) else {
+            // token is probaby not listed on exchange
             log.warning("Failed to get exchange value for token '\(token.logDescription)'.")
             return nil
         }

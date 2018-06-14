@@ -13,9 +13,9 @@ protocol BlockchainDaemonDelegate: class {
 }
 
 final class BlockchainDaemon {
-    
+        
     // MARK: - Private Properties
-    private let blockchainConnector: BlockchainConnector
+    private let blockExplorer: BlockExplorer
     
     private var updateTimerForBlockchain = [Blockchain: Timer]()
     
@@ -34,8 +34,8 @@ final class BlockchainDaemon {
     weak var delegate: BlockchainDaemonDelegate?
     
     // MARK: - Initialization
-    init(blockchainConnector: BlockchainConnector) {
-        self.blockchainConnector = blockchainConnector
+    init(blockExplorer: BlockExplorer) {
+        self.blockExplorer = blockExplorer
     }
     
     // MARK: - Private Methods
@@ -67,7 +67,7 @@ final class BlockchainDaemon {
     }
     
     private func updateBlockCount(for blockchain: Blockchain) {
-        blockchainConnector.fetchBlockCount(for: blockchain) { blockCount, error in
+        blockExplorer.fetchBlockCount(for: blockchain) { blockCount, error in
             guard let blockCount = blockCount else {
                 log.error("Failed to fetch block count for blockchain '\(blockchain.rawValue)': \(error!)")
                 return

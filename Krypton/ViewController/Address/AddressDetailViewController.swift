@@ -204,6 +204,7 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
                 // token section (2)
                 let token = tokens[indexPath.row]
                 let cell = TokenCell(token: token, currencyFormatter: currencyFormatter, taxAdviser: taxAdviser, reuseIdentifier: "TokenCell")
+//                cell.accessoryType = .disclosureIndicator
                 return cell
             }
         }

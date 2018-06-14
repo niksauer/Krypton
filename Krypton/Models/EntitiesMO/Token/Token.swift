@@ -11,6 +11,7 @@ import CoreData
 
 enum TokenError: Error {
     case duplicate
+    case invalidPrototype
 }
 
 class Token: NSManagedObject, Reportable, TokenFeatures {
