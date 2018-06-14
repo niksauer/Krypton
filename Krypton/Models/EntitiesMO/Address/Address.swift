@@ -65,7 +65,7 @@ class Address: NSManagedObject, TransactionDelegate, Reportable {
     // MARK: - Private Properties
     private let context: NSManagedObjectContext = CoreDataStack.shared.viewContext
     private let currencyManager: CurrencyManager = CurrencyManager()
-    private let blockchainConnector: BlockchainConnector = BlockchainService(bitcoinBlockExplorer: BlockExplorerService(hostURL: "https://blockexplorer.com", port: nil, credentials: nil), ethereumBlockExplorer: EtherscanService(hostURL: "https://api.etherscan.io", port: nil, credentials: nil))
+    private let blockchainConnector: BlockchainConnector = BlockchainService()
     
     // MARK: - Public Properties
     /// delegate who gets notified of changes in balance, transaction history and all associated transactions' userExchangeValue, isInvestment properties
@@ -223,8 +223,8 @@ class Address: NSManagedObject, TransactionDelegate, Reportable {
             timeframe = .sinceBlock(Int(lastBlock))
         }
         
-        blockchainConnector.fetchTransactionHistory(for: self, timeframe: timeframe) { history, error in
-            guard let history = history else {
+        blockchainConnector.fetchTransactionHistory(for: self, timeframe: timeframe) { transactions, error in
+            guard let transactions = transactions else {
                 log.error("Failed to fetch transaction history for address '\(self.logDescription)': \(error!)")
                 completion?()
                 return
@@ -232,7 +232,7 @@ class Address: NSManagedObject, TransactionDelegate, Reportable {
         
             var newTxCount = 0
             
-            for transactionPrototype in history {
+            for transactionPrototype in transactions {
                 do {
                     let transaction = try Transaction.createTransaction(from: transactionPrototype, owner: self, in: self.context)
                     newTxCount = newTxCount + 1

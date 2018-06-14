@@ -35,8 +35,11 @@
         <relationship name="addresses" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Address" inverseName="portfolio" inverseEntity="Address" syncable="YES"/>
     </entity>
     <entity name="Token" representedClassName=".Token" syncable="YES" codeGenerationType="category">
-        <attribute name="balance" attributeType="Double" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="balance" attributeType="Double" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="identifier" attributeType="String" syncable="YES"/>
+        <attribute name="storedDecimalDigits" attributeType="Integer 16" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="storedName" attributeType="String" syncable="YES"/>
+        <attribute name="storedSymbol" attributeType="String" syncable="YES"/>
         <relationship name="owner" maxCount="1" deletionRule="Nullify" destinationEntity="TokenAddress" inverseName="tokens" inverseEntity="TokenAddress" syncable="YES"/>
     </entity>
     <entity name="TokenAddress" representedClassName=".TokenAddress" isAbstract="YES" parentEntity="Address" syncable="YES" codeGenerationType="category">
@@ -66,7 +69,7 @@
         <element name="EthereumTransaction" positionX="-171" positionY="-603" width="128" height="58"/>
         <element name="ExchangeRate" positionX="-270" positionY="-63" width="128" height="103"/>
         <element name="Portfolio" positionX="-396" positionY="-153" width="128" height="120"/>
-        <element name="Token" positionX="27" positionY="-403" width="128" height="90"/>
+        <element name="Token" positionX="27" positionY="-403" width="128" height="135"/>
         <element name="TokenAddress" positionX="36" positionY="-252" width="128" height="58"/>
         <element name="Transaction" positionX="-342" positionY="-531" width="128" height="255"/>
     </elements>

@@ -11,14 +11,9 @@ import Foundation
 struct BlockchainService: BlockchainConnector {
     
     // MARK: - Private Properties
-    private let bitcoinBlockExplorer: BitcoinBlockExplorer
-    private let ethereumBlockExplorer: EthereumBlockExplorer
-    
-    // MARK: - Initialization
-    init(bitcoinBlockExplorer: BitcoinBlockExplorer, ethereumBlockExplorer: EthereumBlockExplorer) {
-        self.bitcoinBlockExplorer = bitcoinBlockExplorer
-        self.ethereumBlockExplorer = ethereumBlockExplorer
-    }
+    private let bitcoinBlockExplorer: BitcoinBlockExplorer = BlockExplorerService()
+    private let ethereumBlockExplorer: EthereumBlockExplorer = EtherscanService()
+    private let ethplorer: EthereumTokenExplorer = EthplorerService()
     
     // MARK: - BlockchainConnector
     func fetchBlockCount(for blockchain: Blockchain, completion: @escaping (UInt64?, Error?) -> Void) {
@@ -41,10 +36,19 @@ struct BlockchainService: BlockchainConnector {
         }
     }
 
-    func fetchTokenBalance(for address: TokenAddress, token: TokenFeatures, completion: @escaping (Double?, Error?) -> Void) {
-        switch (address, token) {
-        case let (address as EthereumAddress, token as ERC20Token):
-            ethereumBlockExplorer.fetchTokenBalance(for: address, token: token, completion: completion)
+//    func fetchTokenBalance(for address: TokenAddress, token: TokenFeatures, completion: @escaping (Double?, Error?) -> Void) {
+//        switch (address, token) {
+//        case let (address as EthereumAddress, token as ERC20Token):
+//            ethereumBlockExplorer.fetchTokenBalance(for: address, token: token, completion: completion)
+//        default:
+//            completion(nil, BlockchainConnectorError.invalidBlockchain)
+//        }
+//    }
+    
+    func fetchTokens(for address: TokenAddress, completion: @escaping ([TokenProtoype]?, Error?) -> Void) {
+        switch address {
+        case let address as EthereumAddress:
+            ethplorer.fetchTokens(for: address, completion: completion)
         default:
             completion(nil, BlockchainConnectorError.invalidBlockchain)
         }
@@ -53,33 +57,33 @@ struct BlockchainService: BlockchainConnector {
     func fetchTransactionHistory(for address: Address, timeframe: TransactionHistoryTimeframe, completion: @escaping ([TransactionPrototype]?, Error?) -> Void) {
         switch address {
         case let address as BitcoinAddress:
-            bitcoinBlockExplorer.fetchTransactionHistory(for: address) { history, error in
-                guard let history = history else {
+            bitcoinBlockExplorer.fetchTransactionHistory(for: address) { transactions, error in
+                guard let transactions = transactions else {
                     completion(nil, error!)
                     return
                 }
                 
                 switch timeframe {
                 case .sinceBlock(let blockNumber):
-                    completion(history.filter({ $0.block >= blockNumber }), nil)
+                    completion(transactions.filter({ $0.block >= blockNumber }), nil)
                 default:
-                    completion(history, nil)
+                    completion(transactions, nil)
                 }
             }
         case let address as EthereumAddress:
-            ethereumBlockExplorer.fetchTransactionHistory(for: address, type: .normal, timeframe: timeframe) { normalHistory, error in
-                guard let normalHistory = normalHistory else {
+            ethereumBlockExplorer.fetchTransactionHistory(for: address, type: .normal, timeframe: timeframe) { normalTransactions, error in
+                guard let normalTransactions = normalTransactions else {
                     completion(nil, error!)
                     return
                 }
                 
-                self.ethereumBlockExplorer.fetchTransactionHistory(for: address, type: .internal, timeframe: timeframe) { internalHistory, error in
-                    guard let internalHistory = internalHistory else {
+                self.ethereumBlockExplorer.fetchTransactionHistory(for: address, type: .internal, timeframe: timeframe) { internalTransactions, error in
+                    guard let internalTransactions = internalTransactions else {
                         completion(nil, error!)
                         return
                     }
                     
-                    completion(normalHistory + internalHistory, nil)
+                    completion(normalTransactions + internalTransactions, nil)
                 }
             }
         default:

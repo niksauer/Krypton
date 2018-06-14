@@ -199,7 +199,7 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
                 cell.sectionLabel.text = portfolio.alias?.uppercased()
                 
                 if let exchangeValue = taxAdviser.getTotalExchangeValue(for: portfolio) {
-                    cell.detailLabel.text = currencyFormatter.getCurrencyFormatting(for: exchangeValue, currency: portfolio.quoteCurrency)
+                    cell.detailLabel.text = currencyFormatter.getFormatting(for: exchangeValue, currency: portfolio.quoteCurrency)
                 } else {
                     cell.detailLabel.text = nil
                 }
@@ -209,7 +209,7 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
                 let address = portfolios[section].storedAddresses[row-1]
                 let cell = tableView.dequeueReusableCell(withIdentifier: "DetailCell") as! DetailCell
                 cell.label.text = portfolioManager.getAlias(for: address.identifier!)
-                cell.detailLabel.text = currencyFormatter.getCurrencyFormatting(for: address.balance, currency: address.blockchain, customDigits: 2)
+                cell.detailLabel.text = currencyFormatter.getFormatting(for: address.balance, currency: address.blockchain, maxDigits: 2)
                 cell.accessoryType = .detailDisclosureButton
                 return cell
             }
@@ -301,14 +301,3 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
     }
         
 }
-
-//    ETH Wallet
-//    0xAA2F9BFAA9Ec168847216357b0856d776F34881f
-//    0xB15E9Ca894b6134Ac7C22B70b20Fd30De87451B2
-
-//    ETH Ledger
-//    0x273c1144e0531D9c5762f7F1569e600b827Aff4A
-
-//    BTC
-//    1eCjtYU5Fzmjs7P1iHGeYj6Tn86YdEmnY
-//    3QJmV3qfvL9SuYo34YihAf3sRCW3qSinyC

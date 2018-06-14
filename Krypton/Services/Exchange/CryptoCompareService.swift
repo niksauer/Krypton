@@ -68,4 +68,3 @@ struct CryptoCompareService: JSONService, Exchange {
     }
  
 }
-

@@ -56,21 +56,21 @@ struct CurrencyFormatter {
     }
     
     // MARK: - Public Methods
-    func getCurrencyFormatting(for value: Double, currency: Currency, customDigits: Int? = nil) -> String? {
+    func getFormatting(for value: Double, currency: Currency, maxDigits: Int? = nil) -> String? {
         switch currency {
         case let fiatCurrency as Fiat:
             return getFormatting(for: value, currency: fiatCurrency)
         case let blockchain as Blockchain:
-            return getFormatting(for: value, currency: blockchain, maxDigits: customDigits)
+            return getFormatting(for: value, currency: blockchain, maxDigits: maxDigits)
         case let token as TokenFeatures:
-            return getFormatting(for: value, currency: token, maxDigits: customDigits)
+            return getFormatting(for: value, currency: token, maxDigits: maxDigits)
         default:
             return nil
         }
     }
 
     func getAbsoluteProfitFormatting(from: (startValue: Double, endValue: Double), currency: Currency) -> String? {
-        return getCurrencyFormatting(for: (from.endValue - from.startValue), currency: currency)
+        return getFormatting(for: (from.endValue - from.startValue), currency: currency)
     }
     
     func getRelativeProfitFormatting(from: (startValue: Double, endValue: Double)) -> String? {

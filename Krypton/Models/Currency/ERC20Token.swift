@@ -9,7 +9,7 @@
 import Foundation
 
 protocol TokenFeatures: Currency {
-    var address: String { get set }
+    var address: String { get }
     var blockchain: Blockchain { get }
 }
 

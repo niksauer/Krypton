@@ -68,7 +68,7 @@ class AmountByAddressViewController: UITableViewController {
         let cell = UITableViewCell(style: .value1, reuseIdentifier: "InfoCell")
         
         cell.textLabel?.text = portfolioManager.getAlias(for: address)
-        cell.detailTextLabel?.text = currencyFormatter.getCurrencyFormatting(for: amountForAddress[address]!, currency: currency)
+        cell.detailTextLabel?.text = currencyFormatter.getFormatting(for: amountForAddress[address]!, currency: currency)
         
         return cell
     }

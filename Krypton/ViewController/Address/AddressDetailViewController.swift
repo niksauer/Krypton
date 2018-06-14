@@ -14,6 +14,7 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
     // MARK: - Private Properties
     private let viewFactory: ViewControllerFactory
     private let address: Address
+    private let tokens: [Token]?
     private let currencyFormatter: CurrencyFormatter
     private let taxAdviser: TaxAdviser
     private var alias: String?
@@ -24,6 +25,13 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
     init(viewFactory: ViewControllerFactory, address: Address, currencyFormatter: CurrencyFormatter, taxAdviser: TaxAdviser) {
         self.viewFactory = viewFactory
         self.address = address
+        
+        if let tokenAddress = address as? TokenAddress {
+            tokens = tokenAddress.storedTokens.sorted(by: { $0.name < $1.name })
+        } else {
+            tokens = nil
+        }
+        
         self.currencyFormatter = currencyFormatter
         self.taxAdviser = taxAdviser
         alias = address.alias
@@ -105,7 +113,7 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
             // address + portfolio + delete
             return 3
         } else {
-            if let tokenAddress = address as? TokenAddress, tokenAddress.storedTokens.count > 0 {
+            if let tokens = tokens, tokens.count > 0 {
                 // address + blockchain + tokens
                 return 3
             } else {
@@ -142,9 +150,9 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
                 return 2
             }
             
-            if let tokenAddress = address as? TokenAddress, section == 2, tokenAddress.storedTokens.count > 0 {
+            if section == 2, let tokens = tokens {
                 // token section (2)
-                return tokenAddress.storedTokens.count
+                return tokens.count
             }
         }
         
@@ -184,7 +192,7 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
                 case 1:
                     let cell = UITableViewCell(style: .value1, reuseIdentifier: "BalanceCell")
                     cell.textLabel?.text = "Balance"
-                    cell.detailTextLabel?.text = currencyFormatter.getCurrencyFormatting(for: address.balance, currency: address.blockchain)
+                    cell.detailTextLabel?.text = currencyFormatter.getFormatting(for: address.balance, currency: address.blockchain)
                     cell.selectionStyle = .none
                     return cell
                 default:
@@ -192,9 +200,9 @@ class AddressDetailViewController: UITableViewController, PortfolioSelectorDeleg
                 }
             }
             
-            if let tokenAddress = address as? TokenAddress, section == 2, tokenAddress.storedTokens.count > 0 {
+            if section == 2, let tokens = tokens {
                 // token section (2)
-                let token = tokenAddress.storedTokens[indexPath.row]
+                let token = tokens[indexPath.row]
                 let cell = TokenCell(token: token, currencyFormatter: currencyFormatter, taxAdviser: taxAdviser, reuseIdentifier: "TokenCell")
                 return cell
             }

@@ -141,7 +141,7 @@ class WatchlistViewController: UITableViewController, TickerDaemonDelegate {
     
         if requiredCurrencies.contains(where: { $0.isEqual(to: currency) }) || manualCurrencies.contains(where: { $0.isEqual(to: currency) }) {
             if let currentExchangeRate = tickerDaemon.getCurrentExchangeRate(for: currencyPair) {
-                cell.detailTextLabel?.text = currencyFormatter.getCurrencyFormatting(for: currentExchangeRate, currency: portfolioManager.quoteCurrency)
+                cell.detailTextLabel?.text = currencyFormatter.getFormatting(for: currentExchangeRate, currency: portfolioManager.quoteCurrency)
             } else {
                 cell.detailTextLabel?.text = "???"
             }

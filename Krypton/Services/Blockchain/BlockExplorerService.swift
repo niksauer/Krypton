@@ -9,32 +9,35 @@
 import Foundation
 import NetworkKit
 
+struct BlockExplorerTransaction: BitcoinTransactionPrototype {
+    var identifier: String
+    var date: Date
+    var totalAmount: Double
+    var feeAmount: Double
+    var block: Int
+    var from: [String]
+    var to: [String]
+    var isOutbound: Bool
+    
+    var amountFromSender: [String: Double]
+    var amountForReceiver: [String: Double]
+}
+
 struct BlockExplorerService: JSONService, BitcoinBlockExplorer {
-    
-    // MARK: - Public Types
-    struct Transaction: BitcoinTransactionPrototype {
-        var identifier: String
-        var date: Date
-        var totalAmount: Double
-        var feeAmount: Double
-        var block: Int
-        var from: [String]
-        var to: [String]
-        var isOutbound: Bool
-        
-        var amountFromSender: [String : Double]
-        var amountForReceiver: [String : Double]
-    }
-    
+
     // MARK: - Service
     let client: JSONAPIClient
+    
+    init() {
+        self.init(hostURL: "https://blockexplorer.com", port: nil, credentials: nil)
+    }
     
     init(hostURL: String, port: Int?, credentials: APICredentialStore?) {
         self.client = JSONAPIClient(hostURL: hostURL, port: port, basePath: "api", credentials: credentials)
     }
 
     // MARK: - Private Methods
-    private func transaction(fromJSON json: [String: Any], for address: String) -> Transaction? {
+    private func transaction(fromJSON json: [String: Any], for address: String) -> BlockExplorerTransaction? {
         guard let hash = json["txid"] as? String, let time = json["time"] as? Double, let block = json["blockheight"] as? Int, let vin = json["vin"] as? [[String: Any]], let vout = json["vout"] as? [[String: Any]], let feeAmount = json["fees"] as? Double else {
             return nil
         }
@@ -82,7 +85,7 @@ struct BlockExplorerService: JSONService, BitcoinBlockExplorer {
             }
         }
         
-        return Transaction(identifier: hash, date: Date(timeIntervalSince1970: time), totalAmount: amount, feeAmount: feeAmount, block: block, from: senders, to: receivers, isOutbound: isOutbound, amountFromSender: amountFromSender, amountForReceiver: amountForReceiver)
+        return BlockExplorerTransaction(identifier: hash, date: Date(timeIntervalSince1970: time), totalAmount: amount, feeAmount: feeAmount, block: block, from: senders, to: receivers, isOutbound: isOutbound, amountFromSender: amountFromSender, amountForReceiver: amountForReceiver)
     }
     
     // MARK: - BitcoinBlockExplorer
@@ -137,15 +140,15 @@ struct BlockExplorerService: JSONService, BitcoinBlockExplorer {
                 return
             }
             
-            var transactionHistory = [Transaction]()
+            var transactions = [BlockExplorerTransaction]()
             
             for transactionJSON in transactionsArray {
                 if let transaction = self.transaction(fromJSON: transactionJSON, for: address.identifier!) {
-                    transactionHistory.append(transaction)
+                    transactions.append(transaction)
                 }
             }
             
-            completion(transactionHistory, nil)
+            completion(transactions, nil)
         }
     }
 

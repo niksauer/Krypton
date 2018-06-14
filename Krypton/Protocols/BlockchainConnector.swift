@@ -28,9 +28,17 @@ protocol TransactionPrototype {
     var isOutbound: Bool { get }
 }
 
+protocol TokenProtoype {
+    var balance: Double { get }
+    var address: String { get }
+    var name: String { get }
+    var symbol: String { get }
+    var decimalDigits: Int { get }
+}
+
 protocol BlockchainConnector {
     func fetchBlockCount(for blockchain: Blockchain, completion: @escaping (UInt64?, Error?) -> Void)
     func fetchBalance(for address: Address, completion: @escaping (Double?, Error?) -> Void)
-    func fetchTokenBalance(for address: TokenAddress, token: TokenFeatures, completion: @escaping (Double?, Error?) -> Void)
+    func fetchTokens(for address: TokenAddress, completion: @escaping ([TokenProtoype]?, Error?) -> Void)
     func fetchTransactionHistory(for address: Address, timeframe: TransactionHistoryTimeframe, completion: @escaping ([TransactionPrototype]?, Error?) -> Void)
 }

@@ -65,11 +65,8 @@ struct DependencyContainer {
             throw error
         }
         
-        let bitcoinBlockExplorer: BitcoinBlockExplorer = BlockExplorerService(hostURL: "https://blockexplorer.com", port: nil, credentials: nil)
-        let ethereumBlockExplorer: EthereumBlockExplorer = EtherscanService(hostURL: "https://api.etherscan.io", port: nil, credentials: nil)
-        let blockchainConnector: BlockchainConnector = BlockchainService(bitcoinBlockExplorer: bitcoinBlockExplorer, ethereumBlockExplorer: ethereumBlockExplorer)
-
-        let exchange = CryptoCompareService(hostURL: "https://min-api.cryptocompare.com", port: nil, credentials: nil)
+        let exchange: Exchange = CryptoCompareService(hostURL: "https://min-api.cryptocompare.com", port: nil, credentials: nil)
+        let blockchainConnector: BlockchainConnector = BlockchainService()
         
         tickerDaemon = TickerDaemon(exchange: exchange)
         blockchainDaemom = BlockchainDaemon(blockchainConnector: blockchainConnector)
