@@ -42,6 +42,8 @@
 		246874F61F464B4E009BB60A /* Krypton.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 246874F41F464B4E009BB60A /* Krypton.xcdatamodeld */; };
 		246FC40220D2F52400737A4C /* TokenExplorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246FC40120D2F52400737A4C /* TokenExplorer.swift */; };
 		246FC41020D2F7DC00737A4C /* TokenOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246FC40F20D2F7DC00737A4C /* TokenOperation.swift */; };
+		246FC42F20D3C8FF00737A4C /* Charts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 246FC42120D3C8C900737A4C /* Charts.framework */; };
+		246FC43020D3C8FF00737A4C /* Charts.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 246FC42120D3C8C900737A4C /* Charts.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		247033FF20D19132002B5F5D /* ToolKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 247033FA20D1912B002B5F5D /* ToolKit.framework */; };
 		2470340020D19132002B5F5D /* ToolKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 247033FA20D1912B002B5F5D /* ToolKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2474F68820D10BA1001E5799 /* Reportable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2474F68720D10BA1001E5799 /* Reportable.swift */; };
@@ -124,6 +126,27 @@
 			proxyType = 1;
 			remoteGlobalIDString = 24B4A1AB20C6E258007AEB28;
 			remoteInfo = NetworkKit_iOS;
+		};
+		246FC42020D3C8C900737A4C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 246FC41B20D3C8C900737A4C /* Charts.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 65AD9E95D9ED4DC0BD73A743;
+			remoteInfo = Charts;
+		};
+		246FC42220D3C8C900737A4C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 246FC41B20D3C8C900737A4C /* Charts.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1CBBC58C6CE1EBEE9852CE41;
+			remoteInfo = ChartsTests;
+		};
+		246FC43120D3C8FF00737A4C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 246FC41B20D3C8C900737A4C /* Charts.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = A58A4ED274A941CA248EA921;
+			remoteInfo = Charts;
 		};
 		247033F720D1912B002B5F5D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -248,6 +271,7 @@
 			files = (
 				24CD000B2073AEFF0094A9ED /* SwiftKeccak.framework in CopyFiles */,
 				24CDFFFE2073AE0E0094A9ED /* SwiftyBeaver.framework in CopyFiles */,
+				246FC43020D3C8FF00737A4C /* Charts.framework in CopyFiles */,
 				2417238D20CE788000A6EBE8 /* NetworkKit.framework in CopyFiles */,
 				2470340020D19132002B5F5D /* ToolKit.framework in CopyFiles */,
 			);
@@ -292,6 +316,7 @@
 		246874F51F464B4E009BB60A /* Krypton.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Krypton.xcdatamodel; sourceTree = "<group>"; };
 		246FC40120D2F52400737A4C /* TokenExplorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenExplorer.swift; sourceTree = "<group>"; };
 		246FC40F20D2F7DC00737A4C /* TokenOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenOperation.swift; sourceTree = "<group>"; };
+		246FC41B20D3C8C900737A4C /* Charts.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Charts.xcodeproj; path = Frameworks/Charts/Charts.xcodeproj; sourceTree = "<group>"; };
 		247033F020D1912A002B5F5D /* ToolKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ToolKit.xcodeproj; path = Frameworks/ToolKit/ToolKit.xcodeproj; sourceTree = "<group>"; };
 		2474F68720D10BA1001E5799 /* Reportable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reportable.swift; sourceTree = "<group>"; };
 		2474F69120D110C5001E5799 /* BitcoinTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinTransaction.swift; sourceTree = "<group>"; };
@@ -344,6 +369,7 @@
 			files = (
 				24CD000A2073AEFF0094A9ED /* SwiftKeccak.framework in Frameworks */,
 				24CDFFFD2073AE0E0094A9ED /* SwiftyBeaver.framework in Frameworks */,
+				246FC42F20D3C8FF00737A4C /* Charts.framework in Frameworks */,
 				2417238C20CE788000A6EBE8 /* NetworkKit.framework in Frameworks */,
 				247033FF20D19132002B5F5D /* ToolKit.framework in Frameworks */,
 			);
@@ -355,6 +381,7 @@
 		2400D06F1F40715900833958 = {
 			isa = PBXGroup;
 			children = (
+				246FC41B20D3C8C900737A4C /* Charts.xcodeproj */,
 				247033F020D1912A002B5F5D /* ToolKit.xcodeproj */,
 				2417234D20CDF27100A6EBE8 /* NetworkKit.xcodeproj */,
 				24CDFFEB2073AE040094A9ED /* SwiftyBeaver.xcodeproj */,
@@ -407,6 +434,15 @@
 				246FC40F20D2F7DC00737A4C /* TokenOperation.swift */,
 			);
 			path = Token;
+			sourceTree = "<group>";
+		};
+		246FC41C20D3C8C900737A4C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				246FC42120D3C8C900737A4C /* Charts.framework */,
+				246FC42320D3C8C900737A4C /* ChartsTests.xctest */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		247033F120D1912A002B5F5D /* Products */ = {
@@ -732,6 +768,7 @@
 				24CD000D2073AEFF0094A9ED /* PBXTargetDependency */,
 				2417238F20CE788000A6EBE8 /* PBXTargetDependency */,
 				2470340220D19132002B5F5D /* PBXTargetDependency */,
+				246FC43220D3C8FF00737A4C /* PBXTargetDependency */,
 			);
 			name = Krypton;
 			productName = Krypton;
@@ -768,6 +805,10 @@
 			productRefGroup = 2400D0791F40715900833958 /* Products */;
 			projectDirPath = "";
 			projectReferences = (
+				{
+					ProductGroup = 246FC41C20D3C8C900737A4C /* Products */;
+					ProjectRef = 246FC41B20D3C8C900737A4C /* Charts.xcodeproj */;
+				},
 				{
 					ProductGroup = 2417234E20CDF27100A6EBE8 /* Products */;
 					ProjectRef = 2417234D20CDF27100A6EBE8 /* NetworkKit.xcodeproj */;
@@ -823,6 +864,20 @@
 			fileType = wrapper.framework;
 			path = NetworkKit.framework;
 			remoteRef = 2417235A20CDF27100A6EBE8 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		246FC42120D3C8C900737A4C /* Charts.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = Charts.framework;
+			remoteRef = 246FC42020D3C8C900737A4C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		246FC42320D3C8C900737A4C /* ChartsTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ChartsTests.xctest;
+			remoteRef = 246FC42220D3C8C900737A4C /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		247033F820D1912B002B5F5D /* ToolKit.framework */ = {
@@ -1015,6 +1070,11 @@
 			isa = PBXTargetDependency;
 			name = NetworkKit_iOS;
 			targetProxy = 2417238E20CE788000A6EBE8 /* PBXContainerItemProxy */;
+		};
+		246FC43220D3C8FF00737A4C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Charts;
+			targetProxy = 246FC43120D3C8FF00737A4C /* PBXContainerItemProxy */;
 		};
 		2470340220D19132002B5F5D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

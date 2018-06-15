@@ -14,6 +14,7 @@
             <connections>
                 <outlet property="investmentLabel" destination="oTc-NQ-whB" id="qXj-Z3-L8Z"/>
                 <outlet property="investmentValueLabel" destination="j80-GB-bhd" id="bFs-CB-dcH"/>
+                <outlet property="lineChartView" destination="RvP-3K-Or2" id="6d9-GL-7xG"/>
                 <outlet property="portfolioLabel" destination="hrz-kI-D5D" id="47k-TE-qa0"/>
                 <outlet property="portfolioValueLabel" destination="Iq5-63-1o0" id="3ey-G8-j94"/>
                 <outlet property="profitLabel" destination="n4E-DD-4Lp" id="vOz-Ig-j3a"/>
@@ -27,10 +28,17 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="xeG-Tb-7uO">
-                    <rect key="frame" x="0.0" y="64" width="375" height="145"/>
+                    <rect key="frame" x="0.0" y="64" width="375" height="331"/>
                     <subviews>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RvP-3K-Or2" customClass="LineChartView" customModule="Charts">
+                            <rect key="frame" x="0.0" y="16" width="375" height="170"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="170" id="1mS-B3-kCQ"/>
+                            </constraints>
+                        </view>
                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="EmL-Qf-xsq">
-                            <rect key="frame" x="0.0" y="16" width="375" height="51.5"/>
+                            <rect key="frame" x="0.0" y="202" width="375" height="51.5"/>
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="portfolioValue" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Iq5-63-1o0">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="26.5"/>
@@ -47,7 +55,7 @@
                             </subviews>
                         </stackView>
                         <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="lKI-MU-jTX">
-                            <rect key="frame" x="0.0" y="83.5" width="375" height="45.5"/>
+                            <rect key="frame" x="0.0" y="269.5" width="375" height="45.5"/>
                             <subviews>
                                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="Gva-VK-VAn">
                                     <rect key="frame" x="0.0" y="0.0" width="183.5" height="45.5"/>

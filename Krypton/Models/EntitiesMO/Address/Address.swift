@@ -241,7 +241,12 @@ class Address: NSManagedObject, TransactionDelegate, Reportable {
                         self.lastBlock = Int64(transactionPrototype.block + 1)
                     }
                 } catch {
-                    log.error("Failed to create transaction '\(transactionPrototype.identifier)' for address '\(self.logDescription)': \(error)")
+                    switch error {
+                    case TransactionError.duplicate:
+                        break
+                    default:
+                        log.error("Failed to create transaction '\(transactionPrototype.identifier)' for address '\(self.logDescription)': \(error)")
+                    }
                 }
             }
             

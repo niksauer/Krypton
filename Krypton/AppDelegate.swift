@@ -23,7 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // SwiftyBeaver configuration
         let console = ConsoleDestination()
         console.format = "$DHH:mm:ss$d $N.$F - $C$L$c: $M"
-        console.minLevel = .verbose
+        console.minLevel = .debug
         log.addDestination(console)
         
         let file = FileDestination()

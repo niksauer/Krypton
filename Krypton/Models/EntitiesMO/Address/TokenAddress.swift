@@ -133,10 +133,15 @@ class TokenAddress: Address {
                         newOperationsCount = newOperationsCount + 1
                         
                         if operationPrototype.block > self.lastTokenBlock {
-                            self.lastBlock = Int64(operationPrototype.block + 1)
+                            self.lastTokenBlock = Int64(operationPrototype.block + 1)
                         }
                     } catch {
-                        log.error("Failed to create operation '\(operationPrototype.identifier)' of token '\(token.logDescription)' for address '\(self.logDescription)': \(error)")
+                        switch error {
+                        case TokenOperationError.duplicate:
+                            break
+                        default:
+                            log.error("Failed to create operation '\(operationPrototype.identifier)' of token '\(token.logDescription)' for address '\(self.logDescription)': \(error)")
+                        } 
                     }
                 }
                 

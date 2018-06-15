@@ -7,10 +7,13 @@
 //
 
 import UIKit
+import Charts
 
-class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDaemonDelegate, FilterDelegate {
+class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDaemonDelegate, FilterDelegate, ChartViewDelegate {
 
     // Mark: - Outlets
+    @IBOutlet weak var lineChartView: LineChartView!
+    
     @IBOutlet weak var portfolioValueLabel: UILabel!
     @IBOutlet weak var portfolioLabel: UILabel!
     @IBOutlet weak var profitValueLabel: UILabel!
@@ -32,8 +35,9 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
     private let tickerDaemon: TickerDaemon
     private let currencyFormatter: CurrencyFormatter
     private let taxAdviser: TaxAdviser
+    private let comparisonDateFormatter: DateFormatter
 
-    private var comparisonDate = Calendar.current.date(byAdding: .day, value: -1, to: Date())! {
+    private var comparisonDate = Calendar.current.date(byAdding: .day, value: -7, to: Date())! {
         didSet {
             updateUI()
         }
@@ -73,7 +77,7 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
                 return
             }
 
-            profitLabel.text = "Since Yesterday"
+            profitLabel.text = "Since \(comparisonDateFormatter.string(from: comparisonDate))"
             
             if showsRelativeProfit {
                 profitValueLabel.text = currencyFormatter.getRelativeProfitFormatting(from: profitStats)
@@ -84,13 +88,14 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
     }
     
     // MARK: - Initialization
-    init(viewFactory: ViewControllerFactory, kryptonDaemon: KryptonDaemon, portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, currencyFormatter: CurrencyFormatter, taxAdviser: TaxAdviser) {
+    init(viewFactory: ViewControllerFactory, kryptonDaemon: KryptonDaemon, portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, currencyFormatter: CurrencyFormatter, taxAdviser: TaxAdviser, comparisonDateFormatter: DateFormatter) {
         self.viewFactory = viewFactory
         self.kryptonDaemon = kryptonDaemon
         self.portfolioManager = portfolioManager
         self.tickerDaemon = tickerDaemon
         self.currencyFormatter = currencyFormatter
         self.taxAdviser = taxAdviser
+        self.comparisonDateFormatter = comparisonDateFormatter
         
         super.init(nibName: nil, bundle: nil)
         
@@ -118,6 +123,14 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
         
         // investment
         investmentLabel.text = "Total Investment"
+        
+        // setup chart view
+        lineChartView.delegate = self
+        lineChartView.dragEnabled = true
+        lineChartView.setScaleEnabled(false)
+        lineChartView.chartDescription?.enabled = false
+        lineChartView.legend.enabled = false
+        lineChartView.rightAxis.enabled = false
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -154,6 +167,8 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
         } else {
             investmentValueLabel.text = "???"
         }
+        
+        updateChartData()
     }
     
     @objc private func toggleProfitType(sender: UITapGestureRecognizer) {
@@ -170,6 +185,22 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
             portfolioDisplay = .currentExchangeValue
         }
     }
+    
+    func updateChartData() {
+        guard let rawData = taxAdviser.getAbsoluteProfitHistory(for: portfolioManager.selectedAddresses, since: comparisonDate, type: filter.transactionType) else {
+            lineChartView.data = nil
+            return
+        }
+        
+        let entries = rawData.map { return ChartDataEntry(x: $0.date.timeIntervalSince1970, y: $0.profit)}
+        let dataset = LineChartDataSet(values: entries, label: nil)
+        
+        let data = LineChartData(dataSet: dataset)
+        lineChartView.data = data
+    }
+    
+    // MARK: - ChartView Delegate
+    
     
     // MARK: - KryptonDaemon Delegate
     func kryptonDaemonDidUpdate(_ kryptonDaemon: KryptonDaemon) {

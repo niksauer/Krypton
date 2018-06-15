@@ -204,7 +204,7 @@ struct TaxAdviser {
         
         guard let exchangeRate = exchangeRateManager.getExchangeRate(for: token.currencyPair, on: date) else {
             // token is probaby not listed on exchange
-            log.warning("Failed to get exchange value for token '\(token.logDescription)'.")
+//            log.warning("Failed to get exchange value for token '\(token.logDescription)'.")
             return nil
         }
         
@@ -254,14 +254,18 @@ struct TaxAdviser {
         }
         
         let transactions = address.getTransactions(type: type)
-        var profitHistory: [(Date, Double)] = []
+        var profitHistory = [(Date, Double)]()
         
         for transaction in transactions {
-            guard let absoluteReturnHistory = getAbsoluteProfitHistory(for: transaction, since: date) else {
+            guard let absoluteProfitHistory = getAbsoluteProfitHistory(for: transaction, since: date) else {
                 return nil
             }
             
-            profitHistory = zip(profitHistory, absoluteReturnHistory).map { ($0.0, $0.1 + $1.1) }
+            if profitHistory.count == 0 {
+                profitHistory = absoluteProfitHistory
+            } else {
+                profitHistory = zip(profitHistory, absoluteProfitHistory).map { ($0.0, $0.1 + $1.1) }
+            }
         }
         
         return profitHistory
@@ -348,7 +352,7 @@ struct TaxAdviser {
         return profitHistory
     }
     
-    // MARK: Portfolios
+    // MARK: Addresses
     /// returns exchange value of selected addresses on specified date
     func getExchangeValue(for addresses: [Address], on date: Date, type: TransactionType) -> Double? {
         var value = 0.0
@@ -394,7 +398,11 @@ struct TaxAdviser {
                 return nil
             }
             
-            profitHistory = zip(profitHistory, absoluteProfitHistory).map { ($0.0, $0.1 + $1.1) }
+            if profitHistory.count == 0 {
+                profitHistory = absoluteProfitHistory
+            } else {
+                profitHistory = zip(profitHistory, absoluteProfitHistory).map { ($0.0, $0.1 + $1.1) }
+            }
         }
         
         return profitHistory

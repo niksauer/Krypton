@@ -14,3 +14,7 @@
 	path = Frameworks/ToolKit
 	url = git@github.com:niksauer/ToolKit.git
 	ignore = dirty
+[submodule "Frameworks/Charts"]
+	path = Frameworks/Charts
+	url = git@github.com:danielgindi/Charts.git
+	ignore = dirty
