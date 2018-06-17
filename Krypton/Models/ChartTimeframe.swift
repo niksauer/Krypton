@@ -24,15 +24,15 @@ enum ChartTimeframe: Int {
         case .month:
             return 4
         case .threeMonth:
-            return 3
+            return 4
         case .sixMonth:
             return 6
         case .year:
-            return 6
+            return 5
         case .twoYear:
-            return 6
+            return 5
         case .allTime:
-            return 6
+            return 5
         }
     }
     
@@ -92,7 +92,7 @@ enum ChartTimeframe: Int {
         case .twoYear:
             dateFormatter.setLocalizedDateFormatFromTemplate("MMMYY")
         default:
-            break
+            dateFormatter.setLocalizedDateFormatFromTemplate("MMMYY")
         }
         
         return dateFormatter

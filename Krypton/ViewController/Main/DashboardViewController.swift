@@ -9,13 +9,11 @@
 import UIKit
 import Charts
 
-var referenceTimestamp: Double!
-
 class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDaemonDelegate, FilterDelegate, ChartViewDelegate {
 
     // Mark: - Outlets
     @IBOutlet weak var comparisonDateSegmentedControl: UISegmentedControl!
-    @IBOutlet weak var lineChartView: LineChartView!
+    @IBOutlet weak var chartsViewContainer: UIView!
     
     @IBOutlet weak var portfolioValueLabel: UILabel!
     @IBOutlet weak var portfolioLabel: UILabel!
@@ -25,8 +23,8 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
     @IBOutlet weak var investmentLabel: UILabel!
     
     // MARK: - Private Types
-    private enum PortfolioDisplayType {
-        case currentExchangeValue
+    private enum AnalysisType {
+        case exchangeValue
         case relativeProfit
         case absoluteProfit
     }
@@ -40,23 +38,20 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
     private let taxAdviser: TaxAdviser
     private let comparisonDateFormatter: DateFormatter
 
-    private var chartTimeframe: ChartTimeframe = .week {
+    private let analysisChartsViewController: AnalysisChartsViewController
+    
+    private var timeframe: ChartTimeframe = .week {
         didSet {
-//            if let granularity = chartTimeframe.labelGranularity {
-//                lineChartView.xAxis.granularity = Double(granularity.interval)
-//                lineChartView.xAxis.granularityEnabled = true
-//            }
-        
-            lineChartView.xAxis.setLabelCount(chartTimeframe.labelCount, force: true)
-            lineChartView.xAxis.valueFormatter = DateValueFormatter(dateFormatter: chartTimeframe.dateFormatter)
-            
-            if let comparisonDate = chartTimeframe.comparisonDate {
+            if let comparisonDate = timeframe.comparisonDate {
                 self.comparisonDate = comparisonDate
-            } else {
-                let oldestTransaction = portfolioManager.getOldestTransaction()
-                self.comparisonDate = oldestTransaction!.date!
+            } else if let oldestTransaction = portfolioManager.getOldestTransaction() {
+                self.comparisonDate = oldestTransaction.date!
             }
-                
+            
+            analysisChartsViewController.setXAxisLabelCount(timeframe.labelCount)
+            analysisChartsViewController.dateFormatter = timeframe.dateFormatter
+            analysisChartsViewController.comparisonDate = comparisonDate
+                    
             updateUI()
         }
     }
@@ -69,16 +64,16 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
         }
     }
     
-    private var portfolioDisplay: PortfolioDisplayType = .currentExchangeValue {
+    private var analysisType: AnalysisType = .exchangeValue {
         didSet {
             guard let currentExchangeValue = taxAdviser.getExchangeValue(for: portfolioManager.selectedAddresses, on: Date(), type: filter.transactionType), let profitStats = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, timeframe: .allTime, type: filter.transactionType) else {
                 portfolioValueLabel.text = "???"
                 return
             }
             
-            switch portfolioDisplay {
-            case .currentExchangeValue:
-                portfolioLabel.text = "Total Portfolio Value"
+            switch analysisType {
+            case .exchangeValue:
+                portfolioLabel.text = "Total Value"
                 portfolioValueLabel.text = currencyFormatter.getFormatting(for: currentExchangeValue, currency: portfolioManager.quoteCurrency)
             case .relativeProfit:
                 portfolioLabel.text = "Total Relative Profit"
@@ -120,6 +115,7 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
         self.currencyFormatter = currencyFormatter
         self.taxAdviser = taxAdviser
         self.comparisonDateFormatter = comparisonDateFormatter
+        self.analysisChartsViewController = AnalysisChartsViewController(portfolioManager: portfolioManager, taxAdviser: taxAdviser, transactionType: filter.transactionType)
         
         super.init(nibName: nil, bundle: nil)
         
@@ -137,7 +133,7 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
         
         // portfolio
         portfolioValueLabel.isUserInteractionEnabled = true
-        let portfolioValueTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(togglePortfolioDisplayType))
+        let portfolioValueTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(toggleAnalysisType))
         portfolioValueLabel.addGestureRecognizer(portfolioValueTapRecognizer)
         
         // profit
@@ -148,39 +144,18 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
         // investment
         investmentLabel.text = "Total Investment"
         
-        // setup segmented control
-        comparisonDateSegmentedControl.selectedSegmentIndex = 0
-        
+        // setup analysis charts VC
+        addChildViewController(analysisChartsViewController)
+        chartsViewContainer.addSubview(analysisChartsViewController.view)
+        analysisChartsViewController.didMove(toParentViewController: self)
+        analysisChartsViewController.view.translatesAutoresizingMaskIntoConstraints = false
+        analysisChartsViewController.view.pin(to: chartsViewContainer)
+    
         // chart timeframe
-        chartTimeframe = .week
+        timeframe = .week
         
-        // setup chart view
-        lineChartView.delegate = self
-        lineChartView.dragEnabled = true
-        lineChartView.setScaleEnabled(false)
-        lineChartView.chartDescription?.enabled = false
-        lineChartView.legend.enabled = false
-        lineChartView.noDataText = "No data available."
-        lineChartView.minOffset = 0
-        
-        lineChartView.leftAxis.enabled = false
-        
-        lineChartView.rightAxis.enabled = true
-        lineChartView.rightAxis.drawAxisLineEnabled = false
-        lineChartView.rightAxis.gridLineWidth = 0.3
-        lineChartView.rightAxis.labelPosition = .outsideChart
-        lineChartView.rightAxis.labelCount = 4
-        lineChartView.rightAxis.xOffset = 5
-        
-        lineChartView.xAxis.labelPosition = .bottom
-        lineChartView.xAxis.avoidFirstLastClippingEnabled = true
-        lineChartView.xAxis.gridLineDashLengths = [2, 2]
-        
-//        let originLimitLine = ChartLimitLine(limit: 0)
-//        originLimitLine.lineColor = lineChartView.rightAxis.axisLineColor
-//        originLimitLine.lineWidth = lineChartView.rightAxis.axisLineWidth
-//        lineChartView.xAxis.drawLimitLinesBehindDataEnabled = true
-//        lineChartView.xAxis.addLimitLine(originLimitLine)
+        // setup segmented control
+        comparisonDateSegmentedControl.selectedSegmentIndex = timeframe.rawValue
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -201,7 +176,7 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
 
     // MARK: - Private Methods
     private func updateUI() {
-        portfolioDisplay = { portfolioDisplay }()
+        analysisType = { analysisType }()
         showsRelativeProfit = { showsRelativeProfit }()
         
         if let investmentValue = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, timeframe: .allTime, type: filter.transactionType)?.startValue {
@@ -209,59 +184,6 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
         } else {
             investmentValueLabel.text = "???"
         }
-        
-        updateChartData()
-    }
-    
-    private func updateChartData() {
-        guard let comparisonDate = comparisonDate else {
-            lineChartView.data = nil
-            return
-        }
-        
-        guard let rawData = taxAdviser.getAbsoluteProfitHistory(for: portfolioManager.selectedAddresses, since: comparisonDate, type: filter.transactionType) else {
-            lineChartView.data = nil
-            return
-        }
-        
-        guard rawData.count >= 1 else {
-            lineChartView.data = nil
-            return
-        }
-        
-        referenceTimestamp = rawData.first!.date.timeIntervalSince1970
-        
-        var entries = [ChartDataEntry]()
-        entries = rawData.map { return ChartDataEntry(x: $0.date.timeIntervalSince1970 - referenceTimestamp, y: $0.profit) }
-        
-        let dataset = LineChartDataSet(values: entries, label: nil)
-        dataset.lineWidth = 2.5
-        dataset.circleRadius = 3
-        dataset.drawValuesEnabled = false
-        dataset.drawFilledEnabled = true
-        dataset.drawHorizontalHighlightIndicatorEnabled = false
-        dataset.drawCirclesEnabled = false
-    
-        let data = LineChartData(dataSet: dataset)
-        lineChartView.data = data
-        
-//        if let granularity = chartTimeframe.labelGranularity {
-//            let firstDataPoint = rawData.first!
-//            entries.append(ChartDataEntry(x: firstDataPoint.date.timeIntervalSince1970 - referenceTimestamp, y: firstDataPoint.profit))
-//
-//            var lastLabelDate = firstDataPoint.date
-//
-//            for dataPoint in rawData.dropFirst() {
-//                if dataPoint.date == Calendar.current.date(byAdding: granularity.unit, value: granularity.interval, to: lastLabelDate)! {
-//                    lastLabelDate = dataPoint.date
-//                    entries.append(ChartDataEntry(x: dataPoint.date.timeIntervalSince1970 - referenceTimestamp, y: dataPoint.profit))
-//                } else {
-//                    entries.append(ChartDataEntry(x: -1, y: dataPoint.profit))
-//                }
-//            }
-//        } else {
-//            entries = rawData.map { return ChartDataEntry(x: $0.date.timeIntervalSince1970 - referenceTimestamp, y: $0.profit) }
-//        }
     }
     
     @objc private func filterButtonPressed() {
@@ -276,19 +198,19 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
         showsRelativeProfit = !showsRelativeProfit
     }
     
-    @objc private func togglePortfolioDisplayType(sender: UITapGestureRecognizer) {
-        switch portfolioDisplay {
-        case .currentExchangeValue:
-            portfolioDisplay = .relativeProfit
+    @objc private func toggleAnalysisType(sender: UITapGestureRecognizer) {
+        switch analysisType {
+        case .exchangeValue:
+            analysisType = .relativeProfit
         case .relativeProfit:
-            portfolioDisplay = .absoluteProfit
+            analysisType = .absoluteProfit
         case .absoluteProfit:
-            portfolioDisplay = .currentExchangeValue
+            analysisType = .exchangeValue
         }
     }
     
-    @IBAction func didChangeChartTimeframe(_ sender: UISegmentedControl) {
-        chartTimeframe = ChartTimeframe(rawValue: sender.selectedSegmentIndex)!
+    @IBAction private func didChangeChartTimeframe(_ sender: UISegmentedControl) {
+        timeframe = ChartTimeframe(rawValue: sender.selectedSegmentIndex)!
     }
     
     // MARK: - ChartView Delegate
