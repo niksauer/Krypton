@@ -39,10 +39,11 @@ class TokenAddress: Address {
     override func update(completion: (() -> Void)?) {
         super.update {
             self.updateTokens {
-                self.updateTokenOperations {
-                    self.tokenDelegate?.tokenAddressDidRequestTokenExchangeRateHistoryUpdate(self)
-                    completion?()
-                }
+                completion?()
+//                self.updateTokenOperations {
+//                    self.tokenDelegate?.tokenAddressDidRequestTokenExchangeRateHistoryUpdate(self)
+//                    completion?()
+//                }
             }
         }
     }

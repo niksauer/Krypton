@@ -12,9 +12,10 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="DashboardViewController" customModule="Krypton" customModuleProvider="target">
             <connections>
+                <outlet property="comparisonDateSegmentedControl" destination="kKH-54-NfQ" id="D29-zX-0SM"/>
                 <outlet property="investmentLabel" destination="oTc-NQ-whB" id="qXj-Z3-L8Z"/>
                 <outlet property="investmentValueLabel" destination="j80-GB-bhd" id="bFs-CB-dcH"/>
-                <outlet property="lineChartView" destination="RvP-3K-Or2" id="6d9-GL-7xG"/>
+                <outlet property="lineChartView" destination="RvP-3K-Or2" id="GAR-fj-JEw"/>
                 <outlet property="portfolioLabel" destination="hrz-kI-D5D" id="47k-TE-qa0"/>
                 <outlet property="portfolioValueLabel" destination="Iq5-63-1o0" id="3ey-G8-j94"/>
                 <outlet property="profitLabel" destination="n4E-DD-4Lp" id="vOz-Ig-j3a"/>
@@ -27,18 +28,47 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
+                <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="kKH-54-NfQ">
+                    <rect key="frame" x="16" y="72" width="343" height="29"/>
+                    <segments>
+                        <segment title="1W"/>
+                        <segment title="1M"/>
+                        <segment title="3M"/>
+                        <segment title="6M"/>
+                        <segment title="1Y"/>
+                        <segment title="2Y"/>
+                        <segment title="AT"/>
+                    </segments>
+                    <connections>
+                        <action selector="didChangeChartTimeframe:" destination="-1" eventType="valueChanged" id="Gwc-gw-wdB"/>
+                    </connections>
+                </segmentedControl>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NbE-QV-fin" userLabel="Separator">
+                    <rect key="frame" x="0.0" y="108" width="375" height="1"/>
+                    <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="0.5" id="7F2-NK-4dr"/>
+                    </constraints>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RvP-3K-Or2" customClass="LineChartView" customModule="Charts">
+                    <rect key="frame" x="16" y="109" width="359" height="170"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="170" id="1mS-B3-kCQ"/>
+                    </constraints>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pWT-xk-CD1" userLabel="Separator">
+                    <rect key="frame" x="0.0" y="287" width="375" height="0.0"/>
+                    <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="0.5" id="phO-eM-dqf"/>
+                    </constraints>
+                </view>
                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="xeG-Tb-7uO">
-                    <rect key="frame" x="0.0" y="64" width="375" height="331"/>
+                    <rect key="frame" x="0.0" y="287" width="375" height="145"/>
                     <subviews>
-                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RvP-3K-Or2" customClass="LineChartView" customModule="Charts">
-                            <rect key="frame" x="0.0" y="16" width="375" height="170"/>
-                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <constraints>
-                                <constraint firstAttribute="height" constant="170" id="1mS-B3-kCQ"/>
-                            </constraints>
-                        </view>
                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="EmL-Qf-xsq">
-                            <rect key="frame" x="0.0" y="202" width="375" height="51.5"/>
+                            <rect key="frame" x="0.0" y="16" width="375" height="51.5"/>
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="portfolioValue" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Iq5-63-1o0">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="26.5"/>
@@ -55,7 +85,7 @@
                             </subviews>
                         </stackView>
                         <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="lKI-MU-jTX">
-                            <rect key="frame" x="0.0" y="269.5" width="375" height="45.5"/>
+                            <rect key="frame" x="0.0" y="83.5" width="375" height="45.5"/>
                             <subviews>
                                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="Gva-VK-VAn">
                                     <rect key="frame" x="0.0" y="0.0" width="183.5" height="45.5"/>
@@ -99,12 +129,25 @@
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
+                <constraint firstItem="RvP-3K-Or2" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="BYo-3v-fbX"/>
+                <constraint firstItem="pWT-xk-CD1" firstAttribute="top" secondItem="RvP-3K-Or2" secondAttribute="bottom" constant="8" id="Eyg-YD-Q19"/>
+                <constraint firstItem="RvP-3K-Or2" firstAttribute="top" secondItem="NbE-QV-fin" secondAttribute="bottom" id="F5p-hW-V6p"/>
+                <constraint firstItem="NbE-QV-fin" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="K1T-jY-DEj"/>
+                <constraint firstItem="RvP-3K-Or2" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="LGF-oZ-3j9"/>
+                <constraint firstAttribute="trailing" secondItem="pWT-xk-CD1" secondAttribute="trailing" id="ZfB-9i-njy"/>
+                <constraint firstItem="kKH-54-NfQ" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="db2-Fh-83r"/>
+                <constraint firstItem="NbE-QV-fin" firstAttribute="top" secondItem="kKH-54-NfQ" secondAttribute="bottom" constant="8" id="fP3-pJ-hfp"/>
+                <constraint firstItem="kKH-54-NfQ" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="itQ-lO-jwd"/>
+                <constraint firstItem="pWT-xk-CD1" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="nDD-FE-FYY"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="xeG-Tb-7uO" secondAttribute="trailing" id="oxM-On-pBL"/>
+                <constraint firstItem="NbE-QV-fin" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="sjP-be-0BO"/>
                 <constraint firstItem="xeG-Tb-7uO" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="tEQ-Kz-h3m"/>
-                <constraint firstItem="xeG-Tb-7uO" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="tdS-WV-6Tl"/>
+                <constraint firstItem="kKH-54-NfQ" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" constant="-16" id="uey-lU-gU1"/>
+                <constraint firstItem="xeG-Tb-7uO" firstAttribute="top" secondItem="pWT-xk-CD1" secondAttribute="bottom" id="vCf-Di-le0"/>
             </constraints>
             <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <point key="canvasLocation" x="34.5" y="53.5"/>
         </view>
     </objects>
 </document>

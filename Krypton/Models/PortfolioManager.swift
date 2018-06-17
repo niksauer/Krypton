@@ -153,6 +153,11 @@ final class PortfolioManager: PortfolioDelegate {
         }
     }
     
+    func getOldestTransaction() -> Transaction? {
+        let oldestTransactions = storedAddresses.compactMap({ $0.getOldestTransaction() })
+        return oldestTransactions.sorted(by: { $0.date! < $1.date! }).first
+    }
+    
     func setQuoteCurrency(_ currency: Currency) throws {
         guard !quoteCurrency.isEqual(to: currency) else {
             return

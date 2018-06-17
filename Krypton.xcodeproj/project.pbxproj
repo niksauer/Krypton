@@ -52,6 +52,8 @@
 		2474F69620D116CE001E5799 /* EthereumAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2474F69520D116CE001E5799 /* EthereumAddress.swift */; };
 		2474F69820D116E2001E5799 /* BitcoinAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2474F69720D116E2001E5799 /* BitcoinAddress.swift */; };
 		247665521F94CFB8000857B2 /* TransactionHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247665511F94CFB8000857B2 /* TransactionHeaderCell.swift */; };
+		247C131620D6969E00C145C4 /* ChartTimeframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247C131520D6969E00C145C4 /* ChartTimeframe.swift */; };
+		247C132520D6B65200C145C4 /* DateValueFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247C132420D6B65200C145C4 /* DateValueFormatter.swift */; };
 		247D1C0B1FBA261700B45941 /* Fiat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247D1C0A1FBA261700B45941 /* Fiat.swift */; };
 		247D1C171FBA265100B45941 /* Blockchain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247D1C161FBA265100B45941 /* Blockchain.swift */; };
 		248E796420D02817000BF17C /* BitcoinBlockExplorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248E796320D02817000BF17C /* BitcoinBlockExplorer.swift */; };
@@ -324,6 +326,8 @@
 		2474F69520D116CE001E5799 /* EthereumAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumAddress.swift; sourceTree = "<group>"; };
 		2474F69720D116E2001E5799 /* BitcoinAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinAddress.swift; sourceTree = "<group>"; };
 		247665511F94CFB8000857B2 /* TransactionHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHeaderCell.swift; sourceTree = "<group>"; };
+		247C131520D6969E00C145C4 /* ChartTimeframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartTimeframe.swift; sourceTree = "<group>"; };
+		247C132420D6B65200C145C4 /* DateValueFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateValueFormatter.swift; sourceTree = "<group>"; };
 		247D1C0A1FBA261700B45941 /* Fiat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fiat.swift; sourceTree = "<group>"; };
 		247D1C161FBA265100B45941 /* Blockchain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Blockchain.swift; sourceTree = "<group>"; };
 		248E796320D02817000BF17C /* BitcoinBlockExplorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinBlockExplorer.swift; sourceTree = "<group>"; };
@@ -624,6 +628,7 @@
 		24CD00252073B0DB0094A9ED /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				247C132420D6B65200C145C4 /* DateValueFormatter.swift */,
 				24CD00242073B0CC0094A9ED /* EntitiesMO */,
 				24CD00232073B0AE0094A9ED /* Currency */,
 				24A9FA3F20C80C310058223D /* Daemons */,
@@ -634,6 +639,7 @@
 				2458132E1F5F503B007795BC /* PortfolioManager.swift */,
 				24B4A27820C70900007AEB28 /* ExchangeRateManager.swift */,
 				24D71E8220C95584000155FE /* TaxAdviser.swift */,
+				247C131520D6969E00C145C4 /* ChartTimeframe.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -1024,6 +1030,7 @@
 				2493FCE420D2D96900F33996 /* EthplorerToken.swift in Sources */,
 				246737651F4B9255003277B8 /* TransactionsViewController.swift in Sources */,
 				2474F69220D110C5001E5799 /* BitcoinTransaction.swift in Sources */,
+				247C131620D6969E00C145C4 /* ChartTimeframe.swift in Sources */,
 				24D71E3920C88BB6000155FE /* NotificationCenter.swift in Sources */,
 				243859941F6BE01F00D67791 /* FilterViewController.swift in Sources */,
 				24A226BE1F50ED9300907999 /* CurrencyFormatter.swift in Sources */,
@@ -1042,6 +1049,7 @@
 				241B7E6C20D0833100E6355C /* Currency.swift in Sources */,
 				2493FCC320D26FD300F33996 /* LogDataViewController.swift in Sources */,
 				2493FCF420D2D9A000F33996 /* BlockExplorerTransaction.swift in Sources */,
+				247C132520D6B65200C145C4 /* DateValueFormatter.swift in Sources */,
 				240C63B31F47A88E00728B8B /* Address.swift in Sources */,
 				2429B4B120CDE8DB00A71298 /* CryptoCompareService.swift in Sources */,
 				246874F61F464B4E009BB60A /* Krypton.xcdatamodeld in Sources */,
