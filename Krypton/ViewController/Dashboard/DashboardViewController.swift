@@ -89,7 +89,7 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
         self.taxAdviser = taxAdviser
         self.comparisonDateFormatter = comparisonDateFormatter
         self.analysisChartViewController = AnalysisChartViewController(portfolioManager: portfolioManager, taxAdviser: taxAdviser, anaylsisType: analysisType, transactionType: filter.transactionType)
-        self.insightsViewController = InsightsViewController(portfolioManager: portfolioManager, taxAdviser: taxAdviser, analysisType: analysisType, transactionType: filter.transactionType)
+        self.insightsViewController = InsightsViewController(portfolioManager: portfolioManager, taxAdviser: taxAdviser, currencyFormatter: currencyFormatter, comparisonDateFormatter: comparisonDateFormatter, analysisType: analysisType, transactionType: filter.transactionType)
         
         super.init(nibName: nil, bundle: nil)
         
@@ -146,56 +146,9 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
     // MARK: - Private Methods
     private func updateUI() {
         analysisTypeLabel.text = analysisType.rawValue
-
-//
         
-//        if let investmentValue = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, timeframe: .allTime, type: filter.transactionType)?.startValue {
-//            investmentValueLabel.text = currencyFormatter.getFormatting(for: investmentValue, currency: portfolioManager.quoteCurrency)
-//        } else {
-//            investmentValueLabel.text = "???"
-//        }
-//
-//        //            guard let currentExchangeValue = taxAdviser.getExchangeValue(for: portfolioManager.selectedAddresses, on: Date(), type: filter.transactionType), let profitStats = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, timeframe: .allTime, type: filter.transactionType) else {
-//        //                portfolioValueLabel.text = "???"
-//        //                return
-//        //            }
-//
-//        //            switch analysisType {
-//        //            case .exchangeValue:
-//        //                portfolioValueLabel.text = currencyFormatter.getFormatting(for: currentExchangeValue, currency: portfolioManager.quoteCurrency)
-//        //            case .relativeProfit:
-//        //                portfolioValueLabel.text = currencyFormatter.getRelativeProfitFormatting(from: profitStats)
-//        //            case .absoluteProfit:
-//        //                portfolioValueLabel.text = currencyFormatter.getAbsoluteProfitFormatting(from: profitStats, currency: portfolioManager.quoteCurrency)
-//        //            }
-//
-//        switch analysisType {
-//        case .absoluteProfit:
-//            showsRelativeProfit = false
-//        case .relativeProfit:
-//            showsRelativeProfit = true
-//        default:
-//            break
-//        }
-//
-//        portfolioLabel.text = analysisType.rawValue
-//
-//        guard let comparisonDate = comparisonDate else {
-//            return
-//        }
-//
-//        guard let profitStats = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, timeframe: .sinceDate(comparisonDate), type: filter.transactionType) else {
-//            profitValueLabel.text = "???"
-//            return
-//        }
-//
-//        profitLabel.text = "Since \(comparisonDateFormatter.string(from: comparisonDate))"
-//
-//        if showsRelativeProfit {
-//            profitValueLabel.text = currencyFormatter.getRelativeProfitFormatting(from: profitStats)
-//        } else {
-//            profitValueLabel.text = currencyFormatter.getAbsoluteProfitFormatting(from: profitStats, currency: portfolioManager.quoteCurrency)
-//        }
+        analysisChartViewController.updateChartData()
+        insightsViewController.updateUI()
     }
     
     @objc private func filterButtonPressed() {

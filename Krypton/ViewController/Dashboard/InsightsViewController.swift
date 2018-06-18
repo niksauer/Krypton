@@ -8,44 +8,35 @@
 
 import UIKit
 
-private let reuseIdentifier = "Cell"
-
-class InsightsViewController: UICollectionViewController {
+class InsightsViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
 
     // Mark: - Private Properties
     private let portfolioManager: PortfolioManager
     private let taxAdviser: TaxAdviser
+    private let currencyFormatter: CurrencyFormatter
+    private let comparisonDateFormatter: DateFormatter
     
     // Mark: - Public Properties
-    var analysisType: AnalysisType {
-        didSet {
-            updateUI()
-        }
-    }
-    
-    var transactionType: TransactionType {
-        didSet {
-            updateUI()
-        }
-    }
-    
-    var comparisonDate: Date? {
-        didSet {
-            updateUI()
-        }
-    }
+    var analysisType: AnalysisType
+    var transactionType: TransactionType
+    var comparisonDate: Date?
     
     // MARK: Initialization
-    init(portfolioManager: PortfolioManager, taxAdviser: TaxAdviser, analysisType: AnalysisType, transactionType: TransactionType) {
+    init(portfolioManager: PortfolioManager, taxAdviser: TaxAdviser, currencyFormatter: CurrencyFormatter, comparisonDateFormatter: DateFormatter, analysisType: AnalysisType, transactionType: TransactionType) {
         self.portfolioManager = portfolioManager
         self.taxAdviser = taxAdviser
+        self.currencyFormatter = currencyFormatter
+        self.comparisonDateFormatter = comparisonDateFormatter
         self.analysisType = analysisType
         self.transactionType = transactionType
+    
+        let layout = UICollectionViewFlowLayout()
+        layout.sectionInset = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
         
-        super.init(collectionViewLayout: UICollectionViewFlowLayout())
+        super.init(collectionViewLayout: layout)
         
         collectionView!.alwaysBounceVertical = true
-        collectionView?.backgroundColor = UIColor.groupTableViewBackground
+        collectionView?.backgroundColor = UIColor.white
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -56,20 +47,15 @@ class InsightsViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Register cell classes
-        self.collectionView!.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-
-        // Do any additional setup after loading the view.
+        // register cells
+        self.collectionView!.register(UINib.init(nibName: "InsightCell", bundle: nil), forCellWithReuseIdentifier: "InsightCell")
     }
     
-    // MARK: Private Methods
-    private func updateUI() {
-        
+    // MARK: Public Methods
+    func updateUI() {
+        collectionView?.reloadData()
     }
-
+    
     // MARK: UICollectionViewDataSource
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
@@ -80,11 +66,61 @@ class InsightsViewController: UICollectionViewController {
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
-    
-        // Configure the cell
-    
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "InsightCell", for: indexPath) as! InsightCell
+        let row = indexPath.row
+        
+        switch row {
+        case 0:
+            cell.label.text = "Total Value"
+            
+            if let exchangeValue = taxAdviser.getExchangeValue(for: portfolioManager.selectedAddresses, on: Date(), type: transactionType) {
+                cell.detailLabel.text = currencyFormatter.getFormatting(for: exchangeValue, currency: portfolioManager.quoteCurrency, maxDigits: 0)
+            } else {
+                cell.detailLabel.text = "???"
+            }
+            
+            cell.subtitleLabel.text = nil
+        case 1:
+            switch analysisType {
+            case .absoluteProfit:
+                cell.label.text = "Absolute Profit"
+            default:
+                cell.label.text = "Relative Profit"
+            }
+            
+            if let comparisonDate = comparisonDate, let profitStats = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, timeframe: .sinceDate(comparisonDate), type: transactionType) {
+                switch analysisType {
+                case .absoluteProfit:
+                    cell.detailLabel.text = currencyFormatter.getAbsoluteProfitFormatting(from: profitStats, currency: portfolioManager.quoteCurrency, maxDigits: 0)
+                default:
+                    cell.detailLabel.text = currencyFormatter.getRelativeProfitFormatting(from: profitStats, maxDigits: 2)
+                }
+                
+                cell.subtitleLabel.text = "Since \(comparisonDateFormatter.string(from: comparisonDate))"
+            } else {
+                cell.detailLabel.text = "???"
+                cell.subtitleLabel.text = nil
+            }
+        case 2:
+            cell.label.text = "Total Investment"
+            
+            if let investmentValue = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, timeframe: .allTime, type: transactionType)?.startValue {
+                cell.detailLabel.text = currencyFormatter.getFormatting(for: investmentValue, currency: portfolioManager.quoteCurrency, maxDigits: 0)
+            } else {
+                cell.detailLabel.text = "???"
+            }
+            
+            cell.subtitleLabel.text = nil
+        default:
+            fatalError()
+        }
+        
         return cell
+    }
+    
+    // MARK: UICollectionViewDelegateFlowLayout
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: collectionView.frame.width - 32, height: 80)
     }
     
 }

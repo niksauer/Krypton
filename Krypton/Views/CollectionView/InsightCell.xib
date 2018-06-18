@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="gTV-IL-0wX" customClass="InsightCell" customModule="Krypton" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="304" height="80"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="304" height="80"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Total Value" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ACg-VR-o43">
+                        <rect key="frame" x="8" y="8" width="141" height="21"/>
+                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
+                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="261" verticalHuggingPriority="261" horizontalCompressionResistancePriority="760" verticalCompressionResistancePriority="760" text="€11,531" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GGI-jr-zjV">
+                        <rect key="frame" x="157.5" y="3" width="138.5" height="50.5"/>
+                        <fontDescription key="fontDescription" type="system" weight="light" pointSize="42"/>
+                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Since 03/13/18" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6RO-eU-MUU">
+                        <rect key="frame" x="200" y="53.5" width="96" height="18.5"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                        <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+            </view>
+            <color key="backgroundColor" red="0.92549019607843142" green="0.3529411764705882" blue="0.25490196079999999" alpha="1" colorSpace="calibratedRGB"/>
+            <constraints>
+                <constraint firstItem="ACg-VR-o43" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="8" id="5ME-PJ-Qwr"/>
+                <constraint firstItem="6RO-eU-MUU" firstAttribute="top" secondItem="GGI-jr-zjV" secondAttribute="bottom" id="Jw9-7L-4bf"/>
+                <constraint firstItem="ACg-VR-o43" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="8" id="KSp-Wt-wu3"/>
+                <constraint firstItem="GGI-jr-zjV" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="3" id="MNQ-gX-xL7"/>
+                <constraint firstItem="GGI-jr-zjV" firstAttribute="leading" secondItem="ACg-VR-o43" secondAttribute="trailing" constant="8" id="ZSE-lP-u3w"/>
+                <constraint firstAttribute="bottom" secondItem="6RO-eU-MUU" secondAttribute="bottom" constant="8" id="jmc-gR-GKw"/>
+                <constraint firstAttribute="trailing" secondItem="GGI-jr-zjV" secondAttribute="trailing" constant="8" id="n7b-1j-uks"/>
+                <constraint firstAttribute="trailing" secondItem="6RO-eU-MUU" secondAttribute="trailing" constant="8" id="xVp-EM-hgc"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
+            <size key="customSize" width="304" height="74"/>
+            <userDefinedRuntimeAttributes>
+                <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                    <integer key="value" value="10"/>
+                </userDefinedRuntimeAttribute>
+            </userDefinedRuntimeAttributes>
+            <connections>
+                <outlet property="detailLabel" destination="GGI-jr-zjV" id="oOT-ib-M5r"/>
+                <outlet property="label" destination="ACg-VR-o43" id="BPr-jp-DQ5"/>
+                <outlet property="subtitleLabel" destination="6RO-eU-MUU" id="LE3-Yk-yMN"/>
+            </connections>
+            <point key="canvasLocation" x="-19" y="28"/>
+        </collectionViewCell>
+    </objects>
+</document>

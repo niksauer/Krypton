@@ -206,7 +206,7 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
                 cell.sectionLabel.text = portfolio.alias?.uppercased()
                 
                 if let exchangeValue = taxAdviser.getTotalExchangeValue(for: portfolio) {
-                    cell.detailLabel.text = currencyFormatter.getFormatting(for: exchangeValue, currency: portfolio.quoteCurrency)
+                    cell.detailLabel.text = currencyFormatter.getFormatting(for: exchangeValue, currency: portfolio.quoteCurrency, maxDigits: 0)
                 } else {
                     cell.detailLabel.text = nil
                 }

@@ -61,6 +61,8 @@
 		248E796E20D02987000BF17C /* EthereumBlockExplorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248E796D20D02987000BF17C /* EthereumBlockExplorer.swift */; };
 		248E797020D02C1E000BF17C /* BlockExplorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248E796F20D02C1E000BF17C /* BlockExplorer.swift */; };
 		24924E0820D8039A006A9372 /* InsightsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24924E0720D8039A006A9372 /* InsightsViewController.swift */; };
+		24924E0C20D80888006A9372 /* InsightCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24924E0A20D80888006A9372 /* InsightCell.swift */; };
+		24924E0D20D80888006A9372 /* InsightCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 24924E0B20D80888006A9372 /* InsightCell.xib */; };
 		24935C691FA0B81B00F4F291 /* AmountByAddressViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24935C681FA0B81B00F4F291 /* AmountByAddressViewController.swift */; };
 		2493FCC320D26FD300F33996 /* LogDataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2493FCC220D26FD300F33996 /* LogDataViewController.swift */; };
 		2493FCE420D2D96900F33996 /* EthplorerToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2493FCE320D2D96900F33996 /* EthplorerToken.swift */; };
@@ -337,6 +339,8 @@
 		248E796D20D02987000BF17C /* EthereumBlockExplorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumBlockExplorer.swift; sourceTree = "<group>"; };
 		248E796F20D02C1E000BF17C /* BlockExplorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockExplorer.swift; sourceTree = "<group>"; };
 		24924E0720D8039A006A9372 /* InsightsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsViewController.swift; sourceTree = "<group>"; };
+		24924E0A20D80888006A9372 /* InsightCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightCell.swift; sourceTree = "<group>"; };
+		24924E0B20D80888006A9372 /* InsightCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = InsightCell.xib; sourceTree = "<group>"; };
 		24935C681FA0B81B00F4F291 /* AmountByAddressViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountByAddressViewController.swift; sourceTree = "<group>"; };
 		2493FCC220D26FD300F33996 /* LogDataViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogDataViewController.swift; sourceTree = "<group>"; };
 		2493FCE320D2D96900F33996 /* EthplorerToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthplorerToken.swift; sourceTree = "<group>"; };
@@ -494,6 +498,24 @@
 				24924E0720D8039A006A9372 /* InsightsViewController.swift */,
 			);
 			path = Dashboard;
+			sourceTree = "<group>";
+		};
+		24924E0920D80865006A9372 /* TableView */ = {
+			isa = PBXGroup;
+			children = (
+				24FA2C1820CA99EC00034D9D /* XIB-based */,
+				24FA2C1720CA99D100034D9D /* Programmatic */,
+			);
+			path = TableView;
+			sourceTree = "<group>";
+		};
+		24924E0E20D8088B006A9372 /* CollectionView */ = {
+			isa = PBXGroup;
+			children = (
+				24924E0A20D80888006A9372 /* InsightCell.swift */,
+				24924E0B20D80888006A9372 /* InsightCell.xib */,
+			);
+			path = CollectionView;
 			sourceTree = "<group>";
 		};
 		2493FCF220D2D98C00F33996 /* Models */ = {
@@ -681,8 +703,8 @@
 		24CD00292073B1350094A9ED /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				24FA2C1820CA99EC00034D9D /* XIB-based */,
-				24FA2C1720CA99D100034D9D /* Programmatic */,
+				24924E0920D80865006A9372 /* TableView */,
+				24924E0E20D8088B006A9372 /* CollectionView */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -994,6 +1016,7 @@
 				2400D0881F40715900833958 /* LaunchScreen.storyboard in Resources */,
 				2400D0851F40715900833958 /* Assets.xcassets in Resources */,
 				24D71E2A20C865D0000155FE /* TransactionHeaderCell.xib in Resources */,
+				24924E0D20D80888006A9372 /* InsightCell.xib in Resources */,
 				24D71E3120C87A76000155FE /* DashboardViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1055,6 +1078,7 @@
 				2446F5DC1F8EAD1E00DF385B /* TokenAddress.swift in Sources */,
 				24B4A27B20C7152D007AEB28 /* DependencyContainer.swift in Sources */,
 				241B7E6C20D0833100E6355C /* Currency.swift in Sources */,
+				24924E0C20D80888006A9372 /* InsightCell.swift in Sources */,
 				2493FCC320D26FD300F33996 /* LogDataViewController.swift in Sources */,
 				2493FCF420D2D9A000F33996 /* BlockExplorerTransaction.swift in Sources */,
 				240C63B31F47A88E00728B8B /* Address.swift in Sources */,

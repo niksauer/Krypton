@@ -21,24 +21,9 @@ class AnalysisChartViewController: UIViewController, ChartViewDelegate {
     private var referenceTimestamp: Double!
 
     // Mark: - Public Properties
-    var type: AnalysisType {
-        didSet {
-            updateChartData()
-        }
-    }
-    
-    var transactionType: TransactionType {
-        didSet {
-            updateChartData()
-        }
-    }
-
-    var comparisonDate: Date? {
-        didSet {
-            updateChartData()
-        }
-    }
-    
+    var type: AnalysisType
+    var transactionType: TransactionType
+    var comparisonDate: Date?
     var dateFormatter: DateFormatter!
     
     // Mark: - Initialization
@@ -72,6 +57,7 @@ class AnalysisChartViewController: UIViewController, ChartViewDelegate {
         lineChartView.legend.enabled = false
         lineChartView.noDataText = "No data available."
         lineChartView.minOffset = 0
+        lineChartView.extraLeftOffset = 4
         lineChartView.extraRightOffset = 4
         
         lineChartView.leftAxis.enabled = false
@@ -79,7 +65,7 @@ class AnalysisChartViewController: UIViewController, ChartViewDelegate {
         lineChartView.rightAxis.enabled = true
         lineChartView.rightAxis.drawAxisLineEnabled = false
         lineChartView.rightAxis.gridLineWidth = 0.3
-        lineChartView.rightAxis.labelPosition = .outsideChart
+        lineChartView.rightAxis.labelPosition = .insideChart
         lineChartView.rightAxis.drawTopYLabelEntryEnabled = true
         lineChartView.rightAxis.labelCount = 4
         lineChartView.rightAxis.xOffset = 5
@@ -89,10 +75,12 @@ class AnalysisChartViewController: UIViewController, ChartViewDelegate {
         lineChartView.xAxis.avoidFirstLastClippingEnabled = true
         lineChartView.xAxis.gridLineDashLengths = [2, 2]
         lineChartView.xAxis.valueFormatter = self
+        
+        updateUI()
     }
     
     // Mark: - Private Methods
-    private func updateChartData() {
+    func updateChartData() {
         guard let comparisonDate = comparisonDate else {
             lineChartView.data = nil
             return
@@ -132,10 +120,14 @@ class AnalysisChartViewController: UIViewController, ChartViewDelegate {
     }
     
     // Mark: - Public Methods
+    func updateUI() {
+        updateChartData()
+    }
+    
     func setXAxisLabelCount(_ count: Int) {
         lineChartView.xAxis.setLabelCount(count, force: true)
     }
-
+    
 }
 
 extension AnalysisChartViewController: IAxisValueFormatter {

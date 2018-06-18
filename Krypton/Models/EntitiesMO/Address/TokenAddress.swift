@@ -32,19 +32,20 @@ class TokenAddress: Address {
     override func awakeFromFetch() {
         super.awakeFromFetch()
         tokenDelegate = portfolio
-        log.debug("Set portfolio '\(portfolio!.logDescription)' as delegate of address '\(logDescription)'.")
+        log.debug("Set portfolio '\(portfolio!.logDescription)' as token delegate of address '\(logDescription)'.")
     }
 
     // MARK: Management
     override func update(completion: (() -> Void)?) {
         super.update {
-            self.updateTokens {
-                completion?()
+            completion?()
+            
+//            self.updateTokens {
 //                self.updateTokenOperations {
 //                    self.tokenDelegate?.tokenAddressDidRequestTokenExchangeRateHistoryUpdate(self)
 //                    completion?()
 //                }
-            }
+//            }
         }
     }
     
