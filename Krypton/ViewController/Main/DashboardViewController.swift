@@ -37,8 +37,8 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
     private let currencyFormatter: CurrencyFormatter
     private let taxAdviser: TaxAdviser
     private let comparisonDateFormatter: DateFormatter
-
-    private let analysisChartsViewController: AnalysisChartsViewController
+    
+    private let chartsPageViewController: ChartsPageViewController
     
     private var timeframe: ChartTimeframe = .week {
         didSet {
@@ -48,10 +48,14 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
                 self.comparisonDate = oldestTransaction.date!
             }
             
-            analysisChartsViewController.setXAxisLabelCount(timeframe.labelCount)
-            analysisChartsViewController.dateFormatter = timeframe.dateFormatter
-            analysisChartsViewController.comparisonDate = comparisonDate
-                    
+            chartsPageViewController.setXAxisLabelCount(timeframe.labelCount)
+            chartsPageViewController.setDateFormatter(timeframe.dateFormatter)
+            chartsPageViewController.setComparisonDate(comparisonDate)
+            
+//            analysisChartsViewController.setXAxisLabelCount(timeframe.labelCount)
+//            analysisChartsViewController.dateFormatter = timeframe.dateFormatter
+//            analysisChartsViewController.comparisonDate = comparisonDate
+            
             updateUI()
         }
     }
@@ -115,7 +119,7 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
         self.currencyFormatter = currencyFormatter
         self.taxAdviser = taxAdviser
         self.comparisonDateFormatter = comparisonDateFormatter
-        self.analysisChartsViewController = AnalysisChartsViewController(portfolioManager: portfolioManager, taxAdviser: taxAdviser, transactionType: filter.transactionType)
+        self.chartsPageViewController = ChartsPageViewController(portfolioManager: portfolioManager, taxAdviser: taxAdviser, transactionType: filter.transactionType)
         
         super.init(nibName: nil, bundle: nil)
         
@@ -145,11 +149,17 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
         investmentLabel.text = "Total Investment"
         
         // setup analysis charts VC
-        addChildViewController(analysisChartsViewController)
-        chartsViewContainer.addSubview(analysisChartsViewController.view)
-        analysisChartsViewController.didMove(toParentViewController: self)
-        analysisChartsViewController.view.translatesAutoresizingMaskIntoConstraints = false
-        analysisChartsViewController.view.pin(to: chartsViewContainer)
+        addChildViewController(chartsPageViewController)
+        chartsViewContainer.addSubview(chartsPageViewController.view)
+        chartsPageViewController.didMove(toParentViewController: self)
+        chartsPageViewController.view.translatesAutoresizingMaskIntoConstraints = false
+        chartsPageViewController.view.pin(to: chartsViewContainer)
+        
+//        addChildViewController(analysisChartsViewController)
+//        chartsViewContainer.addSubview(analysisChartsViewController.view)
+//        analysisChartsViewController.didMove(toParentViewController: self)
+//        analysisChartsViewController.view.translatesAutoresizingMaskIntoConstraints = false
+//        analysisChartsViewController.view.pin(to: chartsViewContainer)
     
         // chart timeframe
         timeframe = .week

@@ -1,5 +1,5 @@
 //
-//  AnalysisChartsViewController.swift
+//  AbsoluteProfitHistoryViewController.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 17.06.18.
@@ -9,7 +9,14 @@
 import Foundation
 import Charts
 
-class AnalysisChartsViewController: UIViewController, ChartViewDelegate {
+protocol AnalysisChartViewController where Self: UIViewController {
+    var transactionType: TransactionType { get set }
+    var dateFormatter: DateFormatter! { get set }
+    var comparisonDate: Date? { get set }
+    func setXAxisLabelCount(_ count: Int)
+}
+
+class AbsoluteProfitHistoryViewController: UIViewController, ChartViewDelegate, AnalysisChartViewController {
 
     // Mark: - Views
     private let lineChartView: LineChartView
@@ -62,6 +69,7 @@ class AnalysisChartsViewController: UIViewController, ChartViewDelegate {
         lineChartView.noDataText = "No data available."
         lineChartView.minOffset = 0
         lineChartView.extraRightOffset = 4
+        lineChartView.extraLeftOffset = 16
         
         lineChartView.leftAxis.enabled = false
         
@@ -69,6 +77,7 @@ class AnalysisChartsViewController: UIViewController, ChartViewDelegate {
         lineChartView.rightAxis.drawAxisLineEnabled = false
         lineChartView.rightAxis.gridLineWidth = 0.3
         lineChartView.rightAxis.labelPosition = .outsideChart
+        lineChartView.rightAxis.drawTopYLabelEntryEnabled = true
         lineChartView.rightAxis.labelCount = 4
         lineChartView.rightAxis.xOffset = 5
         lineChartView.rightAxis.valueFormatter = LargeValueFormatter()
@@ -119,7 +128,7 @@ class AnalysisChartsViewController: UIViewController, ChartViewDelegate {
     }
 }
 
-extension AnalysisChartsViewController: IAxisValueFormatter {
+extension AbsoluteProfitHistoryViewController: IAxisValueFormatter {
     func stringForValue(_ value: Double, axis: AxisBase?) -> String {
         return dateFormatter.string(from: Date(timeIntervalSince1970: value + referenceTimestamp))
     }

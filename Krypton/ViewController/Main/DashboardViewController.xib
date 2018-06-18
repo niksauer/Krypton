@@ -51,20 +51,20 @@
                     </constraints>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RvP-3K-Or2" userLabel="Line Chart View Container">
-                    <rect key="frame" x="16" y="109" width="359" height="220"/>
+                    <rect key="frame" x="0.0" y="109" width="375" height="220"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="220" id="1mS-B3-kCQ"/>
                     </constraints>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pWT-xk-CD1" userLabel="Separator">
-                    <rect key="frame" x="0.0" y="337" width="375" height="1"/>
+                    <rect key="frame" x="0.0" y="329" width="375" height="1"/>
                     <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="0.5" id="phO-eM-dqf"/>
                     </constraints>
                 </view>
                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="xeG-Tb-7uO">
-                    <rect key="frame" x="0.0" y="338" width="375" height="145"/>
+                    <rect key="frame" x="0.0" y="330" width="375" height="145"/>
                     <subviews>
                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="EmL-Qf-xsq">
                             <rect key="frame" x="0.0" y="16" width="375" height="51.5"/>
@@ -129,10 +129,10 @@
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
                 <constraint firstItem="RvP-3K-Or2" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="BYo-3v-fbX"/>
-                <constraint firstItem="pWT-xk-CD1" firstAttribute="top" secondItem="RvP-3K-Or2" secondAttribute="bottom" constant="8" id="Eyg-YD-Q19"/>
+                <constraint firstItem="pWT-xk-CD1" firstAttribute="top" secondItem="RvP-3K-Or2" secondAttribute="bottom" id="Eyg-YD-Q19"/>
                 <constraint firstItem="RvP-3K-Or2" firstAttribute="top" secondItem="NbE-QV-fin" secondAttribute="bottom" id="F5p-hW-V6p"/>
                 <constraint firstItem="NbE-QV-fin" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="K1T-jY-DEj"/>
-                <constraint firstItem="RvP-3K-Or2" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="LGF-oZ-3j9"/>
+                <constraint firstItem="RvP-3K-Or2" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="LGF-oZ-3j9"/>
                 <constraint firstAttribute="trailing" secondItem="pWT-xk-CD1" secondAttribute="trailing" id="ZfB-9i-njy"/>
                 <constraint firstItem="kKH-54-NfQ" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="db2-Fh-83r"/>
                 <constraint firstItem="NbE-QV-fin" firstAttribute="top" secondItem="kKH-54-NfQ" secondAttribute="bottom" constant="8" id="fP3-pJ-hfp"/>
