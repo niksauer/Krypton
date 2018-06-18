@@ -54,13 +54,13 @@
 		247665521F94CFB8000857B2 /* TransactionHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247665511F94CFB8000857B2 /* TransactionHeaderCell.swift */; };
 		247C131620D6969E00C145C4 /* ChartTimeframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247C131520D6969E00C145C4 /* ChartTimeframe.swift */; };
 		247C132720D6BCC200C145C4 /* LargeValueFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247C132620D6BCC200C145C4 /* LargeValueFormatter.swift */; };
-		247C132920D6BF6C00C145C4 /* AbsoluteProfitHistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247C132820D6BF6C00C145C4 /* AbsoluteProfitHistoryViewController.swift */; };
-		247C132B20D6EF0100C145C4 /* ChartsPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247C132A20D6EF0100C145C4 /* ChartsPageViewController.swift */; };
+		247C132920D6BF6C00C145C4 /* AnalysisChartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247C132820D6BF6C00C145C4 /* AnalysisChartViewController.swift */; };
 		247D1C0B1FBA261700B45941 /* Fiat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247D1C0A1FBA261700B45941 /* Fiat.swift */; };
 		247D1C171FBA265100B45941 /* Blockchain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247D1C161FBA265100B45941 /* Blockchain.swift */; };
 		248E796420D02817000BF17C /* BitcoinBlockExplorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248E796320D02817000BF17C /* BitcoinBlockExplorer.swift */; };
 		248E796E20D02987000BF17C /* EthereumBlockExplorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248E796D20D02987000BF17C /* EthereumBlockExplorer.swift */; };
 		248E797020D02C1E000BF17C /* BlockExplorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248E796F20D02C1E000BF17C /* BlockExplorer.swift */; };
+		24924E0820D8039A006A9372 /* InsightsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24924E0720D8039A006A9372 /* InsightsViewController.swift */; };
 		24935C691FA0B81B00F4F291 /* AmountByAddressViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24935C681FA0B81B00F4F291 /* AmountByAddressViewController.swift */; };
 		2493FCC320D26FD300F33996 /* LogDataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2493FCC220D26FD300F33996 /* LogDataViewController.swift */; };
 		2493FCE420D2D96900F33996 /* EthplorerToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2493FCE320D2D96900F33996 /* EthplorerToken.swift */; };
@@ -330,13 +330,13 @@
 		247665511F94CFB8000857B2 /* TransactionHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHeaderCell.swift; sourceTree = "<group>"; };
 		247C131520D6969E00C145C4 /* ChartTimeframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartTimeframe.swift; sourceTree = "<group>"; };
 		247C132620D6BCC200C145C4 /* LargeValueFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeValueFormatter.swift; sourceTree = "<group>"; };
-		247C132820D6BF6C00C145C4 /* AbsoluteProfitHistoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AbsoluteProfitHistoryViewController.swift; sourceTree = "<group>"; };
-		247C132A20D6EF0100C145C4 /* ChartsPageViewController.swift */ = {isa = PBXFileReference; indentWidth = 4; lastKnownFileType = sourcecode.swift; path = ChartsPageViewController.swift; sourceTree = "<group>"; };
+		247C132820D6BF6C00C145C4 /* AnalysisChartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisChartViewController.swift; sourceTree = "<group>"; };
 		247D1C0A1FBA261700B45941 /* Fiat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fiat.swift; sourceTree = "<group>"; };
 		247D1C161FBA265100B45941 /* Blockchain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Blockchain.swift; sourceTree = "<group>"; };
 		248E796320D02817000BF17C /* BitcoinBlockExplorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinBlockExplorer.swift; sourceTree = "<group>"; };
 		248E796D20D02987000BF17C /* EthereumBlockExplorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumBlockExplorer.swift; sourceTree = "<group>"; };
 		248E796F20D02C1E000BF17C /* BlockExplorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockExplorer.swift; sourceTree = "<group>"; };
+		24924E0720D8039A006A9372 /* InsightsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsViewController.swift; sourceTree = "<group>"; };
 		24935C681FA0B81B00F4F291 /* AmountByAddressViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountByAddressViewController.swift; sourceTree = "<group>"; };
 		2493FCC220D26FD300F33996 /* LogDataViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogDataViewController.swift; sourceTree = "<group>"; };
 		2493FCE320D2D96900F33996 /* EthplorerToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthplorerToken.swift; sourceTree = "<group>"; };
@@ -485,6 +485,17 @@
 			path = Transaction;
 			sourceTree = "<group>";
 		};
+		24924E0620D80368006A9372 /* Dashboard */ = {
+			isa = PBXGroup;
+			children = (
+				2400D07D1F40715900833958 /* DashboardViewController.swift */,
+				24D71E3020C87A76000155FE /* DashboardViewController.xib */,
+				247C132820D6BF6C00C145C4 /* AnalysisChartViewController.swift */,
+				24924E0720D8039A006A9372 /* InsightsViewController.swift */,
+			);
+			path = Dashboard;
+			sourceTree = "<group>";
+		};
 		2493FCF220D2D98C00F33996 /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -546,7 +557,9 @@
 		24CD001A2073B0060094A9ED /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
-				24CD001C2073B0350094A9ED /* Main */,
+				24BF8C801FAA4EDD0070C178 /* AccountsViewController.swift */,
+				24C63DB31F7F15DD0096A807 /* WatchlistViewController.swift */,
+				24924E0620D80368006A9372 /* Dashboard */,
 				24CD001E2073B0530094A9ED /* Portfolio */,
 				24D71E2B20C86B43000155FE /* Address */,
 				24CD001F2073B0680094A9ED /* Transaction */,
@@ -554,19 +567,6 @@
 				24CD001D2073B0450094A9ED /* Shared */,
 			);
 			path = ViewController;
-			sourceTree = "<group>";
-		};
-		24CD001C2073B0350094A9ED /* Main */ = {
-			isa = PBXGroup;
-			children = (
-				247C132A20D6EF0100C145C4 /* ChartsPageViewController.swift */,
-				24BF8C801FAA4EDD0070C178 /* AccountsViewController.swift */,
-				2400D07D1F40715900833958 /* DashboardViewController.swift */,
-				24D71E3020C87A76000155FE /* DashboardViewController.xib */,
-				247C132820D6BF6C00C145C4 /* AbsoluteProfitHistoryViewController.swift */,
-				24C63DB31F7F15DD0096A807 /* WatchlistViewController.swift */,
-			);
-			path = Main;
 			sourceTree = "<group>";
 		};
 		24CD001D2073B0450094A9ED /* Shared */ = {
@@ -1014,6 +1014,7 @@
 				247C132720D6BCC200C145C4 /* LargeValueFormatter.swift in Sources */,
 				2458132F1F5F503B007795BC /* PortfolioManager.swift in Sources */,
 				2474F69620D116CE001E5799 /* EthereumAddress.swift in Sources */,
+				24924E0820D8039A006A9372 /* InsightsViewController.swift in Sources */,
 				24A007C41F538AD800EC0DCF /* TickerDaemon.swift in Sources */,
 				24A3D32F1F7DAF250081BF09 /* BlockExplorerService.swift in Sources */,
 				247D1C0B1FBA261700B45941 /* Fiat.swift in Sources */,
@@ -1063,13 +1064,12 @@
 				2449F4441F6F0D3A006E21C8 /* AddPortfolioViewController.swift in Sources */,
 				24B4A27720C700E0007AEB28 /* CoreDataStack.swift in Sources */,
 				2400D07C1F40715900833958 /* AppDelegate.swift in Sources */,
-				247C132B20D6EF0100C145C4 /* ChartsPageViewController.swift in Sources */,
 				243859961F6C442300D67791 /* AddAddressViewController.swift in Sources */,
 				2449F44A1F6F1F40006E21C8 /* SettingsViewController.swift in Sources */,
 				242729A41F7075CC00E5231D /* AddressDetailViewController.swift in Sources */,
 				2438599B1F6C890600D67791 /* PortfoliosViewController.swift in Sources */,
 				2400D07E1F40715900833958 /* DashboardViewController.swift in Sources */,
-				247C132920D6BF6C00C145C4 /* AbsoluteProfitHistoryViewController.swift in Sources */,
+				247C132920D6BF6C00C145C4 /* AnalysisChartViewController.swift in Sources */,
 				2474F68820D10BA1001E5799 /* Reportable.swift in Sources */,
 				2400D0941F40D90900833958 /* ExchangeRate.swift in Sources */,
 				248E797020D02C1E000BF17C /* BlockExplorer.swift in Sources */,

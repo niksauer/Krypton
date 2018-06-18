@@ -1,5 +1,5 @@
 //
-//  AbsoluteProfitHistoryViewController.swift
+//  AnalysisChartViewController.swift
 //  Krypton
 //
 //  Created by Niklas Sauer on 17.06.18.
@@ -9,14 +9,7 @@
 import Foundation
 import Charts
 
-protocol AnalysisChartViewController where Self: UIViewController {
-    var transactionType: TransactionType { get set }
-    var dateFormatter: DateFormatter! { get set }
-    var comparisonDate: Date? { get set }
-    func setXAxisLabelCount(_ count: Int)
-}
-
-class AbsoluteProfitHistoryViewController: UIViewController, ChartViewDelegate, AnalysisChartViewController {
+class AnalysisChartViewController: UIViewController, ChartViewDelegate {
 
     // Mark: - Views
     private let lineChartView: LineChartView
@@ -28,8 +21,18 @@ class AbsoluteProfitHistoryViewController: UIViewController, ChartViewDelegate, 
     private var referenceTimestamp: Double!
 
     // Mark: - Public Properties
-    var transactionType: TransactionType
+    var type: AnalysisType {
+        didSet {
+            updateChartData()
+        }
+    }
     
+    var transactionType: TransactionType {
+        didSet {
+            updateChartData()
+        }
+    }
+
     var comparisonDate: Date? {
         didSet {
             updateChartData()
@@ -39,9 +42,10 @@ class AbsoluteProfitHistoryViewController: UIViewController, ChartViewDelegate, 
     var dateFormatter: DateFormatter!
     
     // Mark: - Initialization
-    init(portfolioManager: PortfolioManager, taxAdviser: TaxAdviser, transactionType: TransactionType) {
+    init(portfolioManager: PortfolioManager, taxAdviser: TaxAdviser, anaylsisType: AnalysisType, transactionType: TransactionType) {
         self.portfolioManager = portfolioManager
         self.taxAdviser = taxAdviser
+        self.type = anaylsisType
         self.transactionType = transactionType
         
         lineChartView = LineChartView()
@@ -69,7 +73,6 @@ class AbsoluteProfitHistoryViewController: UIViewController, ChartViewDelegate, 
         lineChartView.noDataText = "No data available."
         lineChartView.minOffset = 0
         lineChartView.extraRightOffset = 4
-        lineChartView.extraLeftOffset = 16
         
         lineChartView.leftAxis.enabled = false
         
@@ -95,20 +98,26 @@ class AbsoluteProfitHistoryViewController: UIViewController, ChartViewDelegate, 
             return
         }
         
-        guard let rawData = taxAdviser.getAbsoluteProfitHistory(for: portfolioManager.selectedAddresses, since: comparisonDate, type: transactionType) else {
+        let rawData: [(Date, Double)]?
+        
+        switch type {
+        case .exchangeValue:
+            rawData = taxAdviser.getExchangeValueHistory(for: portfolioManager.selectedAddresses, since: comparisonDate, type: transactionType)
+        case .absoluteProfit:
+            rawData = taxAdviser.getAbsoluteProfitHistory(for: portfolioManager.selectedAddresses, since: comparisonDate, type: transactionType)?.history
+        case .relativeProfit:
+            rawData = taxAdviser.getRelativeProfitHistory(for: portfolioManager.selectedAddresses, since: comparisonDate, type: transactionType)?.history
+        }
+        
+        guard let data = rawData, data.count >= 1 else {
             lineChartView.data = nil
             return
         }
         
-        guard rawData.count >= 1 else {
-            lineChartView.data = nil
-            return
-        }
-        
-        referenceTimestamp = rawData.first!.date.timeIntervalSince1970
+        referenceTimestamp = data.first!.0.timeIntervalSince1970
         
         var entries = [ChartDataEntry]()
-        entries = rawData.map { return ChartDataEntry(x: $0.date.timeIntervalSince1970 - referenceTimestamp, y: $0.profit) }
+        entries = data.map { return ChartDataEntry(x: $0.0.timeIntervalSince1970 - referenceTimestamp, y: $0.1) }
         
         let dataset = LineChartDataSet(values: entries, label: nil)
         dataset.lineWidth = 2.5
@@ -118,17 +127,18 @@ class AbsoluteProfitHistoryViewController: UIViewController, ChartViewDelegate, 
         dataset.drawHorizontalHighlightIndicatorEnabled = false
         dataset.drawCirclesEnabled = false
         
-        let data = LineChartData(dataSet: dataset)
-        lineChartView.data = data
+        let chartData = LineChartData(dataSet: dataset)
+        lineChartView.data = chartData
     }
     
     // Mark: - Public Methods
     func setXAxisLabelCount(_ count: Int) {
         lineChartView.xAxis.setLabelCount(count, force: true)
     }
+
 }
 
-extension AbsoluteProfitHistoryViewController: IAxisValueFormatter {
+extension AnalysisChartViewController: IAxisValueFormatter {
     func stringForValue(_ value: Double, axis: AxisBase?) -> String {
         return dateFormatter.string(from: Date(timeIntervalSince1970: value + referenceTimestamp))
     }

@@ -27,7 +27,7 @@ class LargeValueFormatter: IValueFormatter, IAxisValueFormatter {
             length += 1
         }
         
-        return String(format: "%2.f", sign*sig) + suffix[length]
+        return String(format: "%2.1f", sign*sig) + suffix[length]
     }
     
     func stringForValue(_ value: Double, axis: AxisBase?) -> String {
