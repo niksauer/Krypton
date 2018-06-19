@@ -114,6 +114,10 @@ class PortfolioDetailViewController: UITableViewController {
         view.endEditing(true)
     }
     
+    private func getAddress(for indexPath: IndexPath) -> Address? {
+        return portfolio.storedAddresses.sorted(by: { portfolioManager.getAlias(for: $0.identifier!) < portfolioManager.getAlias(for: $1.identifier!) })[indexPath.row]
+    }
+    
     // MARK: - TableView DataSource
     override func numberOfSections(in tableView: UITableView) -> Int {
         var count = 1
@@ -165,7 +169,10 @@ class PortfolioDetailViewController: UITableViewController {
                 fatalError()
             }
         case 1 where portfolio.storedAddresses.count > 0:
-            let address = portfolio.storedAddresses[indexPath.row]
+            guard let address = getAddress(for: indexPath) else {
+                fatalError()
+            }
+            
             let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "AddressCell")
             cell.accessoryType = .disclosureIndicator
             cell.textLabel?.text = address.identifier
@@ -199,8 +206,11 @@ class PortfolioDetailViewController: UITableViewController {
         
         switch section {
         case 1 where portfolio.storedAddresses.count > 0:
-            let selectedAddress = portfolio.storedAddresses[indexPath.row]
-            let addressDetailViewController = viewFactory.makeAddressDetailViewController(for: selectedAddress)
+            guard let address = getAddress(for: indexPath) else {
+                fatalError()
+            }
+            
+            let addressDetailViewController = viewFactory.makeAddressDetailViewController(for: address)
             navigationController?.pushViewController(addressDetailViewController, animated: true)
         case (portfolio.storedAddresses.count > 0) ? 2 : 1 where isEditing:
             deletePortfolio()

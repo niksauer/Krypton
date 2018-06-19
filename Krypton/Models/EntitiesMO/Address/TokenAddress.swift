@@ -32,18 +32,20 @@ class TokenAddress: Address {
     override func awakeFromFetch() {
         super.awakeFromFetch()
         tokenDelegate = portfolio
-        log.debug("Set portfolio '\(portfolio!.logDescription)' as delegate of address '\(logDescription)'.")
+        log.debug("Set portfolio '\(portfolio!.logDescription)' as token delegate of address '\(logDescription)'.")
     }
 
     // MARK: Management
     override func update(completion: (() -> Void)?) {
         super.update {
-            self.updateTokens {
-                self.updateTokenOperations {
-                    self.tokenDelegate?.tokenAddressDidRequestTokenExchangeRateHistoryUpdate(self)
-                    completion?()
-                }
-            }
+            completion?()
+            
+//            self.updateTokens {
+//                self.updateTokenOperations {
+//                    self.tokenDelegate?.tokenAddressDidRequestTokenExchangeRateHistoryUpdate(self)
+//                    completion?()
+//                }
+//            }
         }
     }
     
@@ -133,10 +135,15 @@ class TokenAddress: Address {
                         newOperationsCount = newOperationsCount + 1
                         
                         if operationPrototype.block > self.lastTokenBlock {
-                            self.lastBlock = Int64(operationPrototype.block + 1)
+                            self.lastTokenBlock = Int64(operationPrototype.block + 1)
                         }
                     } catch {
-                        log.error("Failed to create operation '\(operationPrototype.identifier)' of token '\(token.logDescription)' for address '\(self.logDescription)': \(error)")
+                        switch error {
+                        case TokenOperationError.duplicate:
+                            break
+                        default:
+                            log.error("Failed to create operation '\(operationPrototype.identifier)' of token '\(token.logDescription)' for address '\(self.logDescription)': \(error)")
+                        } 
                     }
                 }
                 

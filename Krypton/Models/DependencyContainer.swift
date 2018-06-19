@@ -59,6 +59,10 @@ struct DependencyContainer {
         return UpdateStatusDateFormatter()
     }
     
+    private var colorContainer: ColorContainer {
+        return ColorContainer()
+    }
+    
     // Mark: - Initialization
     init() throws {
         do {
@@ -80,7 +84,7 @@ struct DependencyContainer {
 }
 
 extension DependencyContainer: ViewControllerFactory {
-
+    
     // Main
     func makeAccountsViewController() -> AccountsViewController {
         return AccountsViewController(viewFactory: self, kryptonDaemon: kryptonDaemon, portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, currencyFormatter: currencyFormatter, taxAdviser: taxAdviser)
@@ -90,8 +94,17 @@ extension DependencyContainer: ViewControllerFactory {
         return WatchlistViewController(portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, currencyManager: currencyManager, currencyFormatter: currencyFormatter)
     }
     
+    // Dashboard
     func makeDashboardViewController() -> DashboardViewController {
-        return DashboardViewController(viewFactory: self, kryptonDaemon: kryptonDaemon, portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, currencyFormatter: currencyFormatter, taxAdviser: taxAdviser)
+        return DashboardViewController(viewFactory: self, kryptonDaemon: kryptonDaemon, portfolioManager: portfolioManager, tickerDaemon: tickerDaemon, colorPalette: colorContainer)
+    }
+    
+    func makeAnalysisChartViewController(analysisType: AnalysisType, transactionType: TransactionType) -> AnalysisChartViewController {
+        return AnalysisChartViewController(portfolioManager: portfolioManager, taxAdviser: taxAdviser, anaylsisType: analysisType, transactionType: transactionType, colorPalette: colorContainer)
+    }
+    
+    func makeInsightsViewController(analysisType: AnalysisType, transactionType: TransactionType) -> InsightsViewController {
+        return InsightsViewController(portfolioManager: portfolioManager, taxAdviser: taxAdviser, currencyFormatter: currencyFormatter, comparisonDateFormatter: mediumDateFormatter, colorPalette: colorContainer, analysisType: analysisType, transactionType: transactionType)
     }
     
     // Portfolio

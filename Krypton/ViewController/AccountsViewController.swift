@@ -60,8 +60,9 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
         kryptonDaemon.delegate = self
         tickerDaemon.delegate = self
         
-        portfolios = portfolioManager.storedPortfolios.filter { $0.storedAddresses.count > 0 }
+        navigationController?.navigationBar.barStyle = .default
         
+        updatePortfolios()
         updateUI()
     }
     
@@ -83,6 +84,10 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
         }
     }
     
+    private func updatePortfolios() {
+        portfolios = portfolioManager.storedPortfolios.filter { $0.storedAddresses.count > 0 }.sorted(by: { $0.alias! < $1.alias! })
+    }
+    
     @objc private func settingsButtonPressed() {
         let settingsViewController = viewFactory.makeSettingsViewController()
         let settingsNavigationController = UINavigationController(rootViewController: settingsViewController)
@@ -93,6 +98,10 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
         let addAddressViewController = viewFactory.makeAddAdressViewController()
         let addAddressNavigationController = UINavigationController(rootViewController: addAddressViewController)
         navigationController?.present(addAddressNavigationController, animated: true, completion: nil)
+    }
+    
+    private func getAddress(for indexPath: IndexPath) -> Address? {
+        return portfolios[indexPath.section].storedAddresses.sorted(by: { portfolioManager.getAlias(for: $0.identifier!) < portfolioManager.getAlias(for: $1.identifier!) })[indexPath.row-1]
     }
     
     // MARK: Collapse Helpers
@@ -136,7 +145,7 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
     
     // MARK: - KryptonDaemon Delegate
     func kryptonDaemonDidUpdate(_ kryptonDaemon: KryptonDaemon) {
-        portfolios = portfolioManager.storedPortfolios.filter { $0.storedAddresses.count > 0 }
+        updatePortfolios()
         updateUI()
     }
     
@@ -183,7 +192,7 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
             
             return cell
         case 1:
-            let cell = UITableViewCell(style: .default, reuseIdentifier: "InfoCell")
+            let cell = UITableViewCell(style: .default, reuseIdentifier: "AllTransactionsCell")
             cell.accessoryType = .disclosureIndicator
             cell.textLabel?.text = "All Transactions"
             return cell
@@ -199,14 +208,17 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
                 cell.sectionLabel.text = portfolio.alias?.uppercased()
                 
                 if let exchangeValue = taxAdviser.getTotalExchangeValue(for: portfolio) {
-                    cell.detailLabel.text = currencyFormatter.getFormatting(for: exchangeValue, currency: portfolio.quoteCurrency)
+                    cell.detailLabel.text = currencyFormatter.getFormatting(for: exchangeValue, currency: portfolio.quoteCurrency, maxDigits: 0)
                 } else {
                     cell.detailLabel.text = nil
                 }
                 
                 return cell
             default:
-                let address = portfolios[section].storedAddresses[row-1]
+                guard let address = getAddress(for: IndexPath(row: row, section: section)) else {
+                    fatalError()
+                }
+                
                 let cell = tableView.dequeueReusableCell(withIdentifier: "DetailCell") as! DetailCell
                 cell.label.text = portfolioManager.getAlias(for: address.identifier!)
                 cell.detailLabel.text = currencyFormatter.getFormatting(for: address.balance, currency: address.blockchain, maxDigits: 2)
@@ -280,7 +292,10 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
                 
                 tableView.endUpdates()
             } else {
-                let address = portfolios[section].storedAddresses[row-1]
+                guard let address = getAddress(for: IndexPath(row: row, section: section)) else {
+                    fatalError()
+                }
+                
                 let transactionsViewController = viewFactory.makeTransactionsViewController(for: [address])
                 transactionsViewController.title = portfolioManager.getAlias(for: address.identifier!)
                 navigationController?.pushViewController(transactionsViewController, animated: true)
@@ -295,8 +310,12 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
         
         let section = getSectionIndex(indexPath.row)
         let row = getRowIndex(indexPath.row)
-        let selectedAddress = portfolios[section].storedAddresses[row-1]
-        let addressDetailViewController = viewFactory.makeAddressDetailViewController(for: selectedAddress)
+        
+        guard let address = getAddress(for: IndexPath(row: row, section: section)) else {
+            fatalError()
+        }
+        
+        let addressDetailViewController = viewFactory.makeAddressDetailViewController(for: address)
         navigationController?.pushViewController(addressDetailViewController, animated: true)
     }
         

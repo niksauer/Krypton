@@ -61,7 +61,7 @@ class PortfoliosViewController: UITableViewController, KryptonDaemonDelegate, Po
     
     // MARK: - Private Methods
     private func updateUI() {
-        portfolios = portfolioManager.storedPortfolios
+        portfolios = portfolioManager.storedPortfolios.sorted(by: { $0.alias! < $1.alias! })
         
         if portfolios.count == 0 {
             delegate?.portfolioSelector(self, didChangeSelectedPortfolio: nil)

@@ -112,7 +112,12 @@ struct ExchangeRateManager {
                     _ = try ExchangeRate.createExchangeRate(from: exchangeRate, in: self.context)
                     count = count + 1
                 } catch {
-                    log.error("Failed to create exchange rate for currency pair '\(currencyPair.name)': \(error)")
+                    switch error {
+                    case ExchangeRateError.duplicate:
+                        break
+                    default:
+                        log.error("Failed to create exchange rate for currency pair '\(currencyPair.name)': \(error)")
+                    }
                 }
             }
             

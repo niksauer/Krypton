@@ -13,7 +13,12 @@ protocol ViewControllerFactory {
     // Main
     func makeAccountsViewController() -> AccountsViewController
     func makeWatchlistViewController() -> WatchlistViewController
+    
+    // Dashboard
     func makeDashboardViewController() -> DashboardViewController
+    
+    func makeAnalysisChartViewController(analysisType: AnalysisType, transactionType: TransactionType) -> AnalysisChartViewController
+    func makeInsightsViewController(analysisType: AnalysisType, transactionType: TransactionType) -> InsightsViewController
     
     // Portfolio
     func makePortfoliosViewController() -> PortfoliosViewController
