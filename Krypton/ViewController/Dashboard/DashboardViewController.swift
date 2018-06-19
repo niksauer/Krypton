@@ -17,6 +17,9 @@ enum AnalysisType: String {
 
 class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDaemonDelegate, FilterDelegate, ChartViewDelegate {
 
+    // Mark: - Typealiases
+    typealias ColorPalette = DashboardColorPalette
+    
     // Mark: - Outlets
     @IBOutlet weak var comparisonDateSegmentedControl: UISegmentedControl!
     
@@ -32,9 +35,7 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
     private let kryptonDaemon: KryptonDaemon
     private let portfolioManager: PortfolioManager
     private let tickerDaemon: TickerDaemon
-    private let currencyFormatter: CurrencyFormatter
-    private let taxAdviser: TaxAdviser
-    private let comparisonDateFormatter: DateFormatter
+    private let colorPalette: ColorPalette
     
     private let analysisChartViewController: AnalysisChartViewController
     private let insightsViewController: InsightsViewController
@@ -80,16 +81,15 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
     }
     
     // MARK: - Initialization
-    init(viewFactory: ViewControllerFactory, kryptonDaemon: KryptonDaemon, portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, currencyFormatter: CurrencyFormatter, taxAdviser: TaxAdviser, comparisonDateFormatter: DateFormatter) {
+    init(viewFactory: ViewControllerFactory, kryptonDaemon: KryptonDaemon, portfolioManager: PortfolioManager, tickerDaemon: TickerDaemon, colorPalette: ColorPalette) {
         self.viewFactory = viewFactory
         self.kryptonDaemon = kryptonDaemon
         self.portfolioManager = portfolioManager
         self.tickerDaemon = tickerDaemon
-        self.currencyFormatter = currencyFormatter
-        self.taxAdviser = taxAdviser
-        self.comparisonDateFormatter = comparisonDateFormatter
-        self.analysisChartViewController = AnalysisChartViewController(portfolioManager: portfolioManager, taxAdviser: taxAdviser, anaylsisType: analysisType, transactionType: filter.transactionType)
-        self.insightsViewController = InsightsViewController(portfolioManager: portfolioManager, taxAdviser: taxAdviser, currencyFormatter: currencyFormatter, comparisonDateFormatter: comparisonDateFormatter, analysisType: analysisType, transactionType: filter.transactionType)
+        self.colorPalette = colorPalette
+        
+        self.analysisChartViewController = viewFactory.makeAnalysisChartViewController(analysisType: analysisType, transactionType: filter.transactionType)
+        self.insightsViewController = viewFactory.makeInsightsViewController(analysisType: analysisType, transactionType: filter.transactionType)
         
         super.init(nibName: nil, bundle: nil)
         
@@ -104,6 +104,13 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
     // MARK: - Customization
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // setup colors
+        view.backgroundColor = colorPalette.backgroundColor
+        analysisTypeLabel.textColor = colorPalette.primaryTextColor
+        comparisonDateSegmentedControl.tintColor = colorPalette.tintColor
+        previousAnalysisTypeButton.tintColor = colorPalette.tintColor
+        nextAnalysisTypeButton.tintColor = colorPalette.tintColor
         
         // setup analysis charts VC
         addChildViewController(analysisChartViewController)
@@ -134,6 +141,9 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
         
         kryptonDaemon.delegate = self
         tickerDaemon.delegate = self
+        
+        navigationController?.navigationBar.barStyle = .blackTranslucent
+        navigationController?.navigationBar.tintColor = colorPalette.tintColor
     }
     
     override func viewWillDisappear(_ animated: Bool) {

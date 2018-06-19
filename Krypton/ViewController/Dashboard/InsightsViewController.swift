@@ -10,25 +10,39 @@ import UIKit
 
 class InsightsViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
 
+    // Mark: - Typealiases
+    typealias ColorPalette = DashboardColorPalette
+    
     // Mark: - Private Properties
     private let portfolioManager: PortfolioManager
     private let taxAdviser: TaxAdviser
     private let currencyFormatter: CurrencyFormatter
     private let comparisonDateFormatter: DateFormatter
+    private let colorPalette: ColorPalette
+    
+    private var showsAbsoluteProfit: Bool
     
     // Mark: - Public Properties
-    var analysisType: AnalysisType
+    var analysisType: AnalysisType {
+        didSet {
+            showsAbsoluteProfit = analysisType == .absoluteProfit
+        }
+    }
+    
     var transactionType: TransactionType
     var comparisonDate: Date?
     
     // MARK: Initialization
-    init(portfolioManager: PortfolioManager, taxAdviser: TaxAdviser, currencyFormatter: CurrencyFormatter, comparisonDateFormatter: DateFormatter, analysisType: AnalysisType, transactionType: TransactionType) {
+    init(portfolioManager: PortfolioManager, taxAdviser: TaxAdviser, currencyFormatter: CurrencyFormatter, comparisonDateFormatter: DateFormatter, colorPalette: ColorPalette, analysisType: AnalysisType, transactionType: TransactionType) {
         self.portfolioManager = portfolioManager
         self.taxAdviser = taxAdviser
         self.currencyFormatter = currencyFormatter
         self.comparisonDateFormatter = comparisonDateFormatter
+        self.colorPalette = colorPalette
         self.analysisType = analysisType
         self.transactionType = transactionType
+        
+        showsAbsoluteProfit = analysisType == .absoluteProfit
     
         let layout = UICollectionViewFlowLayout()
         layout.sectionInset = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
@@ -36,7 +50,7 @@ class InsightsViewController: UICollectionViewController, UICollectionViewDelega
         super.init(collectionViewLayout: layout)
         
         collectionView!.alwaysBounceVertical = true
-        collectionView?.backgroundColor = UIColor.white
+        collectionView!.backgroundColor = colorPalette.backgroundColor
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -56,7 +70,7 @@ class InsightsViewController: UICollectionViewController, UICollectionViewDelega
         collectionView?.reloadData()
     }
     
-    // MARK: UICollectionViewDataSource
+    // MARK: UICollectionView DataSource
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
@@ -67,6 +81,10 @@ class InsightsViewController: UICollectionViewController, UICollectionViewDelega
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "InsightCell", for: indexPath) as! InsightCell
+        cell.backgroundColor = colorPalette.insightBackgroundColor
+        cell.label.textColor = colorPalette.primaryTextColor
+        cell.subtitleLabel.textColor = colorPalette.secondaryTextColor
+        
         let row = indexPath.row
         
         switch row {
@@ -81,21 +99,21 @@ class InsightsViewController: UICollectionViewController, UICollectionViewDelega
             
             cell.subtitleLabel.text = nil
         case 1:
-            switch analysisType {
-            case .absoluteProfit:
+            if showsAbsoluteProfit {
                 cell.label.text = "Absolute Profit"
-            default:
+            } else {
                 cell.label.text = "Relative Profit"
             }
             
+            cell.detailLabel.textColor = colorPalette.positiveColor
+            
             if let comparisonDate = comparisonDate, let profitStats = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, timeframe: .sinceDate(comparisonDate), type: transactionType) {
-                switch analysisType {
-                case .absoluteProfit:
+                if showsAbsoluteProfit {
                     cell.detailLabel.text = currencyFormatter.getAbsoluteProfitFormatting(from: profitStats, currency: portfolioManager.quoteCurrency, maxDigits: 0)
-                default:
+                } else {
                     cell.detailLabel.text = currencyFormatter.getRelativeProfitFormatting(from: profitStats, maxDigits: 2)
                 }
-                
+            
                 cell.subtitleLabel.text = "Since \(comparisonDateFormatter.string(from: comparisonDate))"
             } else {
                 cell.detailLabel.text = "???"
@@ -103,6 +121,7 @@ class InsightsViewController: UICollectionViewController, UICollectionViewDelega
             }
         case 2:
             cell.label.text = "Total Investment"
+            cell.detailLabel.textColor = colorPalette.naturalColor
             
             if let investmentValue = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, timeframe: .allTime, type: transactionType)?.startValue {
                 cell.detailLabel.text = currencyFormatter.getFormatting(for: investmentValue, currency: portfolioManager.quoteCurrency, maxDigits: 0)
@@ -118,7 +137,20 @@ class InsightsViewController: UICollectionViewController, UICollectionViewDelega
         return cell
     }
     
-    // MARK: UICollectionViewDelegateFlowLayout
+    // MARK: UICollectionView Delegate
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let row = indexPath.row
+        
+        switch row {
+        case 1:
+            showsAbsoluteProfit = !showsAbsoluteProfit
+            collectionView.reloadItems(at: [indexPath])
+        default:
+            break
+        }
+    }
+    
+    // MARK: UICollectionViewFlowLayout Delegate
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: collectionView.frame.width - 32, height: 80)
     }

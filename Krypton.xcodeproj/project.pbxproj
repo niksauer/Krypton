@@ -38,6 +38,8 @@
 		2449F4481F6F1D1F006E21C8 /* CurrencySelectorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2449F4471F6F1D1F006E21C8 /* CurrencySelectorViewController.swift */; };
 		2449F44A1F6F1F40006E21C8 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2449F4491F6F1F40006E21C8 /* SettingsViewController.swift */; };
 		2458132F1F5F503B007795BC /* PortfolioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2458132E1F5F503B007795BC /* PortfolioManager.swift */; };
+		2459CC6720D8527200A294C2 /* DashboardColorPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2459CC6620D8527200A294C2 /* DashboardColorPalette.swift */; };
+		2459CC7520D8535500A294C2 /* ColorContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2459CC7420D8535500A294C2 /* ColorContainer.swift */; };
 		246737651F4B9255003277B8 /* TransactionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246737641F4B9255003277B8 /* TransactionsViewController.swift */; };
 		246874F61F464B4E009BB60A /* Krypton.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 246874F41F464B4E009BB60A /* Krypton.xcdatamodeld */; };
 		246FC40220D2F52400737A4C /* TokenExplorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246FC40120D2F52400737A4C /* TokenExplorer.swift */; };
@@ -318,6 +320,8 @@
 		2449F4471F6F1D1F006E21C8 /* CurrencySelectorViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrencySelectorViewController.swift; sourceTree = "<group>"; };
 		2449F4491F6F1F40006E21C8 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		2458132E1F5F503B007795BC /* PortfolioManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PortfolioManager.swift; sourceTree = "<group>"; };
+		2459CC6620D8527200A294C2 /* DashboardColorPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardColorPalette.swift; sourceTree = "<group>"; };
+		2459CC7420D8535500A294C2 /* ColorContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorContainer.swift; sourceTree = "<group>"; };
 		246737641F4B9255003277B8 /* TransactionsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionsViewController.swift; sourceTree = "<group>"; };
 		246874F51F464B4E009BB60A /* Krypton.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Krypton.xcdatamodel; sourceTree = "<group>"; };
 		246FC40120D2F52400737A4C /* TokenExplorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenExplorer.swift; sourceTree = "<group>"; };
@@ -661,6 +665,7 @@
 				24A9FA3F20C80C310058223D /* Daemons */,
 				24D71E8420C95C8C000155FE /* Formatter */,
 				24D11B0920CB5A03001C9135 /* Filter.swift */,
+				2459CC7420D8535500A294C2 /* ColorContainer.swift */,
 				24B4A27A20C7152D007AEB28 /* DependencyContainer.swift */,
 				24B4A27620C700E0007AEB28 /* CoreDataStack.swift */,
 				2458132E1F5F503B007795BC /* PortfolioManager.swift */,
@@ -741,6 +746,7 @@
 		24D71E3720C88B7A000155FE /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
+				2459CC6620D8527200A294C2 /* DashboardColorPalette.swift */,
 				24D71E3220C87F06000155FE /* ViewControllerFactory.swift */,
 				2474F68720D10BA1001E5799 /* Reportable.swift */,
 				241B7E6B20D0833100E6355C /* Currency.swift */,
@@ -1051,6 +1057,7 @@
 				241B7E7620D0835700E6355C /* CurrencyPair.swift in Sources */,
 				248E796E20D02987000BF17C /* EthereumBlockExplorer.swift in Sources */,
 				2400D09A1F42511800833958 /* BlockchainService.swift in Sources */,
+				2459CC6720D8527200A294C2 /* DashboardColorPalette.swift in Sources */,
 				24935C691FA0B81B00F4F291 /* AmountByAddressViewController.swift in Sources */,
 				2417241220CF2FB600A6EBE8 /* EtherscanService.swift in Sources */,
 				24B4A27920C70900007AEB28 /* ExchangeRateManager.swift in Sources */,
@@ -1060,6 +1067,7 @@
 				2449F4351F6CB30D006E21C8 /* TransactionDetailViewController.swift in Sources */,
 				2493FCE420D2D96900F33996 /* EthplorerToken.swift in Sources */,
 				246737651F4B9255003277B8 /* TransactionsViewController.swift in Sources */,
+				2459CC7520D8535500A294C2 /* ColorContainer.swift in Sources */,
 				2474F69220D110C5001E5799 /* BitcoinTransaction.swift in Sources */,
 				247C131620D6969E00C145C4 /* ChartTimeframe.swift in Sources */,
 				24D71E3920C88BB6000155FE /* NotificationCenter.swift in Sources */,

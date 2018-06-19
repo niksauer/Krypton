@@ -77,7 +77,7 @@
                     </connections>
                 </button>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Absolute Profit" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XyG-LC-JBH">
-                    <rect key="frame" x="141" y="112.5" width="93" height="16"/>
+                    <rect key="frame" x="141.5" y="112.5" width="93" height="16"/>
                     <fontDescription key="fontDescription" type="system" weight="medium" pointSize="13"/>
                     <nil key="textColor"/>
                     <nil key="highlightedColor"/>

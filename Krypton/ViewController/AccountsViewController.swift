@@ -60,6 +60,8 @@ class AccountsViewController: UITableViewController, KryptonDaemonDelegate, Tick
         kryptonDaemon.delegate = self
         tickerDaemon.delegate = self
         
+        navigationController?.navigationBar.barStyle = .default
+        
         updatePortfolios()
         updateUI()
     }

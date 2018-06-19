@@ -11,12 +11,16 @@ import Charts
 
 class AnalysisChartViewController: UIViewController, ChartViewDelegate {
 
+    // Mark: - Typealiases
+    typealias ColorPalette = DashboardColorPalette
+    
     // Mark: - Views
     private let lineChartView: LineChartView
     
     // Mark: - Private Properties
     private let portfolioManager: PortfolioManager
     private let taxAdviser: TaxAdviser
+    private let colorPalette: ColorPalette
     
     private var referenceTimestamp: Double!
 
@@ -27,9 +31,10 @@ class AnalysisChartViewController: UIViewController, ChartViewDelegate {
     var dateFormatter: DateFormatter!
     
     // Mark: - Initialization
-    init(portfolioManager: PortfolioManager, taxAdviser: TaxAdviser, anaylsisType: AnalysisType, transactionType: TransactionType) {
+    init(portfolioManager: PortfolioManager, taxAdviser: TaxAdviser, anaylsisType: AnalysisType, transactionType: TransactionType, colorPalette: ColorPalette) {
         self.portfolioManager = portfolioManager
         self.taxAdviser = taxAdviser
+        self.colorPalette = colorPalette
         self.type = anaylsisType
         self.transactionType = transactionType
         
@@ -57,8 +62,10 @@ class AnalysisChartViewController: UIViewController, ChartViewDelegate {
         lineChartView.legend.enabled = false
         lineChartView.noDataText = "No data available."
         lineChartView.minOffset = 0
+        lineChartView.extraTopOffset = 4
         lineChartView.extraLeftOffset = 4
         lineChartView.extraRightOffset = 4
+        lineChartView.extraBottomOffset = 8
         
         lineChartView.leftAxis.enabled = false
         
@@ -68,13 +75,21 @@ class AnalysisChartViewController: UIViewController, ChartViewDelegate {
         lineChartView.rightAxis.labelPosition = .insideChart
         lineChartView.rightAxis.drawTopYLabelEntryEnabled = true
         lineChartView.rightAxis.labelCount = 4
-        lineChartView.rightAxis.xOffset = 5
+        lineChartView.rightAxis.xOffset = 4
+        lineChartView.rightAxis.yOffset = -4
         lineChartView.rightAxis.valueFormatter = LargeValueFormatter()
         
         lineChartView.xAxis.labelPosition = .bottom
         lineChartView.xAxis.avoidFirstLastClippingEnabled = true
         lineChartView.xAxis.gridLineDashLengths = [2, 2]
         lineChartView.xAxis.valueFormatter = self
+        
+        // color setup
+        lineChartView.backgroundColor = colorPalette.chartBackgroundColor
+        lineChartView.xAxis.labelTextColor = colorPalette.secondaryTextColor
+        lineChartView.rightAxis.labelTextColor = colorPalette.secondaryTextColor
+        lineChartView.rightAxis.gridColor = colorPalette.chartGridColor
+        lineChartView.xAxis.gridColor = colorPalette.chartGridColor
         
         updateUI()
     }
@@ -114,6 +129,10 @@ class AnalysisChartViewController: UIViewController, ChartViewDelegate {
         dataset.drawFilledEnabled = true
         dataset.drawHorizontalHighlightIndicatorEnabled = false
         dataset.drawCirclesEnabled = false
+        
+        // colors
+        dataset.fillColor = colorPalette.chartFillColor
+        dataset.colors = [colorPalette.chartLineColor]
         
         let chartData = LineChartData(dataSet: dataset)
         lineChartView.data = chartData
