@@ -20,19 +20,19 @@
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Total Value" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ACg-VR-o43">
-                        <rect key="frame" x="16" y="8" width="125" height="21"/>
+                        <rect key="frame" x="10" y="8" width="137" height="21"/>
                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="261" verticalHuggingPriority="261" horizontalCompressionResistancePriority="760" verticalCompressionResistancePriority="760" text="€11,531" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GGI-jr-zjV">
-                        <rect key="frame" x="149.5" y="3" width="138.5" height="50.5"/>
+                        <rect key="frame" x="155.5" y="3" width="138.5" height="50.5"/>
                         <fontDescription key="fontDescription" type="system" weight="light" pointSize="42"/>
                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Since 03/13/18" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6RO-eU-MUU">
-                        <rect key="frame" x="192" y="53.5" width="96" height="18.5"/>
+                        <rect key="frame" x="198" y="53.5" width="96" height="18.5"/>
                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                         <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
                         <nil key="highlightedColor"/>
@@ -43,12 +43,12 @@
             <constraints>
                 <constraint firstItem="ACg-VR-o43" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="8" id="5ME-PJ-Qwr"/>
                 <constraint firstItem="6RO-eU-MUU" firstAttribute="top" secondItem="GGI-jr-zjV" secondAttribute="bottom" id="Jw9-7L-4bf"/>
-                <constraint firstItem="ACg-VR-o43" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="16" id="KSp-Wt-wu3"/>
+                <constraint firstItem="ACg-VR-o43" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="10" id="KSp-Wt-wu3"/>
                 <constraint firstItem="GGI-jr-zjV" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="3" id="MNQ-gX-xL7"/>
                 <constraint firstItem="GGI-jr-zjV" firstAttribute="leading" secondItem="ACg-VR-o43" secondAttribute="trailing" constant="8" id="ZSE-lP-u3w"/>
                 <constraint firstAttribute="bottom" secondItem="6RO-eU-MUU" secondAttribute="bottom" constant="8" id="jmc-gR-GKw"/>
-                <constraint firstAttribute="trailing" secondItem="GGI-jr-zjV" secondAttribute="trailing" constant="16" id="n7b-1j-uks"/>
-                <constraint firstAttribute="trailing" secondItem="6RO-eU-MUU" secondAttribute="trailing" constant="16" id="xVp-EM-hgc"/>
+                <constraint firstAttribute="trailing" secondItem="GGI-jr-zjV" secondAttribute="trailing" constant="10" id="n7b-1j-uks"/>
+                <constraint firstAttribute="trailing" secondItem="6RO-eU-MUU" secondAttribute="trailing" constant="10" id="xVp-EM-hgc"/>
             </constraints>
             <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
             <size key="customSize" width="304" height="74"/>

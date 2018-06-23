@@ -11,7 +11,7 @@ import UIKit
 
 protocol DashboardColorPalette {
     var backgroundColor: UIColor { get }
-    var naturalColor: UIColor { get }
+    var neutralColor: UIColor { get }
     var negativeColor: UIColor { get }
     var positiveColor: UIColor { get }
     var chartLineColor: UIColor { get }

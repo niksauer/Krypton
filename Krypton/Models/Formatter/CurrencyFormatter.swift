@@ -83,23 +83,8 @@ struct CurrencyFormatter {
         }
     }
 
-    func getAbsoluteProfitFormatting(from: (startValue: Double, endValue: Double), currency: Currency, maxDigits: Int? = nil) -> String? {
-        return getFormatting(for: (from.endValue - from.startValue), currency: currency, maxDigits: maxDigits)
-    }
-    
-    func getRelativeProfitFormatting(from: (startValue: Double, endValue: Double), maxDigits: Int? = nil) -> String? {
-        let percentage = ((from.startValue - from.endValue) / from.startValue * 100)
-        let result: Double
-        
-        if from.startValue < from.endValue {
-            result = abs(percentage)
-        } else if from.startValue > from.endValue {
-            result = -abs(percentage)
-        } else {
-            result = 0
-        }
-        
-        if let numberString = getNumberFormatting(for: result, maxDigits: maxDigits) {
+    func getPercentageFormatting(for value: Double, maxDigits: Int? = nil) -> String? {
+        if let numberString = getNumberFormatting(for: value, maxDigits: maxDigits) {
             return numberString + "%"
         } else {
             return nil

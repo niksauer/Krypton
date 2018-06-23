@@ -27,7 +27,7 @@ struct ColorContainer: DashboardColorPalette {
     var primaryTextColor: UIColor { return white }
     var secondaryTextColor: UIColor { return gray }
     
-    var naturalColor: UIColor { return blue }
+    var neutralColor: UIColor { return blue }
     var negativeColor: UIColor { return red }
     var positiveColor: UIColor { return green }
     

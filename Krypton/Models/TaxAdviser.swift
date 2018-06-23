@@ -37,6 +37,26 @@ struct TaxAdviser {
     }
     
     // MARK: - Public Methods
+    // MARK: General
+    func getAbsoluteProfit(from stats: (startValue: Double, endValue: Double)) -> Double {
+        return stats.endValue - stats.startValue
+    }
+    
+    func getRelativeProfit(from stats: (startValue: Double, endValue: Double)) -> Double {
+        let percentage = ((stats.startValue - stats.endValue) / stats.startValue * 100)
+        let result: Double
+        
+        if stats.startValue < stats.endValue {
+            result = abs(percentage)
+        } else if stats.startValue > stats.endValue {
+            result = -abs(percentage)
+        } else {
+            result = 0
+        }
+        
+        return result
+    }
+    
     // MARK: Transaction
     /// returns exchange value as encountered on execution date according to owners trading pair
     func getExchangeValue(for transaction: Transaction) -> Double? {

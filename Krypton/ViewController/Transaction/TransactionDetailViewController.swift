@@ -326,10 +326,12 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
                 
                 if showsRelativeProfit {
                     cell.textLabel?.text = "Relative Profit"
-                    cell.detailTextLabel?.text = currencyFormatter.getRelativeProfitFormatting(from: profitStats)
+                    let relativeProfit = taxAdviser.getRelativeProfit(from: profitStats)
+                    cell.detailTextLabel?.text = currencyFormatter.getPercentageFormatting(for: relativeProfit)
                 } else {
                     cell.textLabel?.text = "Absolute Profit"
-                    cell.detailTextLabel?.text = currencyFormatter.getAbsoluteProfitFormatting(from: profitStats, currency: transaction.owner!.quoteCurrency)
+                    let absoluteProfit = taxAdviser.getAbsoluteProfit(from: profitStats)
+                    cell.detailTextLabel?.text = currencyFormatter.getFormatting(for: absoluteProfit, currency: transaction.owner!.quoteCurrency)
                 }
                 
                 return cell

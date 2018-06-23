@@ -83,6 +83,7 @@ class InsightsViewController: UICollectionViewController, UICollectionViewDelega
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "InsightCell", for: indexPath) as! InsightCell
         cell.backgroundColor = colorPalette.insightBackgroundColor
         cell.label.textColor = colorPalette.primaryTextColor
+        cell.detailLabel.textColor = colorPalette.neutralColor
         cell.subtitleLabel.textColor = colorPalette.secondaryTextColor
         
         let row = indexPath.row
@@ -108,12 +109,22 @@ class InsightsViewController: UICollectionViewController, UICollectionViewDelega
             cell.detailLabel.textColor = colorPalette.positiveColor
             
             if let comparisonDate = comparisonDate, let profitStats = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, timeframe: .sinceDate(comparisonDate), type: transactionType) {
+                let profit: Double
+                
                 if showsAbsoluteProfit {
-                    cell.detailLabel.text = currencyFormatter.getAbsoluteProfitFormatting(from: profitStats, currency: portfolioManager.quoteCurrency, maxDigits: 0)
+                    profit = taxAdviser.getAbsoluteProfit(from: profitStats)
+                    cell.detailLabel.text = currencyFormatter.getFormatting(for: profit, currency: portfolioManager.quoteCurrency, maxDigits: 0)
                 } else {
-                    cell.detailLabel.text = currencyFormatter.getRelativeProfitFormatting(from: profitStats, maxDigits: 2)
+                    profit = taxAdviser.getRelativeProfit(from: profitStats)
+                    cell.detailLabel.text = currencyFormatter.getPercentageFormatting(for: profit, maxDigits: 2)
                 }
             
+                if profit >= 0 {
+                    cell.detailLabel.textColor = colorPalette.positiveColor
+                } else {
+                    cell.detailLabel.textColor = colorPalette.negativeColor
+                }
+                
                 cell.subtitleLabel.text = "Since \(comparisonDateFormatter.string(from: comparisonDate))"
             } else {
                 cell.detailLabel.text = "???"
@@ -121,7 +132,7 @@ class InsightsViewController: UICollectionViewController, UICollectionViewDelega
             }
         case 2:
             cell.label.text = "Total Investment"
-            cell.detailLabel.textColor = colorPalette.naturalColor
+            cell.detailLabel.textColor = colorPalette.neutralColor
             
             if let investmentValue = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, timeframe: .allTime, type: transactionType)?.startValue {
                 cell.detailLabel.text = currencyFormatter.getFormatting(for: investmentValue, currency: portfolioManager.quoteCurrency, maxDigits: 0)
