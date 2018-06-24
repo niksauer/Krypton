@@ -37,5 +37,7 @@ struct ColorContainer: DashboardColorPalette {
     var chartGridColor: UIColor { return darkBlue }
 
     var insightBackgroundColor: UIColor { return darkGray }
+    
+    var separatorColor: UIColor { return UIColor(displayP3Red: 55/255, green: 56/255, blue: 59/255, alpha: 1)}
 
 }

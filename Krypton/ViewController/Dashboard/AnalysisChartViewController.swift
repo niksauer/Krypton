@@ -61,6 +61,7 @@ class AnalysisChartViewController: UIViewController, ChartViewDelegate {
         lineChartView.chartDescription?.enabled = false
         lineChartView.legend.enabled = false
         lineChartView.noDataText = "No data available."
+        lineChartView.noDataTextColor = colorPalette.secondaryTextColor
         lineChartView.minOffset = 0
         lineChartView.extraTopOffset = 4
         lineChartView.extraLeftOffset = 4
@@ -101,15 +102,17 @@ class AnalysisChartViewController: UIViewController, ChartViewDelegate {
             return
         }
         
-        let rawData: [(Date, Double)]?
+        var rawData: [(Date, Double)]?
         
         switch type {
         case .exchangeValue:
             rawData = taxAdviser.getExchangeValueHistory(for: portfolioManager.selectedAddresses, since: comparisonDate, type: transactionType)
         case .absoluteProfit:
-            rawData = taxAdviser.getAbsoluteProfitHistory(for: portfolioManager.selectedAddresses, since: comparisonDate, type: transactionType)?.history
+//            rawData = taxAdviser.getAbsoluteProfitHistory(for: portfolioManager.selectedAddresses, since: comparisonDate, type: transactionType)?.history
+            break
         case .relativeProfit:
-            rawData = taxAdviser.getRelativeProfitHistory(for: portfolioManager.selectedAddresses, since: comparisonDate, type: transactionType)?.history
+//            rawData = taxAdviser.getRelativeProfitHistory(for: portfolioManager.selectedAddresses, since: comparisonDate, type: transactionType)?.history
+            break
         }
         
         guard let data = rawData, data.count >= 1 else {
@@ -134,6 +137,7 @@ class AnalysisChartViewController: UIViewController, ChartViewDelegate {
         dataset.fillColor = colorPalette.chartFillColor
         dataset.colors = [colorPalette.chartLineColor]
         
+        // set chart data
         let chartData = LineChartData(dataSet: dataset)
         lineChartView.data = chartData
     }

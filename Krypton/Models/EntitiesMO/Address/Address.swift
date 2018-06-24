@@ -273,13 +273,13 @@ class Address: NSManagedObject, TransactionDelegate, Reportable {
     
     // MARK: Finance
     /// returns balance for specified transaction type on specified date
-    final func getBalance(on date: Date, type: TransactionType) -> Double? {
+    final func getBalance(on date: Date, type: TransactionType) -> Double {
         guard storedTransactions.count > 0 else {
             return 0.0
         }
     
         let transactions = getTransactions(type: type).filter { $0.date! <= date }
-    
+        
         var balance = 0.0
     
         for transaction in transactions {

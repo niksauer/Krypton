@@ -154,7 +154,7 @@ final class PortfolioManager: PortfolioDelegate {
     }
     
     func getOldestTransaction() -> Transaction? {
-        let oldestTransactions = storedAddresses.compactMap({ $0.getOldestTransaction() })
+        let oldestTransactions = selectedAddresses.compactMap({ $0.getOldestTransaction() })
         return oldestTransactions.sorted(by: { $0.date! < $1.date! }).first
     }
     

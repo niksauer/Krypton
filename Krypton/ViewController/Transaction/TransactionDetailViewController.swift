@@ -318,7 +318,7 @@ class TransactionDetailViewController: UITableViewController, UITextFieldDelegat
             case 1:
                 profitIndexPath = indexPath
                 
-                guard let profitStats = taxAdviser.getProfitStats(for: transaction, timeframe: .allTime) else {
+                guard let profitStats = taxAdviser.getProfitStats(for: transaction, timeframe: .allTime, valueType: .total) else {
                     cell.textLabel?.text = "Profit"
                     cell.detailTextLabel?.text = "???"
                     return cell

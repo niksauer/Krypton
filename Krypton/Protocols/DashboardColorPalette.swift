@@ -22,4 +22,5 @@ protocol DashboardColorPalette {
     var secondaryTextColor: UIColor { get }
     var tintColor: UIColor { get }
     var insightBackgroundColor: UIColor { get }
+    var separatorColor: UIColor { get }
 }

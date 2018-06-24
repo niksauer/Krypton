@@ -424,6 +424,7 @@ class TransactionsViewController: FetchedResultsTableViewController<Transaction>
                 do {
                     let value = totalExchangeValue / totalAmount * transaction.totalAmount
                     try transaction.setUserExchangeValue(value)
+                    try transaction.setIsInvestment(true)
                 } catch {
                     // present error
                 }

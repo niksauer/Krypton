@@ -45,7 +45,7 @@ class InsightsViewController: UICollectionViewController, UICollectionViewDelega
         showsAbsoluteProfit = analysisType == .absoluteProfit
     
         let layout = UICollectionViewFlowLayout()
-        layout.sectionInset = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
+        layout.sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
         
         super.init(collectionViewLayout: layout)
         
@@ -83,22 +83,28 @@ class InsightsViewController: UICollectionViewController, UICollectionViewDelega
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "InsightCell", for: indexPath) as! InsightCell
         cell.backgroundColor = colorPalette.insightBackgroundColor
         cell.label.textColor = colorPalette.primaryTextColor
-        cell.detailLabel.textColor = colorPalette.neutralColor
         cell.subtitleLabel.textColor = colorPalette.secondaryTextColor
+        cell.detailLabel.textColor = colorPalette.neutralColor
         
         let row = indexPath.row
         
         switch row {
         case 0:
             cell.label.text = "Total Value"
+            cell.subtitleLabel.text = nil
             
-            if let exchangeValue = taxAdviser.getExchangeValue(for: portfolioManager.selectedAddresses, on: Date(), type: transactionType) {
-                cell.detailLabel.text = currencyFormatter.getFormatting(for: exchangeValue, currency: portfolioManager.quoteCurrency, maxDigits: 0)
-            } else {
+            guard let profitStats = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, timeframe: .allTime, type: transactionType) else {
                 cell.detailLabel.text = "???"
+                break
             }
             
-            cell.subtitleLabel.text = nil
+            cell.detailLabel.text = currencyFormatter.getFormatting(for: profitStats.endValue, currency: portfolioManager.quoteCurrency, maxDigits: 0)
+            
+            if profitStats.endValue >= profitStats.startValue {
+                cell.detailLabel.textColor = colorPalette.positiveColor
+            } else {
+                cell.detailLabel.textColor = colorPalette.negativeColor
+            }
         case 1:
             if showsAbsoluteProfit {
                 cell.label.text = "Absolute Profit"
@@ -106,41 +112,39 @@ class InsightsViewController: UICollectionViewController, UICollectionViewDelega
                 cell.label.text = "Relative Profit"
             }
             
-            cell.detailLabel.textColor = colorPalette.positiveColor
-            
-            if let comparisonDate = comparisonDate, let profitStats = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, timeframe: .sinceDate(comparisonDate), type: transactionType) {
-                let profit: Double
-                
-                if showsAbsoluteProfit {
-                    profit = taxAdviser.getAbsoluteProfit(from: profitStats)
-                    cell.detailLabel.text = currencyFormatter.getFormatting(for: profit, currency: portfolioManager.quoteCurrency, maxDigits: 0)
-                } else {
-                    profit = taxAdviser.getRelativeProfit(from: profitStats)
-                    cell.detailLabel.text = currencyFormatter.getPercentageFormatting(for: profit, maxDigits: 2)
-                }
-            
-                if profit >= 0 {
-                    cell.detailLabel.textColor = colorPalette.positiveColor
-                } else {
-                    cell.detailLabel.textColor = colorPalette.negativeColor
-                }
-                
-                cell.subtitleLabel.text = "Since \(comparisonDateFormatter.string(from: comparisonDate))"
-            } else {
+            guard let comparisonDate = comparisonDate, let profitStats = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, timeframe: .sinceDate(comparisonDate), type: transactionType) else {
                 cell.detailLabel.text = "???"
                 cell.subtitleLabel.text = nil
+                break
             }
+            
+            let profit: Double
+            
+            if showsAbsoluteProfit {
+                profit = taxAdviser.getAbsoluteProfit(from: profitStats)
+                cell.detailLabel.text = currencyFormatter.getFormatting(for: profit, currency: portfolioManager.quoteCurrency, maxDigits: 0)
+            } else {
+                profit = taxAdviser.getRelativeProfit(from: profitStats)
+                cell.detailLabel.text = currencyFormatter.getPercentageFormatting(for: profit, maxDigits: 2)
+            }
+            
+            if profit >= 0 {
+                cell.detailLabel.textColor = colorPalette.positiveColor
+            } else {
+                cell.detailLabel.textColor = colorPalette.negativeColor
+            }
+            
+            cell.subtitleLabel.text = "Since \(comparisonDateFormatter.string(from: comparisonDate))"
         case 2:
             cell.label.text = "Total Investment"
-            cell.detailLabel.textColor = colorPalette.neutralColor
+            cell.subtitleLabel.text = nil
             
-            if let investmentValue = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, timeframe: .allTime, type: transactionType)?.startValue {
-                cell.detailLabel.text = currencyFormatter.getFormatting(for: investmentValue, currency: portfolioManager.quoteCurrency, maxDigits: 0)
-            } else {
+            guard let investmentValue = taxAdviser.getProfitStats(for: portfolioManager.selectedAddresses, timeframe: .allTime, type: transactionType)?.startValue else {
                 cell.detailLabel.text = "???"
+                break
             }
             
-            cell.subtitleLabel.text = nil
+            cell.detailLabel.text = currencyFormatter.getFormatting(for: investmentValue, currency: portfolioManager.quoteCurrency, maxDigits: 0)
         default:
             fatalError()
         }

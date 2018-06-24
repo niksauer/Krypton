@@ -27,7 +27,10 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
     @IBOutlet weak var previousAnalysisTypeButton: UIButton!
     @IBOutlet weak var nextAnalysisTypeButton: UIButton!
     
+    @IBOutlet weak var upperAnalysisChartSeparator: UIView!
     @IBOutlet weak var analysisChartViewContainer: UIView!
+    @IBOutlet weak var lowerAnalysisChartSeparator: UIView!
+    
     @IBOutlet weak var insightsViewContainer: UIView!
     
     // MARK: - Private Properties
@@ -111,6 +114,8 @@ class DashboardViewController: UIViewController, KryptonDaemonDelegate, TickerDa
         comparisonDateSegmentedControl.tintColor = colorPalette.tintColor
         previousAnalysisTypeButton.tintColor = colorPalette.tintColor
         nextAnalysisTypeButton.tintColor = colorPalette.tintColor
+        upperAnalysisChartSeparator.backgroundColor = colorPalette.separatorColor
+        lowerAnalysisChartSeparator.backgroundColor = colorPalette.separatorColor
         
         // setup analysis charts VC
         addChildViewController(analysisChartViewController)

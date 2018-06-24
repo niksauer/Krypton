@@ -63,13 +63,13 @@ struct TaxAdviser {
         return getExchangeValue(for: transaction, on: transaction.date!, valueType: .total)
     }
     
+    func getFeeExchangeValue(for transaction: Transaction) -> Double? {
+        return getExchangeValue(for: transaction, on: transaction.date!, valueType: .fee)
+    }
+    
     /// returns the current exchange value according to owners trading pair
     func getCurrentExchangeValue(for transaction: Transaction) -> Double? {
         return getExchangeValue(for: transaction, on: Date(), valueType: .total)
-    }
-    
-    func getFeeExchangeValue(for transaction: Transaction) -> Double? {
-        return getExchangeValue(for: transaction, on: transaction.date!, valueType: .fee)
     }
     
     func getCurrentFeeExchangeValue(for transaction: Transaction) -> Double? {
@@ -81,7 +81,7 @@ struct TaxAdviser {
             return nil
         }
         
-        if transaction.hasUserExchangeValue, date.UTCStart == transaction.date!.UTCStart {
+        if transaction.hasUserExchangeValue, date.UTCStart == transaction.date!.UTCStart, valueType == .total {
             guard let userExchangeValueQuoteCurrencyCode = transaction.userExchangeValueQuoteCurrencyCode else {
                 return nil
             }
@@ -92,19 +92,18 @@ struct TaxAdviser {
             
             let userExchangeValueQuoteCurrency = currencyManager.getCurrency(from: userExchangeValueQuoteCurrencyCode)!
             let userExchangeValueCurrencyPair = CurrencyPair(base: transaction.owner!.blockchain, quote: userExchangeValueQuoteCurrency)
-            let newUserExchangeValueCurrencyPair = transaction.owner!.currencyPair
+            let currencyPair = transaction.owner!.currencyPair
             
-            guard let userExchangeValueRate = exchangeRateManager.getExchangeRate(for: userExchangeValueCurrencyPair, on: transaction.date!), let newUserExchangeValueRate = exchangeRateManager.getExchangeRate(for: newUserExchangeValueCurrencyPair, on: transaction.date!) else {
+            guard let userExchangeValueRate = exchangeRateManager.getExchangeRate(for: userExchangeValueCurrencyPair, on: transaction.date!), let exchangeValueRate = exchangeRateManager.getExchangeRate(for: currencyPair, on: transaction.date!) else {
                 return nil
             }
             
-            let conversionRate = newUserExchangeValueRate / userExchangeValueRate
+            let conversionRate = exchangeValueRate / userExchangeValueRate
             
             return transaction.userExchangeValue * conversionRate
         }
         
         guard let exchangeRate = exchangeRateManager.getExchangeRate(for: transaction.owner!.currencyPair, on: date) else {
-            log.warning("Failed to get exchange value for transaction '\(transaction.logDescription)'.")
             return nil
         }
         
@@ -117,7 +116,7 @@ struct TaxAdviser {
     }
     
     /// returns the total absolute profit according to owners trading pair
-    func getProfitStats(for transaction: Transaction, timeframe: ProfitTimeframe) -> (startValue: Double, endValue: Double)? {
+    func getProfitStats(for transaction: Transaction, timeframe: ProfitTimeframe, valueType: TransactionValueType) -> (startValue: Double, endValue: Double)? {
         let startDate: Date
         let txDate = transaction.date!
         
@@ -136,14 +135,23 @@ struct TaxAdviser {
             }
         }
         
-        guard let startValue = getExchangeValue(for: transaction, on: startDate, valueType: .total), let endValue = getExchangeValue(for: transaction, on: Date(), valueType: .total) else {
+        guard let startValue = getExchangeValue(for: transaction, on: startDate, valueType: valueType), let endValue = getExchangeValue(for: transaction, on: Date(), valueType: valueType) else {
             return nil
         }
         
         if transaction.isOutbound {
             return (startValue * -1, endValue * -1)
         } else {
-            return (startValue, endValue)
+            switch valueType {
+            case .fee:
+                return (startValue, endValue)
+            case .total:
+                guard let startFeeValue = getExchangeValue(for: transaction, on: startDate, valueType: .fee), let endFeeValue = getExchangeValue(for: transaction, on: Date(), valueType: .fee) else {
+                    return nil
+                }
+                
+                return (startValue - startFeeValue, endValue - endFeeValue)
+            }
         }
     }
     
@@ -183,7 +191,7 @@ struct TaxAdviser {
         for daysPassed in 0...daysMissing {
             let date = Calendar.current.date(byAdding: .day, value: daysPassed, to: startDate)!
             
-            guard let exchangeValue = getExchangeValue(for: transaction) else {
+            guard let exchangeValue = getExchangeValue(for: transaction, on: date, valueType: .total) else {
                 return nil
             }
             
@@ -283,31 +291,32 @@ struct TaxAdviser {
         
         guard let exchangeRate = exchangeRateManager.getExchangeRate(for: token.currencyPair, on: date) else {
             // token is probaby not listed on exchange
-//            log.warning("Failed to get exchange value for token '\(token.logDescription)'.")
             return nil
         }
         
         return exchangeRate * token.balance
     }
     
-    func getProfitStats(for token: Token, timeframe: ProfitTimeframe) -> (startValue: Double, endValue: Double)? {
-        fatalError("This method has not been implemented.")
-    }
-    
-    func getExchangeValueHistory(for token: Token, since date: Date) -> [(date: Date, value: Double)]? {
-        fatalError("This method has not been implemented.")
-    }
-    
-    func getAbsoluteProfitHistory(for token: Token, since date: Date) -> [(date: Date, profit: Double)]? {
-        fatalError("This method has not been implemented.")
-    }
+//    func getProfitStats(for token: Token, timeframe: ProfitTimeframe) -> (startValue: Double, endValue: Double)? {
+//        fatalError("This method has not been implemented.")
+//    }
+//
+//    func getExchangeValueHistory(for token: Token, since date: Date) -> [(date: Date, value: Double)]? {
+//        fatalError("This method has not been implemented.")
+//    }
+//
+//    func getAbsoluteProfitHistory(for token: Token, since date: Date) -> (baseline: Double, history: [(date: Date, profit: Double)])? {
+//        fatalError("This method has not been implemented.")
+//    }
     
     // MARK: Address
     /// returns balance for specified transaction type on specified date
     func getExchangeValue(for address: Address, on date: Date, type: TransactionType) -> (balance: Double, value: Double)? {
-        guard !date.isFuture, let balance = address.getBalance(on: date, type: type), let exchangeRate = exchangeRateManager.getExchangeRate(for: address.currencyPair, on: date) else {
+        guard !date.isFuture, let exchangeRate = exchangeRateManager.getExchangeRate(for: address.currencyPair, on: date) else {
             return nil
         }
+        
+        let balance = address.getBalance(on: date, type: type)
         
         return (balance, exchangeRate * balance)
     }
@@ -316,17 +325,32 @@ struct TaxAdviser {
     func getProfitStats(for address: Address, timeframe: ProfitTimeframe, type: TransactionType) -> (startValue: Double, endValue: Double)? {
         var startValue = 0.0
         var endValue = 0.0
+
         let transactions = address.getTransactions(type: type)
-        
+
         for transaction in transactions {
-            guard let profitStats = getProfitStats(for: transaction, timeframe: timeframe) else {
-                return nil
+            guard !transaction.isError else {
+                // fee is paid nevertheless
+                if transaction.isOutbound {
+                    guard let profitStats = getProfitStats(for: transaction, timeframe: timeframe, valueType: .fee) else {
+                        return nil
+                    }
+                    
+                    startValue = startValue + profitStats.startValue
+                    endValue = endValue + profitStats.endValue
+                }
+                
+                continue
             }
             
+            guard let profitStats = getProfitStats(for: transaction, timeframe: timeframe, valueType: .total) else {
+                return nil
+            }
+
             startValue = startValue + profitStats.startValue
             endValue = endValue + profitStats.endValue
         }
-        
+
         return (startValue, endValue)
     }
     
@@ -379,44 +403,71 @@ struct TaxAdviser {
         return exchangeValueHistory
     }
     
-    func getAbsoluteProfitHistory(for address: Address, since date: Date, type: TransactionType) -> (baseline: Double, history: [(date: Date, profit: Double)])? {
-        guard !date.isToday, !date.isFuture, address.storedTransactions.count > 0 else {
-            return nil
-        }
-        
-        let transactions = address.getTransactions(type: type)
-        var profitHistory = [(Date, Double)]()
-        var baseline = 0.0
-        
-        for (index, transaction) in transactions.enumerated() {
-            guard let absoluteProfitHistory = getAbsoluteProfitHistory(for: transaction, since: date) else {
-                return nil
-            }
-            
-            baseline = baseline + absoluteProfitHistory.baseline
-            
-            if index == 0 {
-                profitHistory = absoluteProfitHistory.history
-            } else {
-                profitHistory = zip(profitHistory, absoluteProfitHistory.history).map { ($0.0, $0.1 + $1.1) }
-            }
-        }
-        
-        return (baseline, profitHistory)
-    }
-    
-    func getRelativeProfitHistory(for address: Address, since date: Date, type: TransactionType) -> (baseline: Double, history: [(date: Date, profit: Double)])? {
-        guard let absoluteProfitHistory = getAbsoluteProfitHistory(for: address, since: date, type: type) else {
-            return nil
-        }
-        
-        let baseline = absoluteProfitHistory.baseline
-        
-        return (baseline, absoluteProfitHistory.history.map { arg in
-            let (date, profit) = arg
-            return (date, baseline + profit / baseline * 100)
-        })
-    }
+//    func getPotentialExchangeValueHistory(for address: Address, since date: Date, type: TransactionType) -> [(date: Date, value: Double)]? {
+//        guard !date.isToday, !date.isFuture else {
+//            return nil
+//        }
+//
+//        let transactions = address.getTransactions(type: type)
+//        var exchangeHistory = [(date: Date, value: Double)]()
+//
+//        for (index, transaction) in transactions.enumerated() {
+//            guard var exchangeValueHistory = getExchangeValueHistory(for: transaction, since: date) else {
+//                return nil
+//            }
+//
+//            if transaction.isOutbound {
+//                exchangeValueHistory = exchangeValueHistory.map { ($0.date, $0.value * -1) }
+//            }
+//
+//            if index == 0 {
+//                exchangeHistory = exchangeValueHistory
+//            } else {
+//                exchangeHistory = zip(exchangeHistory, exchangeValueHistory).map { ($0.date, $0.value + $1.value) }
+//            }
+//        }
+//
+//        return exchangeHistory
+//    }
+//
+//    func getPotentialAbsoluteProfitHistory(for address: Address, since date: Date, type: TransactionType) -> (baseline: Double, history: [(date: Date, profit: Double)])? {
+//        guard !date.isToday, !date.isFuture, address.storedTransactions.count > 0 else {
+//            return nil
+//        }
+//
+//        let transactions = address.getTransactions(type: type)
+//        var profitHistory = [(Date, Double)]()
+//        var baseline = 0.0
+//
+//        for (index, transaction) in transactions.enumerated() {
+//            guard let absoluteProfitHistory = getAbsoluteProfitHistory(for: transaction, since: date) else {
+//                return nil
+//            }
+//
+//            baseline = baseline + absoluteProfitHistory.baseline
+//
+//            if index == 0 {
+//                profitHistory = absoluteProfitHistory.history
+//            } else {
+//                profitHistory = zip(profitHistory, absoluteProfitHistory.history).map { ($0.0, $0.1 + $1.1) }
+//            }
+//        }
+//
+//        return (baseline, profitHistory)
+//    }
+//
+//    func getPotentialRelativeProfitHistory(for address: Address, since date: Date, type: TransactionType) -> (baseline: Double, history: [(date: Date, profit: Double)])? {
+//        guard let absoluteProfitHistory = getPotentialAbsoluteProfitHistory(for: address, since: date, type: type) else {
+//            return nil
+//        }
+//
+//        let baseline = absoluteProfitHistory.baseline
+//
+//        return (baseline, absoluteProfitHistory.history.map { arg in
+//            let (date, profit) = arg
+//            return (date, baseline + profit / baseline * 100)
+//        })
+//    }
     
     // MARK: TokenAddress
     func getTokenExchangeValue(for tokenAddress: TokenAddress, on date: Date) -> Double {
@@ -435,14 +486,6 @@ struct TaxAdviser {
     }
     
     // MARK: Portfolio
-    func getTotalExchangeValue(for portfolio: Portfolio) -> Double? {
-        guard let balanceExchangeValue = getExchangeValue(for: portfolio, on: Date(), type: .all), let tokenExchangeValue = getTokenExchangeValue(for: portfolio, on: Date()) else {
-            return nil
-        }
-
-        return balanceExchangeValue + tokenExchangeValue
-    }
-    
     /// returns exchange value of all stored addresses on speicfied date, nil if date is today or in the future
     func getExchangeValue(for portfolio: Portfolio, on date: Date, type: TransactionType) -> Double? {
         var value = 0.0
@@ -461,6 +504,14 @@ struct TaxAdviser {
     func getTokenExchangeValue(for portfolio: Portfolio, on date: Date) -> Double? {
         let storedTokenAddresses = (portfolio.storedAddresses.filter({ $0 is TokenAddress }) as! [TokenAddress])
         return storedTokenAddresses.reduce(0, { $0 + getTokenExchangeValue(for: $1, on: date)})
+    }
+    
+    func getTotalExchangeValue(for portfolio: Portfolio) -> Double? {
+        guard let balanceExchangeValue = getExchangeValue(for: portfolio, on: Date(), type: .all), let tokenExchangeValue = getTokenExchangeValue(for: portfolio, on: Date()) else {
+            return nil
+        }
+        
+        return balanceExchangeValue + tokenExchangeValue
     }
     
     /// returns the absolute profit generated from all stored addresses
@@ -503,43 +554,43 @@ struct TaxAdviser {
     }
 
     /// returns absolute profit history of all stored addresses since specified date, nil if date is today or in the future
-    func getAbsoluteProfitHistory(for portfolio: Portfolio, since date: Date, type: TransactionType) -> (baseline: Double, history: [(date: Date, profit: Double)])? {
-        guard !date.isToday, !date.isFuture else {
-            return nil
-        }
-
-        var profitHistory = [(Date, Double)]()
-        var baseline = 0.0
-
-        for (index, address) in portfolio.storedAddresses.enumerated() {
-            guard let absoluteProfitHistory = getAbsoluteProfitHistory(for: address, since: date, type: type) else {
-                return nil
-            }
-
-            baseline = baseline + absoluteProfitHistory.baseline
-            
-            if index == 0 {
-                profitHistory = absoluteProfitHistory.history
-            } else {
-                profitHistory = zip(profitHistory, absoluteProfitHistory.history).map { ($0.0, $0.1 + $1.1) }
-            }
-        }
-
-        return (baseline, profitHistory)
-    }
+//    func getPotentialAbsoluteProfitHistory(for portfolio: Portfolio, since date: Date, type: TransactionType) -> (baseline: Double, history: [(date: Date, profit: Double)])? {
+//        guard !date.isToday, !date.isFuture else {
+//            return nil
+//        }
+//
+//        var profitHistory = [(Date, Double)]()
+//        var baseline = 0.0
+//
+//        for (index, address) in portfolio.storedAddresses.enumerated() {
+//            guard let absoluteProfitHistory = getPotentialAbsoluteProfitHistory(for: address, since: date, type: type) else {
+//                return nil
+//            }
+//
+//            baseline = baseline + absoluteProfitHistory.baseline
+//
+//            if index == 0 {
+//                profitHistory = absoluteProfitHistory.history
+//            } else {
+//                profitHistory = zip(profitHistory, absoluteProfitHistory.history).map { ($0.0, $0.1 + $1.1) }
+//            }
+//        }
+//
+//        return (baseline, profitHistory)
+//    }
     
-    func getRelativeProfitHistory(for portfolio: Portfolio, since date: Date, type: TransactionType) -> (baseline: Double, history: [(date: Date, profit: Double)])? {
-        guard let absoluteProfitHistory = getAbsoluteProfitHistory(for: portfolio, since: date, type: type) else {
-            return nil
-        }
-        
-        let baseline = absoluteProfitHistory.baseline
-        
-        return (baseline, absoluteProfitHistory.history.map { arg in
-            let (date, profit) = arg
-            return (date, ((baseline + profit) / baseline * 100) - 100)
-        })
-    }
+//    func getRelativeProfitHistory(for portfolio: Portfolio, since date: Date, type: TransactionType) -> (baseline: Double, history: [(date: Date, profit: Double)])? {
+//        guard let absoluteProfitHistory = getPotentialAbsoluteProfitHistory(for: portfolio, since: date, type: type) else {
+//            return nil
+//        }
+//
+//        let baseline = absoluteProfitHistory.baseline
+//
+//        return (baseline, absoluteProfitHistory.history.map { arg in
+//            let (date, profit) = arg
+//            return (date, ((baseline + profit) / baseline * 100) - 100)
+//        })
+//    }
     
     // MARK: Addresses
     /// returns exchange value of selected addresses on specified date
@@ -596,43 +647,65 @@ struct TaxAdviser {
         return valueHistory
     }
     
-    /// returns absolute profit history of selected addresses since specified date
-    func getAbsoluteProfitHistory(for addresses: [Address], since date: Date, type: TransactionType) -> (baseline: Double, history: [(date: Date, profit: Double)])? {
-        guard !date.isToday, !date.isFuture else {
-            return nil
-        }
-        
-        var profitHistory = [(Date, Double)]()
-        var baseline = 0.0
-        
-        for (index, address) in addresses.enumerated() {
-            guard let absoluteProfitHistory = getAbsoluteProfitHistory(for: address, since: date, type: type) else {
-                return nil
-            }
-            
-            baseline = baseline + absoluteProfitHistory.baseline
-            
-            if index == 0 {
-                profitHistory = absoluteProfitHistory.history
-            } else {
-                profitHistory = zip(profitHistory, absoluteProfitHistory.history).map { ($0.0, $0.1 + $1.1) }
-            }
-        }
-        
-        return (baseline, profitHistory)
-    }
-    
-    func getRelativeProfitHistory(for addresses: [Address], since date: Date, type: TransactionType) -> (baseline: Double, history: [(date: Date, profit: Double)])? {
-        guard let absoluteProfitHistory = getAbsoluteProfitHistory(for: addresses, since: date, type: type) else {
-            return nil
-        }
-        
-        let baseline = absoluteProfitHistory.baseline
-        
-        return (baseline, absoluteProfitHistory.history.map { arg in
-            let (date, profit) = arg
-            return (date, ((baseline + profit) / baseline * 100) - 100)
-        })
-    }
+//    func getPotentialExchangeValueHistory(for addresses: [Address], since date: Date, type: TransactionType) -> [(date: Date, value: Double)]? {
+//        guard !date.isToday, !date.isFuture else {
+//            return nil
+//        }
+//        
+//        var valueHistory = [(Date, Double)]()
+//        
+//        for (index, address) in addresses.enumerated() {
+//            guard let exchangeValueHistory = getPotentialExchangeValueHistory(for: address, since: date, type: type) else {
+//                return nil
+//            }
+//            
+//            if index == 0 {
+//                valueHistory = exchangeValueHistory
+//            } else {
+//                valueHistory = zip(valueHistory, exchangeValueHistory).map { ($0.0, $0.1 + $1.1) }
+//            }
+//        }
+//        
+//        return valueHistory
+//    }
+//    
+//    /// returns absolute profit history of selected addresses since specified date
+//    func getPotentialAbsoluteProfitHistory(for addresses: [Address], since date: Date, type: TransactionType) -> (baseline: Double, history: [(date: Date, profit: Double)])? {
+//        guard !date.isToday, !date.isFuture else {
+//            return nil
+//        }
+//        
+//        var profitHistory = [(Date, Double)]()
+//        var baseline = 0.0
+//        
+//        for (index, address) in addresses.enumerated() {
+//            guard let absoluteProfitHistory = getPotentialAbsoluteProfitHistory(for: address, since: date, type: type) else {
+//                return nil
+//            }
+//            
+//            baseline = baseline + absoluteProfitHistory.baseline
+//            
+//            if index == 0 {
+//                profitHistory = absoluteProfitHistory.history
+//            } else {
+//                profitHistory = zip(profitHistory, absoluteProfitHistory.history).map { ($0.0, $0.1 + $1.1) }
+//            }
+//        }
+//        
+//        return (baseline, profitHistory)
+//    }
+//    
+//    func getPotentialRelativeProfitHistory(for addresses: [Address], since date: Date, type: TransactionType) -> (baseline: Double, history: [(date: Date, profit: Double)])? {
+//        guard let absoluteProfitHistory = getPotentialAbsoluteProfitHistory(for: addresses, since: date, type: type) else {
+//            return nil
+//        }
+//        
+//        let baseline = absoluteProfitHistory.baseline
+//        
+//        return (baseline, absoluteProfitHistory.history.map { arg in
+//            let (date, profit) = arg
+//            return (date, ((baseline + profit) / baseline * 100) - 100)
+//        })
+//    }
     
 }
